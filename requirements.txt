@@ -1,0 +1,4 @@
+paho-mqtt
+pycryptodome
+homeassistant
+voluptuous

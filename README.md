@@ -1,7 +1,9 @@
 # homeassistant-roborock
-# Roborock api implemented in python
 
-This is repository contains python scripts based on https://gist.github.com/rovo89/dff47ed19fca0dfdda77503e66c2b7c7
+Real early stage integration for Roborock vacuums
 
-Run python login.py <username> <password> to generate your data
-Rua python test.py after the data is generated to get device info
+Thanks for @rovo89 for making this script available https://gist.github.com/rovo89/dff47ed19fca0dfdda77503e66c2b7c7
+
+Import this repository to hacs and add roborock integration. 
+
+Within the config flow the first field is your username and the second one is your password

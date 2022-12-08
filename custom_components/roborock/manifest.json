@@ -1,0 +1,16 @@
+{
+  "domain": "roborock",
+  "name": "Roborock",
+  "config_flow": true,
+  "documentation": "https://github.com/humbertogontijo/homeassistant-roborock",
+  "issue_tracker": "https://github.com/humbertogontijo/homeassistant-roborock/issues",
+  "requirements": [
+    "paho-mqtt",
+    "pycryptodome"
+  ],
+  "version": "0.0.0",
+  "iot_class": "cloud_polling",
+  "codeowners": [
+    "@humbertogontijo"
+  ]
+}

@@ -1,0 +1,308 @@
+# api.py
+import asyncio
+import base64
+import binascii
+import functools
+import hashlib
+import hmac
+import json
+import logging
+import math
+import secrets
+import struct
+import sys
+import time
+from urllib.parse import urlparse
+
+import requests
+import paho.mqtt.client as mqtt
+from Crypto.Cipher import AES
+from Crypto.Util.Padding import pad
+
+_LOGGER = logging.getLogger(__name__)
+
+
+def md5hex(message: str):
+    md5 = hashlib.md5()
+    md5.update(message.encode())
+    return md5.hexdigest()
+
+
+def md5bin(message: str):
+    md5 = hashlib.md5()
+    md5.update(message.encode())
+    return md5.digest()
+
+
+def encode_timestamp(_timestamp: int):
+    hex_value = f"{_timestamp:x}".zfill(8)
+    return "".join(list(map(lambda idx: hex_value[idx], [5, 6, 3, 7, 1, 2, 0, 4])))
+
+
+class RoborockDeviceInfo:
+    def __init__(self, manufacturer="", serial_nr="", model_nr="", device_name=""):
+        self.manufacturer = manufacturer
+        self.serial_nr = serial_nr
+        self.model_nr = model_nr
+        self.device_name = device_name
+
+    def __str__(self):
+        return "Manufacturer: {} Model: {} Serial: {} Device:{}".format(
+            self.manufacturer, self.model_nr, self.serial_nr, self.device_name
+        )
+
+
+class PreparedRequest:
+    def __init__(self, base_url: str, base_headers: dict = None):
+        self.base_url = base_url
+        self.base_headers = base_headers or {}
+        self._loop = asyncio.get_running_loop()
+
+    async def request(
+        self, method: str, url: str, params=None, data=None, headers=None
+    ):
+        _url = "/".join(s.strip("/") for s in [self.base_url, url])
+        _headers = {**self.base_headers, **(headers or {})}
+        return await self._loop.run_in_executor(
+            None,
+            functools.partial(
+                requests.request,
+                method,
+                _url,
+                params=params,
+                data=data,
+                headers=_headers,
+            ),
+        )
+
+
+class RoborockMqttClient:
+    def __init__(self, rriot: dict, local_keys: dict):
+        self._hashed_password = None
+        self._hashed_user = None
+        self.client: mqtt.Client | None = None
+        self._seq = 1
+        self._random = 4711
+        self._id_counter = 1
+        self._salt = "TXdfu$jyZ#TZHsg4"
+        self._mqtt_user = rriot.get("u")
+        self._mqtt_password = rriot.get("s")
+        self._mqtt_domain = rriot.get("k")
+        url = urlparse(rriot.get("r").get("m"))
+        self._mqtt_host = url.hostname
+        self._mqtt_port = url.port
+        self._mqtt_ssl = url.scheme == "ssl"
+        self._local_keys = local_keys
+        self._endpoint = base64.b64encode(md5bin(self._mqtt_domain)[8:14]).decode()
+        self._nonce = secrets.token_bytes(16).hex()
+
+    def connect(self):
+        self._hashed_user = md5hex(self._mqtt_user + ":" + self._mqtt_domain)[2:10]
+        self._hashed_password = md5hex(self._mqtt_password + ":" + self._mqtt_domain)[
+            16:
+        ]
+        client = mqtt.Client()
+
+        def on_connect(_client: mqtt.Client, userdata, flags, rc):
+            if rc != 0:
+                raise Exception("Failed to connect.")
+            (result, mid) = _client.subscribe(
+                f"rr/m/o/{self._mqtt_user}/{self._hashed_user}/#"
+            )
+            if result != 0:
+                raise Exception("Failed to subscribe.")
+
+        def on_message(_client, userdata, msg):
+            device_id = msg.topic.split("/").pop()
+            data = self.decode_msg(msg.payload, self._local_keys.get(device_id))
+            print(msg.topic + " " + str(data))
+
+        def on_subscribe(_client, userdata, mid, granted_qos):
+            _LOGGER.info("Roborock subscribed to mqtt")
+            # device_id = list(self._local_keys.keys())[0]
+            # self.send_request(device_id, 'get_prop', ['get_status'])
+            # send_request(device_id, 'get_map_v1', [], True)
+            # send_request(device_id, 'app_start', [], True)
+
+        client.on_connect = on_connect
+        client.on_message = on_message
+        client.on_subscribe = on_subscribe
+
+        if self._mqtt_ssl:
+            client.tls_set()
+        client.username_pw_set(self._hashed_user, self._hashed_password)
+        client.connect(host=self._mqtt_host, port=self._mqtt_port, keepalive=30)
+        self.client = client
+
+    def decode_msg(self, msg, local_key):
+        if msg[0:3] != "1.0".encode():
+            raise Exception("Unknown protocol version")
+        crc32 = binascii.crc32(msg[0 : len(msg) - 4])
+        expected_crc32 = struct.unpack_from("!I", msg, len(msg) - 4)
+        if crc32 != expected_crc32[0]:
+            raise Exception(f"Wrong CRC32 {crc32}, expected {expected_crc32}")
+
+        [version, _seq, _random, timestamp, protocol, payload_len] = struct.unpack(
+            "!3sIIIHH", msg[0:19]
+        )
+        [payload, crc32] = struct.unpack_from(f"!{payload_len}sI", msg, 19)
+        aes_key = md5bin(encode_timestamp(timestamp) + local_key + self._salt)
+        decipher = AES.new(aes_key, AES.MODE_ECB)
+        decrypter_payload = decipher.decrypt(pad(payload, len(aes_key)))
+        return json.loads(decrypter_payload[0 : len(decrypter_payload) - 27].decode())
+
+    def send_msg_raw(self, device_id, protocol, timestamp, payload):
+        local_key = self._local_keys.get(device_id)
+        aes_key = md5bin(encode_timestamp(timestamp) + local_key + self._salt)
+        cipher = AES.new(aes_key, AES.MODE_ECB)
+        encrypted = cipher.encrypt(pad(payload, len(aes_key)))
+        msg = struct.pack("3s", "1.0".encode())
+        msg += struct.pack("!I", self._seq)
+        msg += struct.pack("!I", self._random)
+        msg += struct.pack("!I", timestamp)
+        msg += struct.pack("!H", protocol)
+        msg += struct.pack("!H", len(encrypted))
+        msg = msg[0:19] + encrypted
+        crc32 = binascii.crc32(msg)
+        msg += struct.pack("!I", crc32)
+        info = self.client.publish(
+            f"rr/m/i/{self._mqtt_user}/{self._hashed_user}/{device_id}", msg
+        )
+        if info.rc != 0:
+            raise Exception("Failed to publish")
+        self.client.message_callback()
+
+    def send_request(self, device_id, method, params, secure=False):
+        timestamp = math.floor(time.time())
+        request_id = self._id_counter
+        self._id_counter += 1
+        inner = {"id": request_id, "method": method, "params": params}
+        if secure:
+            inner['security'] = {
+                "endpoint": self._endpoint,
+                "nonce": self._nonce.upper(),
+            }
+        payload = bytes(
+            json.dumps(
+                {
+                    "t": timestamp,
+                    "dps": {"101": json.dumps(inner, separators=(",", ":"))},
+                },
+                separators=(",", ":"),
+            ).encode()
+        )
+        self.send_msg_raw(device_id, 101, timestamp, payload)
+
+
+class RoborockClient:
+    def __init__(self, username: str, password: str) -> None:
+        """Sample API Client."""
+        self._username = username
+        self._password = password
+        self.devices = []
+        self._default_url = "https://euiot.roborock.com"
+        self._mqtt_client: RoborockMqttClient | None = None
+
+    async def login(self):
+        # Scan for Roborock devices.
+        url_request = PreparedRequest(self._default_url)
+        response = (
+            await url_request.request(
+                "post",
+                "/api/v1/getUrlByEmail",
+                params={"email": self._username, "needtwostepauth": "false"},
+            )
+        ).json()
+        base_url = response.get("data").get("url")
+
+        md5 = hashlib.md5()
+        md5.update(self._username.encode())
+        md5.update("should_be_unique".encode())
+        header_clientid = base64.b64encode(md5.digest()).decode()
+
+        login_request = PreparedRequest(base_url, {"header_clientid": header_clientid})
+
+        user_data = (
+            (
+                await login_request.request(
+                    "post",
+                    "/api/v1/login",
+                    params={
+                        "username": self._username,
+                        "password": self._password,
+                        "needtwostepauth": "false",
+                    },
+                )
+            )
+            .json()
+            .get("data")
+        )
+
+        rriot = user_data.get("rriot")
+
+        home_id = (
+            (
+                await login_request.request(
+                    "get",
+                    "/api/v1/getHomeDetail",
+                    headers={"Authorization": user_data.get("token")},
+                )
+            )
+            .json()
+            .get("data")
+            .get("rrHomeId")
+        )
+        timestamp = math.floor(time.time())
+        nonce = secrets.token_urlsafe(6)
+        prestr = ":".join(
+            [
+                rriot.get("u"),
+                rriot.get("s"),
+                nonce,
+                str(timestamp),
+                hashlib.md5(("/user/homes/" + str(home_id)).encode()).hexdigest(),
+                "",
+                "",
+            ]
+        )
+        mac = base64.b64encode(
+            hmac.new(rriot.get("h").encode(), prestr.encode(), hashlib.sha256).digest()
+        ).decode()
+        home_request = PreparedRequest(
+            rriot.get("r").get("a"),
+            {
+                "Authorization": f'Hawk id="{rriot.get("u")}", s="{rriot.get("s")}", ts="{timestamp}", nonce="{nonce}", '
+                f'mac="{mac}"',
+            },
+        )
+        home_data = (
+            (await home_request.request("get", "/user/homes/" + str(home_id)))
+            .json()
+            .get("result")
+        )
+        self.devices = home_data.get("devices") + home_data.get("receivedDevices")
+        local_keys = dict(
+            map(
+                lambda device: tuple([device.get("duid"), device.get("localKey")]),
+                self.devices,
+            )
+        )
+        self._mqtt_client = RoborockMqttClient(rriot, local_keys)
+
+    def connect_to_mqtt(self):
+        self._mqtt_client.connect()
+
+    def send_request(self, device_id, method, params, secure=False):
+        self._mqtt_client.send_request(device_id, method, params, secure)
+
+
+async def main():
+    logging.basicConfig()
+    _LOGGER.setLevel(logging.INFO)
+    client = RoborockClient(sys.argv[1], sys.argv[2])
+    await client.login()
+    client.connect_to_mqtt()
+
+
+if __name__ == "__main__":
+    asyncio.run(main())

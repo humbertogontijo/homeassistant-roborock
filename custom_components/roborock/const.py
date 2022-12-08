@@ -1,0 +1,6 @@
+DOMAIN = "roborock"
+CONF_ENTRY_USERNAME = "username"
+CONF_ENTRY_PASSWORD = "password"
+VACUUM = "vacuum"
+PLATFORMS = [VACUUM]
+DEFAULT_NAME = DOMAIN

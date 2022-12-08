@@ -2,3 +2,6 @@ homedata.json
 userdata.json
 venv
 .idea
+.devcontainer
+.vscode
+custom_components/roborock/__pycache__
