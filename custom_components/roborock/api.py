@@ -221,7 +221,7 @@ class RoborockMqttClient:
                 separators=(",", ":"),
             ).encode()
         )
-        _LOGGER.debug(f"Requesting method {method}")
+        _LOGGER.debug(f"Requesting method {method} with {params}")
         self._send_msg_raw(device_id, 101, timestamp, payload)
         queue = Queue()
         self._waiting_queue[request_id] = queue

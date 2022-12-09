@@ -1,11 +1,8 @@
 import logging
-import time
-from typing import Any
 
 from homeassistant.components.vacuum import VacuumEntityFeature, StateVacuumEntity
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.core import HomeAssistant
-from homeassistant.helpers.device_registry import format_mac
 from homeassistant.helpers.entity import DeviceInfo
 from homeassistant.helpers.entity_platform import AddEntitiesCallback
 
@@ -40,6 +37,8 @@ STATE_CODE_TO_STRING = {
     101: "Device offline",
 }
 
+FAN_SPEEDS = {101: "Silent", 102: "Balanced", 103: "Turbo", 104: "Max"}
+
 
 async def async_setup_entry(
         hass: HomeAssistant,
@@ -61,22 +60,17 @@ class RoborockVacuum(StateVacuumEntity):
         self._name = device.get("name")
         self._device = device
         self._client = client
-        self._status = None
-        self._last_update = time.time()
+        self._status = {}
         _LOGGER.debug(f"Added sensor entity {self._name}")
 
-    def send(self, command: str, params: list[Any] | None = None):
+    def send(self, command: str, params: list | None = None):
         """Send a command to a vacuum cleaner."""
         return self._client.send_request(
             self._device.get("duid"), command, params, True
         )
 
-    def get_status(self):
-        now = time.time()
-        if self._status is None or now - self._last_update > 10:
-            self._status = self.send("get_status")
-            self._last_update = time.time()
-        return self._status
+    def update(self):
+        self._status = self.send("get_status")
 
     @property
     def supported_features(self) -> int:
@@ -93,11 +87,11 @@ class RoborockVacuum(StateVacuumEntity):
                 + VacuumEntityFeature.SEND_COMMAND
                 + VacuumEntityFeature.LOCATE
                 + VacuumEntityFeature.CLEAN_SPOT
-                + VacuumEntityFeature.MAP
                 + VacuumEntityFeature.STATE
                 + VacuumEntityFeature.START
+            # + VacuumEntityFeature.MAP
         )
-        return VacuumEntityFeature(features)
+        return features
 
     @property
     def device_info(self) -> DeviceInfo:
@@ -120,7 +114,7 @@ class RoborockVacuum(StateVacuumEntity):
 
     @property
     def unique_id(self):
-        return format_mac(self._device.get("duid"))
+        return self._device.get("duid")
 
     @property
     def state(self) -> str | None:
@@ -130,22 +124,27 @@ class RoborockVacuum(StateVacuumEntity):
     @property
     def status(self) -> str | None:
         """Return the status of the vacuum cleaner."""
-        return STATE_CODE_TO_STRING.get(self.get_status().get("state"))
+        return STATE_CODE_TO_STRING.get(self._status.get("state"))
 
     @property
     def battery_level(self) -> int | None:
         """Return the battery level of the vacuum cleaner."""
-        return self.get_status().get("battery")
+        return self._status.get("battery")
 
     @property
     def fan_speed(self) -> str | None:
         """Return the fan speed of the vacuum cleaner."""
-        return self.get_status().get("fan_power")
+        return FAN_SPEEDS.get(self._status.get("fan_power"))
 
     @property
     def fan_speed_list(self) -> list[str]:
         """Get the list of available fan speed steps of the vacuum cleaner."""
-        return ["101", "102", "103", "104"]
+        return list(FAN_SPEEDS.values())
+
+    @property
+    def map(self):
+        """Return map token."""
+        return self.send("get_map_v1")
 
     def start(self) -> None:
         self.send("app_start")
@@ -153,29 +152,31 @@ class RoborockVacuum(StateVacuumEntity):
     def pause(self) -> None:
         self.send("app_stop")
 
-    def stop(self, **kwargs: Any) -> None:
+    def stop(self, **kwargs: any) -> None:
         self.send("app_stop")
 
-    def return_to_base(self, **kwargs: Any) -> None:
+    def return_to_base(self, **kwargs: any) -> None:
         self.send("app_charge")
 
-    def clean_spot(self, **kwargs: Any) -> None:
+    def clean_spot(self, **kwargs: any) -> None:
         self.send("app_spot")
 
-    def locate(self, **kwargs: Any) -> None:
+    def locate(self, **kwargs: any) -> None:
         self.send("find_me")
 
-    def set_fan_speed(self, fan_speed: str, **kwargs: Any) -> None:
-        self.send("set_custom_mode", [fan_speed])
+    def set_fan_speed(self, fan_speed: str, **kwargs: any) -> None:
+        self.send(
+            "set_custom_mode", [k for k, v in FAN_SPEEDS.items() if v == fan_speed]
+        )
 
     def send_command(
             self,
             command: str,
-            params: dict[str, Any] | list[Any] | None = None,
-            **kwargs: Any,
+            params: dict[str, any] | list[any] | None = None,
+            **kwargs: any,
     ) -> None:
         """Send a command to a vacuum cleaner."""
         return self.send(command, params)
 
-    def start_pause(self, **kwargs: Any) -> None:
+    def start_pause(self, **kwargs: any) -> None:
         self.send("app_pause")
