@@ -6,7 +6,10 @@
   "issue_tracker": "https://github.com/humbertogontijo/homeassistant-roborock/issues",
   "requirements": [
     "paho-mqtt",
-    "pycryptodome"
+    "pycryptodome",
+    "ndg-httpsclient",
+    "pyopenssl",
+    "pyasn1"
   ],
   "version": "0.0.0",
   "iot_class": "cloud_polling",

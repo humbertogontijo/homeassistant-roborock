@@ -1,4 +1,9 @@
+requests
 paho-mqtt
 pycryptodome
+pycryptodomex; sys_platform == 'darwin'
 homeassistant
 voluptuous
+ndg-httpsclient
+pyopenssl
+pyasn1
