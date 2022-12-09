@@ -63,7 +63,7 @@ class RoborockVacuum(StateVacuumEntity):
         self._status = {}
         _LOGGER.debug(f"Added sensor entity {self._name}")
 
-    def send(self, command: str, params: list | None = None):
+    def send(self, command: str, params=None):
         """Send a command to a vacuum cleaner."""
         return self._client.send_request(
             self._device.get("duid"), command, params, True

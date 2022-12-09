@@ -22,6 +22,7 @@ from Crypto.Cipher import AES
 from Crypto.Util.Padding import pad, unpad
 
 _LOGGER = logging.getLogger(__name__)
+QUEUE_TIMEOUT = 10
 
 
 def md5hex(message: str):
@@ -69,7 +70,7 @@ class PreparedRequest:
         self.base_headers = base_headers or {}
 
     async def request(
-        self, method: str, url: str, params=None, data=None, headers=None
+            self, method: str, url: str, params=None, data=None, headers=None
     ):
         _url = "/".join(s.strip("/") for s in [self.base_url, url])
         _headers = {**self.base_headers, **(headers or {})}
@@ -112,8 +113,8 @@ class RoborockMqttClient:
     def connect(self):
         self._hashed_user = md5hex(self._mqtt_user + ":" + self._mqtt_domain)[2:10]
         self._hashed_password = md5hex(self._mqtt_password + ":" + self._mqtt_domain)[
-            16:
-        ]
+                                16:
+                                ]
         client = mqtt.Client()
 
         def on_connect(_client: mqtt.Client, userdata, flags, rc):
@@ -134,22 +135,29 @@ class RoborockMqttClient:
                 request_id = dps.get("id")
                 queue = self._waiting_queue.get(request_id)
                 if queue is not None:
-                    data = dps.get("result")[0]
-                    queue.put(data)
-            else:
-                if dps.keys().__contains__("301"):
-                    payload = data.get("payload")[0:24]
-                    [endpoint, unknown1, request_id, unknown2] = struct.unpack(
-                        "<15sBH6s", payload
-                    )
-                    if self._endpoint.startswith(endpoint):
-                        iv = bytes(16)
-                        decipher = AES.new(self._nonce.encode(), AES.MODE_ECB, iv)
-                        decrypted = decipher.decrypt(payload)
-                        decrypted = gzip.decompress(decrypted)
-                        queue = self._waiting_queue[request_id]
-                        if queue is not None:
-                            queue.put(decrypted)
+                    result = dps.get("result")
+                    if isinstance(result, list):
+                        result = result[0]
+                    queue.put(result, timeout=QUEUE_TIMEOUT)
+            if dps.keys().__contains__("301"):
+                payload = data.get("payload")[0:24]
+                [endpoint, unknown1, request_id, unknown2] = struct.unpack(
+                    "<15sBH6s", payload
+                )
+                if self._endpoint.startswith(endpoint):
+                    iv = bytes(16)
+                    decipher = AES.new(self._nonce.encode(), AES.MODE_ECB, iv)
+                    decrypted = decipher.decrypt(payload)
+                    decrypted = gzip.decompress(decrypted)
+                    queue = self._waiting_queue[request_id]
+                    if queue is not None:
+                        if isinstance(decrypted, list):
+                            decrypted = decrypted[0]
+                        queue.put(decrypted)
+            if dps.keys().__contains__("121"):
+                _LOGGER.debug("Remote control")
+            if dps.keys().__contains__("0"):
+                _LOGGER.info("Binary response not implemented yet")
 
         def on_subscribe(_client, userdata, mid, granted_qos):
             _LOGGER.info("Roborock subscribed to mqtt")
@@ -168,7 +176,7 @@ class RoborockMqttClient:
     def _decode_msg(self, msg, local_key):
         if msg[0:3] != "1.0".encode():
             raise Exception("Unknown protocol version")
-        crc32 = binascii.crc32(msg[0 : len(msg) - 4])
+        crc32 = binascii.crc32(msg[0: len(msg) - 4])
         expected_crc32 = struct.unpack_from("!I", msg, len(msg) - 4)
         if crc32 != expected_crc32[0]:
             raise Exception(f"Wrong CRC32 {crc32}, expected {expected_crc32}")
@@ -180,7 +188,10 @@ class RoborockMqttClient:
         aes_key = md5bin(encode_timestamp(timestamp) + local_key + self._salt)
         decipher = AES.new(aes_key, AES.MODE_ECB)
         decrypted_payload = unpad(decipher.decrypt(payload), payload_len)
-        return json.loads(decrypted_payload.decode())
+        try:
+            return json.loads(decrypted_payload.decode())
+        except Exception as e:
+            return {'dps': {'0': decrypted_payload}}
 
     def _send_msg_raw(self, device_id, protocol, timestamp, payload):
         local_key = self._local_keys.get(device_id)
@@ -225,7 +236,7 @@ class RoborockMqttClient:
         self._send_msg_raw(device_id, 101, timestamp, payload)
         queue = Queue()
         self._waiting_queue[request_id] = queue
-        response = queue.get()
+        response = queue.get(timeout=QUEUE_TIMEOUT)
         _LOGGER.debug(f"Response from {method}: {response}")
         return response
 
@@ -311,7 +322,7 @@ class RoborockClient:
             rriot.get("r").get("a"),
             {
                 "Authorization": f'Hawk id="{rriot.get("u")}", s="{rriot.get("s")}", ts="{timestamp}", nonce="{nonce}", '
-                f'mac="{mac}"',
+                                 f'mac="{mac}"',
             },
         )
         home_data = (
@@ -327,6 +338,7 @@ class RoborockClient:
 
     def connect_to_mqtt(self):
         self._mqtt_client.connect()
+
     def send_request(self, device_id: str, method: str, params: list, secure=False):
         try:
             return self._mqtt_client.send_request(device_id, method, params, secure)
