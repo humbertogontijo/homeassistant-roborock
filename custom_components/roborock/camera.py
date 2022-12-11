@@ -8,6 +8,7 @@ import PIL.Image as Image
 import voluptuous as vol
 from homeassistant.components.camera import Camera, SUPPORT_ON_OFF
 from homeassistant.helpers import config_validation as cv
+from homeassistant.helpers.entity import DeviceInfo
 
 from custom_components.roborock import RoborockClient
 from custom_components.roborock.common.image_handler import ImageHandlerRoborock
@@ -84,8 +85,16 @@ class VacuumCamera(Camera):
         self._map_data = None
         self._image = None
 
-    async def async_added_to_hass(self) -> None:
-        self.async_schedule_update_ha_state(True)
+
+    @property
+    def device_info(self) -> DeviceInfo:
+        """Return the device info."""
+        return DeviceInfo(
+            name=self._name,
+            identifiers={(DOMAIN, self._device.get("duid"))},
+            manufacturer="Roborock",
+            model=self._device.get("model"),
+        )
 
     @property
     def frame_interval(self) -> float:

@@ -14,7 +14,7 @@ _LOGGER = logging.getLogger(__name__)
 
 
 class RoborockFlowHandler(config_entries.ConfigFlow, domain=DOMAIN):
-    """Config flow for Blueprint."""
+    """Config flow for Roborock."""
 
     VERSION = 1
     CONNECTION_CLASS = config_entries.CONN_CLASS_CLOUD_POLL
@@ -27,9 +27,6 @@ class RoborockFlowHandler(config_entries.ConfigFlow, domain=DOMAIN):
         """Handle a flow initialized by the user."""
         self._errors = {}
 
-        if self._async_current_entries():
-            return self.async_abort(reason="single_instance_allowed")
-
         if user_input is not None:
             device = await self._test_connection(
                 user_input[CONF_ENTRY_USERNAME], user_input[CONF_ENTRY_PASSWORD]
@@ -39,7 +36,7 @@ class RoborockFlowHandler(config_entries.ConfigFlow, domain=DOMAIN):
                     title=device.get("name"), data=user_input
                 )
             else:
-                self._errors["base"] = "auth"
+                self._errors["base"] = "no_device"
 
             return await self._show_config_form(user_input)
 
@@ -80,12 +77,12 @@ class RoborockFlowHandler(config_entries.ConfigFlow, domain=DOMAIN):
             await client.login()
             return client.devices[0]
         except Exception as e:
-            self._errors["base"] = str(e)
+            self._errors["base"] = "auth"
             return None
 
 
 class RoborockOptionsFlowHandler(config_entries.OptionsFlow):
-    """Blueprint config flow options handler."""
+    """Roborock config flow options handler."""
 
     def __init__(self, config_entry):
         """Initialize HACS options flow."""
@@ -115,5 +112,5 @@ class RoborockOptionsFlowHandler(config_entries.OptionsFlow):
     async def _update_options(self):
         """Update config entry options."""
         return self.async_create_entry(
-            title=self.config_entry.data.get(CONF_ENTRY_USERNAME), data=self.options
+            title="", data=self.options
         )

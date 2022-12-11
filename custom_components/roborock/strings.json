@@ -1,0 +1,18 @@
+{
+  "config": {
+    "step": {
+      "user": {
+        "title": "Roborock",
+        "description": "Your app credentials",
+        "data": {
+          "username": "Username",
+          "password": "Password"
+        }
+      }
+    },
+    "error": {
+      "no_device": "No device found within your Roborock account",
+      "auth": "Failed to login. Check your credentials"
+    }
+  }
+}
