@@ -7,3 +7,4 @@ voluptuous
 ndg-httpsclient
 pyopenssl
 pyasn1
+pillow

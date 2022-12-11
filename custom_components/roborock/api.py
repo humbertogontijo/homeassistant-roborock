@@ -42,28 +42,6 @@ def encode_timestamp(_timestamp: int):
     return "".join(list(map(lambda idx: hex_value[idx], [5, 6, 3, 7, 1, 2, 0, 4])))
 
 
-def wait_until(predicate, timeout=5, period=0.25, *args, **kwargs):
-    mustend = time.time() + timeout
-    while time.time() < mustend:
-        if predicate(*args, **kwargs):
-            return True
-        time.sleep(period)
-    return False
-
-
-class RoborockDeviceInfo:
-    def __init__(self, manufacturer="", serial_nr="", model_nr="", device_name=""):
-        self.manufacturer = manufacturer
-        self.serial_nr = serial_nr
-        self.model_nr = model_nr
-        self.device_name = device_name
-
-    def __str__(self):
-        return "Manufacturer: {} Model: {} Serial: {} Device:{}".format(
-            self.manufacturer, self.model_nr, self.serial_nr, self.device_name
-        )
-
-
 class PreparedRequest:
     def __init__(self, base_url: str, base_headers: dict = None):
         self.base_url = base_url
@@ -331,20 +309,28 @@ class RoborockClient:
             .json()
             .get("result")
         )
-        self.devices = home_data.get("devices") + home_data.get("receivedDevices")
+        self.devices = []
+        for device in home_data.get("devices") + home_data.get("receivedDevices"):
+            product = next(
+                (product for product in home_data.get("products") if product.get("id") == device.get("productId")), {})
+            device.update({"model": product.get("model")})
+            self.devices.append(device)
         local_keys = {
             device.get("duid"): device.get("localKey") for device in self.devices
         }
         self._mqtt_client = RoborockMqttClient(rriot, local_keys)
 
     def connect_to_mqtt(self):
-        self._mqtt_client.connect()
+        if self._mqtt_client is not None:
+            self._mqtt_client.connect()
+        else:
+            raise Exception("You need to login first")
 
     def send_request(self, device_id: str, method: str, params: list, secure=False):
-        try:
+        if self._mqtt_client is not None:
             return self._mqtt_client.send_request(device_id, method, params, secure)
-        except Exception as e:
-            _LOGGER.error(e)
+        else:
+            raise Exception("You need to login first")
 
 
 async def main():

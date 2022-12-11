@@ -41,15 +41,15 @@ FAN_SPEEDS = {101: "Silent", 102: "Balanced", 103: "Turbo", 104: "Max"}
 
 
 async def async_setup_entry(
-        hass: HomeAssistant,
-        entry: ConfigEntry,
-        async_add_devices: AddEntitiesCallback,
+    hass: HomeAssistant,
+    entry: ConfigEntry,
+    async_add_devices: AddEntitiesCallback,
 ):
     """Set up the Roborock sensor."""
     coordinator = hass.data[DOMAIN][entry.entry_id]
-    async_add_devices(
-        [RoborockVacuum(device, coordinator.api) for device in coordinator.api.devices]
-    )
+    async_add_devices([
+        RoborockVacuum(device, coordinator.api) for device in coordinator.api.devices
+    ])
 
 
 class RoborockVacuum(StateVacuumEntity):
@@ -57,6 +57,7 @@ class RoborockVacuum(StateVacuumEntity):
 
     def __init__(self, device: dict, client: RoborockClient):
         """Initialize a sensor."""
+        super().__init__()
         self._name = device.get("name")
         self._device = device
         self._client = client
@@ -78,20 +79,20 @@ class RoborockVacuum(StateVacuumEntity):
     def supported_features(self) -> int:
         """Flag vacuum cleaner features that are supported."""
         features = (
-                VacuumEntityFeature.TURN_ON
-                + VacuumEntityFeature.TURN_OFF
-                + VacuumEntityFeature.PAUSE
-                + VacuumEntityFeature.STOP
-                + VacuumEntityFeature.RETURN_HOME
-                + VacuumEntityFeature.FAN_SPEED
-                + VacuumEntityFeature.BATTERY
-                + VacuumEntityFeature.STATUS
-                + VacuumEntityFeature.SEND_COMMAND
-                + VacuumEntityFeature.LOCATE
-                + VacuumEntityFeature.CLEAN_SPOT
-                + VacuumEntityFeature.STATE
-                + VacuumEntityFeature.START
-                + VacuumEntityFeature.MAP
+            VacuumEntityFeature.TURN_ON
+            + VacuumEntityFeature.TURN_OFF
+            + VacuumEntityFeature.PAUSE
+            + VacuumEntityFeature.STOP
+            + VacuumEntityFeature.RETURN_HOME
+            + VacuumEntityFeature.FAN_SPEED
+            + VacuumEntityFeature.BATTERY
+            + VacuumEntityFeature.STATUS
+            + VacuumEntityFeature.SEND_COMMAND
+            + VacuumEntityFeature.LOCATE
+            + VacuumEntityFeature.CLEAN_SPOT
+            + VacuumEntityFeature.STATE
+            + VacuumEntityFeature.START
+            + VacuumEntityFeature.MAP
         )
         return features
 
@@ -102,7 +103,7 @@ class RoborockVacuum(StateVacuumEntity):
             name=self._name,
             identifiers={(DOMAIN, self._device.get("duid"))},
             manufacturer="Roborock",
-            model="Vacuum",
+            model=self._device.get("model"),
         )
 
     @property
@@ -116,7 +117,7 @@ class RoborockVacuum(StateVacuumEntity):
 
     @property
     def unique_id(self):
-        return self._device.get("duid")
+        return "vacuum." + self._device.get("duid")
 
     @property
     def state(self):
@@ -172,10 +173,10 @@ class RoborockVacuum(StateVacuumEntity):
         )
 
     def send_command(
-            self,
-            command,
-            params=None,
-            **kwargs: any,
+        self,
+        command,
+        params=None,
+        **kwargs: any,
     ) -> None:
         """Send a command to a vacuum cleaner."""
         return self.send(command, params)
