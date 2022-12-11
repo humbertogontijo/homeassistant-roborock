@@ -71,6 +71,8 @@ class RoborockVacuum(StateVacuumEntity):
 
     def update(self):
         self._status = self.send("get_status")
+        if self._status is None:
+            self._status = {}
 
     @property
     def supported_features(self) -> int:
@@ -89,7 +91,7 @@ class RoborockVacuum(StateVacuumEntity):
                 + VacuumEntityFeature.CLEAN_SPOT
                 + VacuumEntityFeature.STATE
                 + VacuumEntityFeature.START
-            # + VacuumEntityFeature.MAP
+                + VacuumEntityFeature.MAP
         )
         return features
 
@@ -117,22 +119,22 @@ class RoborockVacuum(StateVacuumEntity):
         return self._device.get("duid")
 
     @property
-    def state(self) -> str | None:
+    def state(self):
         """Return the status of the vacuum cleaner."""
         return self.status
 
     @property
-    def status(self) -> str | None:
+    def status(self):
         """Return the status of the vacuum cleaner."""
         return STATE_CODE_TO_STRING.get(self._status.get("state"))
 
     @property
-    def battery_level(self) -> int | None:
+    def battery_level(self):
         """Return the battery level of the vacuum cleaner."""
         return self._status.get("battery")
 
     @property
-    def fan_speed(self) -> str | None:
+    def fan_speed(self):
         """Return the fan speed of the vacuum cleaner."""
         return FAN_SPEEDS.get(self._status.get("fan_power"))
 
@@ -172,7 +174,7 @@ class RoborockVacuum(StateVacuumEntity):
     def send_command(
             self,
             command,
-            params = None,
+            params=None,
             **kwargs: any,
     ) -> None:
         """Send a command to a vacuum cleaner."""
