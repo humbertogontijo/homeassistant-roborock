@@ -67,6 +67,19 @@ class PreparedRequest:
         return response
 
 
+class VacuumError(Exception):
+    def __init__(self, code, message):
+        self.code = code
+        self.message = message
+        super().__init__(self.message)
+
+
+class CommandVacuumError(Exception):
+    def __init__(self, command: str, vacuum_error: VacuumError):
+        self.message = f'{command}: {str(vacuum_error)}'
+        super().__init__(self.message)
+
+
 class RoborockMqttClient:
     def __init__(self, rriot: dict, local_keys: dict):
         self._hashed_password = None
@@ -114,12 +127,18 @@ class RoborockMqttClient:
                     dps = json.loads(raw_dps)
                     request_id = dps.get("id")
                     queue = self._waiting_queue.get(request_id)
+                    error = dps.get("error")
                     if queue is not None:
-                        result = dps.get("result")
-                        if isinstance(result, list):
-                            result = result[0]
-                        if result != "ok":
-                            queue.put(result, timeout=QUEUE_TIMEOUT)
+                        if error is not None:
+                            queue.put(VacuumError(error.get("code"), error.get("message")), timeout=QUEUE_TIMEOUT)
+                        else:
+                            result = dps.get("result")
+                            if isinstance(result, list):
+                                result = result[0]
+                            if result != "ok":
+                                queue.put(result, timeout=QUEUE_TIMEOUT)
+                    else:
+                        _LOGGER.error(error)
             elif data.get('protocol') == 301:
                 payload = data.get("payload")[0:24]
                 [endpoint, unknown1, request_id, unknown2] = struct.unpack(
@@ -215,6 +234,8 @@ class RoborockMqttClient:
         try:
             response = queue.get(timeout=QUEUE_TIMEOUT)
             _LOGGER.debug(f"Response from {method}: {response}")
+            if isinstance(response, VacuumError):
+                raise CommandVacuumError(method, response)
             return response
         except Empty as e:
             return str(e)
