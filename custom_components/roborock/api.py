@@ -111,6 +111,7 @@ class RoborockMqttClient:
         def on_connect(_client: mqtt.Client, userdata, flags, rc):
             if rc != 0:
                 raise Exception("Failed to connect.")
+            _LOGGER.info(f'Connected to mqtt {self._mqtt_host}:{self._mqtt_port}. You can redirect this host to a mqtt server for local integration')
             (result, mid) = _client.subscribe(
                 f"rr/m/o/{self._mqtt_user}/{self._hashed_user}/#"
             )
