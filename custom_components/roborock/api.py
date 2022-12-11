@@ -13,7 +13,7 @@ import secrets
 import struct
 import sys
 import time
-from queue import Queue
+from queue import Queue, Empty
 from urllib.parse import urlparse
 
 import paho.mqtt.client as mqtt
@@ -130,15 +130,18 @@ class RoborockMqttClient:
             device_id = msg.topic.split("/").pop()
             data = self._decode_msg(msg.payload, self._local_keys.get(device_id))
             if data.get('protocol') == 102:
-                dps = json.loads(json.loads(data.get("payload").decode()).get('dps').get("102"))
-                request_id = dps.get("id")
-                queue = self._waiting_queue.get(request_id)
-                if queue is not None:
-                    result = dps.get("result")
-                    if isinstance(result, list):
-                        result = result[0]
-                    if result != "ok":
-                        queue.put(result, timeout=QUEUE_TIMEOUT)
+                payload = json.loads(data.get("payload").decode())
+                raw_dps = payload.get('dps').get("102")
+                if raw_dps is not None:
+                    dps = json.loads(raw_dps)
+                    request_id = dps.get("id")
+                    queue = self._waiting_queue.get(request_id)
+                    if queue is not None:
+                        result = dps.get("result")
+                        if isinstance(result, list):
+                            result = result[0]
+                        if result != "ok":
+                            queue.put(result, timeout=QUEUE_TIMEOUT)
             elif data.get('protocol') == 301:
                 payload = data.get("payload")[0:24]
                 [endpoint, unknown1, request_id, unknown2] = struct.unpack(
@@ -231,9 +234,12 @@ class RoborockMqttClient:
         self._send_msg_raw(device_id, 101, timestamp, payload)
         queue = Queue()
         self._waiting_queue[request_id] = queue
-        response = queue.get(timeout=QUEUE_TIMEOUT)
-        _LOGGER.debug(f"Response from {method}: {response}")
-        return response
+        try:
+            response = queue.get(timeout=QUEUE_TIMEOUT)
+            _LOGGER.debug(f"Response from {method}: {response}")
+            return response
+        except Empty as e:
+            return str(e)
 
 
 class RoborockClient:
