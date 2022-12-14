@@ -182,7 +182,7 @@ class VacuumCamera(Camera):
         try:
             self._handle_map_data()
         except Exception as e:
-            _LOGGER.error(e)
+            _LOGGER.exception(e)
             self._set_map_data(
                 MapDataParserRoborock.create_empty(self._colors, str(self._status))
             )
