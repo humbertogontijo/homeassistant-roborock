@@ -13,5 +13,15 @@
       "no_device": "No device found within your Roborock account",
       "auth": "Failed to login. Check your credentials"
     }
+  },
+  "options": {
+    "step": {
+      "user": {
+        "data": {
+          "camera": "Integrate map as camera",
+          "vacuum": "Integrate as vacuum"
+        }
+      }
+    }
   }
 }
