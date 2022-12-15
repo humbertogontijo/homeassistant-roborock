@@ -205,7 +205,7 @@ class VacuumCamera(Camera):
         response = self._client.send_request(
             self._device.get("duid"), "get_map_v1", [], True
         )
-        if response is None:
+        if not response:
             return None, False
         map_stored = False
         if store_map_path is not None:

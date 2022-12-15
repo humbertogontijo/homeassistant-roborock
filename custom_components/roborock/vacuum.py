@@ -71,9 +71,9 @@ class RoborockVacuum(StateVacuumEntity):
         )
 
     def update(self):
-        self._status = self.send("get_status")
-        if self._status is None:
-            self._status = {}
+        updatedStatus = self.send("get_status")
+        if updatedStatus:
+            self._status = updatedStatus
 
     @property
     def supported_features(self) -> int:
