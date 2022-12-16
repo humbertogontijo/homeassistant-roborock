@@ -2,7 +2,6 @@
   "config": {
     "step": {
       "user": {
-        "title": "Roborock",
         "description": "Your app credentials",
         "data": {
           "username": "Username",
