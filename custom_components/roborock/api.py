@@ -239,7 +239,7 @@ class RoborockMqttClient:
                 raise CommandVacuumError(method, response)
             return response
         except Empty as e:
-            return str(e)
+            return None
 
 
 class RoborockClient:
