@@ -5,9 +5,7 @@ from enum import Enum
 from typing import Any, Dict, List, Optional, Tuple
 
 import PIL.Image as Image
-import voluptuous as vol
 from homeassistant.components.camera import Camera, SUPPORT_ON_OFF
-from homeassistant.helpers import config_validation as cv
 from homeassistant.helpers.entity import DeviceInfo
 
 from custom_components.roborock import RoborockClient
@@ -39,29 +37,14 @@ DEFAULT_SIZES = {
     CONF_SIZE_CHARGER_RADIUS: 6,
 }
 
-COLOR_SCHEMA = vol.Or(
-    vol.All(
-        vol.Length(min=3, max=3),
-        vol.ExactSequence((cv.byte, cv.byte, cv.byte)),
-        vol.Coerce(tuple),
-    ),
-    vol.All(
-        vol.Length(min=4, max=4),
-        vol.ExactSequence((cv.byte, cv.byte, cv.byte, cv.byte)),
-        vol.Coerce(tuple),
-    ),
-)
-
-PERCENT_SCHEMA = vol.All(vol.Coerce(float), vol.Range(min=0, max=100))
-
-POSITIVE_FLOAT_SCHEMA = vol.All(vol.Coerce(float), vol.Range(min=0))
+NON_REFRESHING_STATES = [3, 8]
 
 
 async def async_setup_entry(hass, entry, async_add_devices):
     coordinator = hass.data[DOMAIN][entry.entry_id]
-    async_add_devices([
-        VacuumCamera(device, coordinator.api) for device in coordinator.api.devices
-    ])
+    async_add_devices(
+        [VacuumCamera(device, coordinator.api) for device in coordinator.api.devices]
+    )
 
 
 class VacuumCamera(Camera):
@@ -84,7 +67,6 @@ class VacuumCamera(Camera):
         self._attributes = CONF_AVAILABLE_ATTRIBUTES
         self._map_data = None
         self._image = None
-
 
     @property
     def device_info(self) -> DeviceInfo:
@@ -193,6 +175,12 @@ class VacuumCamera(Camera):
     def disable_motion_detection(self) -> None:
         pass
 
+    def _send(self, command: str, params=None):
+        """Send a command to a vacuum cleaner."""
+        return self._client.send_request(
+            self._device.get("duid"), command, params, True
+        )
+
     def get_map(
             self,
             colors: Colors,
@@ -202,9 +190,7 @@ class VacuumCamera(Camera):
             image_config: ImageConfig,
             store_map_path: Optional[str] = None,
     ) -> Tuple[Optional[MapData], bool]:
-        response = self._client.send_request(
-            self._device.get("duid"), "get_map_v1", [], True
-        )
+        response = self._send("get_map_v1")
         if not response:
             return None, False
         map_stored = False
@@ -233,7 +219,19 @@ class VacuumCamera(Camera):
             raw_map, colors, drawables, texts, sizes, image_config
         )
 
+    def _valid_refresh_state(self):
+        updated_status = self._send("get_status")
+        if (
+                updated_status is not None
+                and isinstance(updated_status, dict)
+                and updated_status.get("state") not in NON_REFRESHING_STATES
+        ):
+            return True
+        return False
+
     def _handle_map_data(self):
+        if self._image is not None and not self._valid_refresh_state():
+            return
         _LOGGER.debug("Retrieving map from Roborock MQTT")
         store_map_path = self._store_map_path if self._store_map_raw else None
         map_data, map_stored = self.get_map(
@@ -277,9 +275,7 @@ class VacuumCamera(Camera):
         if self._store_map_image:
             try:
                 image = Image.open(io.BytesIO(self._image))
-                image.save(
-                    f"{self._store_map_path}/map_image_{self.unique_id}.png"
-                )
+                image.save(f"{self._store_map_path}/map_image_{self.unique_id}.png")
             except:
                 _LOGGER.warning("Error while saving image")
 

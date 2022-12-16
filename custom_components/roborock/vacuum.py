@@ -6,38 +6,10 @@ from homeassistant.core import HomeAssistant
 from homeassistant.helpers.entity import DeviceInfo
 from homeassistant.helpers.entity_platform import AddEntitiesCallback
 
-from .api import RoborockClient
+from .api import RoborockClient, STATE_CODE_TO_STRING, FAN_SPEEDS
 from .const import DOMAIN
 
 _LOGGER = logging.getLogger(__name__)
-
-STATE_CODE_TO_STRING = {
-    1: "Starting",
-    2: "Charger disconnected",
-    3: "Idle",
-    4: "Remote control active",
-    5: "Cleaning",
-    6: "Returning home",
-    7: "Manual mode",
-    8: "Charging",
-    9: "Charging problem",
-    10: "Paused",
-    11: "Spot cleaning",
-    12: "Error",
-    13: "Shutting down",
-    14: "Updating",
-    15: "Docking",
-    16: "Going to target",
-    17: "Zoned cleaning",
-    18: "Segment cleaning",
-    22: "Emptying the bin",  # on s7+, see #1189
-    23: "Washing the mop",  # on a46, #1435
-    26: "Going to wash the mop",  # on a46, #1435
-    100: "Charging complete",
-    101: "Device offline",
-}
-
-FAN_SPEEDS = {101: "Silent", 102: "Balanced", 103: "Turbo", 104: "Max"}
 
 
 async def async_setup_entry(
@@ -71,9 +43,9 @@ class RoborockVacuum(StateVacuumEntity):
         )
 
     def update(self):
-        updatedStatus = self.send("get_status")
-        if updatedStatus:
-            self._status = updatedStatus
+        updated_status = self.send("get_status")
+        if updated_status is not None and isinstance(updated_status, dict):
+            self._status = updated_status
 
     @property
     def supported_features(self) -> int:

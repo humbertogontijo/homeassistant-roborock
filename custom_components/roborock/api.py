@@ -22,7 +22,42 @@ from Crypto.Cipher import AES
 from Crypto.Util.Padding import pad, unpad
 
 _LOGGER = logging.getLogger(__name__)
-QUEUE_TIMEOUT = 10
+QUEUE_TIMEOUT = 4
+
+STATE_CODE_TO_STRING = {
+    1: "Starting",
+    2: "Charger disconnected",
+    3: "Idle",
+    4: "Remote control active",
+    5: "Cleaning",
+    6: "Returning home",
+    7: "Manual mode",
+    8: "Charging",
+    9: "Charging problem",
+    10: "Paused",
+    11: "Spot cleaning",
+    12: "Error",
+    13: "Shutting down",
+    14: "Updating",
+    15: "Docking",
+    16: "Going to target",
+    17: "Zoned cleaning",
+    18: "Segment cleaning",
+    22: "Emptying the bin",  # on s7+, see #1189
+    23: "Washing the mop",  # on a46, #1435
+    26: "Going to wash the mop",  # on a46, #1435
+    100: "Charging complete",
+    101: "Device offline",
+}
+
+FAN_SPEEDS = {
+    101: "Silent",
+    102: "Balanced",
+    103: "Turbo",
+    104: "Max",
+    105: "Gentle",
+    106: "Customize(Auto)"
+}
 
 
 def md5hex(message: str):
@@ -111,7 +146,7 @@ class RoborockMqttClient:
         def on_connect(_client: mqtt.Client, userdata, flags, rc):
             if rc != 0:
                 raise Exception("Failed to connect.")
-            _LOGGER.info(f'Connected to mqtt {self._mqtt_host}:{self._mqtt_port}. You can redirect this host to a mqtt server for local integration')
+            _LOGGER.info(f'Connected to mqtt {self._mqtt_host}:{self._mqtt_port}')
             (result, mid) = _client.subscribe(
                 f"rr/m/o/{self._mqtt_user}/{self._hashed_user}/#"
             )
