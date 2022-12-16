@@ -51,12 +51,13 @@ STATE_CODE_TO_STRING = {
 }
 
 FAN_SPEEDS = {
+    105: "Off",
     101: "Silent",
     102: "Balanced",
     103: "Turbo",
     104: "Max",
-    105: "Gentle",
-    106: "Customize(Auto)"
+    106: "Customize(Auto)",
+    108: "Max+"
 }
 
 

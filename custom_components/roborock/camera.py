@@ -260,7 +260,6 @@ class VacuumCamera(Camera):
                 _LOGGER.warning("Unable to parse map data")
                 self._status = CameraStatus.UNABLE_TO_PARSE_MAP
         else:
-            self._logged_in = False
             _LOGGER.warning("Unable to retrieve map data")
             self._status = CameraStatus.UNABLE_TO_RETRIEVE_MAP
 
