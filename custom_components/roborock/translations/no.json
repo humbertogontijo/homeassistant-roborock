@@ -1,0 +1,17 @@
+{
+  "config": {
+    "step": {
+      "user": {
+        "description": "Innlogging fra app",
+        "data": {
+          "username": "Brukernavn",
+          "password": "Passord"
+        }
+      }
+    },
+    "error": {
+      "no_device": "Ingen enhet funnet i din Roborock konto",
+      "auth": "Innlogging feilet, sjekk brukernavn og passord"
+    }
+  }
+}
