@@ -174,8 +174,6 @@ class RoborockMqttClient:
                                 result = result[0]
                             if result != "ok":
                                 queue.put(result, timeout=QUEUE_TIMEOUT)
-                    else:
-                        _LOGGER.error(error)
             elif data.get('protocol') == 301:
                 payload = data.get("payload")[0:24]
                 [endpoint, unknown1, request_id, unknown2] = struct.unpack(
