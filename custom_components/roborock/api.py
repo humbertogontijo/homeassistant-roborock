@@ -155,43 +155,45 @@ class RoborockMqttClient:
                 raise Exception("Failed to subscribe.")
 
         def on_message(_client, userdata, msg):
-            device_id = msg.topic.split("/").pop()
-            data = self._decode_msg(msg.payload, self._local_keys.get(device_id))
-            if data.get('protocol') == 102:
-                payload = json.loads(data.get("payload").decode())
-                raw_dps = payload.get('dps').get("102")
-                if raw_dps is not None:
-                    dps = json.loads(raw_dps)
-                    request_id = dps.get("id")
-                    queue = self._waiting_queue.get(request_id)
-                    error = dps.get("error")
-                    if queue is not None:
-                        if error is not None:
-                            queue.put(VacuumError(error.get("code"), error.get("message")), timeout=QUEUE_TIMEOUT)
-                        else:
-                            result = dps.get("result")
-                            if isinstance(result, list):
-                                result = result[0]
-                            if result != "ok":
-                                queue.put(result, timeout=QUEUE_TIMEOUT)
-            elif data.get('protocol') == 301:
-                payload = data.get("payload")[0:24]
-                [endpoint, unknown1, request_id, unknown2] = struct.unpack(
-                    "<15sBH6s", payload
-                )
-                if endpoint.decode().startswith(self._endpoint):
-                    iv = bytes(AES.block_size)
-                    decipher = AES.new(self._nonce, AES.MODE_CBC, iv)
-                    decrypted = unpad(decipher.decrypt(data.get("payload")[24:]), AES.block_size)
-                    decrypted = gzip.decompress(decrypted)
-                    queue = self._waiting_queue[request_id]
-                    if queue is not None:
-                        if isinstance(decrypted, list):
-                            decrypted = decrypted[0]
-                        queue.put(decrypted)
-            elif data.get('protocol') == 121:
-                _LOGGER.debug("Remote control")
-
+            try:
+                device_id = msg.topic.split("/").pop()
+                data = self._decode_msg(msg.payload, self._local_keys.get(device_id))
+                if data.get('protocol') == 102:
+                    payload = json.loads(data.get("payload").decode())
+                    raw_dps = payload.get('dps').get("102")
+                    if raw_dps is not None:
+                        dps = json.loads(raw_dps)
+                        request_id = dps.get("id")
+                        queue = self._waiting_queue.get(request_id)
+                        error = dps.get("error")
+                        if queue is not None:
+                            if error is not None:
+                                queue.put(VacuumError(error.get("code"), error.get("message")), timeout=QUEUE_TIMEOUT)
+                            else:
+                                result = dps.get("result")
+                                if isinstance(result, list):
+                                    result = result[0]
+                                if result != "ok":
+                                    queue.put(result, timeout=QUEUE_TIMEOUT)
+                elif data.get('protocol') == 301:
+                    payload = data.get("payload")[0:24]
+                    [endpoint, unknown1, request_id, unknown2] = struct.unpack(
+                        "<15sBH6s", payload
+                    )
+                    if endpoint.decode().startswith(self._endpoint):
+                        iv = bytes(AES.block_size)
+                        decipher = AES.new(self._nonce, AES.MODE_CBC, iv)
+                        decrypted = unpad(decipher.decrypt(data.get("payload")[24:]), AES.block_size)
+                        decrypted = gzip.decompress(decrypted)
+                        queue = self._waiting_queue[request_id]
+                        if queue is not None:
+                            if isinstance(decrypted, list):
+                                decrypted = decrypted[0]
+                            queue.put(decrypted)
+                elif data.get('protocol') == 121:
+                    _LOGGER.debug("Remote control")
+            except Exception as e:
+                _LOGGER.exception(e)
         def on_subscribe(_client, userdata, mid, granted_qos):
             _LOGGER.info("Roborock subscribed to mqtt")
 
