@@ -1,0 +1,27 @@
+{
+  "config": {
+    "step": {
+      "user": {
+        "description": "Deine Zugangsdaten",
+        "data": {
+          "username": "Benutzername",
+          "password": "Passwort"
+        }
+      }
+    },
+    "error": {
+      "no_device": "Deinem Account ist kein Gerät zugeordnet",
+      "auth": "Login Fehlgeschlagen. Prüfe deine Zugangsdaten"
+    }
+  },
+  "options": {
+    "step": {
+      "user": {
+        "data": {
+          "camera": "Karte als Kamera integrieren",
+          "vacuum": "Als staubsauger integrieren"
+        }
+      }
+    }
+  }
+}
