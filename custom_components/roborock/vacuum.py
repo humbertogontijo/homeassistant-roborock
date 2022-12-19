@@ -102,6 +102,13 @@ class RoborockVacuum(StateVacuumEntity):
         return STATE_CODE_TO_STRING.get(self._status.get("state"))
 
     @property
+    def state_attributes(self):
+        state_attributes = super().state_attributes
+        status = self._status
+        status.update(state_attributes)
+        return status
+
+    @property
     def battery_level(self):
         """Return the battery level of the vacuum cleaner."""
         return self._status.get("battery")
