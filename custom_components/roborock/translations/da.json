@@ -1,0 +1,27 @@
+{
+  "config": {
+    "step": {
+      "user": {
+        "description": "Login info til Roborock app",
+        "data": {
+          "username": "Brugernavn",
+          "password": "Kodeord"
+        }
+      }
+    },
+    "error": {
+      "no_device": "Der blev ikke fundet nogen enhed på din Roborock konto",
+      "auth": "Login fejl. Kontroller login informationer"
+    }
+  },
+  "options": {
+    "step": {
+      "user": {
+        "data": {
+          "camera": "Integrere kort som kamera",
+          "vacuum": "Integrere som støvsuger"
+        }
+      }
+    }
+  }
+}
