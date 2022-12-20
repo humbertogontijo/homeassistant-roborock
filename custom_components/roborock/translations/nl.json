@@ -1,0 +1,27 @@
+{
+  "config": {
+    "step": {
+      "user": {
+        "description": "Jouw Roborock logingegevens",
+        "data": {
+          "username": "Gebruikersnaam",
+          "password": "Wachtwoord"
+        }
+      }
+    },
+    "error": {
+      "no_device": "Geen apparaat gevonden in je Roborock account",
+      "auth": "Inloggen mislukt. Controleer je logingegevens"
+    }
+  },
+  "options": {
+    "step": {
+      "user": {
+        "data": {
+          "camera": "Integreer map als camera",
+          "vacuum": "Integreer als stofzuiger"
+        }
+      }
+    }
+  }
+}
