@@ -61,7 +61,11 @@ class RoborockDataUpdateCoordinator(DataUpdateCoordinator):
     async def _async_update_data(self):
         """Update data via library."""
         try:
-            await self.api.login()
+            loop = asyncio.get_running_loop()
+            await loop.run_in_executor(
+                None,
+                self.api.login,
+            )
 
             if len(self.api.devices) == 0:
                 raise ConfigEntryNotReady(

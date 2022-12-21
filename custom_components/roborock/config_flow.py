@@ -1,6 +1,7 @@
 """Config flow for yeelight_bt"""
 from __future__ import annotations
 
+import asyncio
 import logging
 
 import voluptuous as vol
@@ -74,7 +75,11 @@ class RoborockFlowHandler(config_entries.ConfigFlow, domain=DOMAIN):
         try:
             _LOGGER.debug("Starting a scan for Roborock devices")
             client = RoborockClient(username, password)
-            await client.login()
+            loop = asyncio.get_running_loop()
+            await loop.run_in_executor(
+                None,
+                client.login,
+            )
             return client.devices[0]
         except Exception as e:
             self._errors["base"] = "auth"
