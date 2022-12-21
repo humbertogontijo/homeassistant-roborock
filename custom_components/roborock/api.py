@@ -24,7 +24,7 @@ from Crypto.Util.Padding import pad, unpad
 _LOGGER = logging.getLogger(__name__)
 QUEUE_TIMEOUT = 4
 
-STATE_CODE_TO_STRING = {
+STATE_CODES = {
     1: "Starting",
     2: "Charger disconnected",
     3: "Idle",
@@ -50,15 +50,64 @@ STATE_CODE_TO_STRING = {
     101: "Device offline",
 }
 
-FAN_SPEEDS = {
+FAN_SPEED_CODES = {
     105: "Off",
     101: "Silent",
     102: "Balanced",
     103: "Turbo",
     104: "Max",
-    106: "Customize(Auto)",
+    106: "Custom",
     108: "Max+"
 }
+
+MOP_MODE_CODES = {
+    300: "Standard",
+    301: "Deep",
+    302: "Custom",
+    303: "Deep+"
+}
+
+MOP_INTENSITY_CODES = {
+    200: "Off",
+    201: "Mild",
+    202: "Moderate",
+    203: "Intense",
+    204: "Custom"
+}
+
+ERROR_CODES = {
+    1: "LiDAR turret or laser blocked. Check for obstruction and retry.",
+    2: "Bumper stuck. Clean it and lightly tap to release it.",
+    3: "Wheels suspended. Move robot and restart.",
+    4: "Cliff sensor error. Clean cliff sensors, move robot away from drops and restart.",
+    5: "Main brush jammed. Clean main brush and bearings.",
+    6: "Side brush jammed. Remove and clean side brush.",
+    7: "Wheels iammed. Move the robot and restart.",
+    8: "Robot trapped. Clear obstacles surrounding robot.",
+    9: "No dustbin. Install dustbin and filter.",
+    12: "Low battery. Recharge and retry.",
+    13: "Charging error. Clean charging contacts and retry.",
+    14: "Battery error.",
+    15: "Wall sensor dirty. Clean wall sensor.",
+    16: "Robot tilted. Move to level ground and restart.",
+    17: "Side brush error. Reset robot.",
+    18: "Fan error. Reset robot.",
+    21: "Vertical bumper pressed. Move robot and retry.",
+    22: "Dock locator error. Clean and retry.",
+    23: "Could not return to dock. Clean dock location beacon and retry.",
+    27: "VibraRise system jammed. Check for obstructions.",
+    28: "Robot on carpet. Move robot to floor and retry.",
+    29: "Filter blocked or wet. Clean, dry, and retry.",
+    30: "No-go zone or Invisible Wall detected. Move robot from this area.",
+    31: "Cannot cross carpet. Move robot across carpet and restart.",
+    32: "Internal error. Reset the robot."
+}
+
+ATTR_STATE = "state"
+ATTR_FAN_SPEED = "fan_power"
+ATTR_MOP_MODE = "mop_mode"
+ATTR_MOP_INTENSITY = "water_box_mode"
+ATTR_ERROR_CODE = "error_code"
 
 
 def md5hex(message: str):
@@ -194,6 +243,7 @@ class RoborockMqttClient:
                     _LOGGER.debug("Remote control")
             except Exception as e:
                 _LOGGER.exception(e)
+
         def on_subscribe(_client, userdata, mid, granted_qos):
             _LOGGER.info("Roborock subscribed to mqtt")
 
@@ -270,7 +320,10 @@ class RoborockMqttClient:
         self._waiting_queue[request_id] = queue
         try:
             response = queue.get(timeout=QUEUE_TIMEOUT)
-            _LOGGER.debug(f"Response from {method}: {response}")
+            if isinstance(response, bytes):
+                _LOGGER.debug(f"Response from {method}: {len(response)} bytes")
+            else:
+                _LOGGER.debug(f"Response from {method}: {response}")
             if isinstance(response, VacuumError):
                 raise CommandVacuumError(method, response)
             return response

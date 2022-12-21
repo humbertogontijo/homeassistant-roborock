@@ -6,16 +6,17 @@ from homeassistant.core import HomeAssistant
 from homeassistant.helpers.entity import DeviceInfo
 from homeassistant.helpers.entity_platform import AddEntitiesCallback
 
-from .api import RoborockClient, STATE_CODE_TO_STRING, FAN_SPEEDS
+from .api import RoborockClient, STATE_CODES, FAN_SPEED_CODES, ATTR_ERROR_CODE, ERROR_CODES, ATTR_FAN_SPEED, ATTR_STATE, \
+    ATTR_MOP_MODE, MOP_MODE_CODES, ATTR_MOP_INTENSITY, MOP_INTENSITY_CODES
 from .const import DOMAIN
 
 _LOGGER = logging.getLogger(__name__)
 
 
 async def async_setup_entry(
-    hass: HomeAssistant,
-    entry: ConfigEntry,
-    async_add_devices: AddEntitiesCallback,
+        hass: HomeAssistant,
+        entry: ConfigEntry,
+        async_add_devices: AddEntitiesCallback,
 ):
     """Set up the Roborock sensor."""
     coordinator = hass.data[DOMAIN][entry.entry_id]
@@ -51,20 +52,20 @@ class RoborockVacuum(StateVacuumEntity):
     def supported_features(self) -> int:
         """Flag vacuum cleaner features that are supported."""
         features = (
-            VacuumEntityFeature.TURN_ON
-            + VacuumEntityFeature.TURN_OFF
-            + VacuumEntityFeature.PAUSE
-            + VacuumEntityFeature.STOP
-            + VacuumEntityFeature.RETURN_HOME
-            + VacuumEntityFeature.FAN_SPEED
-            + VacuumEntityFeature.BATTERY
-            + VacuumEntityFeature.STATUS
-            + VacuumEntityFeature.SEND_COMMAND
-            + VacuumEntityFeature.LOCATE
-            + VacuumEntityFeature.CLEAN_SPOT
-            + VacuumEntityFeature.STATE
-            + VacuumEntityFeature.START
-            + VacuumEntityFeature.MAP
+                VacuumEntityFeature.TURN_ON
+                + VacuumEntityFeature.TURN_OFF
+                + VacuumEntityFeature.PAUSE
+                + VacuumEntityFeature.STOP
+                + VacuumEntityFeature.RETURN_HOME
+                + VacuumEntityFeature.FAN_SPEED
+                + VacuumEntityFeature.BATTERY
+                + VacuumEntityFeature.STATUS
+                + VacuumEntityFeature.SEND_COMMAND
+                + VacuumEntityFeature.LOCATE
+                + VacuumEntityFeature.CLEAN_SPOT
+                + VacuumEntityFeature.STATE
+                + VacuumEntityFeature.START
+                + VacuumEntityFeature.MAP
         )
         return features
 
@@ -85,10 +86,12 @@ class RoborockVacuum(StateVacuumEntity):
 
     @property
     def icon(self) -> str:
+        """Return the icon of the vacuum cleaner."""
         return "mdi:robot-vacuum"
 
     @property
     def unique_id(self):
+        """Return the unique id of the vacuum cleaner."""
         return "vacuum." + self._device.get("duid")
 
     @property
@@ -99,13 +102,28 @@ class RoborockVacuum(StateVacuumEntity):
     @property
     def status(self):
         """Return the status of the vacuum cleaner."""
-        return STATE_CODE_TO_STRING.get(self._status.get("state"))
+        state = self._status.get(ATTR_STATE)
+        return STATE_CODES.get(state)
 
     @property
     def state_attributes(self):
+        """Return the state attributes of the vacuum cleaner."""
         state_attributes = super().state_attributes
         status = self._status
         status.update(state_attributes)
+
+        # Adding human readable attributes
+        attr_codes = [
+            [ATTR_STATE, "state_text", STATE_CODES],
+            [ATTR_FAN_SPEED, "fan_speed_text", FAN_SPEED_CODES],
+            [ATTR_MOP_MODE, "mop_mode_text", MOP_MODE_CODES],
+            [ATTR_MOP_INTENSITY, "mop_intensity_text", MOP_INTENSITY_CODES],
+            [ATTR_ERROR_CODE, "error_text", ERROR_CODES]
+        ]
+        for attr, name, codes in attr_codes:
+            value = status.get(attr)
+            status.update({name: codes.get(value)})
+
         return status
 
     @property
@@ -116,12 +134,35 @@ class RoborockVacuum(StateVacuumEntity):
     @property
     def fan_speed(self):
         """Return the fan speed of the vacuum cleaner."""
-        return FAN_SPEEDS.get(self._status.get("fan_power"))
+        fan_speed = self._status.get(ATTR_FAN_SPEED)
+        return FAN_SPEED_CODES.get(fan_speed)
 
     @property
     def fan_speed_list(self) -> list[str]:
         """Get the list of available fan speed steps of the vacuum cleaner."""
-        return list(FAN_SPEEDS.values())
+        return list(FAN_SPEED_CODES.values())
+
+    @property
+    def mop_mode(self):
+        """Return the mop mode of the vacuum cleaner."""
+        mop_mode = self._status.get(ATTR_MOP_MODE)
+        return MOP_MODE_CODES.get(mop_mode)
+
+    @property
+    def mop_mode_list(self) -> list[str]:
+        """Get the list of available mop mode steps of the vacuum cleaner."""
+        return list(MOP_MODE_CODES.values())
+
+    @property
+    def mop_intensity(self):
+        """Return the mop intensity of the vacuum cleaner."""
+        mop_intensity = self._status.get(ATTR_MOP_INTENSITY)
+        return MOP_INTENSITY_CODES.get(mop_intensity)
+
+    @property
+    def mop_intensity_list(self) -> list[str]:
+        """Get the list of available mop intensity steps of the vacuum cleaner."""
+        return list(MOP_INTENSITY_CODES.values())
 
     @property
     def map(self):
@@ -148,14 +189,24 @@ class RoborockVacuum(StateVacuumEntity):
 
     def set_fan_speed(self, fan_speed: str, **kwargs: any) -> None:
         self.send(
-            "set_custom_mode", [k for k, v in FAN_SPEEDS.items() if v == fan_speed]
+            "set_custom_mode", [k for k, v in FAN_SPEED_CODES.items() if v == fan_speed]
+        )
+
+    def set_mop_mode(self, mop_mode: str, **kwargs: any) -> None:
+        self.send(
+            "set_mop_mode", [k for k, v in MOP_MODE_CODES.items() if v == mop_mode]
+        )
+
+    def set_mop_intensity(self, mop_intensity: str, **kwargs: any) -> None:
+        self.send(
+            "set_water_box_custom_mode", [k for k, v in MOP_INTENSITY_CODES.items() if v == mop_intensity]
         )
 
     def send_command(
-        self,
-        command,
-        params=None,
-        **kwargs: any,
+            self,
+            command,
+            params=None,
+            **kwargs: any,
     ) -> None:
         """Send a command to a vacuum cleaner."""
         return self.send(command, params)
