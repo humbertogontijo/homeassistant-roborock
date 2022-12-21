@@ -1,0 +1,27 @@
+{
+  "config": {
+    "step": {
+      "user": {
+        "description": "Dane logowania (Roborock)",
+        "data": {
+          "username": "Nazwa użytkownika",
+          "password": "Hasło"
+        }
+      }
+    },
+    "error": {
+      "no_device": "Nie znaleziono urządzenia na koncie Roborock",
+      "auth": "Logowanie nieudane. Sprawdź nazwę użytkownika lub hasło"
+    }
+  },
+  "options": {
+    "step": {
+      "user": {
+        "data": {
+          "camera": "Zintegruj mapę jako kamerę",
+          "vacuum": "Zintegruj jako odkurzacz"
+        }
+      }
+    }
+  }
+}
