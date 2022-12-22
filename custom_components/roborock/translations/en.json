@@ -4,8 +4,13 @@
       "user": {
         "description": "Your app credentials",
         "data": {
-          "username": "Username",
-          "password": "Password"
+          "username": "Username"
+        }
+      },
+      "code": {
+        "description": "Type the verification code sent to your email",
+        "data": {
+          "code": "Verification code"
         }
       }
     },
@@ -19,7 +24,7 @@
       "user": {
         "data": {
           "camera": "Integrate map as camera",
-          "vacuum": "Integrate as vacuum"
+          "vacuum": "Integrate vacuum"
         }
       }
     }

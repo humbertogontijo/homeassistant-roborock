@@ -160,9 +160,19 @@ class CommandVacuumError(Exception):
 
 
 class RoborockMqttClient:
-    def __init__(self, rriot: dict, local_keys: dict):
-        self._hashed_password = None
-        self._hashed_user = None
+    def __init__(self, user_data: dict, home_data: dict):
+        self.devices = []
+        for device in home_data.get("devices") + home_data.get("receivedDevices"):
+            product = next(
+                (product for product in home_data.get("products") if product.get("id") == device.get("productId")), {})
+            device.update({"model": product.get("model")})
+            self.devices.append(device)
+        local_keys = {
+            device.get("duid"): device.get("localKey")
+            for device in
+            home_data.get("devices") + home_data.get("receivedDevices")
+        }
+        rriot = user_data.get("rriot")
         self.client: mqtt.Client = None
         self._seq = 1
         self._random = 4711
@@ -189,15 +199,16 @@ class RoborockMqttClient:
 
     def connect(self):
         client = mqtt.Client()
-
+        queue = Queue()
         def on_connect(_client: mqtt.Client, userdata, flags, rc):
             if rc != 0:
-                raise Exception("Failed to connect.")
+                queue.put((None, Exception("Failed to connect.")), timeout=QUEUE_TIMEOUT)
             _LOGGER.info(f'Connected to mqtt {self._mqtt_host}:{self._mqtt_port}')
             topic = f"rr/m/o/{self._mqtt_user}/{self._hashed_user}/#"
             (result, mid) = _client.subscribe(topic)
             if result != 0:
-                raise Exception("Failed to subscribe.")
+                queue.put((None, Exception("Failed to subscribe.")), timeout=QUEUE_TIMEOUT)
+            queue.put(({}, None), timeout=QUEUE_TIMEOUT)
             _LOGGER.info(f'Subscribed to topic {topic}')
 
         def on_message(_client, userdata, msg):
@@ -259,6 +270,13 @@ class RoborockMqttClient:
         client.connect(host=self._mqtt_host, port=self._mqtt_port, keepalive=MQTT_KEEPALIVE)
         client.loop_start()
         self.client = client
+        try:
+            (_, err) = queue.get(timeout=QUEUE_TIMEOUT)
+            if err:
+                raise err
+        except Empty as e:
+            self.client.disconnect()
+            raise Exception(f"Timeout after {QUEUE_TIMEOUT} seconds waiting for mqtt connection")
 
     def _decode_msg(self, msg, local_key):
         if msg[0:3] != "1.0".encode():
@@ -317,9 +335,9 @@ class RoborockMqttClient:
             ).encode()
         )
         _LOGGER.debug(f"Requesting method {method} with {params}")
-        self._send_msg_raw(device_id, 101, timestamp, payload)
         queue = Queue()
         self._waiting_queue[request_id] = queue
+        self._send_msg_raw(device_id, 101, timestamp, payload)
         try:
             (response, err) = queue.get(timeout=QUEUE_TIMEOUT)
             if isinstance(response, bytes):
@@ -335,61 +353,91 @@ class RoborockMqttClient:
 
 
 class RoborockClient:
-    def __init__(self, username: str, password: str) -> None:
+    def __init__(self, username: str) -> None:
         """Sample API Client."""
         self._username = username
-        self._password = password
-        self.devices = []
         self._default_url = "https://euiot.roborock.com"
-        self._mqtt_client: RoborockMqttClient = None
+        self._base_url = None
         self._last_ping = time.time()
 
     def _get_base_url(self):
-        url_request = PreparedRequest(self._default_url)
-        response = url_request.request(
-            "post",
-            "/api/v1/getUrlByEmail",
-            params={"email": self._username, "needtwostepauth": "false"},
-        ).json()
-        return response.get("data").get("url")
+        if self._base_url is None:
+            url_request = PreparedRequest(self._default_url)
+            response = url_request.request(
+                "post",
+                "/api/v1/getUrlByEmail",
+                params={"email": self._username, "needtwostepauth": "false"},
+            ).json()
+            self._base_url = response.get("data").get("url")
+        return self._base_url
 
-    def login(self):
-        # Scan for Roborock devices.
-        base_url = self._get_base_url()
-
+    def _get_header_client_id(self):
         md5 = hashlib.md5()
         md5.update(self._username.encode())
         md5.update("should_be_unique".encode())
-        header_clientid = base64.b64encode(md5.digest()).decode()
+        return base64.b64encode(md5.digest()).decode()
 
-        login_request = PreparedRequest(base_url, {"header_clientid": header_clientid})
+    def request_code(self):
+        base_url = self._get_base_url()
+        header_clientid = self._get_header_client_id()
+        code_request = PreparedRequest(base_url, {"header_clientid": header_clientid})
 
-        user_data = (
-            login_request.request(
+        code_response = (
+            code_request.request(
                 "post",
-                "/api/v1/login",
+                "/api/v1/sendEmailCode",
                 params={
                     "username": self._username,
-                    "password": self._password,
-                    "needtwostepauth": "false",
+                    "type": "auth",
                 },
             )
             .json()
-            .get("data")
         )
 
-        rriot = user_data.get("rriot")
+        if code_response.get('code') != 200:
+            raise Exception(code_response.get("msg"))
 
-        home_id = (
+    def code_login(self, code):
+        user_data = self._get_user_data(code)
+        home_data = self._get_home_data(user_data)
+        return {"user_data": user_data, "home_data": home_data}
+
+
+    def _get_user_data(self, code):
+        base_url = self._get_base_url()
+        header_clientid = self._get_header_client_id()
+
+        login_request = PreparedRequest(base_url, {"header_clientid": header_clientid})
+        login_response = (
             login_request.request(
-                "get",
-                "/api/v1/getHomeDetail",
-                headers={"Authorization": user_data.get("token")},
+                "post",
+                "/api/v1/loginWithCode",
+                params={
+                    "username": self._username,
+                    "verifycode": code,
+                    "verifycodetype": "AUTH_EMAIL_CODE"
+                },
             )
             .json()
-            .get("data")
-            .get("rrHomeId")
         )
+
+        if login_response.get('code') != 200:
+            raise Exception(login_response.get("msg"))
+        return login_response.get("data")
+
+    def _get_home_data(self, user_data):
+        base_url = self._get_base_url()
+        header_clientid = self._get_header_client_id()
+        rriot = user_data.get("rriot")
+        home_id_request = PreparedRequest(base_url, {"header_clientid": header_clientid})
+        home_id_response = home_id_request.request(
+            "get",
+            "/api/v1/getHomeDetail",
+            headers={"Authorization": user_data.get("token")},
+        ).json()
+        if home_id_response.get('code') != 200:
+            raise Exception(home_id_response.get("msg"))
+        home_id = home_id_response.get("data").get("rrHomeId")
         timestamp = math.floor(time.time())
         nonce = secrets.token_urlsafe(6)
         prestr = ":".join(
@@ -413,58 +461,25 @@ class RoborockClient:
                                  f'mac="{mac}"',
             },
         )
-        home_data = (
-            home_request.request("get", "/user/homes/" + str(home_id))
-            .json()
-            .get("result")
-        )
-        self.devices = []
-        for device in home_data.get("devices") + home_data.get("receivedDevices"):
-            product = next(
-                (product for product in home_data.get("products") if product.get("id") == device.get("productId")), {})
-            device.update({"model": product.get("model")})
-            self.devices.append(device)
-        local_keys = {
-            device.get("duid"): device.get("localKey") for device in self.devices
-        }
-        self._mqtt_client = RoborockMqttClient(rriot, local_keys)
-
-    def connect_to_mqtt(self):
-        if self._mqtt_client is not None:
-            self._mqtt_client.connect()
-        else:
-            raise Exception("You need to login first")
-
-    def disconnect_from_mqtt(self):
-        if self._mqtt_client.client is not None:
-            self._mqtt_client.disconnect()
-            self._mqtt_client = None
-
-    def _check_connection(self):
-        if self._mqtt_client is not None and time.time() - self._last_ping > MQTT_KEEPALIVE:
-            self.disconnect_from_mqtt()
-            self.login()
-            self.connect_to_mqtt()
-            self._last_ping = time.time()
-
-    def send_request(self, device_id: str, method: str, params: list, secure=False):
-        if self._mqtt_client is not None:
-            self._check_connection()
-            response = self._mqtt_client.send_request(device_id, method, params, secure)
-            if response:
-                self._last_ping = time.time()
-            return response
-        else:
-            raise Exception("You need to login first")
+        home_response = home_request.request("get", "/user/homes/" + str(home_id)).json()
+        if not home_response.get('success'):
+            raise Exception(home_response)
+        home_data = home_response.get("result")
+        return home_data
 
 
 def main():
     logging.basicConfig()
     _LOGGER.setLevel(logging.INFO)
-    client = RoborockClient(sys.argv[1], sys.argv[2])
-    client.login()
-    client.connect_to_mqtt()
-    status = client.send_request(client.devices[0].get("duid"), "get_status", [], True)
+    client = RoborockClient(sys.argv[1])
+    client.request_code()
+    code = input('Type the code sent to your email.\n')
+    login_data = client.code_login(int(code))
+    user_data = login_data.get("user_data")
+    home_data = login_data.get("home_data")
+    mqtt_client = RoborockMqttClient(user_data, home_data)
+    mqtt_client.connect()
+    status = mqtt_client.send_request(mqtt_client.devices[0].get("duid"), "get_status", [], True)
     print(status)
 
 

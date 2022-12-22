@@ -7,7 +7,14 @@
           "username": "Brugernavn",
           "password": "Kodeord"
         }
+      },
+      "code": {
+        "description": "Type the verification code sent to your email",
+        "data": {
+          "code": "Verification code"
+        }
       }
+
     },
     "error": {
       "no_device": "Der blev ikke fundet nogen enhed på din Roborock konto",

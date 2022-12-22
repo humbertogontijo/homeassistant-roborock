@@ -7,7 +7,14 @@
           "username": "Nazwa użytkownika",
           "password": "Hasło"
         }
+      },
+      "code": {
+        "description": "Type the verification code sent to your email",
+        "data": {
+          "code": "Verification code"
+        }
       }
+
     },
     "error": {
       "no_device": "Nie znaleziono urządzenia na koncie Roborock",

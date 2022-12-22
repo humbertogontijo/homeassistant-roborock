@@ -8,8 +8,8 @@ from homeassistant.core import HomeAssistant
 from homeassistant.exceptions import ConfigEntryNotReady
 from homeassistant.helpers.update_coordinator import DataUpdateCoordinator, UpdateFailed
 
-from .api import RoborockClient
-from .const import CONF_ENTRY_USERNAME, CONF_ENTRY_PASSWORD
+from .api import RoborockClient, RoborockMqttClient
+from .const import CONF_ENTRY_USERNAME, CONF_USER_DATA, CONF_HOME_DATA
 from .const import DOMAIN, PLATFORMS
 
 SCAN_INTERVAL = timedelta(seconds=30)
@@ -23,13 +23,13 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
     hass.data.setdefault(DOMAIN, {})
 
     # Find ble device here so that we can raise device not found on startup
-    username = entry.data.get(CONF_ENTRY_USERNAME)
-    password = entry.data.get(CONF_ENTRY_PASSWORD)
+    user_data = entry.data.get(CONF_USER_DATA)
+    home_data = entry.data.get(CONF_HOME_DATA)
     _LOGGER.debug("Searching for Roborock sensors...")
 
-    client = RoborockClient(username, password)
+    client = RoborockMqttClient(user_data, home_data)
 
-    coordinator = RoborockDataUpdateCoordinator(hass, client=client)
+    coordinator = RoborockDataUpdateCoordinator(hass, client)
     await coordinator.async_refresh()
 
     if not coordinator.last_update_success:
@@ -51,31 +51,27 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
 class RoborockDataUpdateCoordinator(DataUpdateCoordinator):
     """Class to manage fetching data from the API."""
 
-    def __init__(self, hass: HomeAssistant, client: RoborockClient) -> None:
+    def __init__(self, hass: HomeAssistant, client: RoborockMqttClient) -> None:
         """Initialize."""
         self.api = client
         self.platforms = []
+        self._connected = False
 
         super().__init__(hass, _LOGGER, name=DOMAIN, update_interval=SCAN_INTERVAL)
 
     async def _async_update_data(self):
         """Update data via library."""
-        try:
-            loop = asyncio.get_running_loop()
-            await loop.run_in_executor(
-                None,
-                self.api.login,
-            )
-
-            if len(self.api.devices) == 0:
-                raise ConfigEntryNotReady(
-                    "No devices found in your account"
+        if not self._connected:
+            try:
+                loop = asyncio.get_running_loop()
+                _LOGGER.debug("Connecting to roborock mqtt")
+                await loop.run_in_executor(
+                    None,
+                    self.api.connect
                 )
-
-            _LOGGER.debug("Connecting to roborock mqtt")
-            self.api.connect_to_mqtt()
-        except Exception as exception:
-            raise UpdateFailed(exception) from exception
+                self._connected = True
+            except Exception as exception:
+                raise UpdateFailed(exception) from exception
 
 
 async def async_unload_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
