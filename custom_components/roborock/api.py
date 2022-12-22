@@ -356,10 +356,11 @@ class RoborockClient:
     def login(self):
         # Scan for Roborock devices.
         base_url = self._get_base_url()
+        should_be_unique = secrets.token_urlsafe(16)
 
         md5 = hashlib.md5()
         md5.update(self._username.encode())
-        md5.update("should_be_unique".encode())
+        md5.update(should_be_unique.encode())
         header_clientid = base64.b64encode(md5.digest()).decode()
 
         login_request = PreparedRequest(base_url, {"header_clientid": header_clientid})
