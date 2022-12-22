@@ -4,8 +4,7 @@
       "user": {
         "description": "Innlogging fra app",
         "data": {
-          "username": "Brukernavn",
-          "password": "Passord"
+          "username": "Brukernavn"
         }
       },
       "code": {

@@ -4,8 +4,7 @@
       "user": {
         "description": "Deine Zugangsdaten",
         "data": {
-          "username": "Benutzername",
-          "password": "Passwort"
+          "username": "Benutzername"
         }
       },
       "code": {

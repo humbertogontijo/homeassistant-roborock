@@ -55,8 +55,8 @@ FAN_SPEED_CODES = {
     102: "Balanced",
     103: "Turbo",
     104: "Max",
-    106: "Custom",
-    108: "Max+"
+    108: "Max+",
+    106: "Custom"
 }
 
 MOP_MODE_CODES = {
@@ -199,16 +199,16 @@ class RoborockMqttClient:
 
     def connect(self):
         client = mqtt.Client()
-        queue = Queue()
+        connection_queue = Queue()
         def on_connect(_client: mqtt.Client, userdata, flags, rc):
             if rc != 0:
-                queue.put((None, Exception("Failed to connect.")), timeout=QUEUE_TIMEOUT)
+                connection_queue.put((None, Exception("Failed to connect.")), timeout=QUEUE_TIMEOUT)
             _LOGGER.info(f'Connected to mqtt {self._mqtt_host}:{self._mqtt_port}')
             topic = f"rr/m/o/{self._mqtt_user}/{self._hashed_user}/#"
             (result, mid) = _client.subscribe(topic)
             if result != 0:
-                queue.put((None, Exception("Failed to subscribe.")), timeout=QUEUE_TIMEOUT)
-            queue.put(({}, None), timeout=QUEUE_TIMEOUT)
+                connection_queue.put((None, Exception("Failed to subscribe.")), timeout=QUEUE_TIMEOUT)
+            connection_queue.put(({}, None), timeout=QUEUE_TIMEOUT)
             _LOGGER.info(f'Subscribed to topic {topic}')
 
         def on_message(_client, userdata, msg):
@@ -250,8 +250,8 @@ class RoborockMqttClient:
                             queue.put((decrypted, None))
                 elif data.get('protocol') == 121:
                     _LOGGER.debug("Remote control")
-            except Exception as e:
-                _LOGGER.exception(e)
+            except Exception as exception:
+                _LOGGER.exception(exception)
 
         def on_subscribe(_client, userdata, mid, granted_qos):
             _LOGGER.info("Roborock subscribed to mqtt")
@@ -271,10 +271,10 @@ class RoborockMqttClient:
         client.loop_start()
         self.client = client
         try:
-            (_, err) = queue.get(timeout=QUEUE_TIMEOUT)
+            (_, err) = connection_queue.get(timeout=QUEUE_TIMEOUT)
             if err:
                 raise err
-        except Empty as e:
+        except Empty:
             self.client.disconnect()
             raise Exception(f"Timeout after {QUEUE_TIMEOUT} seconds waiting for mqtt connection")
 
@@ -347,30 +347,32 @@ class RoborockMqttClient:
             if err:
                 raise CommandVacuumError(method, err)
             return response
-        except Empty as e:
+        except Empty:
             _LOGGER.warning(f"Timeout after {QUEUE_TIMEOUT} seconds waiting for {method} response")
             return None
 
 
 class RoborockClient:
-    def __init__(self, username: str) -> None:
+    def __init__(self, username: str, device_identifier: str, base_url = None) -> None:
         """Sample API Client."""
         self._username = username
         self._default_url = "https://euiot.roborock.com"
-        self._base_url = None
+        self.base_url = base_url
         self._last_ping = time.time()
-        self._device_identifier = secrets.token_urlsafe(16)
+        self._device_identifier = device_identifier
 
     def _get_base_url(self):
-        if self._base_url is None:
+        if self.base_url is None:
             url_request = PreparedRequest(self._default_url)
             response = url_request.request(
                 "post",
                 "/api/v1/getUrlByEmail",
                 params={"email": self._username, "needtwostepauth": "false"},
             ).json()
-            self._base_url = response.get("data").get("url")
-        return self._base_url
+            if response.get('code') != 200:
+                raise Exception(response.get("error"))
+            self.base_url = response.get("data").get("url")
+        return self.base_url
 
     def _get_header_client_id(self):
         md5 = hashlib.md5()
@@ -399,12 +401,6 @@ class RoborockClient:
             raise Exception(code_response.get("msg"))
 
     def code_login(self, code):
-        user_data = self._get_user_data(code)
-        home_data = self._get_home_data(user_data)
-        return {"user_data": user_data, "home_data": home_data}
-
-
-    def _get_user_data(self, code):
         base_url = self._get_base_url()
         header_clientid = self._get_header_client_id()
 
@@ -426,7 +422,7 @@ class RoborockClient:
             raise Exception(login_response.get("msg"))
         return login_response.get("data")
 
-    def _get_home_data(self, user_data):
+    def get_home_data(self, user_data):
         base_url = self._get_base_url()
         header_clientid = self._get_header_client_id()
         rriot = user_data.get("rriot")
@@ -472,12 +468,12 @@ class RoborockClient:
 def main():
     logging.basicConfig()
     _LOGGER.setLevel(logging.INFO)
-    client = RoborockClient(sys.argv[1])
+    device_identifier = secrets.token_urlsafe(16)
+    client = RoborockClient(sys.argv[1], device_identifier)
     client.request_code()
     code = input('Type the code sent to your email.\n')
-    login_data = client.code_login(int(code))
-    user_data = login_data.get("user_data")
-    home_data = login_data.get("home_data")
+    user_data = client.code_login(int(code))
+    home_data = client.get_home_data(user_data)
     mqtt_client = RoborockMqttClient(user_data, home_data)
     mqtt_client.connect()
     status = mqtt_client.send_request(mqtt_client.devices[0].get("duid"), "get_status", [], True)

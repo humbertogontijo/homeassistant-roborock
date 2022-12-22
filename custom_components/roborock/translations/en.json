@@ -4,7 +4,7 @@
       "user": {
         "description": "Your app credentials",
         "data": {
-          "username": "Username"
+          "username": "Email"
         }
       },
       "code": {

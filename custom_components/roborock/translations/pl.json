@@ -4,8 +4,7 @@
       "user": {
         "description": "Dane logowania (Roborock)",
         "data": {
-          "username": "Nazwa użytkownika",
-          "password": "Hasło"
+          "username": "Nazwa użytkownika"
         }
       },
       "code": {

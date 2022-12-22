@@ -3,13 +3,14 @@ from __future__ import annotations
 
 import asyncio
 import logging
+import secrets
 
 import voluptuous as vol
 from homeassistant import config_entries
 from homeassistant.core import callback
 
 from .api import RoborockClient
-from .const import CONF_ENTRY_USERNAME, DOMAIN, PLATFORMS, CONF_ENTRY_CODE
+from .const import CONF_ENTRY_USERNAME, DOMAIN, PLATFORMS, CONF_ENTRY_CODE, CONF_USER_DATA, CONF_BASE_URL
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -23,19 +24,21 @@ class RoborockFlowHandler(config_entries.ConfigFlow, domain=DOMAIN):
     def __init__(self):
         """Initialize."""
         self._errors = {}
+        self._device_identifier = secrets.token_urlsafe(16)
         self._client = None
+        self._username = None
+        self._base_url = None
 
     async def async_step_user(self, user_input=None):
         """Handle a flow initialized by the user."""
         self._errors = {}
 
         if user_input is not None:
-            username = user_input[CONF_ENTRY_USERNAME]
-            client = await self._request_code(
-                username
-            )
+            self._username = user_input[CONF_ENTRY_USERNAME]
+            client = await self._request_code()
             if client:
                 self._client = client
+                self._base_url = client.base_url
                 user_input[CONF_ENTRY_CODE] = ""
                 return await self._show_code_form(user_input)
             else:
@@ -43,9 +46,8 @@ class RoborockFlowHandler(config_entries.ConfigFlow, domain=DOMAIN):
 
             return await self._show_user_form(user_input)
 
-        user_input = {}
         # Provide defaults for form
-        user_input[CONF_ENTRY_USERNAME] = ""
+        user_input = {CONF_ENTRY_USERNAME: ""}
 
         return await self._show_user_form(user_input)
 
@@ -55,22 +57,22 @@ class RoborockFlowHandler(config_entries.ConfigFlow, domain=DOMAIN):
 
         if user_input is not None:
             code = user_input[CONF_ENTRY_CODE]
-            login_data = await self._login(
-                code
-            )
+            login_data = await self._login(code)
             if login_data:
-                return self.async_create_entry(
-                    title="Roborock",
-                    data=login_data
-                )
+                await self.async_set_unique_id(self._device_identifier)
+                self._abort_if_unique_id_configured()
+                return self.async_create_entry(title="Roborock", data={
+                    CONF_ENTRY_USERNAME: self._username,
+                    CONF_USER_DATA: login_data,
+                    CONF_BASE_URL: self._base_url
+                })
             else:
                 self._errors["base"] = "no_device"
 
             return await self._show_code_form(user_input)
 
-        user_input = {}
         # Provide defaults for form
-        user_input[CONF_ENTRY_CODE] = ""
+        user_input = {CONF_ENTRY_CODE: ""}
 
         return await self._show_code_form(user_input)
 
@@ -107,18 +109,19 @@ class RoborockFlowHandler(config_entries.ConfigFlow, domain=DOMAIN):
             errors=self._errors,
         )
 
-    async def _request_code(self, username):
+    async def _request_code(self):
         """Return true if credentials is valid."""
         try:
             _LOGGER.debug("Requesting code for Roborock account")
-            client = RoborockClient(username)
+            client = RoborockClient(self._username, self._device_identifier)
             loop = asyncio.get_running_loop()
             await loop.run_in_executor(
                 None,
                 client.request_code,
             )
             return client
-        except:
+        except Exception as e:
+            _LOGGER.exception(e)
             self._errors["base"] = "auth"
             return None
 
@@ -127,13 +130,10 @@ class RoborockFlowHandler(config_entries.ConfigFlow, domain=DOMAIN):
         try:
             _LOGGER.debug("Requesting code for Roborock account")
             loop = asyncio.get_running_loop()
-            login_data = await loop.run_in_executor(
-                None,
-                self._client.code_login,
-                code
-            )
+            login_data = await loop.run_in_executor(None, self._client.code_login, code)
             return login_data
-        except:
+        except Exception as e:
+            _LOGGER.exception(e)
             self._errors["base"] = "auth"
             return None
 
@@ -168,6 +168,4 @@ class RoborockOptionsFlowHandler(config_entries.OptionsFlow):
 
     async def _update_options(self):
         """Update config entry options."""
-        return self.async_create_entry(
-            title="", data=self.options
-        )
+        return self.async_create_entry(title="", data=self.options)

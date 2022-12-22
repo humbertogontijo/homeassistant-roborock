@@ -8,7 +8,7 @@ import PIL.Image as Image
 from homeassistant.components.camera import Camera, SUPPORT_ON_OFF
 from homeassistant.helpers.entity import DeviceInfo
 
-from custom_components.roborock import RoborockClient
+from custom_components.roborock import RoborockMqttClient
 from custom_components.roborock.common.image_handler import ImageHandlerRoborock
 from custom_components.roborock.common.map_data import MapData
 from custom_components.roborock.common.map_data_parser import MapDataParserRoborock
@@ -48,7 +48,7 @@ async def async_setup_entry(hass, entry, async_add_devices):
 
 
 class VacuumCamera(Camera):
-    def __init__(self, device: dict, client: RoborockClient):
+    def __init__(self, device: dict, client: RoborockMqttClient):
         super().__init__()
         self._store_map_image = False
         self._image_config = {CONF_SCALE: 1, CONF_ROTATE: 0, CONF_TRIM: DEFAULT_TRIMS}

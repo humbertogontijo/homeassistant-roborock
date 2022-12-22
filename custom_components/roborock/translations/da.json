@@ -4,8 +4,7 @@
       "user": {
         "description": "Login info til Roborock app",
         "data": {
-          "username": "Brugernavn",
-          "password": "Kodeord"
+          "username": "Brugernavn"
         }
       },
       "code": {

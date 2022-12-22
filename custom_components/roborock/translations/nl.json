@@ -4,8 +4,7 @@
       "user": {
         "description": "Jouw Roborock logingegevens",
         "data": {
-          "username": "Gebruikersnaam",
-          "password": "Wachtwoord"
+          "username": "Gebruikersnaam"
         }
       },
       "code": {

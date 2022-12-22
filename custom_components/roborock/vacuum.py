@@ -6,8 +6,8 @@ from homeassistant.core import HomeAssistant
 from homeassistant.helpers.entity import DeviceInfo
 from homeassistant.helpers.entity_platform import AddEntitiesCallback
 
-from .api import RoborockClient, STATE_CODES, FAN_SPEED_CODES, ATTR_ERROR_CODE, ERROR_CODES, ATTR_FAN_SPEED, ATTR_STATE, \
-    ATTR_MOP_MODE, MOP_MODE_CODES, ATTR_MOP_INTENSITY, MOP_INTENSITY_CODES
+from .api import STATE_CODES, FAN_SPEED_CODES, ATTR_ERROR_CODE, ERROR_CODES, ATTR_FAN_SPEED, ATTR_STATE, \
+    ATTR_MOP_MODE, MOP_MODE_CODES, ATTR_MOP_INTENSITY, MOP_INTENSITY_CODES, RoborockMqttClient
 from .const import DOMAIN
 
 _LOGGER = logging.getLogger(__name__)
@@ -28,7 +28,7 @@ async def async_setup_entry(
 class RoborockVacuum(StateVacuumEntity):
     """General Representation of a Roborock sensor."""
 
-    def __init__(self, device: dict, client: RoborockClient):
+    def __init__(self, device: dict, client: RoborockMqttClient):
         """Initialize a sensor."""
         super().__init__()
         self._name = device.get("name")
