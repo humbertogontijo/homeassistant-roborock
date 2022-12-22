@@ -359,7 +359,7 @@ class RoborockClient:
         self._default_url = "https://euiot.roborock.com"
         self._base_url = None
         self._last_ping = time.time()
-        self._should_be_unique = secrets.token_urlsafe(16)
+        self._device_identifier = secrets.token_urlsafe(16)
 
     def _get_base_url(self):
         if self._base_url is None:
@@ -375,7 +375,7 @@ class RoborockClient:
     def _get_header_client_id(self):
         md5 = hashlib.md5()
         md5.update(self._username.encode())
-        md5.update(self._should_be_unique.encode())
+        md5.update(self._device_identifier.encode())
         return base64.b64encode(md5.digest()).decode()
 
     def request_code(self):
