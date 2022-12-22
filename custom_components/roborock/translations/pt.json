@@ -1,0 +1,32 @@
+{
+  "config": {
+    "step": {
+      "user": {
+        "description": "Suas credenciais do app",
+        "data": {
+          "username": "Nome de usuario"
+        }
+      },
+      "code": {
+        "description": "Digite o codigo de verificação enviado para o seu email",
+        "data": {
+          "code": "Codigo de verificação"
+        }
+      }
+    },
+    "error": {
+      "no_device": "Nenhum dispositivo encontrado na sua conta Roborock",
+      "auth": "Falha no login. Verifique suas credenciais"
+    }
+  },
+  "options": {
+    "step": {
+      "user": {
+        "data": {
+          "camera": "Integrar map como camera",
+          "vacuum": "Integrar aspirador"
+        }
+      }
+    }
+  }
+}

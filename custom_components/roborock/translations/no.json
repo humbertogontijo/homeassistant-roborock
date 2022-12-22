@@ -7,11 +7,28 @@
           "username": "Brukernavn",
           "password": "Passord"
         }
+      },
+      "code": {
+        "description": "Type the verification code sent to your email",
+        "data": {
+          "code": "Verification code"
+        }
       }
+
     },
     "error": {
       "no_device": "Ingen enhet funnet i din Roborock konto",
       "auth": "Innlogging feilet, sjekk brukernavn og passord"
+    }
+  },
+  "options": {
+    "step": {
+      "user": {
+        "data": {
+          "camera": "Integrate map as camera",
+          "vacuum": "Integrate as vacuum"
+        }
+      }
     }
   }
 }

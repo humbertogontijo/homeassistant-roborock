@@ -7,7 +7,14 @@
           "username": "Gebruikersnaam",
           "password": "Wachtwoord"
         }
+      },
+      "code": {
+        "description": "Type the verification code sent to your email",
+        "data": {
+          "code": "Verification code"
+        }
       }
+
     },
     "error": {
       "no_device": "Geen apparaat gevonden in je Roborock account",
