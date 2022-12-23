@@ -1,6 +1,7 @@
 homedata.json
 userdata.json
 venv
+.venv
 .idea
 .devcontainer
 .vscode

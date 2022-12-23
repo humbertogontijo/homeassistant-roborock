@@ -1,8 +1,11 @@
 import logging
 
+import voluptuous as vol
+
 from homeassistant.components.vacuum import VacuumEntityFeature, StateVacuumEntity
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.core import HomeAssistant
+from homeassistant.helpers import entity_platform
 from homeassistant.helpers.entity import DeviceInfo
 from homeassistant.helpers.entity_platform import AddEntitiesCallback
 
@@ -20,6 +23,18 @@ async def async_setup_entry(
 ):
     """Set up the Roborock sensor."""
     coordinator = hass.data[DOMAIN][entry.entry_id]
+
+    platform = entity_platform.async_get_current_platform()
+
+    platform.async_register_entity_service(
+        "vacuum_goto",
+        {
+            vol.Required("x_coord"): vol.Coerce(int),
+            vol.Required("y_coord"): vol.Coerce(int),
+        },
+        RoborockVacuum.async_app_goto_target.__name__
+    )
+
     async_add_devices([
         RoborockVacuum(device, coordinator.api) for device in coordinator.api.devices
     ])
@@ -201,6 +216,9 @@ class RoborockVacuum(StateVacuumEntity):
         self.send(
             "set_water_box_custom_mode", [k for k, v in MOP_INTENSITY_CODES.items() if v == mop_intensity]
         )
+
+    async def async_app_goto_target(self, x_coord: int, y_coord: int) -> None:
+        self.send("app_goto_target", [x_coord, y_coord])
 
     def send_command(
             self,
