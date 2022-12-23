@@ -23,91 +23,6 @@ _LOGGER = logging.getLogger(__name__)
 QUEUE_TIMEOUT = 4
 MQTT_KEEPALIVE = 60
 
-STATE_CODES = {
-    1: "Starting",
-    2: "Charger disconnected",
-    3: "Idle",
-    4: "Remote control active",
-    5: "Cleaning",
-    6: "Returning home",
-    7: "Manual mode",
-    8: "Charging",
-    9: "Charging problem",
-    10: "Paused",
-    11: "Spot cleaning",
-    12: "Error",
-    13: "Shutting down",
-    14: "Updating",
-    15: "Docking",
-    16: "Going to target",
-    17: "Zoned cleaning",
-    18: "Segment cleaning",
-    22: "Emptying the bin",  # on s7+, see #1189
-    23: "Washing the mop",  # on a46, #1435
-    26: "Going to wash the mop",  # on a46, #1435
-    100: "Charging complete",
-    101: "Device offline",
-}
-
-FAN_SPEED_CODES = {
-    105: "Off",
-    101: "Silent",
-    102: "Balanced",
-    103: "Turbo",
-    104: "Max",
-    108: "Max+",
-    106: "Custom"
-}
-
-MOP_MODE_CODES = {
-    300: "Standard",
-    301: "Deep",
-    302: "Custom",
-    303: "Deep+"
-}
-
-MOP_INTENSITY_CODES = {
-    200: "Off",
-    201: "Mild",
-    202: "Moderate",
-    203: "Intense",
-    204: "Custom"
-}
-
-ERROR_CODES = {
-    1: "LiDAR turret or laser blocked. Check for obstruction and retry.",
-    2: "Bumper stuck. Clean it and lightly tap to release it.",
-    3: "Wheels suspended. Move robot and restart.",
-    4: "Cliff sensor error. Clean cliff sensors, move robot away from drops and restart.",
-    5: "Main brush jammed. Clean main brush and bearings.",
-    6: "Side brush jammed. Remove and clean side brush.",
-    7: "Wheels iammed. Move the robot and restart.",
-    8: "Robot trapped. Clear obstacles surrounding robot.",
-    9: "No dustbin. Install dustbin and filter.",
-    12: "Low battery. Recharge and retry.",
-    13: "Charging error. Clean charging contacts and retry.",
-    14: "Battery error.",
-    15: "Wall sensor dirty. Clean wall sensor.",
-    16: "Robot tilted. Move to level ground and restart.",
-    17: "Side brush error. Reset robot.",
-    18: "Fan error. Reset robot.",
-    21: "Vertical bumper pressed. Move robot and retry.",
-    22: "Dock locator error. Clean and retry.",
-    23: "Could not return to dock. Clean dock location beacon and retry.",
-    27: "VibraRise system jammed. Check for obstructions.",
-    28: "Robot on carpet. Move robot to floor and retry.",
-    29: "Filter blocked or wet. Clean, dry, and retry.",
-    30: "No-go zone or Invisible Wall detected. Move robot from this area.",
-    31: "Cannot cross carpet. Move robot across carpet and restart.",
-    32: "Internal error. Reset the robot."
-}
-
-ATTR_STATE = "state"
-ATTR_FAN_SPEED = "fan_power"
-ATTR_MOP_MODE = "mop_mode"
-ATTR_MOP_INTENSITY = "water_box_mode"
-ATTR_ERROR_CODE = "error_code"
-
 
 def md5hex(message: str):
     md5 = hashlib.md5()
@@ -217,22 +132,26 @@ class RoborockMqttClient:
                 data = self._decode_msg(msg.payload, self._local_keys.get(device_id))
                 if data.get('protocol') == 102:
                     payload = json.loads(data.get("payload").decode())
-                    raw_dps = payload.get('dps').get("102")
-                    if raw_dps is not None:
-                        dps = json.loads(raw_dps)
-                        request_id = dps.get("id")
-                        queue = self._waiting_queue.get(request_id)
-                        error = dps.get("error")
-                        if queue is not None:
-                            if error is not None:
-                                queue.put((None, VacuumError(error.get("code"), error.get("message"))),
-                                          timeout=QUEUE_TIMEOUT)
-                            else:
-                                result = dps.get("result")
-                                if isinstance(result, list):
-                                    result = result[0]
-                                if result != "ok":
-                                    queue.put((result, None), timeout=QUEUE_TIMEOUT)
+                    for data_point_number, data_point in payload.get('dps').items():
+                        if data_point_number == '102':
+                            data_point_response = json.loads(data_point)
+                            request_id = data_point_response.get("id")
+                            queue = self._waiting_queue.get(request_id)
+                            error = data_point_response.get("error")
+                            if queue is not None:
+                                if error is not None:
+                                    queue.put((None, VacuumError(error.get("code"), error.get("message"))),
+                                              timeout=QUEUE_TIMEOUT)
+                                else:
+                                    result = data_point_response.get("result")
+                                    if isinstance(result, list):
+                                        result = result[0]
+                                    if result != "ok":
+                                        queue.put((result, None), timeout=QUEUE_TIMEOUT)
+                        elif data_point_number == '121':
+                            _LOGGER.debug(f"Remote control {data_point}")
+                        else:
+                            _LOGGER.debug(f"Unknown data point number received {data_point_number} with {data_point}")
                 elif data.get('protocol') == 301:
                     payload = data.get("payload")[0:24]
                     [endpoint, unknown1, request_id, unknown2] = struct.unpack(
@@ -248,8 +167,6 @@ class RoborockMqttClient:
                             if isinstance(decrypted, list):
                                 decrypted = decrypted[0]
                             queue.put((decrypted, None))
-                elif data.get('protocol') == 121:
-                    _LOGGER.debug("Remote control")
             except Exception as exception:
                 _LOGGER.exception(exception)
 
@@ -318,7 +235,7 @@ class RoborockMqttClient:
     def send_request(self, device_id: str, method: str, params: list, secure=False):
         timestamp = math.floor(time.time())
         request_id = self._id_counter
-        self._id_counter += 1
+        self._id_counter = (self._id_counter + 1) % 65536
         inner = {"id": request_id, "method": method, "params": params or []}
         if secure:
             inner["security"] = {

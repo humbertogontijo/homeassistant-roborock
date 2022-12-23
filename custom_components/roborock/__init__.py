@@ -35,9 +35,7 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
         loop = asyncio.get_running_loop()
         _LOGGER.debug("Connecting to roborock mqtt")
         home_data = await loop.run_in_executor(
-            None,
-            api_client.get_home_data,
-            user_data
+            None, api_client.get_home_data, user_data
         )
 
     client = RoborockMqttClient(user_data, home_data)
@@ -79,10 +77,7 @@ class RoborockDataUpdateCoordinator(DataUpdateCoordinator):
             try:
                 loop = asyncio.get_running_loop()
                 _LOGGER.debug("Connecting to roborock mqtt")
-                await loop.run_in_executor(
-                    None,
-                    self.api.connect
-                )
+                await loop.run_in_executor(None, self.api.connect)
                 self._connected = True
             except Exception as exception:
                 raise UpdateFailed(exception) from exception
