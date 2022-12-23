@@ -1,0 +1,22 @@
+roborock_goto:
+  name: Roborock go to target
+  description: Go to given coordinates
+  target:
+    entity:
+      integration: roborock
+      domain: vacuum
+  fields:
+    x_coord:
+      name: X Coordinate
+      description: x-coordinate
+      required: true
+      example: 26300
+      selector:
+        text:
+    y_coord:
+      name: Y Coordinate
+      description: y-coordinate
+      required: true
+      example: 22500
+      selector:
+        text:
