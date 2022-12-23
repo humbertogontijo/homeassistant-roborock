@@ -11,9 +11,10 @@ from homeassistant.components.vacuum import (
     STATE_PAUSED,
     STATE_RETURNING,
     StateVacuumEntity,
-    VacuumEntityFeature,
+    VacuumEntityFeature, ATTR_BATTERY_ICON, ATTR_FAN_SPEED,
 )
 from homeassistant.config_entries import ConfigEntry
+from homeassistant.const import ATTR_BATTERY_LEVEL
 from homeassistant.core import HomeAssistant
 from homeassistant.helpers import config_validation as cv, entity_platform
 from homeassistant.helpers.entity import DeviceInfo
@@ -129,11 +130,9 @@ ERROR_CODES = {
     32: "Internal error. Reset the robot."
 }
 
-ATTR_STATE = "state"
 ATTR_STATUS = "state"
-ATTR_FAN_SPEED = "fan_power"
 ATTR_MOP_MODE = "mop_mode"
-ATTR_MOP_INTENSITY = "water_box_mode"
+ATTR_MOP_INTENSITY = "mop_intensity"
 ATTR_ERROR = "error"
 ATTR_ERROR_CODE = "error_code"
 
@@ -256,6 +255,9 @@ class RoborockVacuum(StateVacuumEntity):
         self._status = {}
         _LOGGER.debug(f"Added sensor entity {self._name}")
 
+    async def async_added_to_hass(self) -> None:
+        self.async_schedule_update_ha_state(True)
+
     def send(self, command: str, params=None):
         """Send a command to a vacuum cleaner."""
         return self._client.send_request(
@@ -316,30 +318,36 @@ class RoborockVacuum(StateVacuumEntity):
     @property
     def state(self):
         """Return the status of the vacuum cleaner."""
-        state = self._status.get(ATTR_STATE)
+        state = self._status.get("state")
         return STATE_CODE_TO_STATE.get(state)
 
     @property
     def status(self):
         """Return the status of the vacuum cleaner."""
-        status = self._status.get(ATTR_STATE)
+        status = self._status.get("state")
         return STATE_CODES_TO_STATUS.get(status)
 
     @property
     def state_attributes(self):
         """Return the state attributes of the vacuum cleaner."""
-        state_attributes = super().state_attributes
-        status = self._status
-        status.update(state_attributes)
+        data = self._status
 
-        error = status.get(ATTR_ERROR_CODE)
-        state_attributes[ATTR_MOP_MODE] = self.mop_mode
-        state_attributes[f"{ATTR_MOP_MODE}_list"] = self.mop_mode_list
-        state_attributes[ATTR_MOP_INTENSITY] = self.mop_intensity
-        state_attributes[f"{ATTR_MOP_INTENSITY}_list"] = self.mop_intensity_list
-        state_attributes[ATTR_ERROR] = error
+        if self.supported_features & VacuumEntityFeature.BATTERY:
+            data[ATTR_BATTERY_LEVEL] = self.battery_level
+            data[ATTR_BATTERY_ICON] = self.battery_icon
 
-        return status
+        if self.supported_features & VacuumEntityFeature.FAN_SPEED:
+            data[ATTR_FAN_SPEED] = self.fan_speed
+
+        error_code = data.get(ATTR_ERROR_CODE)
+        error = ERROR_CODES.get(error_code)
+        data[ATTR_MOP_MODE] = self.mop_mode
+        data[f"{ATTR_MOP_MODE}_list"] = self.mop_mode_list
+        data[ATTR_MOP_INTENSITY] = self.mop_intensity
+        data[f"{ATTR_MOP_INTENSITY}_list"] = self.mop_intensity_list
+        data[ATTR_ERROR] = error
+
+        return data
 
     @property
     def battery_level(self):
@@ -349,7 +357,7 @@ class RoborockVacuum(StateVacuumEntity):
     @property
     def fan_speed(self):
         """Return the fan speed of the vacuum cleaner."""
-        fan_speed = self._status.get(ATTR_FAN_SPEED)
+        fan_speed = self._status.get("fan_power")
         return FAN_SPEED_CODES.get(fan_speed)
 
     @property
@@ -360,7 +368,7 @@ class RoborockVacuum(StateVacuumEntity):
     @property
     def mop_mode(self):
         """Return the mop mode of the vacuum cleaner."""
-        mop_mode = self._status.get(ATTR_MOP_MODE)
+        mop_mode = self._status.get("mop_mode")
         return MOP_MODE_CODES.get(mop_mode)
 
     @property
@@ -371,7 +379,7 @@ class RoborockVacuum(StateVacuumEntity):
     @property
     def mop_intensity(self):
         """Return the mop intensity of the vacuum cleaner."""
-        mop_intensity = self._status.get(ATTR_MOP_INTENSITY)
+        mop_intensity = self._status.get("water_box_mode")
         return MOP_INTENSITY_CODES.get(mop_intensity)
 
     @property

@@ -144,7 +144,7 @@ vacuum_clean_segment:
 
 vacuum_set_mop_mode:
   name: Vacuum set mop mode
-  description: Change vacuum mop mode
+  description: Change vacuum mop mode.
   target:
     entity:
       integration: roborock
@@ -164,8 +164,8 @@ vacuum_set_mop_mode:
             - "custom"
 
 vacuum_set_mop_intensity:
-  name: Vacuum set mop mode
-  description: Change vacuum mop mode
+  name: Vacuum set mop intensity
+  description: Change vacuum mop intensity.
   target:
     entity:
       integration: roborock

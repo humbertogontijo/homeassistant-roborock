@@ -68,6 +68,9 @@ class VacuumCamera(Camera):
         self._map_data = None
         self._image = None
 
+    async def async_added_to_hass(self) -> None:
+        self.async_schedule_update_ha_state(True)
+
     @property
     def device_info(self) -> DeviceInfo:
         """Return the device info."""
