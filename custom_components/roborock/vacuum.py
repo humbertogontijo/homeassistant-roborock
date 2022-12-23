@@ -14,7 +14,7 @@ from homeassistant.components.vacuum import (
     VacuumEntityFeature, ATTR_BATTERY_ICON, ATTR_FAN_SPEED,
 )
 from homeassistant.config_entries import ConfigEntry
-from homeassistant.const import ATTR_BATTERY_LEVEL
+from homeassistant.const import ATTR_BATTERY_LEVEL, ATTR_STATE
 from homeassistant.core import HomeAssistant
 from homeassistant.helpers import config_validation as cv, entity_platform
 from homeassistant.helpers.entity import DeviceInfo
@@ -330,7 +330,7 @@ class RoborockVacuum(StateVacuumEntity):
     @property
     def state_attributes(self):
         """Return the state attributes of the vacuum cleaner."""
-        data = self._status
+        data = dict(self._status)
 
         if self.supported_features & VacuumEntityFeature.BATTERY:
             data[ATTR_BATTERY_LEVEL] = self.battery_level
@@ -339,12 +339,14 @@ class RoborockVacuum(StateVacuumEntity):
         if self.supported_features & VacuumEntityFeature.FAN_SPEED:
             data[ATTR_FAN_SPEED] = self.fan_speed
 
-        error_code = data.get(ATTR_ERROR_CODE)
-        error = ERROR_CODES.get(error_code)
+        data[ATTR_STATE] = self.state
+        data[ATTR_STATUS] = self.status
         data[ATTR_MOP_MODE] = self.mop_mode
         data[f"{ATTR_MOP_MODE}_list"] = self.mop_mode_list
         data[ATTR_MOP_INTENSITY] = self.mop_intensity
         data[f"{ATTR_MOP_INTENSITY}_list"] = self.mop_intensity_list
+        error_code = data.get(ATTR_ERROR_CODE)
+        error = ERROR_CODES.get(error_code)
         data[ATTR_ERROR] = error
 
         return data

@@ -267,6 +267,8 @@ class RoborockMqttClient:
         except Empty:
             _LOGGER.warning(f"Timeout after {QUEUE_TIMEOUT} seconds waiting for {method} response")
             return None
+        finally:
+            del self._waiting_queue[request_id]
 
 
 class RoborockClient:
