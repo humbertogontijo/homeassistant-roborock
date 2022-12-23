@@ -27,7 +27,7 @@ async def async_setup_entry(
     platform = entity_platform.async_get_current_platform()
 
     platform.async_register_entity_service(
-        "roborock_goto",
+        "vacuum_goto",
         {
             vol.Required("x_coord"): vol.Coerce(int),
             vol.Required("y_coord"): vol.Coerce(int),
