@@ -107,6 +107,9 @@ class RoborockMqttClient:
         self._nonce = secrets.token_bytes(16)
         self._waiting_queue: dict[int, Queue] = {}
 
+    def is_connected(self):
+        return self.client is not None
+
     def disconnect(self):
         if self.client:
             self.client.disconnect()
@@ -175,6 +178,7 @@ class RoborockMqttClient:
 
         def on_disconnect(_client: mqtt.Client, userdata, rc):
             _LOGGER.error(f"Roborock mqtt client disconnected (rc: {rc})")
+            self.client = None
 
         client.on_connect = on_connect
         client.on_message = on_message
@@ -190,9 +194,12 @@ class RoborockMqttClient:
         try:
             (_, err) = connection_queue.get(timeout=QUEUE_TIMEOUT)
             if err:
+                self.client.disconnect()
+                self.client = None
                 raise err
         except Empty:
             self.client.disconnect()
+            self.client = None
             raise Exception(f"Timeout after {QUEUE_TIMEOUT} seconds waiting for mqtt connection")
 
     def _decode_msg(self, msg, local_key):
@@ -235,7 +242,7 @@ class RoborockMqttClient:
     def send_request(self, device_id: str, method: str, params: list, secure=False):
         timestamp = math.floor(time.time())
         request_id = self._id_counter
-        self._id_counter = (self._id_counter + 1) % 65536
+        self._id_counter = (self._id_counter + 1) % 32767
         inner = {"id": request_id, "method": method, "params": params or []}
         if secure:
             inner["security"] = {
@@ -251,7 +258,7 @@ class RoborockMqttClient:
                 separators=(",", ":"),
             ).encode()
         )
-        _LOGGER.debug(f"Requesting method {method} with {params}")
+        _LOGGER.debug(f"Requesting {request_id} method {method} with {params}")
         queue = Queue()
         self._waiting_queue[request_id] = queue
         self._send_msg_raw(device_id, 101, timestamp, payload)
