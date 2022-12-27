@@ -277,6 +277,12 @@ class RoborockVacuum(RoborockCoordinatedEntity, StateVacuumEntity):
         return features
 
     @property
+    def name(self):
+        """Return the name of the sensor."""
+        return self._device_name
+
+
+    @property
     def icon(self) -> str:
         """Return the icon of the vacuum cleaner."""
         return "mdi:robot-vacuum"

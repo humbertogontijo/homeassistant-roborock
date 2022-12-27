@@ -26,10 +26,6 @@ from .device import RoborockCoordinatedEntity
 
 _LOGGER = logging.getLogger(__name__)
 
-ATTR_NO_WATER = "no_water"
-ATTR_PTC_STATUS = "ptc_status"
-ATTR_POWERSUPPLY_ATTACHED = "powersupply_attached"
-ATTR_WATER_TANK_DETACHED = "water_tank_detached"
 ATTR_MOP_ATTACHED = "is_water_box_carriage_attached"
 ATTR_WATER_BOX_ATTACHED = "is_water_box_attached"
 ATTR_WATER_SHORTAGE = "is_water_shortage"

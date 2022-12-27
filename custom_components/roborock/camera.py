@@ -84,6 +84,11 @@ class VacuumCamera(RoborockCoordinatedEntity, Camera):
     ) -> Optional[bytes]:
         return self._image
 
+    @property
+    def name(self):
+        """Return the name of the sensor."""
+        return self._device_name
+
     def turn_on(self):
         self._should_poll = True
 
