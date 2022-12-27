@@ -94,7 +94,7 @@ async def async_setup_entry(
         sensors = VACUUM_SENSORS
         if model in MODELS_VACUUM_WITH_SEPARATE_MOP:
             sensors = VACUUM_SENSORS_SEPARATE_MOP
-        device_status = coordinator.device_status.get(device.get("duid"))
+        device_status = coordinator.data.get(device.get("duid"))
         if device_status:
             for sensor, description in sensors.items():
                 data = device_status.get(description.key)

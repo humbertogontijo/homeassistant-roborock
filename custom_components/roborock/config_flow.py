@@ -10,7 +10,8 @@ from homeassistant import config_entries
 from homeassistant.core import callback
 
 from .api import RoborockClient
-from .const import CONF_ENTRY_USERNAME, DOMAIN, PLATFORMS, CONF_ENTRY_CODE, CONF_USER_DATA, CONF_BASE_URL
+from .const import CONF_ENTRY_USERNAME, DOMAIN, PLATFORMS, CONF_ENTRY_CODE, CONF_USER_DATA, CONF_BASE_URL, \
+    CONF_DEVICE_IDENTIFIER
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -64,7 +65,8 @@ class RoborockFlowHandler(config_entries.ConfigFlow, domain=DOMAIN):
                 return self.async_create_entry(title="Roborock", data={
                     CONF_ENTRY_USERNAME: self._username,
                     CONF_USER_DATA: login_data,
-                    CONF_BASE_URL: self._base_url
+                    CONF_BASE_URL: self._base_url,
+                    CONF_DEVICE_IDENTIFIER: self._device_identifier
                 })
             else:
                 self._errors["base"] = "no_device"

@@ -34,7 +34,7 @@ class RoborockCoordinatedEntity(CoordinatorEntity[RoborockDataUpdateCoordinator]
 
     @property
     def _device_status(self):
-        return self.coordinator.device_status.get(self._device_id)
+        return self.coordinator.data.get(self._device_id)
 
     @property
     def device_info(self) -> DeviceInfo:

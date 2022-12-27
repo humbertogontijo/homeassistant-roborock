@@ -27,10 +27,10 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
 
     # Newer version will have this None so new roborock devices show up on reload
     home_data = entry.data.get(CONF_HOME_DATA)
+    device_identifier = entry.unique_id
     if not home_data:
         base_url = entry.data.get(CONF_BASE_URL)
         username = entry.data.get(CONF_ENTRY_USERNAME)
-        device_identifier = entry.unique_id
         api_client = RoborockClient(username, device_identifier, base_url)
         loop = asyncio.get_running_loop()
         _LOGGER.debug("Getting home data")
@@ -38,7 +38,7 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
             None, api_client.get_home_data, user_data
         )
 
-    client = RoborockMqttClient(user_data, home_data)
+    client = RoborockMqttClient(user_data, home_data, device_identifier)
     coordinator = RoborockDataUpdateCoordinator(hass, client)
 
     _LOGGER.debug("Searching for Roborock sensors...")
@@ -68,7 +68,6 @@ class RoborockDataUpdateCoordinator(DataUpdateCoordinator):
         super().__init__(hass, _LOGGER, name=DOMAIN, update_interval=SCAN_INTERVAL)
         self.api = client
         self.platforms = []
-        self.device_status = {}
 
     async def _async_update_data(self):
         """Update data via library."""
@@ -79,6 +78,7 @@ class RoborockDataUpdateCoordinator(DataUpdateCoordinator):
                 await loop.run_in_executor(None, self.api.connect)
             except Exception as exception:
                 raise UpdateFailed(exception) from exception
+        device_statuses = {}
         for device in self.api.devices:
             device_id = device.get("duid")
             retries = 3
@@ -86,7 +86,10 @@ class RoborockDataUpdateCoordinator(DataUpdateCoordinator):
             while not device_status and retries > 0:
                 device_status = self.api.send_request(device_id, "get_status")
                 retries -= 1
-            self.device_status[device_id] = device_status
+            if not device_status:
+                device_status = {}
+            device_statuses[device_id] = device_status
+        return device_statuses
 
 
 async def async_unload_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:

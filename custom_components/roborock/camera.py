@@ -7,7 +7,7 @@ from typing import Any, Dict, List, Optional, Tuple
 import PIL.Image as Image
 from homeassistant.components.camera import Camera, SUPPORT_ON_OFF
 from homeassistant.config_entries import ConfigEntry
-from homeassistant.core import HomeAssistant
+from homeassistant.core import HomeAssistant, callback
 from homeassistant.helpers.entity_platform import AddEntitiesCallback
 
 from custom_components.roborock import RoborockDataUpdateCoordinator
@@ -75,19 +75,10 @@ class VacuumCamera(RoborockCoordinatedEntity, Camera):
         self._map_data = None
         self._image = None
 
-    @property
-    def frame_interval(self) -> float:
-        return 1
-
     def camera_image(
             self, width: Optional[int] = None, height: Optional[int] = None
     ) -> Optional[bytes]:
         return self._image
-
-    @property
-    def name(self):
-        """Return the name of the sensor."""
-        return self._device_name
 
     def turn_on(self):
         self._should_poll = True
@@ -155,8 +146,6 @@ class VacuumCamera(RoborockCoordinatedEntity, Camera):
         return attributes
 
     async def async_update(self) -> None:
-        if not self.enabled:
-            return
         try:
             self._handle_map_data()
         except Exception as e:
@@ -164,7 +153,6 @@ class VacuumCamera(RoborockCoordinatedEntity, Camera):
             self._set_map_data(
                 MapDataParserRoborock.create_empty(self._colors, str(self._status))
             )
-        await self.coordinator.async_request_refresh()
 
     def enable_motion_detection(self) -> None:
         pass

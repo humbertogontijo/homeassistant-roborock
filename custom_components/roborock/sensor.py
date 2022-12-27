@@ -35,13 +35,6 @@ class RoborockSensorDescription(SensorEntityDescription):
     """A class that describes sensor entities."""
     value: Callable = None
 
-
-class RoborockSensorDeviceClass(str, Enum):
-    AREA = "area"
-    DURATION = "duration"
-    TIMESTAMP = "timestamp"
-
-
 VACUUM_SENSORS = {
     f"current_{ATTR_STATUS_CLEAN_TIME}": RoborockSensorDescription(
         native_unit_of_measurement=TIME_SECONDS,
@@ -54,10 +47,10 @@ VACUUM_SENSORS = {
     f"current_{ATTR_STATUS_CLEAN_AREA}": RoborockSensorDescription(
         native_unit_of_measurement=AREA_SQUARE_METERS,
         icon="mdi:texture-box",
-        device_class=RoborockSensorDeviceClass.AREA,
         key=RoborockStatusField.CLEAN_AREA,
         entity_category=EntityCategory.DIAGNOSTIC,
         name="Current clean area",
+        value=lambda value: value / 1000000,
     ),
 }
 
@@ -72,7 +65,7 @@ async def async_setup_entry(
     coordinator = hass.data[DOMAIN][config_entry.entry_id]
 
     for device in coordinator.api.devices:
-        device_status = coordinator.device_status.get(device.get("duid"))
+        device_status = coordinator.data.get(device.get("duid"))
         if device_status:
             for sensor, description in VACUUM_SENSORS.items():
                 data = device_status.get(description.key)
@@ -123,16 +116,13 @@ class RoborockSensor(RoborockCoordinatedEntity, SensorEntity):
         native_value = self._extract_value_from_attribute(
             self.entity_description.key
         )
-
         if native_value is not None:
+            if self.entity_description.value:
+                native_value = self.entity_description.value(native_value)
             if (
-                    self.device_class == RoborockSensorDeviceClass.TIMESTAMP
+                    self.device_class == SensorDeviceClass.TIMESTAMP
                     and (native_datetime := dt_util.parse_datetime(str(native_value))) is not None
             ):
                 return native_datetime.astimezone(dt_util.UTC)
-            elif (
-                    self.device_class == RoborockSensorDeviceClass.AREA
-            ):
-                return native_value / 1000000
 
         return native_value

@@ -1,6 +1,7 @@
 import logging
 import math
 import time
+from typing import Mapping, Any
 
 import voluptuous as vol
 from homeassistant.components.vacuum import (
@@ -11,7 +12,10 @@ from homeassistant.components.vacuum import (
     STATE_PAUSED,
     STATE_RETURNING,
     StateVacuumEntity,
-    VacuumEntityFeature, ATTR_BATTERY_ICON, ATTR_FAN_SPEED,
+    VacuumEntityFeature,
+    ATTR_BATTERY_ICON,
+    ATTR_FAN_SPEED,
+    ATTR_FAN_SPEED_LIST,
 )
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.const import ATTR_BATTERY_LEVEL, ATTR_STATE
@@ -134,8 +138,11 @@ ERROR_CODES = {
 ATTR_STATUS = "status"
 ATTR_MOP_MODE = "mop_mode"
 ATTR_MOP_INTENSITY = "mop_intensity"
+ATTR_MOP_MODE_LIST = f"{ATTR_MOP_MODE}_list"
+ATTR_MOP_INTENSITY_LIST = f"{ATTR_MOP_INTENSITY}_list"
 ATTR_ERROR = "error"
 ATTR_ERROR_CODE = "error_code"
+
 
 def add_services():
     platform = entity_platform.async_get_current_platform()
@@ -277,12 +284,6 @@ class RoborockVacuum(RoborockCoordinatedEntity, StateVacuumEntity):
         return features
 
     @property
-    def name(self):
-        """Return the name of the sensor."""
-        return self._device_name
-
-
-    @property
     def icon(self) -> str:
         """Return the icon of the vacuum cleaner."""
         return "mdi:robot-vacuum"
@@ -314,9 +315,8 @@ class RoborockVacuum(RoborockCoordinatedEntity, StateVacuumEntity):
         data[ATTR_STATE] = self.state
         data[ATTR_STATUS] = self.status
         data[ATTR_MOP_MODE] = self.mop_mode
-        data[f"{ATTR_MOP_MODE}_list"] = self.mop_mode_list
         data[ATTR_MOP_INTENSITY] = self.mop_intensity
-        data[f"{ATTR_MOP_INTENSITY}_list"] = self.mop_intensity_list
+        data.update(self.capability_attributes)
         error_code = data.get(ATTR_ERROR_CODE)
         error = ERROR_CODES.get(error_code)
         data[ATTR_ERROR] = error
@@ -360,6 +360,16 @@ class RoborockVacuum(RoborockCoordinatedEntity, StateVacuumEntity):
     def mop_intensity_list(self) -> list[str]:
         """Get the list of available mop intensity steps of the vacuum cleaner."""
         return list(MOP_INTENSITY_CODES.values())
+
+    @property
+    def capability_attributes(self) -> Mapping[str, Any] | None:
+        """Return capability attributes."""
+        capability_attributes = {}
+        if self.supported_features & VacuumEntityFeature.FAN_SPEED:
+            capability_attributes[ATTR_FAN_SPEED_LIST] = self.fan_speed_list
+        capability_attributes[ATTR_MOP_MODE_LIST] = self.mop_mode_list
+        capability_attributes[ATTR_MOP_INTENSITY_LIST] = self.mop_intensity_list
+        return capability_attributes
 
     @property
     def map(self):
