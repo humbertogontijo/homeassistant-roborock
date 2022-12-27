@@ -54,6 +54,7 @@ VACUUM_SENSORS = {
     f"current_{ATTR_STATUS_CLEAN_AREA}": RoborockSensorDescription(
         native_unit_of_measurement=AREA_SQUARE_METERS,
         icon="mdi:texture-box",
+        device_class=RoborockSensorDeviceClass.AREA,
         key=RoborockStatusField.CLEAN_AREA,
         entity_category=EntityCategory.DIAGNOSTIC,
         name="Current clean area",
