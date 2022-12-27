@@ -6,9 +6,12 @@ from typing import Any, Dict, List, Optional, Tuple
 
 import PIL.Image as Image
 from homeassistant.components.camera import Camera, SUPPORT_ON_OFF
-from homeassistant.helpers.entity import DeviceInfo
+from homeassistant.config_entries import ConfigEntry
+from homeassistant.core import HomeAssistant
+from homeassistant.helpers.entity_platform import AddEntitiesCallback
 
-from custom_components.roborock import RoborockMqttClient
+from custom_components.roborock import RoborockDataUpdateCoordinator
+from custom_components.roborock.api import RoborockStatusField
 from custom_components.roborock.common.image_handler import ImageHandlerRoborock
 from custom_components.roborock.common.map_data import MapData
 from custom_components.roborock.common.map_data_parser import MapDataParserRoborock
@@ -20,6 +23,7 @@ from custom_components.roborock.common.types import (
     Texts,
 )
 from custom_components.roborock.const import *
+from custom_components.roborock.device import RoborockCoordinatedEntity
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -40,16 +44,21 @@ DEFAULT_SIZES = {
 NON_REFRESHING_STATES = [3, 8]
 
 
-async def async_setup_entry(hass, entry, async_add_devices):
-    coordinator = hass.data[DOMAIN][entry.entry_id]
-    async_add_devices(
-        [VacuumCamera(device, coordinator.api) for device in coordinator.api.devices]
+async def async_setup_entry(
+        hass: HomeAssistant,
+        config_entry: ConfigEntry,
+        async_add_entities: AddEntitiesCallback,
+) -> None:
+    coordinator = hass.data[DOMAIN][config_entry.entry_id]
+    async_add_entities(
+        [VacuumCamera(config_entry.unique_id, device, coordinator) for device in coordinator.api.devices]
     )
 
 
-class VacuumCamera(Camera):
-    def __init__(self, device: dict, client: RoborockMqttClient):
-        super().__init__()
+class VacuumCamera(RoborockCoordinatedEntity, Camera):
+    def __init__(self, unique_id: str, device: dict, coordinator: RoborockDataUpdateCoordinator):
+        Camera.__init__(self)
+        super().__init__(device, coordinator, unique_id)
         self._store_map_image = False
         self._image_config = {CONF_SCALE: 1, CONF_ROTATE: 0, CONF_TRIM: DEFAULT_TRIMS}
         self._sizes = DEFAULT_SIZES
@@ -58,28 +67,13 @@ class VacuumCamera(Camera):
         self._colors = ImageHandlerRoborock.COLORS
         self._store_map_raw = False
         self._store_map_path = "/tmp"
-        self._name = device.get("name")
         self.content_type = CONTENT_TYPE
         self._status = CameraStatus.INITIALIZING
         self._device = device
-        self._client = client
         self._should_poll = True
         self._attributes = CONF_AVAILABLE_ATTRIBUTES
         self._map_data = None
         self._image = None
-
-    async def async_added_to_hass(self) -> None:
-        self.async_schedule_update_ha_state(True)
-
-    @property
-    def device_info(self) -> DeviceInfo:
-        """Return the device info."""
-        return DeviceInfo(
-            name=self._name,
-            identifiers={(DOMAIN, self._device.get("duid"))},
-            manufacturer="Roborock",
-            model=self._device.get("model"),
-        )
 
     @property
     def frame_interval(self) -> float:
@@ -89,10 +83,6 @@ class VacuumCamera(Camera):
             self, width: Optional[int] = None, height: Optional[int] = None
     ) -> Optional[bytes]:
         return self._image
-
-    @property
-    def name(self) -> str:
-        return self._name
 
     def turn_on(self):
         self._should_poll = True
@@ -159,11 +149,9 @@ class VacuumCamera(Camera):
                 attributes[name] = value
         return attributes
 
-    @property
-    def unique_id(self):
-        return "camera." + self._device.get("duid")
-
-    def update(self):
+    async def async_update(self) -> None:
+        if not self.enabled:
+            return
         try:
             self._handle_map_data()
         except Exception as e:
@@ -171,18 +159,13 @@ class VacuumCamera(Camera):
             self._set_map_data(
                 MapDataParserRoborock.create_empty(self._colors, str(self._status))
             )
+        await self.coordinator.async_request_refresh()
 
     def enable_motion_detection(self) -> None:
         pass
 
     def disable_motion_detection(self) -> None:
         pass
-
-    def _send(self, command: str, params=None):
-        """Send a command to a vacuum cleaner."""
-        return self._client.send_request(
-            self._device.get("duid"), command, params, True
-        )
 
     def get_map(
             self,
@@ -193,8 +176,11 @@ class VacuumCamera(Camera):
             image_config: ImageConfig,
             store_map_path: Optional[str] = None,
     ) -> Tuple[Optional[MapData], bool]:
-        response = self._send("get_map_v1")
+        response = self.send("get_map_v1")
         if not response:
+            return None, False
+        elif not isinstance(response, bytes):
+            _LOGGER.debug(f"Received not bytes value for get_map_v1 function: {response}")
             return None, False
         map_stored = False
         if store_map_path is not None:
@@ -223,11 +209,11 @@ class VacuumCamera(Camera):
         )
 
     def _valid_refresh_state(self):
-        updated_status = self._send("get_status")
+        updated_status = self._device_status
         if (
                 updated_status is not None
                 and isinstance(updated_status, dict)
-                and updated_status.get("state") not in NON_REFRESHING_STATES
+                and updated_status.get(RoborockStatusField.STATE) not in NON_REFRESHING_STATES
         ):
             return True
         return False

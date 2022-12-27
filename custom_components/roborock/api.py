@@ -11,6 +11,7 @@ import secrets
 import struct
 import sys
 import time
+from enum import Enum
 from queue import Queue, Empty
 from urllib.parse import urlparse
 
@@ -70,8 +71,56 @@ class VacuumError(Exception):
 
 class CommandVacuumError(Exception):
     def __init__(self, command: str, vacuum_error: VacuumError):
-        self.message = f'{command}: {str(vacuum_error)}'
+        self.message = f"{command}: {str(vacuum_error)}"
         super().__init__(self.message)
+
+
+class RoborockStatusField(str, Enum):
+    MSG_VER = "msg_ver"
+    MSG_SEQ = "msg_seq"
+    STATE = "state"
+    BATTERY = "battery"
+    CLEAN_TIME = "clean_time"
+    CLEAN_AREA = "clean_area"
+    ERROR_CODE = "error_code"
+    MAP_PRESENT = "map_present"
+    IN_CLEANING = "in_cleaning"
+    IN_RETURNING = "in_returning"
+    IN_FRESH_STATE = "in_fresh_state"
+    LAB_STATUS = "lab_status"
+    WATER_BOX_STATUS = "water_box_status"
+    BACK_TYPE = "back_type"
+    WASH_PHASE = "wash_phase"
+    WASH_READY = "wash_ready"
+    FAN_POWER = "fan_power"
+    DND_ENABLED = "dnd_enabled"
+    MAP_STATUS = "map_status"
+    IS_LOCATING = "is_locating"
+    LOCK_STATUS = "lock_status"
+    WATER_BOX_MODE = "water_box_mode"
+    WATER_BOX_CARRIAGE_STATUS = "water_box_carriage_status"
+    MOP_FORBIDDEN_ENABLE = "mop_forbidden_enable"
+    CAMERA_STATUS = "camera_status"
+    IS_EXPLORING = "is_exploring"
+    HOME_SEC_STATUS = "home_sec_status"
+    HOME_SEC_ENABLE_PASSWORD = "home_sec_enable_password"
+    ADBUMPER_STATUS = "adbumper_status"
+    WATER_SHORTAGE_STATUS = "water_shortage_status"
+    DOCK_TYPE = "dock_type"
+    DUST_COLLECTION_STATUS = "dust_collection_status"
+    AUTO_DUST_COLLECTION = "auto_dust_collection"
+    AVOID_COUNT = "avoid_count"
+    MOP_MODE = "mop_mode"
+    DEBUG_MODE = "debug_mode"
+    COLLISION_AVOID_STATUS = "collision_avoid_status"
+    SWITCH_MAP_MODE = "switch_map_mode"
+    DOCK_ERROR_STATUS = "dock_error_status"
+    CHARGE_STATUS = "charge_status"
+    UNSAVE_MAP_REASON = "unsave_map_reason"
+    UNSAVE_MAP_FLAG = "unsave_map_flag"
+
+    def __int__(self, attributes: dict):
+        self.__dict__.update(attributes)
 
 
 class RoborockMqttClient:
@@ -118,25 +167,26 @@ class RoborockMqttClient:
     def connect(self):
         client = mqtt.Client()
         connection_queue = Queue()
+
         def on_connect(_client: mqtt.Client, userdata, flags, rc):
             if rc != 0:
                 connection_queue.put((None, Exception("Failed to connect.")), timeout=QUEUE_TIMEOUT)
-            _LOGGER.info(f'Connected to mqtt {self._mqtt_host}:{self._mqtt_port}')
+            _LOGGER.info(f"Connected to mqtt {self._mqtt_host}:{self._mqtt_port}")
             topic = f"rr/m/o/{self._mqtt_user}/{self._hashed_user}/#"
             (result, mid) = _client.subscribe(topic)
             if result != 0:
                 connection_queue.put((None, Exception("Failed to subscribe.")), timeout=QUEUE_TIMEOUT)
             connection_queue.put(({}, None), timeout=QUEUE_TIMEOUT)
-            _LOGGER.info(f'Subscribed to topic {topic}')
+            _LOGGER.info(f"Subscribed to topic {topic}")
 
         def on_message(_client, userdata, msg):
             try:
                 device_id = msg.topic.split("/").pop()
                 data = self._decode_msg(msg.payload, self._local_keys.get(device_id))
-                if data.get('protocol') == 102:
+                if data.get("protocol") == 102:
                     payload = json.loads(data.get("payload").decode())
-                    for data_point_number, data_point in payload.get('dps').items():
-                        if data_point_number == '102':
+                    for data_point_number, data_point in payload.get("dps").items():
+                        if data_point_number == "102":
                             data_point_response = json.loads(data_point)
                             request_id = data_point_response.get("id")
                             queue = self._waiting_queue.get(request_id)
@@ -151,11 +201,11 @@ class RoborockMqttClient:
                                         result = result[0]
                                     if result != "ok":
                                         queue.put((result, None), timeout=QUEUE_TIMEOUT)
-                        elif data_point_number == '121':
+                        elif data_point_number == "121":
                             _LOGGER.debug(f"Remote control {data_point}")
                         else:
                             _LOGGER.debug(f"Unknown data point number received {data_point_number} with {data_point}")
-                elif data.get('protocol') == 301:
+                elif data.get("protocol") == 301:
                     payload = data.get("payload")[0:24]
                     [endpoint, unknown1, request_id, unknown2] = struct.unpack(
                         "<15sBH6s", payload
@@ -217,7 +267,7 @@ class RoborockMqttClient:
         aes_key = md5bin(encode_timestamp(timestamp) + local_key + self._salt)
         decipher = AES.new(aes_key, AES.MODE_ECB)
         decrypted_payload = unpad(decipher.decrypt(payload), AES.block_size)
-        return {'version': version, 'timestamp': timestamp, 'protocol': protocol, 'payload': decrypted_payload}
+        return {"version": version, "timestamp": timestamp, "protocol": protocol, "payload": decrypted_payload}
 
     def _send_msg_raw(self, device_id, protocol, timestamp, payload):
         local_key = self._local_keys.get(device_id)
@@ -239,7 +289,7 @@ class RoborockMqttClient:
         if info.rc != 0:
             raise Exception("Failed to publish")
 
-    def send_request(self, device_id: str, method: str, params: list, secure=False):
+    def send_request(self, device_id: str, method: str, params: list=None, secure=False):
         timestamp = math.floor(time.time())
         request_id = self._id_counter
         self._id_counter = (self._id_counter + 1) % 32767
@@ -279,7 +329,7 @@ class RoborockMqttClient:
 
 
 class RoborockClient:
-    def __init__(self, username: str, device_identifier: str, base_url = None) -> None:
+    def __init__(self, username: str, device_identifier: str, base_url=None) -> None:
         """Sample API Client."""
         self._username = username
         self._default_url = "https://euiot.roborock.com"
@@ -295,7 +345,7 @@ class RoborockClient:
                 "/api/v1/getUrlByEmail",
                 params={"email": self._username, "needtwostepauth": "false"},
             ).json()
-            if response.get('code') != 200:
+            if response.get("code") != 200:
                 raise Exception(response.get("error"))
             self.base_url = response.get("data").get("url")
         return self.base_url
@@ -323,7 +373,7 @@ class RoborockClient:
             .json()
         )
 
-        if code_response.get('code') != 200:
+        if code_response.get("code") != 200:
             raise Exception(code_response.get("msg"))
 
     def code_login(self, code):
@@ -344,7 +394,7 @@ class RoborockClient:
             .json()
         )
 
-        if login_response.get('code') != 200:
+        if login_response.get("code") != 200:
             raise Exception(login_response.get("msg"))
         return login_response.get("data")
 
@@ -358,7 +408,7 @@ class RoborockClient:
             "/api/v1/getHomeDetail",
             headers={"Authorization": user_data.get("token")},
         ).json()
-        if home_id_response.get('code') != 200:
+        if home_id_response.get("code") != 200:
             raise Exception(home_id_response.get("msg"))
         home_id = home_id_response.get("data").get("rrHomeId")
         timestamp = math.floor(time.time())
@@ -385,7 +435,7 @@ class RoborockClient:
             },
         )
         home_response = home_request.request("get", "/user/homes/" + str(home_id)).json()
-        if not home_response.get('success'):
+        if not home_response.get("success"):
             raise Exception(home_response)
         home_data = home_response.get("result")
         return home_data
@@ -397,12 +447,12 @@ def main():
     device_identifier = secrets.token_urlsafe(16)
     client = RoborockClient(sys.argv[1], device_identifier)
     client.request_code()
-    code = input('Type the code sent to your email.\n')
+    code = input("Type the code sent to your email.\n")
     user_data = client.code_login(int(code))
     home_data = client.get_home_data(user_data)
     mqtt_client = RoborockMqttClient(user_data, home_data)
     mqtt_client.connect()
-    status = mqtt_client.send_request(mqtt_client.devices[0].get("duid"), "get_status", [], True)
+    status = mqtt_client.send_request(mqtt_client.devices[0].duid, "get_status")
     print(status)
 
 

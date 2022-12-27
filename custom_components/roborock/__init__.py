@@ -65,10 +65,10 @@ class RoborockDataUpdateCoordinator(DataUpdateCoordinator):
 
     def __init__(self, hass: HomeAssistant, client: RoborockMqttClient) -> None:
         """Initialize."""
+        super().__init__(hass, _LOGGER, name=DOMAIN, update_interval=SCAN_INTERVAL)
         self.api = client
         self.platforms = []
-
-        super().__init__(hass, _LOGGER, name=DOMAIN, update_interval=SCAN_INTERVAL)
+        self.device_status = {}
 
     async def _async_update_data(self):
         """Update data via library."""
@@ -79,6 +79,14 @@ class RoborockDataUpdateCoordinator(DataUpdateCoordinator):
                 await loop.run_in_executor(None, self.api.connect)
             except Exception as exception:
                 raise UpdateFailed(exception) from exception
+        for device in self.api.devices:
+            device_id = device.get("duid")
+            retries = 3
+            device_status = None
+            while not device_status and retries > 0:
+                device_status = self.api.send_request(device_id, "get_status")
+                retries -= 1
+            self.device_status[device_id] = device_status
 
 
 async def async_unload_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:

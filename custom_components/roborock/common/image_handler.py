@@ -71,7 +71,7 @@ class ImageHandlerRoborock:
     @staticmethod
     def create_empty_map_image(colors: Colors, text: str = "NO MAP") -> ImageType:
         color = ImageHandlerRoborock.__get_color__(COLOR_MAP_OUTSIDE, colors)
-        image = Image.new('RGBA', (300, 200), color=color)
+        image = Image.new("RGBA", (300, 200), color=color)
         if sum(color[0:3]) > 382:
             text_color = (0, 0, 0)
         else:
@@ -107,7 +107,7 @@ class ImageHandlerRoborock:
 
     @staticmethod
     def draw_walls(image: ImageData, walls: List[Wall], colors: Colors):
-        draw = ImageDraw.Draw(image.data, 'RGBA')
+        draw = ImageDraw.Draw(image.data, "RGBA")
         for wall in walls:
             draw.line(wall.to_img(image.dimensions).as_list(),
                       ImageHandlerRoborock.__get_color__(COLOR_VIRTUAL_WALLS, colors), width=2)
@@ -349,7 +349,7 @@ class ImageHandlerRoborock:
         trim_bottom = int(image_config[CONF_TRIM][CONF_BOTTOM] * height / 100)
         trimmed_height = height - trim_top - trim_bottom
         trimmed_width = width - trim_left - trim_right
-        image = Image.new('RGBA', (trimmed_width, trimmed_height))
+        image = Image.new("RGBA", (trimmed_width, trimmed_height))
         if width == 0 or height == 0:
             return ImageHandlerRoborock.create_empty_map_image(colors), {}
         pixels = image.load()

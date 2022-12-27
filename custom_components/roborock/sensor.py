@@ -1,0 +1,137 @@
+"""Support for Roborock sensors."""
+from __future__ import annotations
+
+import logging
+from dataclasses import dataclass
+from enum import Enum
+from typing import Callable
+
+from homeassistant.components.sensor import (
+    SensorEntity,
+    SensorEntityDescription, SensorDeviceClass,
+)
+from homeassistant.config_entries import ConfigEntry
+from homeassistant.const import (
+    AREA_SQUARE_METERS,
+    TIME_SECONDS
+)
+from homeassistant.core import HomeAssistant, callback
+from homeassistant.helpers.entity import EntityCategory
+from homeassistant.helpers.entity_platform import AddEntitiesCallback
+from homeassistant.util import dt as dt_util
+
+from . import DOMAIN, RoborockDataUpdateCoordinator
+from .api import RoborockStatusField
+from .device import RoborockCoordinatedEntity
+
+_LOGGER = logging.getLogger(__name__)
+
+ATTR_STATUS_CLEAN_TIME = "clean_time"
+ATTR_STATUS_CLEAN_AREA = "clean_area"
+
+
+@dataclass
+class RoborockSensorDescription(SensorEntityDescription):
+    """A class that describes sensor entities."""
+    value: Callable = None
+
+
+class RoborockSensorDeviceClass(str, Enum):
+    AREA = "area"
+    DURATION = "duration"
+    TIMESTAMP = "timestamp"
+
+
+VACUUM_SENSORS = {
+    f"current_{ATTR_STATUS_CLEAN_TIME}": RoborockSensorDescription(
+        native_unit_of_measurement=TIME_SECONDS,
+        icon="mdi:timer-sand",
+        device_class=SensorDeviceClass.DURATION,
+        key=RoborockStatusField.CLEAN_TIME,
+        name="Current clean duration",
+        entity_category=EntityCategory.DIAGNOSTIC,
+    ),
+    f"current_{ATTR_STATUS_CLEAN_AREA}": RoborockSensorDescription(
+        native_unit_of_measurement=AREA_SQUARE_METERS,
+        icon="mdi:texture-box",
+        key=RoborockStatusField.CLEAN_AREA,
+        entity_category=EntityCategory.DIAGNOSTIC,
+        name="Current clean area",
+    ),
+}
+
+
+async def async_setup_entry(
+        hass: HomeAssistant,
+        config_entry: ConfigEntry,
+        async_add_entities: AddEntitiesCallback,
+) -> None:
+    """Set up the Roborock vacuum sensors."""
+    entities = []
+    coordinator = hass.data[DOMAIN][config_entry.entry_id]
+
+    for device in coordinator.api.devices:
+        device_status = coordinator.device_status.get(device.get("duid"))
+        if device_status:
+            for sensor, description in VACUUM_SENSORS.items():
+                data = device_status.get(description.key)
+                if data is None:
+                    _LOGGER.debug(
+                        "It seems the %s does not support the %s as the initial value is None",
+                        device.get("model"),
+                        description.key,
+                    )
+                    continue
+                entities.append(
+                    RoborockSensor(
+                        f"{sensor}_{config_entry.unique_id}",
+                        device,
+                        coordinator,
+                        description,
+                    )
+                )
+
+    async_add_entities(entities)
+
+
+class RoborockSensor(RoborockCoordinatedEntity, SensorEntity):
+    """Representation of a Roborock sensor."""
+
+    entity_description: RoborockSensorDescription
+
+    def __init__(self, unique_id: str, device: dict, coordinator: RoborockDataUpdateCoordinator,
+                 description: RoborockSensorDescription):
+        """Initialize the entity."""
+        SensorEntity.__init__(self)
+        super().__init__(device, coordinator, unique_id)
+        self.entity_description = description
+        self._attr_native_value = self._determine_native_value()
+
+    @callback
+    def _handle_coordinator_update(self):
+        """Fetch state from the device."""
+        native_value = self._determine_native_value()
+        # Sometimes (quite rarely) the device returns None as the sensor value so we
+        # check that the value is not None before updating the state.
+        if native_value is not None:
+            self._attr_native_value = native_value
+            self.async_write_ha_state()
+
+    def _determine_native_value(self):
+        """Determine native value."""
+        native_value = self._extract_value_from_attribute(
+            self.entity_description.key
+        )
+
+        if native_value is not None:
+            if (
+                    self.device_class == RoborockSensorDeviceClass.TIMESTAMP
+                    and (native_datetime := dt_util.parse_datetime(str(native_value))) is not None
+            ):
+                return native_datetime.astimezone(dt_util.UTC)
+            elif (
+                    self.device_class == RoborockSensorDeviceClass.AREA
+            ):
+                return native_value / 1000000
+
+        return native_value

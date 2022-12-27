@@ -29,12 +29,12 @@ class MapDataParserRoborock:
     DIGEST = 1024
     SIZE = 1024
     KNOWN_OBSTACLE_TYPES = {
-        0: 'cable',
-        2: 'shoes',
-        3: 'poop',
-        5: 'extension cord',
-        9: 'weighting scale',
-        10: 'clothes'
+        0: "cable",
+        2: "shoes",
+        3: "poop",
+        5: "extension cord",
+        9: "weighting scale",
+        10: "clothes"
     }
 
     @staticmethod
@@ -252,7 +252,7 @@ class MapDataParserRoborock:
                     details[ATTR_CONFIDENCE_LEVEL] = 0 if u2 == 0 else u1 * 10.0 / u2
                     if obstacle_size == 28 and (data[obstacle_start + 12] & 0xFF) > 0:
                         txt = MapDataParserRoborock.get_bytes(data, obstacle_start + 12, 16)
-                        details[ATTR_PHOTO_NAME] = txt.decode('ascii')
+                        details[ATTR_PHOTO_NAME] = txt.decode("ascii")
             obstacles.append(Obstacle(x, y, details))
         return obstacles
 
