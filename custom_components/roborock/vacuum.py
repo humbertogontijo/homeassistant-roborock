@@ -23,9 +23,10 @@ from homeassistant.const import ATTR_BATTERY_LEVEL, ATTR_STATE
 from homeassistant.core import HomeAssistant
 from homeassistant.helpers import config_validation as cv, entity_platform
 from homeassistant.helpers.entity_platform import AddEntitiesCallback
+from homeassistant.util import slugify
 
-from . import RoborockDataUpdateCoordinator
 from custom_components.roborock.api.api import RoborockStatusField
+from . import RoborockDataUpdateCoordinator
 from .const import DOMAIN
 from .device import RoborockCoordinatedEntity
 
@@ -247,9 +248,12 @@ async def async_setup_entry(
 
     add_services()
 
-    async_add_entities([
-        RoborockVacuum(config_entry.unique_id, device, coordinator) for device in coordinator.api.devices
-    ])
+    entities = []
+    for device in coordinator.api.devices:
+        device_id = device.get("duid")
+        unique_id = slugify(device_id)
+        entities.append(RoborockVacuum(unique_id, device, coordinator))
+    async_add_entities(entities)
 
 
 class RoborockVacuum(RoborockCoordinatedEntity, StateVacuumEntity, ABC):
@@ -258,7 +262,7 @@ class RoborockVacuum(RoborockCoordinatedEntity, StateVacuumEntity, ABC):
     def __init__(self, unique_id: str, device: dict, coordinator: RoborockDataUpdateCoordinator):
         """Initialize a sensor."""
         StateVacuumEntity.__init__(self)
-        super().__init__(device, coordinator, unique_id)
+        RoborockCoordinatedEntity.__init__(self, device, coordinator, unique_id)
         self.manual_seqnum = 0
         self._device = device
         self._coordinator = coordinator

@@ -17,10 +17,10 @@ from homeassistant.const import (
 from homeassistant.core import HomeAssistant, callback
 from homeassistant.helpers.entity import EntityCategory
 from homeassistant.helpers.entity_platform import AddEntitiesCallback
-from homeassistant.util import dt as dt_util
+from homeassistant.util import dt as dt_util, slugify
 
-from . import DOMAIN, RoborockDataUpdateCoordinator
 from custom_components.roborock.api.api import RoborockStatusField
+from . import DOMAIN, RoborockDataUpdateCoordinator
 from .device import RoborockCoordinatedEntity
 
 _LOGGER = logging.getLogger(__name__)
@@ -64,8 +64,10 @@ async def async_setup_entry(
     coordinator = hass.data[DOMAIN][config_entry.entry_id]
 
     for device in coordinator.api.devices:
-        device_status = coordinator.data.get(device.get("duid"))
+        device_id = device.get("duid")
+        device_status = coordinator.data.get(device_id)
         if device_status:
+            unique_id = slugify(device_id)
             for sensor, description in VACUUM_SENSORS.items():
                 data = device_status.get(description.key)
                 if data is None:
@@ -77,7 +79,7 @@ async def async_setup_entry(
                     continue
                 entities.append(
                     RoborockSensor(
-                        f"{sensor}_{config_entry.unique_id}",
+                        f"{sensor}_{unique_id}",
                         device,
                         coordinator,
                         description,
@@ -96,7 +98,7 @@ class RoborockSensor(RoborockCoordinatedEntity, SensorEntity):
                  description: RoborockSensorDescription):
         """Initialize the entity."""
         SensorEntity.__init__(self)
-        super().__init__(device, coordinator, unique_id)
+        RoborockCoordinatedEntity.__init__(self, device, coordinator, unique_id)
         self.entity_description = description
         self._attr_native_value = self._determine_native_value()
 

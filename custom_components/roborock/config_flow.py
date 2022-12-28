@@ -1,7 +1,6 @@
 """Config flow for yeelight_bt"""
 from __future__ import annotations
 
-import asyncio
 import logging
 import secrets
 
@@ -10,8 +9,7 @@ from homeassistant import config_entries
 from homeassistant.core import callback
 
 from custom_components.roborock.api.api import RoborockClient
-from .const import CONF_ENTRY_USERNAME, DOMAIN, PLATFORMS, CONF_ENTRY_CODE, CONF_USER_DATA, CONF_BASE_URL, \
-    CONF_DEVICE_IDENTIFIER
+from .const import CONF_ENTRY_USERNAME, DOMAIN, PLATFORMS, CONF_ENTRY_CODE, CONF_USER_DATA, CONF_BASE_URL
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -25,10 +23,13 @@ class RoborockFlowHandler(config_entries.ConfigFlow, domain=DOMAIN):
     def __init__(self):
         """Initialize."""
         self._errors = {}
-        self._device_identifier = secrets.token_urlsafe(16)
         self._client = None
         self._username = None
         self._base_url = None
+
+    async def async_step_reauth(self, user_input=None):
+        await self.hass.config_entries.async_remove(self.context["entry_id"])
+        return await self._show_user_form(user_input)
 
     async def async_step_user(self, user_input=None):
         """Handle a flow initialized by the user."""
@@ -36,6 +37,8 @@ class RoborockFlowHandler(config_entries.ConfigFlow, domain=DOMAIN):
 
         if user_input is not None:
             self._username = user_input[CONF_ENTRY_USERNAME]
+            await self.async_set_unique_id(self._username)
+            self._abort_if_unique_id_configured()
             client = await self._request_code()
             if client:
                 self._client = client
@@ -60,13 +63,10 @@ class RoborockFlowHandler(config_entries.ConfigFlow, domain=DOMAIN):
             code = user_input[CONF_ENTRY_CODE]
             login_data = await self._login(code)
             if login_data:
-                await self.async_set_unique_id(self._device_identifier)
-                self._abort_if_unique_id_configured()
                 return self.async_create_entry(title="Roborock", data={
                     CONF_ENTRY_USERNAME: self._username,
                     CONF_USER_DATA: login_data,
-                    CONF_BASE_URL: self._base_url,
-                    CONF_DEVICE_IDENTIFIER: self._device_identifier
+                    CONF_BASE_URL: self._base_url
                 })
             else:
                 self._errors["base"] = "no_device"
@@ -115,7 +115,7 @@ class RoborockFlowHandler(config_entries.ConfigFlow, domain=DOMAIN):
         """Return true if credentials is valid."""
         try:
             _LOGGER.debug("Requesting code for Roborock account")
-            client = RoborockClient(self._username, self._device_identifier)
+            client = RoborockClient(self._username)
             await client.request_code()
             return client
         except Exception as e:

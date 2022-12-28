@@ -3,8 +3,6 @@ CONF_ENTRY_USERNAME = "username"
 CONF_ENTRY_CODE = "code"
 CONF_BASE_URL = "base_url"
 CONF_USER_DATA = "user_data"
-CONF_HOME_DATA = "home_data"
-CONF_DEVICE_IDENTIFIER = "device_identifier"
 PLATFORMS = ["vacuum", "camera", "sensor", "binary_sensor"]
 DEFAULT_NAME = DOMAIN
 

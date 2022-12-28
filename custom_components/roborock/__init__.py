@@ -9,7 +9,7 @@ from homeassistant.exceptions import ConfigEntryNotReady
 from homeassistant.helpers.update_coordinator import DataUpdateCoordinator, UpdateFailed
 
 from custom_components.roborock.api.api import RoborockClient, RoborockMqttClient
-from .const import CONF_ENTRY_USERNAME, CONF_USER_DATA, CONF_HOME_DATA, CONF_BASE_URL
+from .const import CONF_ENTRY_USERNAME, CONF_USER_DATA, CONF_BASE_URL
 from .const import DOMAIN, PLATFORMS
 
 SCAN_INTERVAL = timedelta(seconds=30)
@@ -22,20 +22,14 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
     _LOGGER.debug(f"integration async setup entry: {entry.as_dict()}")
     hass.data.setdefault(DOMAIN, {})
 
-    # Find ble device here so that we can raise device not found on startup
     user_data = entry.data.get(CONF_USER_DATA)
+    base_url = entry.data.get(CONF_BASE_URL)
+    username = entry.data.get(CONF_ENTRY_USERNAME)
+    api_client = RoborockClient(username, base_url)
+    _LOGGER.debug("Getting home data")
+    home_data = await api_client.get_home_data(user_data)
 
-    # Newer version will have this None so new roborock devices show up on reload
-    home_data = entry.data.get(CONF_HOME_DATA)
-    device_identifier = entry.unique_id
-    if not home_data:
-        base_url = entry.data.get(CONF_BASE_URL)
-        username = entry.data.get(CONF_ENTRY_USERNAME)
-        api_client = RoborockClient(username, device_identifier, base_url)
-        _LOGGER.debug("Getting home data")
-        home_data = await api_client.get_home_data(user_data)
-
-    client = RoborockMqttClient(user_data, home_data, device_identifier)
+    client = RoborockMqttClient(user_data, home_data)
     coordinator = RoborockDataUpdateCoordinator(hass, client)
 
     _LOGGER.debug("Searching for Roborock sensors...")

@@ -9,6 +9,7 @@ from homeassistant.components.camera import Camera, SUPPORT_ON_OFF
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.core import HomeAssistant
 from homeassistant.helpers.entity_platform import AddEntitiesCallback
+from homeassistant.util import slugify
 
 from custom_components.roborock import RoborockDataUpdateCoordinator
 from custom_components.roborock.api.api import RoborockStatusField
@@ -50,15 +51,18 @@ async def async_setup_entry(
         async_add_entities: AddEntitiesCallback,
 ) -> None:
     coordinator = hass.data[DOMAIN][config_entry.entry_id]
-    async_add_entities(
-        [VacuumCamera(config_entry.unique_id, device, coordinator) for device in coordinator.api.devices]
-    )
+    entities = []
+    for device in coordinator.api.devices:
+        device_id = device.get("duid")
+        unique_id = slugify(device_id)
+        entities.append(VacuumCamera(unique_id, device, coordinator))
+    async_add_entities(entities)
 
 
 class VacuumCamera(RoborockCoordinatedEntity, Camera):
     def __init__(self, unique_id: str, device: dict, coordinator: RoborockDataUpdateCoordinator):
         Camera.__init__(self)
-        super().__init__(device, coordinator, unique_id)
+        RoborockCoordinatedEntity.__init__(self, device, coordinator, unique_id)
         self._store_map_image = False
         self._image_config = {CONF_SCALE: 1, CONF_ROTATE: 0, CONF_TRIM: DEFAULT_TRIMS}
         self._sizes = DEFAULT_SIZES
