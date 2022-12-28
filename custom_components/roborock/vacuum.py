@@ -242,7 +242,7 @@ async def async_setup_entry(
         hass: HomeAssistant,
         config_entry: ConfigEntry,
         async_add_entities: AddEntitiesCallback,
-) -> None:
+):
     """Set up the Roborock sensor."""
     coordinator = hass.data[DOMAIN][config_entry.entry_id]
 
@@ -268,7 +268,7 @@ class RoborockVacuum(RoborockCoordinatedEntity, StateVacuumEntity, ABC):
         self._coordinator = coordinator
 
     @property
-    def supported_features(self) -> int:
+    def supported_features(self):
         """Flag vacuum cleaner features that are supported."""
         features = (
                 VacuumEntityFeature.TURN_ON
@@ -289,7 +289,7 @@ class RoborockVacuum(RoborockCoordinatedEntity, StateVacuumEntity, ABC):
         return features
 
     @property
-    def icon(self) -> str:
+    def icon(self):
         """Return the icon of the vacuum cleaner."""
         return "mdi:robot-vacuum"
 
@@ -340,7 +340,7 @@ class RoborockVacuum(RoborockCoordinatedEntity, StateVacuumEntity, ABC):
         return FAN_SPEED_CODES.get(fan_speed)
 
     @property
-    def fan_speed_list(self) -> list[str]:
+    def fan_speed_list(self):
         """Get the list of available fan speed steps of the vacuum cleaner."""
         return list(FAN_SPEED_CODES.values())
 
@@ -351,7 +351,7 @@ class RoborockVacuum(RoborockCoordinatedEntity, StateVacuumEntity, ABC):
         return MOP_MODE_CODES.get(mop_mode)
 
     @property
-    def mop_mode_list(self) -> list[str]:
+    def mop_mode_list(self):
         """Get the list of available mop mode steps of the vacuum cleaner."""
         return list(MOP_MODE_CODES.values())
 
@@ -362,12 +362,12 @@ class RoborockVacuum(RoborockCoordinatedEntity, StateVacuumEntity, ABC):
         return MOP_INTENSITY_CODES.get(mop_intensity)
 
     @property
-    def mop_intensity_list(self) -> list[str]:
+    def mop_intensity_list(self):
         """Get the list of available mop intensity steps of the vacuum cleaner."""
         return list(MOP_INTENSITY_CODES.values())
 
     @property
-    def capability_attributes(self) -> Mapping[str, Any] | None:
+    def capability_attributes(self):
         """Return capability attributes."""
         capability_attributes = {}
         if self.supported_features & VacuumEntityFeature.FAN_SPEED:
@@ -381,35 +381,35 @@ class RoborockVacuum(RoborockCoordinatedEntity, StateVacuumEntity, ABC):
         """Return map token."""
         return await self.send("get_map_v1")
 
-    async def async_start(self) -> None:
+    async def async_start(self):
         await self.send("app_start")
 
-    async def async_pause(self) -> None:
+    async def async_pause(self):
         await self.send("app_stop")
 
-    async def async_stop(self, **kwargs: any) -> None:
+    async def async_stop(self, **kwargs: any):
         await self.send("app_stop")
 
-    async def async_return_to_base(self, **kwargs: any) -> None:
+    async def async_return_to_base(self, **kwargs: any):
         await self.send("app_charge")
 
-    async def async_clean_spot(self, **kwargs: any) -> None:
+    async def async_clean_spot(self, **kwargs: any):
         await self.send("app_spot")
 
-    async def async_locate(self, **kwargs: any) -> None:
+    async def async_locate(self, **kwargs: any):
         await self.send("find_me")
 
-    async def async_set_fan_speed(self, fan_speed: str, **kwargs: any) -> None:
+    async def async_set_fan_speed(self, fan_speed: str, **kwargs: any):
         await self.send(
             "set_custom_mode", [k for k, v in FAN_SPEED_CODES.items() if v == fan_speed]
         )
 
-    async def async_set_mop_mode(self, mop_mode: str, **kwargs: any) -> None:
+    async def async_set_mop_mode(self, mop_mode: str, **kwargs: any):
         await self.send(
             "set_mop_mode", [k for k, v in MOP_MODE_CODES.items() if v == mop_mode]
         )
 
-    async def async_set_mop_intensity(self, mop_intensity: str, **kwargs: any) -> None:
+    async def async_set_mop_intensity(self, mop_intensity: str, **kwargs: any):
         await self.send(
             "set_water_box_custom_mode", [k for k, v in MOP_INTENSITY_CODES.items() if v == mop_intensity]
         )
@@ -472,30 +472,30 @@ class RoborockVacuum(RoborockCoordinatedEntity, StateVacuumEntity, ABC):
             time.sleep(2)
             number_of_tries -= 1
 
-    async def async_remote_control_start(self) -> None:
+    async def async_remote_control_start(self):
         """Start remote control mode."""
         await self.async_manual_start()
 
-    async def async_remote_control_stop(self) -> None:
+    async def async_remote_control_stop(self):
         """Stop remote control mode."""
         await self.async_manual_stop()
 
     async def async_remote_control_move(
             self, rotation: int = 0, velocity: float = 0.3, duration: int = 1500
-    ) -> None:
+    ):
         """Move vacuum with remote control mode."""
         await self.async_manual_control(rotation, velocity, duration)
 
     async def async_remote_control_move_step(
             self, rotation: int = 0, velocity: float = 0.2, duration: int = MANUAL_DURATION_DEFAULT
-    ) -> None:
+    ):
         """Move vacuum one step with remote control mode."""
         await self.async_manual_control_once(rotation, velocity, duration)
 
-    async def async_goto(self, x_coord: int, y_coord: int) -> None:
+    async def async_goto(self, x_coord: int, y_coord: int):
         await self.send("app_goto_target", [x_coord, y_coord])
 
-    async def async_clean_segment(self, segments) -> None:
+    async def async_clean_segment(self, segments):
         """Clean the specified segments(s)."""
         if isinstance(segments, int):
             segments = [segments]
@@ -505,7 +505,7 @@ class RoborockVacuum(RoborockCoordinatedEntity, StateVacuumEntity, ABC):
             segments
         )
 
-    async def async_clean_zone(self, zone: list, repeats: int = 1) -> None:
+    async def async_clean_zone(self, zone: list, repeats: int = 1):
         """Clean selected area for the number of repeats indicated."""
         for _zone in zone:
             _zone.append(repeats)
@@ -517,9 +517,9 @@ class RoborockVacuum(RoborockCoordinatedEntity, StateVacuumEntity, ABC):
             command,
             params=None,
             **kwargs: any,
-    ) -> None:
+    ):
         """Send a command to a vacuum cleaner."""
         return await self.send(command, params)
 
-    async def async_start_pause(self, **kwargs: any) -> None:
+    async def async_start_pause(self, **kwargs: any):
         await self.send("app_pause")
