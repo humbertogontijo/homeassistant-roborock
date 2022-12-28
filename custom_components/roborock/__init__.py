@@ -8,7 +8,7 @@ from homeassistant.core import HomeAssistant
 from homeassistant.exceptions import ConfigEntryNotReady
 from homeassistant.helpers.update_coordinator import DataUpdateCoordinator, UpdateFailed
 
-from .api import RoborockClient, RoborockMqttClient
+from custom_components.roborock.api.api import RoborockClient, RoborockMqttClient
 from .const import CONF_ENTRY_USERNAME, CONF_USER_DATA, CONF_HOME_DATA, CONF_BASE_URL
 from .const import DOMAIN, PLATFORMS
 
@@ -32,11 +32,8 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
         base_url = entry.data.get(CONF_BASE_URL)
         username = entry.data.get(CONF_ENTRY_USERNAME)
         api_client = RoborockClient(username, device_identifier, base_url)
-        loop = asyncio.get_running_loop()
         _LOGGER.debug("Getting home data")
-        home_data = await loop.run_in_executor(
-            None, api_client.get_home_data, user_data
-        )
+        home_data = await api_client.get_home_data(user_data)
 
     client = RoborockMqttClient(user_data, home_data, device_identifier)
     coordinator = RoborockDataUpdateCoordinator(hass, client)
@@ -73,9 +70,8 @@ class RoborockDataUpdateCoordinator(DataUpdateCoordinator):
         """Update data via library."""
         if not self.api.is_connected():
             try:
-                loop = asyncio.get_running_loop()
                 _LOGGER.debug("Connecting to roborock mqtt")
-                await loop.run_in_executor(None, self.api.connect)
+                await self.api.connect()
             except Exception as exception:
                 raise UpdateFailed(exception) from exception
         device_statuses = {}
@@ -84,7 +80,7 @@ class RoborockDataUpdateCoordinator(DataUpdateCoordinator):
             retries = 3
             device_status = None
             while not device_status and retries > 0:
-                device_status = self.api.send_request(device_id, "get_status")
+                device_status = await self.api.send_request(device_id, "get_status")
                 retries -= 1
             if not device_status:
                 device_status = {}

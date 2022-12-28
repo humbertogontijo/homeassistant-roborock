@@ -1,6 +1,7 @@
 import logging
 import math
 import time
+from abc import ABC
 from typing import Mapping, Any
 
 import voluptuous as vol
@@ -24,7 +25,7 @@ from homeassistant.helpers import config_validation as cv, entity_platform
 from homeassistant.helpers.entity_platform import AddEntitiesCallback
 
 from . import RoborockDataUpdateCoordinator
-from .api import RoborockStatusField
+from custom_components.roborock.api.api import RoborockStatusField
 from .const import DOMAIN
 from .device import RoborockCoordinatedEntity
 
@@ -135,7 +136,7 @@ ERROR_CODES = {
     32: "Internal error. Reset the robot."
 }
 
-ATTR_STATUS = "status"
+ATTR_STATUS = "vacuum_status"
 ATTR_MOP_MODE = "mop_mode"
 ATTR_MOP_INTENSITY = "mop_intensity"
 ATTR_MOP_MODE_LIST = f"{ATTR_MOP_MODE}_list"
@@ -150,13 +151,13 @@ def add_services():
     platform.async_register_entity_service(
         "vacuum_remote_control_start",
         cv.make_entity_service_schema({}),
-        RoborockVacuum.remote_control_start.__name__,
+        RoborockVacuum.async_remote_control_start.__name__,
     )
 
     platform.async_register_entity_service(
         "vacuum_remote_control_stop",
         cv.make_entity_service_schema({}),
-        RoborockVacuum.remote_control_stop.__name__,
+        RoborockVacuum.async_remote_control_stop.__name__,
     )
 
     platform.async_register_entity_service(
@@ -170,7 +171,7 @@ def add_services():
             ),
             vol.Optional("duration"): cv.positive_int,
         }),
-        RoborockVacuum.remote_control_move.__name__,
+        RoborockVacuum.async_remote_control_move.__name__,
     )
 
     platform.async_register_entity_service(
@@ -184,7 +185,7 @@ def add_services():
             ),
             vol.Optional("duration"): cv.positive_int,
         }),
-        RoborockVacuum.remote_control_move_step.__name__,
+        RoborockVacuum.async_remote_control_move_step.__name__,
     )
 
     platform.async_register_entity_service(
@@ -207,7 +208,7 @@ def add_services():
                 vol.Coerce(int), vol.Clamp(min=1, max=3)
             ),
         }),
-        RoborockVacuum.clean_zone.__name__,
+        RoborockVacuum.async_clean_zone.__name__,
     )
 
     platform.async_register_entity_service(
@@ -216,23 +217,23 @@ def add_services():
             vol.Required("x_coord"): vol.Coerce(int),
             vol.Required("y_coord"): vol.Coerce(int),
         }),
-        RoborockVacuum.goto.__name__,
+        RoborockVacuum.async_goto.__name__,
     )
     platform.async_register_entity_service(
         "vacuum_clean_segment",
         cv.make_entity_service_schema({vol.Required("segments"): vol.Any(vol.Coerce(int), [vol.Coerce(int)])}),
-        RoborockVacuum.clean_segment.__name__,
+        RoborockVacuum.async_clean_segment.__name__,
     )
     platform.async_register_entity_service(
         "vacuum_set_mop_mode",
         cv.make_entity_service_schema({vol.Required("mop_mode"): vol.In(item for item in MOP_MODE_CODES.values())}),
-        RoborockVacuum.set_mop_mode.__name__,
+        RoborockVacuum.async_set_mop_mode.__name__,
     )
     platform.async_register_entity_service(
         "vacuum_set_mop_intensity",
         cv.make_entity_service_schema(
             {vol.Required("mop_intensity"): vol.In(item for item in MOP_INTENSITY_CODES.values())}),
-        RoborockVacuum.set_mop_intensity.__name__,
+        RoborockVacuum.async_set_mop_intensity.__name__,
     )
 
 
@@ -251,7 +252,7 @@ async def async_setup_entry(
     ])
 
 
-class RoborockVacuum(RoborockCoordinatedEntity, StateVacuumEntity):
+class RoborockVacuum(RoborockCoordinatedEntity, StateVacuumEntity, ABC):
     """General Representation of a Roborock sensor."""
 
     def __init__(self, unique_id: str, device: dict, coordinator: RoborockDataUpdateCoordinator):
@@ -303,7 +304,7 @@ class RoborockVacuum(RoborockCoordinatedEntity, StateVacuumEntity):
     @property
     def state_attributes(self):
         """Return the state attributes of the vacuum cleaner."""
-        data = dict(self._device_status)
+        data = dict(self._device_status) or {}
 
         if self.supported_features & VacuumEntityFeature.BATTERY:
             data[ATTR_BATTERY_LEVEL] = self.battery_level
@@ -372,52 +373,52 @@ class RoborockVacuum(RoborockCoordinatedEntity, StateVacuumEntity):
         return capability_attributes
 
     @property
-    def map(self):
+    async def async_map(self):
         """Return map token."""
-        return self.send("get_map_v1")
+        return await self.send("get_map_v1")
 
-    def start(self) -> None:
-        self.send("app_start")
+    async def async_start(self) -> None:
+        await self.send("app_start")
 
-    def pause(self) -> None:
-        self.send("app_stop")
+    async def async_pause(self) -> None:
+        await self.send("app_stop")
 
-    def stop(self, **kwargs: any) -> None:
-        self.send("app_stop")
+    async def async_stop(self, **kwargs: any) -> None:
+        await self.send("app_stop")
 
-    def return_to_base(self, **kwargs: any) -> None:
-        self.send("app_charge")
+    async def async_return_to_base(self, **kwargs: any) -> None:
+        await self.send("app_charge")
 
-    def clean_spot(self, **kwargs: any) -> None:
-        self.send("app_spot")
+    async def async_clean_spot(self, **kwargs: any) -> None:
+        await self.send("app_spot")
 
-    def locate(self, **kwargs: any) -> None:
-        self.send("find_me")
+    async def async_locate(self, **kwargs: any) -> None:
+        await self.send("find_me")
 
-    def set_fan_speed(self, fan_speed: str, **kwargs: any) -> None:
-        self.send(
+    async def async_set_fan_speed(self, fan_speed: str, **kwargs: any) -> None:
+        await self.send(
             "set_custom_mode", [k for k, v in FAN_SPEED_CODES.items() if v == fan_speed]
         )
 
-    def set_mop_mode(self, mop_mode: str, **kwargs: any) -> None:
-        self.send(
+    async def async_set_mop_mode(self, mop_mode: str, **kwargs: any) -> None:
+        await self.send(
             "set_mop_mode", [k for k, v in MOP_MODE_CODES.items() if v == mop_mode]
         )
 
-    def set_mop_intensity(self, mop_intensity: str, **kwargs: any) -> None:
-        self.send(
+    async def async_set_mop_intensity(self, mop_intensity: str, **kwargs: any) -> None:
+        await self.send(
             "set_water_box_custom_mode", [k for k, v in MOP_INTENSITY_CODES.items() if v == mop_intensity]
         )
 
-    def manual_start(self):
+    async def async_manual_start(self):
         """Start manual control mode."""
         self.manual_seqnum = 0
-        return self.send("app_rc_start")
+        return await self.send("app_rc_start")
 
-    def manual_stop(self):
+    async def async_manual_stop(self):
         """Stop manual control mode."""
         self.manual_seqnum = 0
-        return self.send("app_rc_end")
+        return await self.send("app_rc_end")
 
     MANUAL_ROTATION_MAX = 180
     MANUAL_ROTATION_MIN = -MANUAL_ROTATION_MAX
@@ -425,7 +426,7 @@ class RoborockVacuum(RoborockCoordinatedEntity, StateVacuumEntity):
     MANUAL_VELOCITY_MIN = -MANUAL_VELOCITY_MAX
     MANUAL_DURATION_DEFAULT = 1500
 
-    def manual_control(
+    async def async_manual_control(
             self, rotation: int, velocity: float, duration: int = MANUAL_DURATION_DEFAULT
     ):
         """Give a command over manual control interface."""
@@ -448,73 +449,73 @@ class RoborockVacuum(RoborockCoordinatedEntity, StateVacuumEntity):
             "seqnum": self.manual_seqnum,
         }
 
-        self.send("app_rc_move", [params])
+        await self.send("app_rc_move", [params])
 
-    def manual_control_once(
+    async def async_manual_control_once(
             self, rotation: int, velocity: float, duration: int = MANUAL_DURATION_DEFAULT
     ):
         """Starts the remote control mode and executes the action once before
         deactivating the mode."""
         number_of_tries = 3
-        self.manual_start()
+        await self.async_manual_start()
         while number_of_tries > 0:
             if self.status().state_code == 7:
                 time.sleep(5)
-                self.manual_control(rotation, velocity, duration)
+                await self.async_manual_control(rotation, velocity, duration)
                 time.sleep(5)
-                return self.manual_stop()
+                return await self.async_manual_stop()
 
             time.sleep(2)
             number_of_tries -= 1
 
-    def remote_control_start(self) -> None:
+    async def async_remote_control_start(self) -> None:
         """Start remote control mode."""
-        self.manual_start()
+        await self.async_manual_start()
 
-    def remote_control_stop(self) -> None:
+    async def async_remote_control_stop(self) -> None:
         """Stop remote control mode."""
-        self.manual_stop()
+        await self.async_manual_stop()
 
-    def remote_control_move(
+    async def async_remote_control_move(
             self, rotation: int = 0, velocity: float = 0.3, duration: int = 1500
     ) -> None:
         """Move vacuum with remote control mode."""
-        self.manual_control(rotation, velocity, duration)
+        await self.async_manual_control(rotation, velocity, duration)
 
-    def remote_control_move_step(
+    async def async_remote_control_move_step(
             self, rotation: int = 0, velocity: float = 0.2, duration: int = MANUAL_DURATION_DEFAULT
     ) -> None:
         """Move vacuum one step with remote control mode."""
-        self.manual_control_once(rotation, velocity, duration)
+        await self.async_manual_control_once(rotation, velocity, duration)
 
-    def goto(self, x_coord: int, y_coord: int) -> None:
-        self.send("app_goto_target", [x_coord, y_coord])
+    async def async_goto(self, x_coord: int, y_coord: int) -> None:
+        await self.send("app_goto_target", [x_coord, y_coord])
 
-    def clean_segment(self, segments) -> None:
+    async def async_clean_segment(self, segments) -> None:
         """Clean the specified segments(s)."""
         if isinstance(segments, int):
             segments = [segments]
 
-        self.send(
+        await self.send(
             "app_segment_clean",
             segments
         )
 
-    def clean_zone(self, zone: list, repeats: int = 1) -> None:
+    async def async_clean_zone(self, zone: list, repeats: int = 1) -> None:
         """Clean selected area for the number of repeats indicated."""
         for _zone in zone:
             _zone.append(repeats)
         _LOGGER.debug("Zone with repeats: %s", zone)
-        self.send("app_zoned_clean", zone)
+        await self.send("app_zoned_clean", zone)
 
-    def send_command(
+    async def async_send_command(
             self,
             command,
             params=None,
             **kwargs: any,
     ) -> None:
         """Send a command to a vacuum cleaner."""
-        return self.send(command, params)
+        return await self.send(command, params)
 
-    def start_pause(self, **kwargs: any) -> None:
-        self.send("app_pause")
+    async def async_start_pause(self, **kwargs: any) -> None:
+        await self.send("app_pause")

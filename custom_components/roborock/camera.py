@@ -7,11 +7,11 @@ from typing import Any, Dict, List, Optional, Tuple
 import PIL.Image as Image
 from homeassistant.components.camera import Camera, SUPPORT_ON_OFF
 from homeassistant.config_entries import ConfigEntry
-from homeassistant.core import HomeAssistant, callback
+from homeassistant.core import HomeAssistant
 from homeassistant.helpers.entity_platform import AddEntitiesCallback
 
 from custom_components.roborock import RoborockDataUpdateCoordinator
-from custom_components.roborock.api import RoborockStatusField
+from custom_components.roborock.api.api import RoborockStatusField
 from custom_components.roborock.common.image_handler import ImageHandlerRoborock
 from custom_components.roborock.common.map_data import MapData
 from custom_components.roborock.common.map_data_parser import MapDataParserRoborock
@@ -41,7 +41,7 @@ DEFAULT_SIZES = {
     CONF_SIZE_CHARGER_RADIUS: 6,
 }
 
-NON_REFRESHING_STATES = [3, 8]
+NON_REFRESHING_STATES = [8]
 
 
 async def async_setup_entry(
@@ -147,7 +147,7 @@ class VacuumCamera(RoborockCoordinatedEntity, Camera):
 
     async def async_update(self) -> None:
         try:
-            self._handle_map_data()
+            await self._handle_map_data()
         except Exception as e:
             _LOGGER.exception(e)
             self._set_map_data(
@@ -160,7 +160,7 @@ class VacuumCamera(RoborockCoordinatedEntity, Camera):
     def disable_motion_detection(self) -> None:
         pass
 
-    def get_map(
+    async def get_map(
             self,
             colors: Colors,
             drawables: Drawables,
@@ -169,7 +169,7 @@ class VacuumCamera(RoborockCoordinatedEntity, Camera):
             image_config: ImageConfig,
             store_map_path: Optional[str] = None,
     ) -> Tuple[Optional[MapData], bool]:
-        response = self.send("get_map_v1")
+        response = await self.send("get_map_v1")
         if not response:
             return None, False
         elif not isinstance(response, bytes):
@@ -211,12 +211,12 @@ class VacuumCamera(RoborockCoordinatedEntity, Camera):
             return True
         return False
 
-    def _handle_map_data(self):
+    async def _handle_map_data(self):
         if self._image is not None and not self._valid_refresh_state():
             return
         _LOGGER.debug("Retrieving map from Roborock MQTT")
         store_map_path = self._store_map_path if self._store_map_raw else None
-        map_data, map_stored = self.get_map(
+        map_data, map_stored = await self.get_map(
             self._colors,
             self._drawables,
             self._texts,

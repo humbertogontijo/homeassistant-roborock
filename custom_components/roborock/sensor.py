@@ -3,7 +3,6 @@ from __future__ import annotations
 
 import logging
 from dataclasses import dataclass
-from enum import Enum
 from typing import Callable
 
 from homeassistant.components.sensor import (
@@ -21,7 +20,7 @@ from homeassistant.helpers.entity_platform import AddEntitiesCallback
 from homeassistant.util import dt as dt_util
 
 from . import DOMAIN, RoborockDataUpdateCoordinator
-from .api import RoborockStatusField
+from custom_components.roborock.api.api import RoborockStatusField
 from .device import RoborockCoordinatedEntity
 
 _LOGGER = logging.getLogger(__name__)
@@ -105,7 +104,7 @@ class RoborockSensor(RoborockCoordinatedEntity, SensorEntity):
     def _handle_coordinator_update(self):
         """Fetch state from the device."""
         native_value = self._determine_native_value()
-        # Sometimes (quite rarely) the device returns None as the sensor value so we
+        # Sometimes (quite rarely) the device returns None as the sensor value, so we
         # check that the value is not None before updating the state.
         if native_value is not None:
             self._attr_native_value = native_value

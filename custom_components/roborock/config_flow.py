@@ -9,7 +9,7 @@ import voluptuous as vol
 from homeassistant import config_entries
 from homeassistant.core import callback
 
-from .api import RoborockClient
+from custom_components.roborock.api.api import RoborockClient
 from .const import CONF_ENTRY_USERNAME, DOMAIN, PLATFORMS, CONF_ENTRY_CODE, CONF_USER_DATA, CONF_BASE_URL, \
     CONF_DEVICE_IDENTIFIER
 
@@ -116,11 +116,7 @@ class RoborockFlowHandler(config_entries.ConfigFlow, domain=DOMAIN):
         try:
             _LOGGER.debug("Requesting code for Roborock account")
             client = RoborockClient(self._username, self._device_identifier)
-            loop = asyncio.get_running_loop()
-            await loop.run_in_executor(
-                None,
-                client.request_code,
-            )
+            await client.request_code()
             return client
         except Exception as e:
             _LOGGER.exception(e)
@@ -131,8 +127,7 @@ class RoborockFlowHandler(config_entries.ConfigFlow, domain=DOMAIN):
         """Return true if credentials is valid."""
         try:
             _LOGGER.debug("Requesting code for Roborock account")
-            loop = asyncio.get_running_loop()
-            login_data = await loop.run_in_executor(None, self._client.code_login, code)
+            login_data = await self._client.code_login(code)
             return login_data
         except Exception as e:
             _LOGGER.exception(e)

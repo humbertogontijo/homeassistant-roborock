@@ -16,7 +16,7 @@ from homeassistant.helpers.entity import EntityCategory
 from homeassistant.helpers.entity_platform import AddEntitiesCallback
 
 from . import RoborockDataUpdateCoordinator
-from .api import RoborockStatusField
+from custom_components.roborock.api.api import RoborockStatusField
 from .const import (
     DOMAIN,
     MODELS_VACUUM_WITH_MOP,
