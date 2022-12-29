@@ -1,9 +1,9 @@
 import logging
 from typing import Tuple
 
+from custom_components.roborock.common.image_handler import ImageHandlerRoborock
 from custom_components.roborock.common.map_data import *
 from custom_components.roborock.common.types import Colors, Drawables, Sizes, Texts
-from custom_components.roborock.common.image_handler import ImageHandlerRoborock
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -57,10 +57,12 @@ class MapDataParserRoborock:
             if DRAWABLE_IGNORED_OBSTACLES == drawable and map_data.ignored_obstacles is not None:
                 ImageHandlerRoborock.draw_ignored_obstacles(map_data.image, map_data.ignored_obstacles, sizes, colors)
             if DRAWABLE_OBSTACLES_WITH_PHOTO == drawable and map_data.obstacles_with_photo is not None:
-                ImageHandlerRoborock.draw_obstacles_with_photo(map_data.image, map_data.obstacles_with_photo, sizes, colors)
+                ImageHandlerRoborock.draw_obstacles_with_photo(map_data.image, map_data.obstacles_with_photo, sizes,
+                                                               colors)
             if DRAWABLE_IGNORED_OBSTACLES_WITH_PHOTO == drawable and map_data.ignored_obstacles_with_photo is not None:
-                ImageHandlerRoborock.draw_ignored_obstacles_with_photo(map_data.image, map_data.ignored_obstacles_with_photo,
-                                                               sizes, colors)
+                ImageHandlerRoborock.draw_ignored_obstacles_with_photo(map_data.image,
+                                                                       map_data.ignored_obstacles_with_photo,
+                                                                       sizes, colors)
             if DRAWABLE_PATH == drawable and map_data.path is not None:
                 ImageHandlerRoborock.draw_path(map_data.image, map_data.path, sizes, colors, scale)
             if DRAWABLE_GOTO_PATH == drawable and map_data.goto_path is not None:
@@ -103,7 +105,7 @@ class MapDataParserRoborock:
             elif block_type == MapDataParserRoborock.IMAGE:
                 img_start = block_start_position
                 image, rooms = MapDataParserRoborock.parse_image(block_data_length, block_header_length, data, header,
-                                                               colors, image_config)
+                                                                 colors, image_config)
                 map_data.image = image
                 map_data.rooms = rooms
             elif block_type == MapDataParserRoborock.ROBOT_POSITION:
@@ -142,7 +144,7 @@ class MapDataParserRoborock:
             MapDataParserRoborock.draw_elements(colors, drawables, sizes, map_data, image_config)
             if len(map_data.rooms) > 0 and map_data.vacuum_position is not None:
                 map_data.vacuum_room = MapDataParserRoborock.get_current_vacuum_room(img_start, raw,
-                                                                                   map_data.vacuum_position)
+                                                                                     map_data.vacuum_position)
             ImageHandlerRoborock.rotate(map_data.image)
             ImageHandlerRoborock.draw_texts(map_data.image, texts)
         return map_data
@@ -166,7 +168,8 @@ class MapDataParserRoborock:
         image_left = MapDataParserRoborock.get_int32(header, block_header_length - 12)
         image_width = MapDataParserRoborock.get_int32(header, block_header_length - 4)
         p = MapDataParserRoborock.map_to_image(vacuum_position)
-        room = ImageHandlerRoborock.get_room_at_pixel(data, image_width, round(p.x - image_left), round(p.y - image_top))
+        room = ImageHandlerRoborock.get_room_at_pixel(data, image_width, round(p.x - image_left),
+                                                      round(p.y - image_top))
         return room
 
     @staticmethod
@@ -309,13 +312,13 @@ class MapDataParserRoborock:
     @staticmethod
     def get_int16(data: bytes, address: int) -> int:
         return \
-            ((data[address + 0] << 0) & 0xFF) | \
-            ((data[address + 1] << 8) & 0xFFFF)
+                ((data[address + 0] << 0) & 0xFF) | \
+                ((data[address + 1] << 8) & 0xFFFF)
 
     @staticmethod
     def get_int32(data: bytes, address: int) -> int:
         return \
-            ((data[address + 0] << 0) & 0xFF) | \
-            ((data[address + 1] << 8) & 0xFFFF) | \
-            ((data[address + 2] << 16) & 0xFFFFFF) | \
-            ((data[address + 3] << 24) & 0xFFFFFFFF)
+                ((data[address + 0] << 0) & 0xFF) | \
+                ((data[address + 1] << 8) & 0xFFFF) | \
+                ((data[address + 2] << 16) & 0xFFFFFF) | \
+                ((data[address + 3] << 24) & 0xFFFFFFFF)

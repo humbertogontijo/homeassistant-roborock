@@ -11,6 +11,7 @@ class RoborockDevicePropField(str, Enum):
     CONSUMABLE = "consumable"
     LAST_CLEAN_RECORD = "last_clean_record"
 
+
 class RoborockDeviceInfo:
     def __init__(self, device: HomeDataDevice, product: HomeDataProduct):
         self.device = device
@@ -18,7 +19,8 @@ class RoborockDeviceInfo:
 
 
 class RoborockDeviceProp:
-    def __init__(self, status: Status, dnd_timer: DNDTimer, clean_summary: CleanSummary, consumable: Consumable, last_clean_record: CleanRecord):
+    def __init__(self, status: Status, dnd_timer: DNDTimer, clean_summary: CleanSummary, consumable: Consumable,
+                 last_clean_record: CleanRecord):
         self.status = status
         self.dnd_timer = dnd_timer
         self.clean_summary = clean_summary

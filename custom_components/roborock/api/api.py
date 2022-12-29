@@ -315,9 +315,11 @@ class RoborockMqttClient:
         return Consumable(consumable)
 
     async def get_prop(self, device_id: str):
-        [status, dnd_timer, clean_summary, consumable] = await asyncio.gather(*[self.get_status(device_id), self.get_dnd_timer(device_id), self.get_clean_summary(device_id), self.get_consumable(device_id)])
+        [status, dnd_timer, clean_summary, consumable] = await asyncio.gather(
+            *[self.get_status(device_id), self.get_dnd_timer(device_id), self.get_clean_summary(device_id),
+              self.get_consumable(device_id)])
         last_clean_record = CleanSummary({})
-        if clean_summary.records and len(clean_summary.records) > 0:
+        if clean_summary and clean_summary.records and len(clean_summary.records) > 0:
             last_clean_record = await self.get_clean_record(device_id, clean_summary.records[0])
         return RoborockDeviceProp(status, dnd_timer, clean_summary, consumable, last_clean_record)
 

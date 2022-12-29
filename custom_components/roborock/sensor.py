@@ -26,42 +26,7 @@ from .device import RoborockCoordinatedEntity, parse_datetime_time
 
 _LOGGER = logging.getLogger(__name__)
 
-ATTR_ACTUAL_SPEED = "actual_speed"
-ATTR_AIR_QUALITY = "air_quality"
-ATTR_TVOC = "tvoc"
-ATTR_AQI = "aqi"
 ATTR_BATTERY = "battery"
-ATTR_CARBON_DIOXIDE = "co2"
-ATTR_CHARGING = "charging"
-ATTR_CONTROL_SPEED = "control_speed"
-ATTR_DISPLAY_CLOCK = "display_clock"
-ATTR_FAVORITE_SPEED = "favorite_speed"
-ATTR_FILTER_LIFE_REMAINING = "filter_life_remaining"
-ATTR_FILTER_HOURS_USED = "filter_hours_used"
-ATTR_FILTER_LEFT_TIME = "filter_left_time"
-ATTR_DUST_FILTER_LIFE_REMAINING = "dust_filter_life_remaining"
-ATTR_DUST_FILTER_LIFE_REMAINING_DAYS = "dust_filter_life_remaining_days"
-ATTR_UPPER_FILTER_LIFE_REMAINING = "upper_filter_life_remaining"
-ATTR_UPPER_FILTER_LIFE_REMAINING_DAYS = "upper_filter_life_remaining_days"
-ATTR_FILTER_USE = "filter_use"
-ATTR_HUMIDITY = "humidity"
-ATTR_ILLUMINANCE = "illuminance"
-ATTR_ILLUMINANCE_LUX = "illuminance_lux"
-ATTR_LOAD_POWER = "load_power"
-ATTR_MOTOR2_SPEED = "motor2_speed"
-ATTR_MOTOR_SPEED = "motor_speed"
-ATTR_NIGHT_MODE = "night_mode"
-ATTR_NIGHT_TIME_BEGIN = "night_time_begin"
-ATTR_NIGHT_TIME_END = "night_time_end"
-ATTR_PM10 = "pm10_density"
-ATTR_PM25 = "pm25"
-ATTR_PM25_2 = "pm25_2"
-ATTR_POWER = "power"
-ATTR_PRESSURE = "pressure"
-ATTR_PURIFY_VOLUME = "purify_volume"
-ATTR_SENSOR_STATE = "sensor_state"
-ATTR_USE_TIME = "use_time"
-ATTR_WATER_LEVEL = "water_level"
 ATTR_DND_START = "start"
 ATTR_DND_END = "end"
 ATTR_LAST_CLEAN_TIME = "duration"
@@ -70,10 +35,10 @@ ATTR_STATUS_CLEAN_TIME = "clean_time"
 ATTR_STATUS_CLEAN_AREA = "clean_area"
 ATTR_LAST_CLEAN_START = "start"
 ATTR_LAST_CLEAN_END = "end"
-ATTR_CLEAN_HISTORY_TOTAL_DURATION = "total_duration"
-ATTR_CLEAN_HISTORY_TOTAL_AREA = "total_area"
-ATTR_CLEAN_HISTORY_COUNT = "count"
-ATTR_CLEAN_HISTORY_DUST_COLLECTION_COUNT = "dust_collection_count"
+ATTR_CLEAN_SUMMARY_TOTAL_DURATION = "total_duration"
+ATTR_CLEAN_SUMMARY_TOTAL_AREA = "total_area"
+ATTR_CLEAN_SUMMARY_COUNT = "count"
+ATTR_CLEAN_SUMMARY_DUST_COLLECTION_COUNT = "dust_collection_count"
 ATTR_CONSUMABLE_STATUS_MAIN_BRUSH_LEFT = "main_brush_left"
 ATTR_CONSUMABLE_STATUS_SIDE_BRUSH_LEFT = "side_brush_left"
 ATTR_CONSUMABLE_STATUS_FILTER_LEFT = "filter_left"
@@ -153,16 +118,15 @@ VACUUM_SENSORS = {
         name="Current clean duration",
         entity_category=EntityCategory.DIAGNOSTIC,
     ),
-    f"current_{ATTR_LAST_CLEAN_AREA}": RoborockSensorDescription(
+    f"current_{ATTR_STATUS_CLEAN_AREA}": RoborockSensorDescription(
         native_unit_of_measurement=AREA_SQUARE_METERS,
-        key=StatusField.CLEAN_AREA,
-        value=lambda value: value / 1000000,
         icon="mdi:texture-box",
+        key=StatusField.CLEAN_AREA,
         parent_key=RoborockDevicePropField.STATUS,
         entity_category=EntityCategory.DIAGNOSTIC,
         name="Current clean area",
     ),
-    f"clean_history_{ATTR_CLEAN_HISTORY_TOTAL_DURATION}": RoborockSensorDescription(
+    f"clean_history_{ATTR_CLEAN_SUMMARY_TOTAL_DURATION}": RoborockSensorDescription(
         native_unit_of_measurement=TIME_SECONDS,
         device_class=SensorDeviceClass.DURATION,
         key=CleanSummaryField.CLEAN_TIME,
@@ -171,7 +135,7 @@ VACUUM_SENSORS = {
         name="Total duration",
         entity_category=EntityCategory.DIAGNOSTIC,
     ),
-    f"clean_history_{ATTR_CLEAN_HISTORY_TOTAL_AREA}": RoborockSensorDescription(
+    f"clean_history_{ATTR_CLEAN_SUMMARY_TOTAL_AREA}": RoborockSensorDescription(
         native_unit_of_measurement=AREA_SQUARE_METERS,
         key=CleanSummaryField.CLEAN_AREA,
         value=lambda value: value / 1000000,
@@ -180,7 +144,7 @@ VACUUM_SENSORS = {
         name="Total clean area",
         entity_category=EntityCategory.DIAGNOSTIC,
     ),
-    f"clean_history_{ATTR_CLEAN_HISTORY_COUNT}": RoborockSensorDescription(
+    f"clean_history_{ATTR_CLEAN_SUMMARY_COUNT}": RoborockSensorDescription(
         native_unit_of_measurement="",
         key=CleanSummaryField.CLEAN_COUNT,
         icon="mdi:counter",
@@ -189,9 +153,9 @@ VACUUM_SENSORS = {
         name="Total clean count",
         entity_category=EntityCategory.DIAGNOSTIC,
     ),
-    f"clean_history_{ATTR_CLEAN_HISTORY_DUST_COLLECTION_COUNT}": RoborockSensorDescription(
+    f"clean_history_{ATTR_CLEAN_SUMMARY_DUST_COLLECTION_COUNT}": RoborockSensorDescription(
         native_unit_of_measurement="",
-        key=CleanSummaryField.CLEAN_COUNT,
+        key=CleanSummaryField.DUST_COLLECTION_COUNT,
         icon="mdi:counter",
         state_class=SensorStateClass.TOTAL_INCREASING,
         parent_key=RoborockDevicePropField.CLEAN_SUMMARY,

@@ -4,11 +4,11 @@ from typing import Any, Callable, Dict, List, Optional, Set
 
 from PIL.Image import Image as ImageType
 
-from custom_components.roborock.const import *
 from custom_components.roborock.common.types import (
     CalibrationPoints,
     ImageConfig,
 )
+from custom_components.roborock.const import *
 
 
 class Point:
@@ -27,10 +27,10 @@ class Point:
 
     def __eq__(self, other: Point) -> bool:
         return (
-            other is not None
-            and self.x == other.x
-            and self.y == other.y
-            and self.a == other.a
+                other is not None
+                and self.x == other.x
+                and self.y == other.y
+                and self.a == other.a
         )
 
     def as_dict(self) -> Dict[str, Any]:
@@ -78,14 +78,14 @@ class Obstacle(Point):
 
 class ImageDimensions:
     def __init__(
-        self,
-        top: int,
-        left: int,
-        height: int,
-        width: int,
-        scale: float,
-        rotation: int,
-        img_transformation: Callable[[Point], Point],
+            self,
+            top: int,
+            left: int,
+            height: int,
+            width: int,
+            scale: float,
+            rotation: int,
+            img_transformation: Callable[[Point], Point],
     ):
         self.top = top
         self.left = left
@@ -105,16 +105,16 @@ class ImageDimensions:
 
 class ImageData:
     def __init__(
-        self,
-        size: int,
-        top: int,
-        left: int,
-        height: int,
-        width: int,
-        image_config: ImageConfig,
-        data: ImageType,
-        img_transformation: Callable[[Point], Point],
-        additional_layers: dict = None,
+            self,
+            size: int,
+            top: int,
+            left: int,
+            height: int,
+            width: int,
+            image_config: ImageConfig,
+            data: ImageType,
+            img_transformation: Callable[[Point], Point],
+            additional_layers: dict = None,
     ):
         trim_left = int(image_config[CONF_TRIM][CONF_LEFT] * width / 100)
         trim_right = int(image_config[CONF_TRIM][CONF_RIGHT] * width / 100)
@@ -164,11 +164,11 @@ class ImageData:
 
 class Path:
     def __init__(
-        self,
-        point_length: Optional[int],
-        point_size: Optional[int],
-        angle: Optional[int],
-        path: List[List[Point]],
+            self,
+            point_length: Optional[int],
+            point_size: Optional[int],
+            angle: Optional[int],
+            path: List[List[Point]],
     ):
         self.point_length = point_length
         self.point_size = point_size
@@ -208,15 +208,15 @@ class Zone:
 
 class Room(Zone):
     def __init__(
-        self,
-        number: int,
-        x0: Optional[float],
-        y0: Optional[float],
-        x1: Optional[float],
-        y1: Optional[float],
-        name: str = None,
-        pos_x: float = None,
-        pos_y: float = None,
+            self,
+            number: int,
+            x0: Optional[float],
+            y0: Optional[float],
+            x1: Optional[float],
+            y1: Optional[float],
+            name: str = None,
+            pos_x: float = None,
+            pos_y: float = None,
     ):
         super().__init__(x0, y0, x1, y1)
         self.number = number
@@ -273,15 +273,15 @@ class Wall:
 
 class Area:
     def __init__(
-        self,
-        x0: float,
-        y0: float,
-        x1: float,
-        y1: float,
-        x2: float,
-        y2: float,
-        x3: float,
-        y3: float,
+            self,
+            x0: float,
+            y0: float,
+            x1: float,
+            y1: float,
+            x2: float,
+            y2: float,
+            x3: float,
+            y3: float,
     ):
         self.x0 = x0
         self.y0 = y0

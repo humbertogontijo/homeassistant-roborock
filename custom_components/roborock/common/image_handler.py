@@ -5,9 +5,9 @@ from typing import Tuple, List, Dict, Callable
 from PIL import Image, ImageDraw, ImageFont
 from PIL.Image import Image as ImageType
 
-from custom_components.roborock.const import *
 from custom_components.roborock.common.map_data import ImageData, Path, Area, Wall, Zone, Point, Obstacle, Room
 from custom_components.roborock.common.types import Colors, ImageConfig, Sizes, Color, Texts
+from custom_components.roborock.const import *
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -83,27 +83,30 @@ class ImageHandlerRoborock:
 
     @staticmethod
     def draw_path(image: ImageData, path: Path, sizes: Sizes, colors: Colors, scale: float):
-        ImageHandlerRoborock.__draw_path__(image, path, sizes, ImageHandlerRoborock.__get_color__(COLOR_PATH, colors), scale)
+        ImageHandlerRoborock.__draw_path__(image, path, sizes, ImageHandlerRoborock.__get_color__(COLOR_PATH, colors),
+                                           scale)
 
     @staticmethod
     def draw_goto_path(image: ImageData, path: Path, sizes: Sizes, colors: Colors, scale: float):
-        ImageHandlerRoborock.__draw_path__(image, path, sizes, ImageHandlerRoborock.__get_color__(COLOR_GOTO_PATH, colors), scale)
+        ImageHandlerRoborock.__draw_path__(image, path, sizes,
+                                           ImageHandlerRoborock.__get_color__(COLOR_GOTO_PATH, colors), scale)
 
     @staticmethod
     def draw_predicted_path(image: ImageData, path: Path, sizes: Sizes, colors: Colors, scale: float):
-        ImageHandlerRoborock.__draw_path__(image, path, sizes, ImageHandlerRoborock.__get_color__(COLOR_PREDICTED_PATH, colors), scale)
+        ImageHandlerRoborock.__draw_path__(image, path, sizes,
+                                           ImageHandlerRoborock.__get_color__(COLOR_PREDICTED_PATH, colors), scale)
 
     @staticmethod
     def draw_no_go_areas(image: ImageData, areas: List[Area], colors: Colors):
         ImageHandlerRoborock.__draw_areas__(image, areas,
-                                    ImageHandlerRoborock.__get_color__(COLOR_NO_GO_ZONES, colors),
-                                    ImageHandlerRoborock.__get_color__(COLOR_NO_GO_ZONES_OUTLINE, colors))
+                                            ImageHandlerRoborock.__get_color__(COLOR_NO_GO_ZONES, colors),
+                                            ImageHandlerRoborock.__get_color__(COLOR_NO_GO_ZONES_OUTLINE, colors))
 
     @staticmethod
     def draw_no_mopping_areas(image: ImageData, areas: List[Area], colors: Colors):
         ImageHandlerRoborock.__draw_areas__(image, areas,
-                                    ImageHandlerRoborock.__get_color__(COLOR_NO_MOPPING_ZONES, colors),
-                                    ImageHandlerRoborock.__get_color__(COLOR_NO_MOPPING_ZONES_OUTLINE, colors))
+                                            ImageHandlerRoborock.__get_color__(COLOR_NO_MOPPING_ZONES, colors),
+                                            ImageHandlerRoborock.__get_color__(COLOR_NO_MOPPING_ZONES_OUTLINE, colors))
 
     @staticmethod
     def draw_walls(image: ImageData, walls: List[Wall], colors: Colors):
@@ -116,8 +119,8 @@ class ImageHandlerRoborock:
     def draw_zones(image: ImageData, zones: List[Zone], colors: Colors):
         areas = [z.as_area() for z in zones]
         ImageHandlerRoborock.__draw_areas__(image, areas,
-                                    ImageHandlerRoborock.__get_color__(COLOR_ZONES, colors),
-                                    ImageHandlerRoborock.__get_color__(COLOR_ZONES_OUTLINE, colors))
+                                            ImageHandlerRoborock.__get_color__(COLOR_ZONES, colors),
+                                            ImageHandlerRoborock.__get_color__(COLOR_ZONES_OUTLINE, colors))
 
     @staticmethod
     def draw_charger(image: ImageData, charger: Point, sizes: Sizes, colors: Colors):
@@ -186,7 +189,7 @@ class ImageHandlerRoborock:
             x = text_config[CONF_X] * image.data.size[0] / 100
             y = text_config[CONF_Y] * image.data.size[1] / 100
             ImageHandlerRoborock.__draw_text__(image, text_config[CONF_TEXT], x, y, text_config[CONF_COLOR],
-                                       text_config[CONF_FONT], text_config[CONF_FONT_SIZE])
+                                               text_config[CONF_FONT], text_config[CONF_FONT_SIZE])
 
     @staticmethod
     def draw_layer(image: ImageData, layer_name: str):
@@ -243,7 +246,8 @@ class ImageHandlerRoborock:
             coords = [x - r2, y - r2, x + r2, y + r2]
             draw.ellipse(coords, outline=half_color, fill=half_color)
 
-        ImageHandlerRoborock.__draw_on_new_layer__(image, draw_func, 1, ImageHandlerRoborock.__use_transparency__(outline, fill))
+        ImageHandlerRoborock.__draw_on_new_layer__(image, draw_func, 1,
+                                                   ImageHandlerRoborock.__use_transparency__(outline, fill))
 
     @staticmethod
     def __draw_circle__(image: ImageData, center: Point, r: float, outline: Color, fill: Color):
@@ -252,7 +256,8 @@ class ImageHandlerRoborock:
             coords = [point.x - r, point.y - r, point.x + r, point.y + r]
             draw.ellipse(coords, outline=outline, fill=fill)
 
-        ImageHandlerRoborock.__draw_on_new_layer__(image, draw_func, 1, ImageHandlerRoborock.__use_transparency__(outline, fill))
+        ImageHandlerRoborock.__draw_on_new_layer__(image, draw_func, 1,
+                                                   ImageHandlerRoborock.__use_transparency__(outline, fill))
 
     @staticmethod
     def __draw_pieslice__(image: ImageData, position, r, outline, fill):
@@ -262,7 +267,8 @@ class ImageHandlerRoborock:
             coords = [point.x - r, point.y - r, point.x + r, point.y + r]
             draw.pieslice(coords, angle + 90, angle - 90, outline="black", fill=fill)
 
-        ImageHandlerRoborock.__draw_on_new_layer__(image, draw_func, 1, ImageHandlerRoborock.__use_transparency__(outline, fill))
+        ImageHandlerRoborock.__draw_on_new_layer__(image, draw_func, 1,
+                                                   ImageHandlerRoborock.__use_transparency__(outline, fill))
 
     @staticmethod
     def __draw_areas__(image: ImageData, areas: List[Area], fill: Color, outline: Color):
@@ -293,7 +299,8 @@ class ImageHandlerRoborock:
                                   width=int(scale * path_width), fill=color)
                         s = e
 
-        ImageHandlerRoborock.__draw_on_new_layer__(image, draw_func, scale, ImageHandlerRoborock.__use_transparency__(color))
+        ImageHandlerRoborock.__draw_on_new_layer__(image, draw_func, scale,
+                                                   ImageHandlerRoborock.__use_transparency__(color))
 
     @staticmethod
     def __draw_text__(image: ImageData, text: str, x: float, y: float, color: Color, font_file=None, font_size=None):
@@ -310,7 +317,8 @@ class ImageHandlerRoborock:
                 w, h = draw.textsize(text, font)
                 draw.text((x - w / 2, y - h / 2), text, font=font, fill=color)
 
-        ImageHandlerRoborock.__draw_on_new_layer__(image, draw_func, 1, ImageHandlerRoborock.__use_transparency__(color))
+        ImageHandlerRoborock.__draw_on_new_layer__(image, draw_func, 1,
+                                                   ImageHandlerRoborock.__use_transparency__(color))
 
     @staticmethod
     def __get_color__(name, colors: Colors, default_name: str = None) -> Color:
@@ -384,7 +392,8 @@ class ImageHandlerRoborock:
                                                   max(rooms[room_number][2], room_x),
                                                   max(rooms[room_number][3], room_y))
                         default = ImageHandlerRoborock.ROOM_COLORS[room_number >> 1]
-                        pixels[x, y] = ImageHandlerRoborock.__get_color__(f"{COLOR_ROOM_PREFIX}{room_number}", colors, default)
+                        pixels[x, y] = ImageHandlerRoborock.__get_color__(f"{COLOR_ROOM_PREFIX}{room_number}", colors,
+                                                                          default)
                     else:
                         pixels[x, y] = ImageHandlerRoborock.__get_color__(COLOR_UNKNOWN, colors)
         if image_config["scale"] != 1 and width != 0 and height != 0:
