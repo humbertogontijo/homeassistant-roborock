@@ -2,7 +2,6 @@
 from __future__ import annotations
 
 import logging
-import secrets
 
 import voluptuous as vol
 from homeassistant import config_entries
@@ -35,7 +34,7 @@ class RoborockFlowHandler(config_entries.ConfigFlow, domain=DOMAIN):
         """Handle a flow initialized by the user."""
         self._errors = {}
 
-        if user_input is not None:
+        if user_input:
             self._username = user_input[CONF_ENTRY_USERNAME]
             await self.async_set_unique_id(self._username)
             self._abort_if_unique_id_configured()
@@ -59,7 +58,7 @@ class RoborockFlowHandler(config_entries.ConfigFlow, domain=DOMAIN):
         """Handle a flow initialized by the user."""
         self._errors = {}
 
-        if user_input is not None:
+        if user_input:
             code = user_input[CONF_ENTRY_CODE]
             login_data = await self._login(code)
             if login_data:
@@ -149,7 +148,7 @@ class RoborockOptionsFlowHandler(config_entries.OptionsFlow):
 
     async def async_step_user(self, user_input=None):
         """Handle a flow initialized by the user."""
-        if user_input is not None:
+        if user_input:
             self.options.update(user_input)
             return await self._update_options()
 

@@ -9,6 +9,8 @@ from homeassistant.exceptions import ConfigEntryNotReady
 from homeassistant.helpers.update_coordinator import DataUpdateCoordinator, UpdateFailed
 
 from custom_components.roborock.api.api import RoborockClient, RoborockMqttClient
+from .api.containers import Status, UserData, HomeData, CleanSummary
+from .api.typing import RoborockDeviceInfo, RoborockDeviceProp
 from .const import CONF_ENTRY_USERNAME, CONF_USER_DATA, CONF_BASE_URL
 from .const import DOMAIN, PLATFORMS
 
@@ -22,14 +24,19 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
     _LOGGER.debug(f"integration async setup entry: {entry.as_dict()}")
     hass.data.setdefault(DOMAIN, {})
 
-    user_data = entry.data.get(CONF_USER_DATA)
+    user_data = UserData(entry.data.get(CONF_USER_DATA))
     base_url = entry.data.get(CONF_BASE_URL)
     username = entry.data.get(CONF_ENTRY_USERNAME)
     api_client = RoborockClient(username, base_url)
     _LOGGER.debug("Getting home data")
-    home_data = await api_client.get_home_data(user_data)
+    home_data = HomeData(await api_client.get_home_data(user_data))
 
-    client = RoborockMqttClient(user_data, home_data)
+    device_map: dict[str, RoborockDeviceInfo] = {}
+    for device in home_data.devices + home_data.received_devices:
+        product = next((product for product in home_data.products if product.id == device.product_id), {})
+        device_map[device.duid] = RoborockDeviceInfo(device, product)
+
+    client = RoborockMqttClient(user_data, device_map)
     coordinator = RoborockDataUpdateCoordinator(hass, client)
 
     _LOGGER.debug("Searching for Roborock sensors...")
@@ -51,7 +58,7 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
     return True
 
 
-class RoborockDataUpdateCoordinator(DataUpdateCoordinator):
+class RoborockDataUpdateCoordinator(DataUpdateCoordinator[dict[str, RoborockDeviceProp]]):
     """Class to manage fetching data from the API."""
 
     def __init__(self, hass: HomeAssistant, client: RoborockMqttClient) -> None:
@@ -68,18 +75,11 @@ class RoborockDataUpdateCoordinator(DataUpdateCoordinator):
                 await self.api.connect()
             except Exception as exception:
                 raise UpdateFailed(exception) from exception
-        device_statuses = {}
-        for device in self.api.devices:
-            device_id = device.get("duid")
-            retries = 3
-            device_status = None
-            while not device_status and retries > 0:
-                device_status = await self.api.send_request(device_id, "get_status")
-                retries -= 1
-            if not device_status:
-                device_status = {}
-            device_statuses[device_id] = device_status
-        return device_statuses
+        devices_prop = {}
+        for device_id, _ in self.api.device_map.items():
+            device_prop = await self.api.get_prop(device_id)
+            devices_prop[device_id] = device_prop
+        return devices_prop
 
 
 async def async_unload_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:

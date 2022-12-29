@@ -12,7 +12,7 @@ from homeassistant.helpers.entity_platform import AddEntitiesCallback
 from homeassistant.util import slugify
 
 from custom_components.roborock import RoborockDataUpdateCoordinator
-from custom_components.roborock.api.api import RoborockStatusField
+from custom_components.roborock.api.typing import RoborockDeviceInfo
 from custom_components.roborock.common.image_handler import ImageHandlerRoborock
 from custom_components.roborock.common.map_data import MapData
 from custom_components.roborock.common.map_data_parser import MapDataParserRoborock
@@ -50,17 +50,16 @@ async def async_setup_entry(
         config_entry: ConfigEntry,
         async_add_entities: AddEntitiesCallback,
 ) -> None:
-    coordinator = hass.data[DOMAIN][config_entry.entry_id]
+    coordinator: RoborockDataUpdateCoordinator = hass.data[DOMAIN][config_entry.entry_id]
     entities = []
-    for device in coordinator.api.devices:
-        device_id = device.get("duid")
+    for device_id, device_info in coordinator.api.device_map.items():
         unique_id = slugify(device_id)
-        entities.append(VacuumCamera(unique_id, device, coordinator))
+        entities.append(VacuumCamera(unique_id, device_info, coordinator))
     async_add_entities(entities)
 
 
 class VacuumCamera(RoborockCoordinatedEntity, Camera):
-    def __init__(self, unique_id: str, device: dict, coordinator: RoborockDataUpdateCoordinator):
+    def __init__(self, unique_id: str, device: RoborockDeviceInfo, coordinator: RoborockDataUpdateCoordinator):
         Camera.__init__(self)
         RoborockCoordinatedEntity.__init__(self, device, coordinator, unique_id)
         self._store_map_image = False
@@ -73,7 +72,6 @@ class VacuumCamera(RoborockCoordinatedEntity, Camera):
         self._store_map_path = "/tmp"
         self.content_type = CONTENT_TYPE
         self._status = CameraStatus.INITIALIZING
-        self._device = device
         self._should_poll = True
         self._attributes = CONF_AVAILABLE_ATTRIBUTES
         self._map_data = None
@@ -97,7 +95,7 @@ class VacuumCamera(RoborockCoordinatedEntity, Camera):
     @property
     def extra_state_attributes(self) -> Dict[str, Any]:
         attributes = {}
-        if self._map_data is not None:
+        if self._map_data:
             attributes.update(self.extract_attributes(self._map_data, self._attributes))
         return attributes
 
@@ -111,10 +109,10 @@ class VacuumCamera(RoborockCoordinatedEntity, Camera):
     ) -> Dict[str, Any]:
         attributes = {}
         rooms = []
-        if map_data.rooms is not None:
+        if map_data.rooms:
             rooms = dict(
                 filter(
-                    lambda x: x[0] is not None,
+                    lambda x: x[0],
                     ((x[0], x[1].name) for x in map_data.rooms.items()),
                 )
             )
@@ -180,7 +178,7 @@ class VacuumCamera(RoborockCoordinatedEntity, Camera):
             _LOGGER.debug(f"Received not bytes value for get_map_v1 function: {response}")
             return None, False
         map_stored = False
-        if store_map_path is not None:
+        if store_map_path:
             raw_map_file = open(f"{store_map_path}/map_data_{self.unique_id}.raw", "wb")
             raw_map_file.write(response)
             raw_map_file.close()
@@ -188,7 +186,7 @@ class VacuumCamera(RoborockCoordinatedEntity, Camera):
         map_data = self.decode_map(
             response, colors, drawables, texts, sizes, image_config
         )
-        if map_data is None:
+        if not map_data:
             return None, map_stored
         return map_data, map_stored
 
@@ -208,15 +206,14 @@ class VacuumCamera(RoborockCoordinatedEntity, Camera):
     def _valid_refresh_state(self):
         updated_status = self._device_status
         if (
-                updated_status is not None
-                and isinstance(updated_status, dict)
-                and updated_status.get(RoborockStatusField.STATE) not in NON_REFRESHING_STATES
+                updated_status
+                and updated_status.state not in NON_REFRESHING_STATES
         ):
             return True
         return False
 
     async def _handle_map_data(self):
-        if self._image is not None and not self._valid_refresh_state():
+        if self._image and not self._valid_refresh_state():
             return
         _LOGGER.debug("Retrieving map from Roborock MQTT")
         store_map_path = self._store_map_path if self._store_map_raw else None
@@ -228,7 +225,7 @@ class VacuumCamera(RoborockCoordinatedEntity, Camera):
             self._image_config,
             store_map_path,
         )
-        if map_data is not None:
+        if map_data:
             # noinspection PyBroadException
             try:
                 _LOGGER.debug("Map data retrieved")
@@ -236,7 +233,7 @@ class VacuumCamera(RoborockCoordinatedEntity, Camera):
                 if map_data.image.is_empty:
                     _LOGGER.debug("Map is empty")
                     self._status = CameraStatus.EMPTY_MAP
-                    if self._map_data is None or self._map_data.image.is_empty:
+                    if not self._map_data or self._map_data.image.is_empty:
                         self._set_map_data(map_data)
                 else:
                     _LOGGER.debug("Map is ok")

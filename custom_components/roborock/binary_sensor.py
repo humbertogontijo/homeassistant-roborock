@@ -16,8 +16,9 @@ from homeassistant.helpers.entity import EntityCategory
 from homeassistant.helpers.entity_platform import AddEntitiesCallback
 from homeassistant.util import slugify
 
-from custom_components.roborock.api.api import RoborockStatusField
 from . import RoborockDataUpdateCoordinator
+from .api.containers import StatusField
+from .api.typing import RoborockDeviceInfo, RoborockDevicePropField
 from .const import (
     DOMAIN,
     MODELS_VACUUM_WITH_MOP,
@@ -36,29 +37,34 @@ ATTR_WATER_SHORTAGE = "is_water_shortage"
 class RoborockBinarySensorDescription(BinarySensorEntityDescription):
     """A class that describes binary sensor entities."""
     value: Callable = None
+    parent_key: str = None
 
 
 VACUUM_SENSORS = {
+
     ATTR_MOP_ATTACHED: RoborockBinarySensorDescription(
-        key=RoborockStatusField.WATER_BOX_STATUS,
+        key=StatusField.WATER_BOX_STATUS,
         name="Mop attached",
         icon="mdi:square-rounded",
+        parent_key=RoborockDevicePropField.STATUS,
         entity_registry_enabled_default=True,
         device_class=BinarySensorDeviceClass.CONNECTIVITY,
         entity_category=EntityCategory.DIAGNOSTIC
     ),
     ATTR_WATER_BOX_ATTACHED: RoborockBinarySensorDescription(
-        key=RoborockStatusField.WATER_BOX_STATUS,
+        key=StatusField.WATER_BOX_STATUS,
         name="Water box attached",
         icon="mdi:water",
+        parent_key=RoborockDevicePropField.STATUS,
         entity_registry_enabled_default=True,
         device_class=BinarySensorDeviceClass.CONNECTIVITY,
         entity_category=EntityCategory.DIAGNOSTIC
     ),
     ATTR_WATER_SHORTAGE: RoborockBinarySensorDescription(
-        key=RoborockStatusField.WATER_SHORTAGE_STATUS,
+        key=StatusField.WATER_SHORTAGE_STATUS,
         name="Water shortage",
         icon="mdi:water",
+        parent_key=RoborockDevicePropField.STATUS,
         entity_registry_enabled_default=True,
         device_class=BinarySensorDeviceClass.PROBLEM,
         entity_category=EntityCategory.DIAGNOSTIC
@@ -68,9 +74,10 @@ VACUUM_SENSORS = {
 VACUUM_SENSORS_SEPARATE_MOP = {
     **VACUUM_SENSORS,
     ATTR_MOP_ATTACHED: RoborockBinarySensorDescription(
-        key=RoborockStatusField.WATER_BOX_CARRIAGE_STATUS,
+        key=StatusField.WATER_BOX_CARRIAGE_STATUS,
         name="Mop attached",
         icon="mdi:square-rounded",
+        parent_key=RoborockDevicePropField.STATUS,
         entity_registry_enabled_default=True,
         device_class=BinarySensorDeviceClass.CONNECTIVITY,
         entity_category=EntityCategory.DIAGNOSTIC
@@ -85,37 +92,34 @@ async def async_setup_entry(
 ) -> None:
     """Only vacuums with mop should have binary sensor registered."""
     entities = []
-    coordinator = hass.data[DOMAIN][config_entry.entry_id]
+    coordinator: RoborockDataUpdateCoordinator = hass.data[DOMAIN][config_entry.entry_id]
 
-    for device in coordinator.api.devices:
-        model = device.get("model")
+    for device_id, device_info in coordinator.api.device_map.items():
+        model = device_info.product.model
         if model not in MODELS_VACUUM_WITH_MOP:
             return
 
         sensors = VACUUM_SENSORS
         if model in MODELS_VACUUM_WITH_SEPARATE_MOP:
             sensors = VACUUM_SENSORS_SEPARATE_MOP
-        device_id = device.get("duid")
-        device_status = coordinator.data.get(device_id)
-        if device_status:
-            unique_id = slugify(device_id)
-            for sensor, description in sensors.items():
-                data = device_status.get(description.key)
-                if data is None:
-                    _LOGGER.debug(
-                        "It seems the %s does not support the %s as the initial value is None",
-                        device.get("model"),
-                        description.key,
-                    )
-                    continue
-                entities.append(
-                    RoborockBinarySensor(
-                        f"{sensor}_{unique_id}",
-                        device,
-                        coordinator,
-                        description,
-                    )
+        unique_id = slugify(device_id)
+        for sensor, description in sensors.items():
+            parent_key_data = getattr(coordinator.data.get(device_id), description.parent_key)
+            if not parent_key_data:
+                _LOGGER.debug(
+                    "It seems the %s does not support the %s as the initial value is None",
+                    device_info.product.model,
+                    description.keys or description.key,
                 )
+                continue
+            entities.append(
+                RoborockBinarySensor(
+                    f"{sensor}_{unique_id}",
+                    device_info,
+                    coordinator,
+                    description,
+                )
+            )
 
     async_add_entities(entities)
 
@@ -125,11 +129,11 @@ class RoborockBinarySensor(RoborockCoordinatedEntity, BinarySensorEntity):
 
     entity_description: RoborockBinarySensorDescription
 
-    def __init__(self, unique_id: str, device: dict, coordinator: RoborockDataUpdateCoordinator,
+    def __init__(self, unique_id: str, device_info: RoborockDeviceInfo, coordinator: RoborockDataUpdateCoordinator,
                  description: RoborockBinarySensorDescription):
         """Initialize the entity."""
         BinarySensorEntity.__init__(self)
-        RoborockCoordinatedEntity.__init__(self, device, coordinator, unique_id)
+        RoborockCoordinatedEntity.__init__(self, device_info, coordinator, unique_id)
         self.entity_description = description
         self._attr_entity_registry_enabled_default = (
             description.entity_registry_enabled_default
@@ -143,10 +147,12 @@ class RoborockBinarySensor(RoborockCoordinatedEntity, BinarySensorEntity):
 
     def _determine_native_value(self):
         """Determine native value."""
-        state = self._extract_value_from_attribute(
-            self.entity_description.key
-        )
-        if self.entity_description.value is not None and state is not None:
+        data = self.coordinator.data.get(self._device_id)
+        if self.entity_description.parent_key:
+            data = getattr(data, self.entity_description.parent_key)
+
+        state = getattr(data, self.entity_description.key)
+        if self.entity_description.value and state:
             return self.entity_description.value(state)
 
         return state
