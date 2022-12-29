@@ -201,6 +201,7 @@ VACUUM_SENSORS = {
     f"consumable_{ATTR_CONSUMABLE_STATUS_MAIN_BRUSH_LEFT}": RoborockSensorDescription(
         native_unit_of_measurement=TIME_SECONDS,
         key=ConsumableField.MAIN_BRUSH_WORK_TIME,
+        value=lambda value: 10800000 - value,
         icon="mdi:brush",
         device_class=SensorDeviceClass.DURATION,
         parent_key=RoborockDevicePropField.CONSUMABLE,
@@ -210,6 +211,7 @@ VACUUM_SENSORS = {
     f"consumable_{ATTR_CONSUMABLE_STATUS_SIDE_BRUSH_LEFT}": RoborockSensorDescription(
         native_unit_of_measurement=TIME_SECONDS,
         key=ConsumableField.SIDE_BRUSH_WORK_TIME,
+        value=lambda value: 720000 - value,
         icon="mdi:brush",
         device_class=SensorDeviceClass.DURATION,
         parent_key=RoborockDevicePropField.CONSUMABLE,
@@ -219,6 +221,7 @@ VACUUM_SENSORS = {
     f"consumable_{ATTR_CONSUMABLE_STATUS_FILTER_LEFT}": RoborockSensorDescription(
         native_unit_of_measurement=TIME_SECONDS,
         key=ConsumableField.FILTER_WORK_TIME,
+        value=lambda value: 540000 - value,
         icon="mdi:air-filter",
         device_class=SensorDeviceClass.DURATION,
         parent_key=RoborockDevicePropField.CONSUMABLE,
@@ -228,6 +231,7 @@ VACUUM_SENSORS = {
     f"consumable_{ATTR_CONSUMABLE_STATUS_SENSOR_DIRTY_LEFT}": RoborockSensorDescription(
         native_unit_of_measurement=TIME_SECONDS,
         key=ConsumableField.SENSOR_DIRTY_TIME,
+        value=lambda value: 108000 - value,
         icon="mdi:eye-outline",
         device_class=SensorDeviceClass.DURATION,
         parent_key=RoborockDevicePropField.CONSUMABLE,
