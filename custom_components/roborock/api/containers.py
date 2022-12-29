@@ -199,7 +199,7 @@ class ConsumableField(str, Enum):
 
 class Reference:
     def __init__(self, data: dict[str, any]) -> None:
-        self.data = data
+        self.data = data if isinstance(data, dict) else {}
 
     @property
     def region(self):
@@ -220,7 +220,7 @@ class Reference:
 
 class RRiot:
     def __init__(self, data: dict[str, any]) -> None:
-        self.data = data
+        self.data = data if isinstance(data, dict) else {}
 
     @property
     def user(self):
@@ -245,7 +245,7 @@ class RRiot:
 
 class UserData:
     def __init__(self, data: dict[str, any]) -> None:
-        self.data = data
+        self.data = data if isinstance(data, dict) else {}
 
     @property
     def uid(self):
@@ -294,7 +294,7 @@ class UserData:
 
 class HomeDataProductSchema:
     def __init__(self, data: dict[str, any]) -> None:
-        self.data = data
+        self.data = data if isinstance(data, dict) else {}
 
     @property
     def id(self):
@@ -327,7 +327,7 @@ class HomeDataProductSchema:
 
 class HomeDataProduct:
     def __init__(self, data: dict[str, any]) -> None:
-        self.data = data
+        self.data = data if isinstance(data, dict) else {}
 
     @property
     def id(self):
@@ -368,7 +368,7 @@ class HomeDataProduct:
 
 class HomeDataDeviceStatus:
     def __init__(self, data: dict[str, any]) -> None:
-        self.data = data
+        self.data = data if isinstance(data, dict) else {}
 
     @property
     def id(self):
@@ -410,7 +410,7 @@ class HomeDataDeviceStatus:
 class HomeDataDevice:
 
     def __init__(self, data: dict[str, any]) -> None:
-        self.data = data
+        self.data = data if isinstance(data, dict) else {}
 
     @property
     def duid(self) -> str:
@@ -515,7 +515,7 @@ class HomeDataDevice:
 
 class HomeDataRoom:
     def __init__(self, data: dict[str, any]) -> None:
-        self.data = data
+        self.data = data if isinstance(data, dict) else {}
 
     @property
     def id(self):
@@ -528,7 +528,7 @@ class HomeDataRoom:
 
 class HomeData:
     def __init__(self, data: dict[str, any]) -> None:
-        self.data = data
+        self.data = data if isinstance(data, dict) else {}
 
     @property
     def id(self):
@@ -569,7 +569,7 @@ class HomeData:
 
 class Status:
     def __init__(self, data: dict[str, any]) -> None:
-        self.data = data
+        self.data = data if isinstance(data, dict) else {}
 
     @property
     def msg_ver(self):
@@ -742,7 +742,7 @@ class Status:
 
 class DNDTimer:
     def __init__(self, data: dict[str, any]) -> None:
-        self.data = data
+        self.data = data if isinstance(data, dict) else {}
 
     @property
     def start_hour(self):
@@ -767,7 +767,7 @@ class DNDTimer:
 
 class CleanSummary:
     def __init__(self, data: dict[str, any]) -> None:
-        self.data = data
+        self.data = data if isinstance(data, dict) else {}
 
     @property
     def clean_time(self):
@@ -792,7 +792,7 @@ class CleanSummary:
 
 class CleanRecord:
     def __init__(self, data: dict[str, any]) -> None:
-        self.data = data
+        self.data = data if isinstance(data, dict) else {}
 
     @property
     def begin(self):
@@ -849,7 +849,7 @@ class CleanRecord:
 
 class Consumable:
     def __init__(self, data: dict[str, any]) -> None:
-        self.data = data
+        self.data = data if isinstance(data, dict) else {}
 
     @property
     def main_brush_work_time(self):

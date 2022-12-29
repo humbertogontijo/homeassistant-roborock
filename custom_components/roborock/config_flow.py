@@ -64,7 +64,7 @@ class RoborockFlowHandler(config_entries.ConfigFlow, domain=DOMAIN):
             if login_data:
                 return self.async_create_entry(title="Roborock", data={
                     CONF_ENTRY_USERNAME: self._username,
-                    CONF_USER_DATA: login_data,
+                    CONF_USER_DATA: login_data.data,
                     CONF_BASE_URL: self._base_url
                 })
             else:
