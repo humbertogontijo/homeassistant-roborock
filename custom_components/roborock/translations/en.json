@@ -23,7 +23,9 @@
     "step": {
       "user": {
         "data": {
+          "binary_sensor": "Integrate mop & water box binary sensors",
           "camera": "Integrate map as camera",
+          "sensor": "Integrate status & summary sensors",
           "vacuum": "Integrate vacuum"
         }
       }
