@@ -21,7 +21,7 @@ class ImageHandlerRoborock:
     COLORS = {
         COLOR_MAP_INSIDE: (32, 115, 185),
         COLOR_MAP_OUTSIDE: (0, 0, 0, 0),
-        COLOR_MAP_WALL: (100, 196, 254),
+        COLOR_MAP_WALL: (93, 109, 126),
         COLOR_MAP_WALL_V2: (93, 109, 126),
         COLOR_GREY_WALL: (0, 0, 0, 0),
         COLOR_CLEANED_AREA: (127, 127, 127, 127),
