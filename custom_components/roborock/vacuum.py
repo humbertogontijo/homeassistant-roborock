@@ -355,7 +355,7 @@ class RoborockVacuum(RoborockCoordinatedEntity, StateVacuumEntity, ABC):
     @property
     def mop_intensity(self):
         """Return the mop intensity of the vacuum cleaner."""
-        mop_intensity = self._device_status.water_box_status
+        mop_intensity = self._device_status.water_box_mode
         return MOP_INTENSITY_CODES.get(mop_intensity)
 
     @property
