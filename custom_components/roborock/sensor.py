@@ -139,7 +139,7 @@ VACUUM_SENSORS = {
     f"clean_history_{ATTR_CLEAN_SUMMARY_TOTAL_AREA}": RoborockSensorDescription(
         native_unit_of_measurement=AREA_SQUARE_METERS,
         key=CleanSummaryField.CLEAN_AREA,
-        value=lambda value: value / 1000000,
+        value=lambda value: round(value / 1000000, 1),
         icon="mdi:texture-box",
         parent_key=RoborockDevicePropField.CLEAN_SUMMARY,
         name="Total clean area",
