@@ -103,7 +103,7 @@ VACUUM_SENSORS = {
     f"last_clean_{ATTR_LAST_CLEAN_AREA}": RoborockSensorDescription(
         native_unit_of_measurement=AREA_SQUARE_METERS,
         key=CleanRecordField.AREA,
-        value=lambda value: value / 1000000,
+        value=lambda value: round(value / 1000000, 1),
         icon="mdi:texture-box",
         parent_key=RoborockDevicePropField.LAST_CLEAN_RECORD,
         name="Last clean area",
@@ -122,7 +122,7 @@ VACUUM_SENSORS = {
         native_unit_of_measurement=AREA_SQUARE_METERS,
         icon="mdi:texture-box",
         key=StatusField.CLEAN_AREA,
-        value=lambda value: value / 1000000,
+        value=lambda value: round(value / 1000000, 1),
         parent_key=RoborockDevicePropField.STATUS,
         entity_category=EntityCategory.DIAGNOSTIC,
         name="Current clean area",
