@@ -165,7 +165,7 @@ VACUUM_SENSORS = {
     f"consumable_{ATTR_CONSUMABLE_STATUS_MAIN_BRUSH_LEFT}": RoborockSensorDescription(
         native_unit_of_measurement=TIME_SECONDS,
         key=ConsumableField.MAIN_BRUSH_WORK_TIME,
-        value=lambda value: 10800000 - value,
+        value=lambda value: 1080000 - value,
         icon="mdi:brush",
         device_class=SensorDeviceClass.DURATION,
         parent_key=RoborockDevicePropField.CONSUMABLE,
