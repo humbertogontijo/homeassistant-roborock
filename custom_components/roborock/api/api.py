@@ -21,7 +21,7 @@ from Crypto.Cipher import AES
 from Crypto.Util.Padding import pad, unpad
 
 from custom_components.roborock.api.containers import UserData, HomeDataDevice, Status, CleanSummary, Consumable, \
-    DNDTimer, CleanRecord
+    DNDTimer, CleanRecord, HomeData
 from custom_components.roborock.api.roborock_queue import RoborockQueue
 from custom_components.roborock.api.typing import RoborockDeviceInfo, RoborockDeviceProp
 from custom_components.roborock.api.util import run_in_executor
@@ -84,8 +84,7 @@ class CommandVacuumError(Exception):
 
 class RoborockMqttClient:
 
-    def __init__(self, user_data: UserData, device_map: dict[str, RoborockDeviceInfo]):
-        self.device_map = device_map
+    def __init__(self, user_data: UserData, api_username: str, api_base_url: str):
         rriot = user_data.rriot
         self._seq = 1
         self._random = 4711
@@ -106,6 +105,22 @@ class RoborockMqttClient:
         self._last_message_timestamp = time.time()
         self._is_connected = False
         self.client = self._build_client()
+        self._user_data = user_data
+        self._api_username = api_username
+        self._api_base_url = api_base_url
+        self.device_map = {}
+
+    async def _build_device_map(self):
+        api_client = RoborockClient(self._api_username, self._api_base_url)
+        _LOGGER.debug("Getting home data")
+        home_data = HomeData(await api_client.get_home_data(self._user_data))
+        _LOGGER.debug(f"Got home data: {home_data}")
+
+        device_map: dict[str, RoborockDeviceInfo] = {}
+        for device in home_data.devices + home_data.received_devices:
+            product = next((product for product in home_data.products if product.id == device.product_id), {})
+            device_map[device.duid] = RoborockDeviceInfo(device, product)
+        self.device_map = device_map
 
     def _build_client(self) -> mqtt.Client:
         @run_in_executor()
@@ -113,7 +128,6 @@ class RoborockMqttClient:
             if rc != 0:
                 await connection_queue.async_put((None, Exception("Failed to connect.")), timeout=QUEUE_TIMEOUT)
             _LOGGER.info(f"Connected to mqtt {self._mqtt_host}:{self._mqtt_port}")
-            self._is_connected = True
             topic = f"rr/m/o/{self._mqtt_user}/{self._hashed_user}/#"
             (result, mid) = _client.subscribe(topic)
             if result != 0:
@@ -185,16 +199,20 @@ class RoborockMqttClient:
         return self._is_connected
 
     def disconnect(self):
-        if self.client:
-            self.client.disconnect()
-            self.client.loop_stop()
         self._is_connected = False
+        self.device_map = None
 
     async def connect(self):
+        if not self.device_map:
+            await self._build_device_map()
         connection_queue = RoborockQueue()
         self.client.user_data_set(connection_queue)
         if not self._is_connected:
-            self.client.loop_start()
+            try:
+                self.client.loop_start()
+            except Exception as e:
+                _LOGGER.error(e)
+            self._is_connected = True
         if self.client.is_connected():
             self.client.reconnect()
         else:
@@ -210,6 +228,7 @@ class RoborockMqttClient:
         self.client.user_data_set(None)
 
     async def reconnect(self):
+        self.disconnect()
         await self.connect()
 
     def _decode_msg(self, msg, device: HomeDataDevice):

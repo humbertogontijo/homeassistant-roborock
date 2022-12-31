@@ -27,16 +27,8 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
     user_data = UserData(entry.data.get(CONF_USER_DATA))
     base_url = entry.data.get(CONF_BASE_URL)
     username = entry.data.get(CONF_ENTRY_USERNAME)
-    api_client = RoborockClient(username, base_url)
-    _LOGGER.debug("Getting home data")
-    home_data = HomeData(await api_client.get_home_data(user_data))
 
-    device_map: dict[str, RoborockDeviceInfo] = {}
-    for device in home_data.devices + home_data.received_devices:
-        product = next((product for product in home_data.products if product.id == device.product_id), {})
-        device_map[device.duid] = RoborockDeviceInfo(device, product)
-
-    client = RoborockMqttClient(user_data, device_map)
+    client = RoborockMqttClient(user_data, username, base_url)
     coordinator = RoborockDataUpdateCoordinator(hass, client)
 
     _LOGGER.debug("Searching for Roborock sensors...")

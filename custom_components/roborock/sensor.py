@@ -276,15 +276,21 @@ class RoborockSensor(RoborockCoordinatedEntity, SensorEntity):
     def _determine_native_value(self):
         """Determine native value."""
         data = self.coordinator.data.get(self._device_id)
-        if self.entity_description.parent_key:
-            data = getattr(data, self.entity_description.parent_key)
+        native_value = None
+        try:
+            if self.entity_description.parent_key:
+                data = getattr(data, self.entity_description.parent_key)
 
-        if self.entity_description.keys:
-            native_value = [
-                getattr(data, key) for key in self.entity_description.keys
-            ]
-        else:
-            native_value = getattr(data, self.entity_description.key)
+            if self.entity_description.keys:
+                native_value = [
+                    getattr(data, key) for key in self.entity_description.keys
+                ]
+                if not any(native_value):
+                    native_value = None
+            else:
+                native_value = getattr(data, self.entity_description.key)
+        except AttributeError as e:
+            _LOGGER.error(f"Failed to get value for {self.entity_description}; {e}")
 
         if self.entity_description.value and native_value:
             native_value = self.entity_description.value(native_value)
