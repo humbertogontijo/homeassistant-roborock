@@ -66,7 +66,7 @@ class VacuumCameraMap(RoborockCoordinatedEntity, Camera):
         Camera.__init__(self)
         RoborockCoordinatedEntity.__init__(self, device_info, coordinator, unique_id)
         self._store_map_image = False
-        self._image_config = {CONF_SCALE: 1, CONF_ROTATE: 0, CONF_TRIM: DEFAULT_TRIMS}
+        self._image_config = {CONF_SCALE: 2, CONF_ROTATE: 0, CONF_TRIM: DEFAULT_TRIMS}
         self._sizes = DEFAULT_SIZES
         self._texts = []
         self._drawables = CONF_AVAILABLE_DRAWABLES

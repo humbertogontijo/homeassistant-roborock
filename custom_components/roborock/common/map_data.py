@@ -156,7 +156,7 @@ class ImageData:
     def create_empty(data: ImageType) -> ImageData:
         image_config = {
             CONF_TRIM: {CONF_LEFT: 0, CONF_RIGHT: 0, CONF_TOP: 0, CONF_BOTTOM: 0},
-            CONF_SCALE: 1,
+            CONF_SCALE: 2,
             CONF_ROTATE: 0,
         }
         return ImageData(0, 0, 0, 0, 0, image_config, data, lambda p: p)
