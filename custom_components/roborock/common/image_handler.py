@@ -289,8 +289,9 @@ class ImageHandlerRoborock:
 
         use_transparency = ImageHandlerRoborock.__use_transparency__(outline, fill)
         for area in areas:
+            current_area = area
             def draw_func(draw: ImageDraw):
-                draw.polygon(area.to_img(image.dimensions).as_list(), fill, outline)
+                draw.polygon(current_area.to_img(image.dimensions).as_list(), fill, outline)
 
             ImageHandlerRoborock.__draw_on_new_layer__(image, draw_func, 1, use_transparency)
 
