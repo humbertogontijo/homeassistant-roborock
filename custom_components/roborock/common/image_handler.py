@@ -390,9 +390,7 @@ class ImageHandlerRoborock:
                 pixel_type = raw_data[idx]
                 x = img_x
                 y = trimmed_height - img_y - 1
-                if idx in carpet_map and (x + y) % 2:
-                    pixels[x, y] = ImageHandlerRoborock.__get_color__(COLOR_CARPETS, colors)
-                elif pixel_type == ImageHandlerRoborock.MAP_OUTSIDE:
+                if pixel_type == ImageHandlerRoborock.MAP_OUTSIDE:
                     pixels[x, y] = ImageHandlerRoborock.__get_color__(COLOR_MAP_OUTSIDE, colors)
                 elif pixel_type == ImageHandlerRoborock.MAP_WALL:
                     pixels[x, y] = ImageHandlerRoborock.__get_color__(COLOR_MAP_WALL, colors)
@@ -422,6 +420,20 @@ class ImageHandlerRoborock:
                                                                           default)
                     else:
                         pixels[x, y] = ImageHandlerRoborock.__get_color__(COLOR_UNKNOWN, colors)
+    
+                if idx in carpet_map and (x + y) % 2:
+                    def combine_color_component(base: int, overlay: int, alpha: int):
+                        return (int)((base * (255 - alpha) + overlay * alpha) / 255)
+
+                    carpet_color = ImageHandlerRoborock.__get_color__(COLOR_CARPETS, colors)
+
+                    if not pixels[x, y] or len(carpet_color) != 4:
+                        pixels[x, y] = carpet_color
+                    else:
+                        pixels[x, y] = (combine_color_component(pixels[x, y][0], carpet_color[0], carpet_color[3]),
+                            combine_color_component(pixels[x, y][1], carpet_color[1], carpet_color[3]),
+                            combine_color_component(pixels[x, y][2], carpet_color[2], carpet_color[3]))
+
         if image_config["scale"] != 1 and width != 0 and height != 0:
             image = image.resize((int(trimmed_width * scale), int(trimmed_height * scale)), resample=Image.NEAREST)
         return image, rooms
