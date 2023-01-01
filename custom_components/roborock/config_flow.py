@@ -71,7 +71,7 @@ class RoborockFlowHandler(config_entries.ConfigFlow, domain=DOMAIN):
             code = user_input[CONF_ENTRY_CODE]
             login_data = await self._login(code)
             if login_data:
-                return self.async_create_entry(title="Roborock", data={
+                return self.async_create_entry(title=self._username, data={
                     CONF_ENTRY_USERNAME: self._username,
                     CONF_USER_DATA: login_data.data,
                     CONF_BASE_URL: self._base_url
@@ -126,8 +126,8 @@ class RoborockFlowHandler(config_entries.ConfigFlow, domain=DOMAIN):
             client = RoborockClient(self._username)
             await client.request_code()
             return client
-        except Exception as e:
-            _LOGGER.exception(e)
+        except Exception as ex:
+            _LOGGER.exception(ex)
             self._errors["base"] = "auth"
             return None
 
