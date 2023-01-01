@@ -45,6 +45,7 @@ class ImageHandlerRoborock:
         COLOR_IGNORED_OBSTACLE: (63, 159, 254),
         COLOR_OBSTACLE_WITH_PHOTO: (63, 159, 254),
         COLOR_IGNORED_OBSTACLE_WITH_PHOTO: (63, 159, 254),
+        COLOR_OBSTACLE_OUTLINE: (255, 255, 255),
         COLOR_UNKNOWN: (0, 0, 0),
         COLOR_SCAN: (0xDF, 0xDF, 0xDF),
         COLOR_ROOM_1: (240, 178, 122),
@@ -133,30 +134,31 @@ class ImageHandlerRoborock:
     def draw_obstacles(image: ImageData, obstacles, sizes: Sizes, colors: Colors):
         color = ImageHandlerRoborock.__get_color__(COLOR_OBSTACLE, colors)
         radius = sizes[CONF_SIZE_OBSTACLE_RADIUS]
-        ImageHandlerRoborock.draw_all_obstacles(image, obstacles, radius, color)
+        ImageHandlerRoborock.draw_all_obstacles(image, obstacles, radius, color, colors)
 
     @staticmethod
     def draw_ignored_obstacles(image: ImageData, obstacles: List[Obstacle], sizes: Sizes, colors: Colors):
         color = ImageHandlerRoborock.__get_color__(COLOR_IGNORED_OBSTACLE, colors)
         radius = sizes[CONF_SIZE_IGNORED_OBSTACLE_RADIUS]
-        ImageHandlerRoborock.draw_all_obstacles(image, obstacles, radius, color)
+        ImageHandlerRoborock.draw_all_obstacles(image, obstacles, radius, color, colors)
 
     @staticmethod
     def draw_obstacles_with_photo(image: ImageData, obstacles: List[Obstacle], sizes: Sizes, colors: Colors):
         color = ImageHandlerRoborock.__get_color__(COLOR_OBSTACLE_WITH_PHOTO, colors)
         radius = sizes[CONF_SIZE_OBSTACLE_WITH_PHOTO_RADIUS]
-        ImageHandlerRoborock.draw_all_obstacles(image, obstacles, radius, color)
+        ImageHandlerRoborock.draw_all_obstacles(image, obstacles, radius, color, colors)
 
     @staticmethod
     def draw_ignored_obstacles_with_photo(image: ImageData, obstacles: List[Obstacle], sizes: Sizes, colors: Colors):
         color = ImageHandlerRoborock.__get_color__(COLOR_IGNORED_OBSTACLE_WITH_PHOTO, colors)
         radius = sizes[CONF_SIZE_IGNORED_OBSTACLE_WITH_PHOTO_RADIUS]
-        ImageHandlerRoborock.draw_all_obstacles(image, obstacles, radius, color)
+        ImageHandlerRoborock.draw_all_obstacles(image, obstacles, radius, color, colors)
 
     @staticmethod
-    def draw_all_obstacles(image: ImageData, obstacles: List[Obstacle], radius: float, color: Color):
+    def draw_all_obstacles(image: ImageData, obstacles: List[Obstacle], radius: float, color: Color, colors: Colors):
+        outline_color = ImageHandlerRoborock.__get_color__(COLOR_OBSTACLE_OUTLINE, colors)
         for obstacle in obstacles:
-            ImageHandlerRoborock.__draw_circle__(image, obstacle, radius, color, color)
+            ImageHandlerRoborock.__draw_circle__(image, obstacle, radius, outline_color, color)
 
     @staticmethod
     def draw_vacuum_position(image: ImageData, vacuum_position: Point, sizes: Sizes, colors: Colors):
