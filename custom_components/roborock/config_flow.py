@@ -1,32 +1,41 @@
-"""Config flow for yeelight_bt"""
+"""Config flow for Roborock."""
 from __future__ import annotations
 
 import logging
 
-import voluptuous as vol
 from homeassistant import config_entries
 from homeassistant.core import callback
+import voluptuous as vol
 
-from custom_components.roborock.api.api import RoborockClient
-from .const import CONF_ENTRY_USERNAME, DOMAIN, PLATFORMS, CONF_ENTRY_CODE, CONF_USER_DATA, CONF_BASE_URL
+from .api.api import RoborockClient
+from .api.containers import UserData
+from .const import (
+    CONF_BASE_URL,
+    CONF_ENTRY_CODE,
+    CONF_ENTRY_USERNAME,
+    CONF_USER_DATA,
+    DOMAIN,
+    PLATFORMS,
+)
 
 _LOGGER = logging.getLogger(__name__)
 
 
 class RoborockFlowHandler(config_entries.ConfigFlow, domain=DOMAIN):
-    """Config flow for Roborock."""
+    """Handle a config flow for Roborock."""
 
     VERSION = 1
     CONNECTION_CLASS = config_entries.CONN_CLASS_CLOUD_POLL
 
     def __init__(self):
-        """Initialize."""
+        """Initialize the config flow."""
         self._errors = {}
         self._client = None
         self._username = None
         self._base_url = None
 
     async def async_step_reauth(self, user_input=None):
+        """Handle a reauth flow."""
         await self.hass.config_entries.async_remove(self.context["entry_id"])
         return await self._show_user_form(user_input)
 
@@ -83,7 +92,7 @@ class RoborockFlowHandler(config_entries.ConfigFlow, domain=DOMAIN):
         return RoborockOptionsFlowHandler(config_entry)
 
     async def _show_user_form(self, user_input):  # pylint: disable=unused-argument
-        """Show the configuration form to edit location data."""
+        """Show the configuration form to provide user email."""
         return self.async_show_form(
             step_id="user",
             data_schema=vol.Schema(
@@ -97,7 +106,7 @@ class RoborockFlowHandler(config_entries.ConfigFlow, domain=DOMAIN):
         )
 
     async def _show_code_form(self, user_input):  # pylint: disable=unused-argument
-        """Show the configuration form to edit location data."""
+        """Show the configuration form to provide authentication code."""
         return self.async_show_form(
             step_id="code",
             data_schema=vol.Schema(
@@ -122,21 +131,20 @@ class RoborockFlowHandler(config_entries.ConfigFlow, domain=DOMAIN):
             self._errors["base"] = "auth"
             return None
 
-    async def _login(self, code):
-        """Return true if credentials is valid."""
+    async def _login(self, code) -> UserData:
+        """Return UserData if login code is valid."""
         try:
-            _LOGGER.debug("Requesting code for Roborock account")
+            _LOGGER.debug("Logging into Roborock account using email provided code")
             login_data = await self._client.code_login(code)
             return login_data
-        except Exception as e:
-            _LOGGER.exception(e)
+        except Exception as ex:
+            _LOGGER.exception(ex)
             self._errors["base"] = "auth"
             return None
 
 
 class RoborockOptionsFlowHandler(config_entries.OptionsFlow):
     """Roborock config flow options handler."""
-
     def __init__(self, config_entry):
         """Initialize HACS options flow."""
         self.config_entry = config_entry
