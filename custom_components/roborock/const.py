@@ -3,8 +3,13 @@ CONF_ENTRY_USERNAME = "username"
 CONF_ENTRY_CODE = "code"
 CONF_BASE_URL = "base_url"
 CONF_USER_DATA = "user_data"
-PLATFORMS = ["vacuum", "camera", "sensor", "binary_sensor"]
 DEFAULT_NAME = DOMAIN
+
+BINARY_SENSOR = "binary_sensor"
+CAMERA = "camera"
+SENSOR = "sensor"
+VACUUM = "vacuum"
+PLATFORMS = [VACUUM, CAMERA, SENSOR, BINARY_SENSOR]
 
 ROCKROBO_V1 = "rockrobo.vacuum.v1"
 ROCKROBO_S4 = "roborock.vacuum.s4"
