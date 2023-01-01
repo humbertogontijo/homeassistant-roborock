@@ -1,30 +1,31 @@
+"""Support for Roborock cameras."""
 import io
 import logging
 from datetime import timedelta
 from enum import Enum
 from typing import Any, Dict, List, Optional, Tuple
 
-import PIL.Image as Image
+from PIL import Image
 from homeassistant.components.camera import Camera, SUPPORT_ON_OFF
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.core import HomeAssistant
 from homeassistant.helpers.entity_platform import AddEntitiesCallback
 from homeassistant.util import slugify
 
-from custom_components.roborock import RoborockDataUpdateCoordinator
-from custom_components.roborock.api.typing import RoborockDeviceInfo
-from custom_components.roborock.common.image_handler import ImageHandlerRoborock
-from custom_components.roborock.common.map_data import MapData
-from custom_components.roborock.common.map_data_parser import MapDataParserRoborock
-from custom_components.roborock.common.types import (
+from . import RoborockDataUpdateCoordinator
+from .api.typing import RoborockDeviceInfo
+from .common.image_handler import ImageHandlerRoborock
+from .common.map_data import MapData
+from .common.map_data_parser import MapDataParserRoborock
+from .common.types import (
     Colors,
     Drawables,
     ImageConfig,
     Sizes,
     Texts,
 )
-from custom_components.roborock.const import *
-from custom_components.roborock.device import RoborockCoordinatedEntity
+from .const import *
+from .device import RoborockCoordinatedEntity
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -50,18 +51,20 @@ async def async_setup_entry(
         config_entry: ConfigEntry,
         async_add_entities: AddEntitiesCallback,
 ) -> None:
+    """Setup Roborock cameras."""
     coordinator: RoborockDataUpdateCoordinator = hass.data[DOMAIN][config_entry.entry_id]
     entities = []
     for device_id, device_info in coordinator.api.device_map.items():
         unique_id = slugify(device_id)
-        entities.append(VacuumCamera(unique_id, device_info, coordinator))
+        entities.append(VacuumCameraMap(unique_id, device_info, coordinator))
     async_add_entities(entities)
 
 
-class VacuumCamera(RoborockCoordinatedEntity, Camera):
-    def __init__(self, unique_id: str, device: RoborockDeviceInfo, coordinator: RoborockDataUpdateCoordinator):
+class VacuumCameraMap(RoborockCoordinatedEntity, Camera):
+    """Representation of a Roborock camera map."""
+    def __init__(self, unique_id: str, device_info: RoborockDeviceInfo, coordinator: RoborockDataUpdateCoordinator):
         Camera.__init__(self)
-        RoborockCoordinatedEntity.__init__(self, device, coordinator, unique_id)
+        RoborockCoordinatedEntity.__init__(self, device_info, coordinator, unique_id)
         self._store_map_image = False
         self._image_config = {CONF_SCALE: 1, CONF_ROTATE: 0, CONF_TRIM: DEFAULT_TRIMS}
         self._sizes = DEFAULT_SIZES
@@ -76,6 +79,8 @@ class VacuumCamera(RoborockCoordinatedEntity, Camera):
         self._attributes = CONF_AVAILABLE_ATTRIBUTES
         self._map_data = None
         self._image = None
+        self._attr_icon = "mdi:map"
+        self._attr_name = "Map"
 
     def camera_image(
             self, width: Optional[int] = None, height: Optional[int] = None
@@ -83,17 +88,21 @@ class VacuumCamera(RoborockCoordinatedEntity, Camera):
         return self._image
 
     def turn_on(self):
+        """"Disable polling for map image."""
         self._should_poll = True
 
     def turn_off(self):
+        """"Enable polling for map image."""
         self._should_poll = False
 
     @property
     def supported_features(self) -> int:
+        """"Specify supported features."""
         return SUPPORT_ON_OFF
 
     @property
     def extra_state_attributes(self) -> Dict[str, Any]:
+        """"Return camera attributes."""
         attributes = {}
         if self._map_data:
             attributes.update(self.extract_attributes(self._map_data, self._attributes))
@@ -101,12 +110,14 @@ class VacuumCamera(RoborockCoordinatedEntity, Camera):
 
     @property
     def should_poll(self) -> bool:
+        """Return polling enabled."""
         return self._should_poll
 
     @staticmethod
     def extract_attributes(
             map_data: MapData, attributes_to_return: List[str]
     ) -> Dict[str, Any]:
+        """Extract camera attributes."""
         attributes = {}
         rooms = []
         if map_data.rooms:
@@ -148,10 +159,11 @@ class VacuumCamera(RoborockCoordinatedEntity, Camera):
         return attributes
 
     async def async_update(self) -> None:
+        """Handle map image update."""
         try:
             await self._handle_map_data()
-        except Exception as e:
-            _LOGGER.exception(e)
+        except Exception as err:
+            _LOGGER.exception(err)
             self._set_map_data(
                 MapDataParserRoborock.create_empty(self._colors, str(self._status))
             )
@@ -171,11 +183,12 @@ class VacuumCamera(RoborockCoordinatedEntity, Camera):
             image_config: ImageConfig,
             store_map_path: Optional[str] = None,
     ) -> Tuple[Optional[MapData], bool]:
+        """Get map image."""
         response = await self.send("get_map_v1")
         if not response:
             return None, False
         elif not isinstance(response, bytes):
-            _LOGGER.debug(f"Received not bytes value for get_map_v1 function: {response}")
+            _LOGGER.debug("Received non-bytes value for get_map_v1 function: %s", response)
             return None, False
         map_stored = False
         if store_map_path:
@@ -199,6 +212,7 @@ class VacuumCamera(RoborockCoordinatedEntity, Camera):
             sizes: Sizes,
             image_config: ImageConfig,
     ) -> Optional[MapData]:
+        """Decode map image."""
         return MapDataParserRoborock.parse(
             raw_map, colors, drawables, texts, sizes, image_config
         )
@@ -263,6 +277,7 @@ class VacuumCamera(RoborockCoordinatedEntity, Camera):
 
 
 class CameraStatus(Enum):
+    """Camera status enum."""
     EMPTY_MAP = "Empty map"
     FAILED_LOGIN = "Failed to login"
     FAILED_TO_RETRIEVE_DEVICE = "Failed to retrieve device"
