@@ -27,8 +27,17 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
     user_data = UserData(entry.data.get(CONF_USER_DATA))
     base_url = entry.data.get(CONF_BASE_URL)
     username = entry.data.get(CONF_ENTRY_USERNAME)
+    api_client = RoborockClient(username, base_url)
+    _LOGGER.debug("Getting home data")
+    home_data = HomeData(await api_client.get_home_data(user_data))
+    _LOGGER.debug(f"Got home data {home_data.data}")
 
-    client = RoborockMqttClient(user_data, username, base_url)
+    device_map: dict[str, RoborockDeviceInfo] = {}
+    for device in home_data.devices + home_data.received_devices:
+        product = next((product for product in home_data.products if product.id == device.product_id), {})
+        device_map[device.duid] = RoborockDeviceInfo(device, product)
+
+    client = RoborockMqttClient(user_data, device_map)
     coordinator = RoborockDataUpdateCoordinator(hass, client)
 
     _LOGGER.debug("Searching for Roborock sensors...")
@@ -62,7 +71,7 @@ class RoborockDataUpdateCoordinator(DataUpdateCoordinator[dict[str, RoborockDevi
     async def _async_update_data(self):
         """Update data via library."""
         try:
-            if not self.api.is_connected():
+            if not self.api.is_connected:
                 try:
                     _LOGGER.debug("Connecting to roborock mqtt")
                     await self.api.connect()

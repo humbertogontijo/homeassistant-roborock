@@ -19,9 +19,11 @@ import aiohttp
 import paho.mqtt.client as mqtt
 from Crypto.Cipher import AES
 from Crypto.Util.Padding import pad, unpad
+from paho.mqtt.packettypes import PacketTypes
+from paho.mqtt.properties import Properties
 
 from custom_components.roborock.api.containers import UserData, HomeDataDevice, Status, CleanSummary, Consumable, \
-    DNDTimer, CleanRecord, HomeData
+    DNDTimer, CleanRecord
 from custom_components.roborock.api.roborock_queue import RoborockQueue
 from custom_components.roborock.api.typing import RoborockDeviceInfo, RoborockDeviceProp
 from custom_components.roborock.api.util import run_in_executor
@@ -29,7 +31,7 @@ from custom_components.roborock.api.util import run_in_executor
 _LOGGER = logging.getLogger(__name__)
 QUEUE_TIMEOUT = 4
 MQTT_KEEPALIVE = 60
-
+SESSION_EXPIRY_INTERVAL = 30 * 60
 
 def md5hex(message: str):
     md5 = hashlib.md5()
@@ -84,7 +86,8 @@ class CommandVacuumError(Exception):
 
 class RoborockMqttClient:
 
-    def __init__(self, user_data: UserData, api_username: str, api_base_url: str):
+    def __init__(self, user_data: UserData, device_map: dict[str, RoborockDeviceInfo]):
+        self.device_map = device_map
         rriot = user_data.rriot
         self._seq = 1
         self._random = 4711
@@ -102,32 +105,17 @@ class RoborockMqttClient:
         self._endpoint = base64.b64encode(md5bin(self._mqtt_domain)[8:14]).decode()
         self._nonce = secrets.token_bytes(16)
         self._waiting_queue: dict[int, RoborockQueue] = {}
-        self._last_message_timestamp = time.time()
-        self._is_connected = False
+        self.is_connected = False
         self.client = self._build_client()
         self._user_data = user_data
-        self._api_username = api_username
-        self._api_base_url = api_base_url
-        self.device_map = {}
-
-    async def _build_device_map(self):
-        api_client = RoborockClient(self._api_username, self._api_base_url)
-        _LOGGER.debug("Getting home data")
-        home_data = HomeData(await api_client.get_home_data(self._user_data))
-        _LOGGER.debug(f"Got home data: {home_data}")
-
-        device_map: dict[str, RoborockDeviceInfo] = {}
-        for device in home_data.devices + home_data.received_devices:
-            product = next((product for product in home_data.products if product.id == device.product_id), {})
-            device_map[device.duid] = RoborockDeviceInfo(device, product)
-        self.device_map = device_map
 
     def _build_client(self) -> mqtt.Client:
         @run_in_executor()
-        async def on_connect(_client: mqtt.Client, connection_queue: RoborockQueue, _, rc):
+        async def on_connect(_client: mqtt.Client, connection_queue: RoborockQueue, _, rc, __=None):
             if rc != 0:
                 await connection_queue.async_put((None, Exception("Failed to connect.")), timeout=QUEUE_TIMEOUT)
             _LOGGER.info(f"Connected to mqtt {self._mqtt_host}:{self._mqtt_port}")
+            self.is_connected = True
             topic = f"rr/m/o/{self._mqtt_user}/{self._hashed_user}/#"
             (result, mid) = _client.subscribe(topic)
             if result != 0:
@@ -136,7 +124,7 @@ class RoborockMqttClient:
             await connection_queue.async_put(({}, None), timeout=QUEUE_TIMEOUT)
 
         @run_in_executor()
-        async def on_message(_client, _, msg):
+        async def on_message(_client, _, msg, __=None):
             try:
                 device_id = msg.topic.split("/").pop()
                 data = self._decode_msg(msg.payload, self.device_map[device_id].device)
@@ -181,11 +169,11 @@ class RoborockMqttClient:
                 _LOGGER.exception(exception)
 
         @run_in_executor()
-        async def on_disconnect(_client: mqtt.Client, _, rc):
+        async def on_disconnect(_client: mqtt.Client, _, rc, __=None):
             _LOGGER.error(f"Roborock mqtt client disconnected (rc: {rc})")
             self.disconnect()
 
-        client = mqtt.Client(client_id=self._hashed_user, clean_session=True)
+        client = mqtt.Client(client_id=self._hashed_user, protocol=mqtt.MQTTv5)
         client.on_connect = on_connect
         client.on_message = on_message
         client.on_disconnect = on_disconnect
@@ -193,30 +181,25 @@ class RoborockMqttClient:
         if self._mqtt_ssl:
             client.tls_set()
         client.username_pw_set(self._hashed_user, self._hashed_password)
+        client.loop_start()
         return client
 
-    def is_connected(self):
-        return self._is_connected
-
     def disconnect(self):
-        self._is_connected = False
+        self.is_connected = False
         self.device_map = None
 
     async def connect(self):
-        if not self.device_map:
-            await self._build_device_map()
         connection_queue = RoborockQueue()
         self.client.user_data_set(connection_queue)
-        if not self._is_connected:
-            try:
-                self.client.loop_start()
-            except Exception as e:
-                _LOGGER.error(e)
-            self._is_connected = True
         if self.client.is_connected():
             self.client.reconnect()
         else:
-            self.client.connect(host=self._mqtt_host, port=self._mqtt_port, keepalive=MQTT_KEEPALIVE)
+            properties = Properties(PacketTypes.CONNECT)
+            properties.SessionExpiryInterval = 30 * 60
+            self.client.connect(host=self._mqtt_host, port=self._mqtt_port,
+                                clean_start=mqtt.MQTT_CLEAN_START_FIRST_ONLY,
+                                properties=properties,
+                                keepalive=MQTT_KEEPALIVE)
         try:
             (_, err) = await connection_queue.async_get(timeout=QUEUE_TIMEOUT)
             if err:
@@ -272,8 +255,6 @@ class RoborockMqttClient:
             raise Exception("Failed to publish")
 
     async def send_command(self, device_id: str, method: str, params: list = None, secure=False):
-        if time.time() - self._last_message_timestamp > MQTT_KEEPALIVE:
-            await self.reconnect()
         timestamp = math.floor(time.time())
         request_id = self._id_counter
         self._id_counter = (self._id_counter + 1) % 32767
@@ -304,8 +285,6 @@ class RoborockMqttClient:
                 _LOGGER.debug(f"id={request_id} Response from {method}: {response}")
             if err:
                 raise CommandVacuumError(method, err)
-            if response:
-                self._last_message_timestamp = time.time()
             return response
         except TimeoutError:
             _LOGGER.warning(f"Timeout after {QUEUE_TIMEOUT} seconds waiting for {method} response")
@@ -315,32 +294,38 @@ class RoborockMqttClient:
 
     async def get_status(self, device_id: str) -> Status:
         status = await self.send_command(device_id, "get_status")
-        return Status(status)
+        if isinstance(status, dict):
+            return Status(status)
 
     async def get_dnd_timer(self, device_id: str) -> DNDTimer:
         dnd_timer = await self.send_command(device_id, "get_dnd_timer")
-        return DNDTimer(dnd_timer)
+        if isinstance(dnd_timer, dict):
+            return DNDTimer(dnd_timer)
 
     async def get_clean_summary(self, device_id: str) -> CleanSummary:
         clean_summary = await self.send_command(device_id, "get_clean_summary")
-        return CleanSummary(clean_summary)
+        if isinstance(clean_summary, dict):
+            return CleanSummary(clean_summary)
 
     async def get_clean_record(self, device_id: str, record_id: int) -> CleanRecord:
         clean_record = await self.send_command(device_id, "get_clean_record", [record_id])
-        return CleanRecord(clean_record)
+        if isinstance(clean_record, dict):
+            return CleanRecord(clean_record)
 
     async def get_consumable(self, device_id: str) -> Consumable:
         consumable = await self.send_command(device_id, "get_consumable")
-        return Consumable(consumable)
+        if isinstance(consumable, dict):
+            return Consumable(consumable)
 
     async def get_prop(self, device_id: str):
         [status, dnd_timer, clean_summary, consumable] = await asyncio.gather(
             *[self.get_status(device_id), self.get_dnd_timer(device_id), self.get_clean_summary(device_id),
               self.get_consumable(device_id)])
-        last_clean_record = CleanSummary({})
+        last_clean_record = None
         if clean_summary and clean_summary.records and len(clean_summary.records) > 0:
             last_clean_record = await self.get_clean_record(device_id, clean_summary.records[0])
-        return RoborockDeviceProp(status, dnd_timer, clean_summary, consumable, last_clean_record)
+        if any([status, dnd_timer, clean_summary, consumable]):
+            return RoborockDeviceProp(status, dnd_timer, clean_summary, consumable, last_clean_record)
 
 
 class RoborockClient:
