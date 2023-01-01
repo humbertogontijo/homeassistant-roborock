@@ -26,6 +26,7 @@ class ImageHandlerRoborock:
         COLOR_GREY_WALL: (0, 0, 0, 0),
         COLOR_CLEANED_AREA: (127, 127, 127, 127),
         COLOR_PATH: (255, 255, 255),
+        COLOR_MOP_PATH: (255, 255, 255, 0x5F),
         COLOR_GOTO_PATH: (0, 255, 0),
         COLOR_PREDICTED_PATH: (255, 255, 0),
         COLOR_ZONES: (0xAD, 0xD8, 0xFF, 0x8F),
