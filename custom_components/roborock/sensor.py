@@ -272,11 +272,13 @@ class RoborockSensor(RoborockCoordinatedEntity, SensorEntity):
             data = self.coordinator.data.get(self._device_id)
             self._attr_native_value = native_value
             self._attr_extra_state_attributes = self._extract_attributes(data)
-            self.async_write_ha_state()
+            super()._handle_coordinator_update()
 
     def _determine_native_value(self):
         """Determine native value."""
         data = self.coordinator.data.get(self._device_id)
+        if not data:
+            return
         native_value = None
         try:
             if self.entity_description.parent_key:

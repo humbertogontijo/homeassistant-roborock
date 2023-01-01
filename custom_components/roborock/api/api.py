@@ -108,6 +108,7 @@ class RoborockMqttClient:
         self.is_connected = False
         self.client = self._build_client()
         self._user_data = user_data
+        self._first_connection = True
 
     def _build_client(self) -> mqtt.Client:
         @run_in_executor()
@@ -186,12 +187,11 @@ class RoborockMqttClient:
 
     def disconnect(self):
         self.is_connected = False
-        self.device_map = None
 
     async def connect(self):
         connection_queue = RoborockQueue()
         self.client.user_data_set(connection_queue)
-        if self.client.is_connected():
+        if not self._first_connection:
             self.client.reconnect()
         else:
             properties = Properties(PacketTypes.CONNECT)
@@ -209,6 +209,8 @@ class RoborockMqttClient:
             self.client.disconnect()
             raise Exception(f"Timeout after {QUEUE_TIMEOUT} seconds waiting for mqtt connection")
         self.client.user_data_set(None)
+        if self._first_connection:
+            self._first_connection = False
 
     async def reconnect(self):
         self.disconnect()
@@ -324,8 +326,7 @@ class RoborockMqttClient:
         last_clean_record = None
         if clean_summary and clean_summary.records and len(clean_summary.records) > 0:
             last_clean_record = await self.get_clean_record(device_id, clean_summary.records[0])
-        if any([status, dnd_timer, clean_summary, consumable]):
-            return RoborockDeviceProp(status, dnd_timer, clean_summary, consumable, last_clean_record)
+        return RoborockDeviceProp(status, dnd_timer, clean_summary, consumable, last_clean_record)
 
 
 class RoborockClient:

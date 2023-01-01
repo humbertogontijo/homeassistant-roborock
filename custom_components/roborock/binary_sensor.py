@@ -142,12 +142,16 @@ class RoborockBinarySensor(RoborockCoordinatedEntity, BinarySensorEntity):
 
     @callback
     def _handle_coordinator_update(self) -> None:
-        self._attr_is_on = self._determine_native_value()
-        super()._handle_coordinator_update()
+        native_value = self._determine_native_value()
+        if native_value:
+            self._attr_is_on = native_value
+            super()._handle_coordinator_update()
 
     def _determine_native_value(self):
         """Determine native value."""
         data = self.coordinator.data.get(self._device_id)
+        if not data:
+            return
         if self.entity_description.parent_key:
             data = getattr(data, self.entity_description.parent_key)
 
