@@ -33,7 +33,7 @@ class ImageHandlerRoborock:
         COLOR_ZONES_OUTLINE: (0xAD, 0xD8, 0xFF),
         COLOR_VIRTUAL_WALLS: (255, 0, 0),
         COLOR_NEW_DISCOVERED_AREA: (64, 64, 64),
-        COLOR_CARPETS: (0xA9, 0xF7, 0xA9),
+        COLOR_CARPETS: (0, 0, 0, 51),
         COLOR_NO_CARPET_ZONES: (255, 33, 55, 127),
         COLOR_NO_CARPET_ZONES_OUTLINE: (255, 0, 0),
         COLOR_NO_GO_ZONES: (255, 94, 73, 102),
