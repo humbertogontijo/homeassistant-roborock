@@ -53,7 +53,7 @@ class RoborockSensorDescription(SensorEntityDescription):
     parent_key: str = None
     keys: list[str] = None
     value: Callable = None
-    translation_key = None
+    translation_key: str = None
 
 
 VACUUM_SENSORS = {
