@@ -1,0 +1,34 @@
+{
+  "config": {
+    "step": {
+      "user": {
+        "description": "Vos identifiants Roborock",
+        "data": {
+          "username": "Email"
+        }
+      },
+      "code": {
+        "description": "Entrez le code de vérification envoyé par email",
+        "data": {
+          "code": "Code de vérification"
+        }
+      }
+    },
+    "error": {
+      "no_device": "Aucun appareil trouvé dans votre compte Roborock",
+      "auth": "Echec de la connexion. Vérifiez vos identifiants"
+    }
+  },
+  "options": {
+    "step": {
+      "user": {
+        "data": {
+          "binary_sensor": "Intégrer les capteurs du réservoir et de la serpillère",
+          "camera": "Intégrer la carte comme caméra",
+          "sensor": "Intégrer les capteurs d'état et de résumé de nettoyage",
+          "vacuum": "Intégrer l'aspirateur"
+        }
+      }
+    }
+  }
+}
