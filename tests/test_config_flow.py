@@ -1,10 +1,7 @@
 """Test Roborock config flow."""
 from unittest.mock import patch
 
-from homeassistant import config_entries, data_entry_flow
 import pytest
-from pytest_homeassistant_custom_component.common import MockConfigEntry
-
 from custom_components.roborock.api.containers import UserData
 from custom_components.roborock.const import (
     BINARY_SENSOR,
@@ -12,8 +9,10 @@ from custom_components.roborock.const import (
     DOMAIN,
     PLATFORMS,
     SENSOR,
-    VACUUM
+    VACUUM,
 )
+from homeassistant import config_entries, data_entry_flow
+from pytest_homeassistant_custom_component.common import MockConfigEntry
 
 from .mock_data import MOCK_CONFIG, USER_DATA, USER_EMAIL
 
@@ -53,6 +52,7 @@ async def test_successful_config_flow(hass):
     assert result["data"] == MOCK_CONFIG
     assert result["result"]
 
+
 @pytest.mark.asyncio
 async def test_invalid_code(hass):
     """Test a failed config flow due to incorrect code."""
@@ -84,6 +84,7 @@ async def test_invalid_code(hass):
     # Check the user form is presented with the error
     assert result["type"] == data_entry_flow.RESULT_TYPE_FORM
     assert result["errors"] == {"base": "no_device"}
+
 
 @pytest.mark.asyncio
 async def test_no_devices(hass):
@@ -117,6 +118,7 @@ async def test_no_devices(hass):
     assert result["type"] == data_entry_flow.RESULT_TYPE_FORM
     assert result["errors"] == {"base": "no_device"}
 
+
 @pytest.mark.asyncio
 async def test_unknown_user(hass):
     """Test a failed config flow due to credential validation failure."""
@@ -138,6 +140,7 @@ async def test_unknown_user(hass):
     assert result["type"] == data_entry_flow.RESULT_TYPE_FORM
     assert result["errors"] == {"base": "auth"}
 
+
 @pytest.mark.asyncio
 async def test_options_flow(hass):
     """Test options flow."""
@@ -158,4 +161,9 @@ async def test_options_flow(hass):
     # Verify that the flow finishes
     assert result["type"] == data_entry_flow.RESULT_TYPE_CREATE_ENTRY
     # Verify that the sensor option was disabled
-    assert entry.options == {BINARY_SENSOR: True, CAMERA: True, SENSOR: False, VACUUM: True}
+    assert entry.options == {
+        BINARY_SENSOR: True,
+        CAMERA: True,
+        SENSOR: False,
+        VACUUM: True,
+    }

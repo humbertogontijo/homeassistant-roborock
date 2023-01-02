@@ -20,6 +20,12 @@ from homeassistant.helpers.entity_platform import AddEntitiesCallback
 from homeassistant.util import dt as dt_util, slugify
 
 from . import DOMAIN, RoborockDataUpdateCoordinator
+from .const import (
+    MAIN_BRUSH_REPLACE_TIME,
+    SIDE_BRUSH_REPLACE_TIME,
+    FILTER_REPLACE_TIME,
+    SENSOR_DIRTY_REPLACE_TIME
+)
 from .api.containers import CleanRecordField, StatusField, CleanSummaryField, ConsumableField, DNDTimerField
 from .api.typing import RoborockDeviceInfo, RoborockDevicePropField
 from .device import RoborockCoordinatedEntity, parse_datetime_time
@@ -166,7 +172,7 @@ VACUUM_SENSORS = {
     f"consumable_{ATTR_CONSUMABLE_STATUS_MAIN_BRUSH_REMAINING}": RoborockSensorDescription(
         native_unit_of_measurement=TIME_SECONDS,
         key=ConsumableField.MAIN_BRUSH_WORK_TIME,
-        value=lambda value: 1080000 - value,
+        value=lambda value: MAIN_BRUSH_REPLACE_TIME - value,
         icon="mdi:brush",
         device_class=SensorDeviceClass.DURATION,
         parent_key=RoborockDevicePropField.CONSUMABLE,
@@ -176,7 +182,7 @@ VACUUM_SENSORS = {
     f"consumable_{ATTR_CONSUMABLE_STATUS_SIDE_BRUSH_REMAINING}": RoborockSensorDescription(
         native_unit_of_measurement=TIME_SECONDS,
         key=ConsumableField.SIDE_BRUSH_WORK_TIME,
-        value=lambda value: 720000 - value,
+        value=lambda value: SIDE_BRUSH_REPLACE_TIME - value,
         icon="mdi:brush",
         device_class=SensorDeviceClass.DURATION,
         parent_key=RoborockDevicePropField.CONSUMABLE,
@@ -186,7 +192,7 @@ VACUUM_SENSORS = {
     f"consumable_{ATTR_CONSUMABLE_STATUS_FILTER_REMAINING}": RoborockSensorDescription(
         native_unit_of_measurement=TIME_SECONDS,
         key=ConsumableField.FILTER_WORK_TIME,
-        value=lambda value: 540000 - value,
+        value=lambda value: FILTER_REPLACE_TIME - value,
         icon="mdi:air-filter",
         device_class=SensorDeviceClass.DURATION,
         parent_key=RoborockDevicePropField.CONSUMABLE,
@@ -196,7 +202,7 @@ VACUUM_SENSORS = {
     f"consumable_{ATTR_CONSUMABLE_STATUS_SENSOR_DIRTY_REMAINING}": RoborockSensorDescription(
         native_unit_of_measurement=TIME_SECONDS,
         key=ConsumableField.SENSOR_DIRTY_TIME,
-        value=lambda value: 108000 - value,
+        value=lambda value: SENSOR_DIRTY_REPLACE_TIME - value,
         icon="mdi:eye-outline",
         device_class=SensorDeviceClass.DURATION,
         parent_key=RoborockDevicePropField.CONSUMABLE,

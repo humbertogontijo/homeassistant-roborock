@@ -108,9 +108,7 @@ async def async_setup_entry(
             if not parent_key_data:
                 _LOGGER.debug(
                     "It seems the %s does not support the %s as the initial value is None",
-                    device_info.product.model,
-                    description.keys or description.key,
-                )
+                    device_info.product.model, description.key)
                 continue
             entities.append(
                 RoborockBinarySensor(
