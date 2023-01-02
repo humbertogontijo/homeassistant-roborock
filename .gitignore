@@ -3,6 +3,8 @@ userdata.json
 venv
 .venv
 .idea
+custom_components/__pycache__
 custom_components/roborock/__pycache__
 custom_components/roborock/api/__pycache__
 custom_components/roborock/common/__pycache__
+tests/__pycache__
