@@ -39,8 +39,8 @@ async def test_registry_entries(hass: HomeAssistant) -> None:
 async def test_mop_attached(hass: HomeAssistant) -> None:
     """Tests mop_attached is getting the correct values."""
     await setup_platform(hass, BINARY_SENSOR_DOMAIN)
-
     state = hass.states.get("binary_sensor.roborock_s7_maxv_mop_attached")
+
     assert state.state == STATE_ON
     assert (
         state.attributes.get(ATTR_DEVICE_CLASS) == BinarySensorDeviceClass.CONNECTIVITY
@@ -51,8 +51,8 @@ async def test_mop_attached(hass: HomeAssistant) -> None:
 async def test_water_box_attached(hass: HomeAssistant) -> None:
     """Tests water_box_attached is getting the correct values."""
     await setup_platform(hass, BINARY_SENSOR_DOMAIN)
-
     state = hass.states.get("binary_sensor.roborock_s7_maxv_water_box_attached")
+
     assert state.state == STATE_ON
     assert (
         state.attributes.get(ATTR_DEVICE_CLASS) == BinarySensorDeviceClass.CONNECTIVITY
@@ -63,7 +63,7 @@ async def test_water_box_attached(hass: HomeAssistant) -> None:
 async def test_water_shortage(hass: HomeAssistant) -> None:
     """Tests water_shortage is getting the correct values."""
     await setup_platform(hass, BINARY_SENSOR_DOMAIN)
-
     state = hass.states.get("binary_sensor.roborock_s7_maxv_water_shortage")
+
     assert state.state == STATE_OFF
     assert state.attributes.get(ATTR_DEVICE_CLASS) == BinarySensorDeviceClass.PROBLEM
