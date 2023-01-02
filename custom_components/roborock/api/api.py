@@ -111,17 +111,17 @@ class RoborockMqttClient:
         self.client = self._build_client()
         self._user_data = user_data
         self._first_connection = True
-        self._last_message_timestamp = None
+        self._last_message_timestamp = time.time()
         self._mutex = Lock()
 
     def _build_client(self) -> mqtt.Client:
         @run_in_executor()
-        async def on_connect(_client: mqtt.Client, connection_queue: RoborockQueue, _, rc, __=None):
+        async def on_connect(_client: mqtt.Client, _, __, rc, ___=None):
+            connection_queue = self._waiting_queue[0]
             if rc != 0:
                 await connection_queue.async_put((None, Exception("Failed to connect.")), timeout=QUEUE_TIMEOUT)
             _LOGGER.info(f"Connected to mqtt {self._mqtt_host}:{self._mqtt_port}")
             self.is_connected = True
-            self._last_message_timestamp = time.time()
             topic = f"rr/m/o/{self._mqtt_user}/{self._hashed_user}/#"
             (result, mid) = _client.subscribe(topic)
             if result != 0:
@@ -196,7 +196,7 @@ class RoborockMqttClient:
 
     async def _connect(self):
         connection_queue = RoborockQueue()
-        self.client.user_data_set(connection_queue)
+        self._waiting_queue[0] = connection_queue
         if not self._first_connection:
             _LOGGER.debug("Reconnecting to mqtt")
             self.client.reconnect()
@@ -214,7 +214,8 @@ class RoborockMqttClient:
                 raise err
         except TimeoutError:
             raise Exception(f"Timeout after {QUEUE_TIMEOUT} seconds waiting for mqtt connection")
-        self.client.user_data_set(None)
+        finally:
+            del self._waiting_queue[0]
         if self._first_connection:
             self._first_connection = False
 

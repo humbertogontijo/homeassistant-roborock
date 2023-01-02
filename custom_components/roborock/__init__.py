@@ -72,12 +72,6 @@ class RoborockDataUpdateCoordinator(DataUpdateCoordinator[dict[str, RoborockDevi
     async def _async_update_data(self):
         """Update data via library."""
         try:
-            if not self.api.is_connected:
-                try:
-                    _LOGGER.debug("Connecting to roborock mqtt")
-                    await self.api.validate_connection()
-                except Exception as exception:
-                    raise UpdateFailed(exception) from exception
             for device_id, _ in self.api.device_map.items():
                 device_prop = await self.api.get_prop(device_id)
                 if device_prop:
@@ -86,9 +80,9 @@ class RoborockDataUpdateCoordinator(DataUpdateCoordinator[dict[str, RoborockDevi
                     else:
                         self._devices_prop[device_id] = device_prop
             return self._devices_prop
-        except Exception as e:
-            _LOGGER.exception(e)
-            raise e
+        except Exception as exception:
+            _LOGGER.exception(exception)
+            raise UpdateFailed(exception) from exception
 
 
 async def async_unload_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
