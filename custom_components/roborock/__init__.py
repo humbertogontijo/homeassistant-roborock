@@ -67,6 +67,7 @@ class RoborockDataUpdateCoordinator(DataUpdateCoordinator[dict[str, RoborockDevi
         super().__init__(hass, _LOGGER, name=DOMAIN, update_interval=SCAN_INTERVAL)
         self.api = client
         self.platforms = []
+        self._devices_prop: dict[str, RoborockDeviceProp] = {}
 
     async def _async_update_data(self):
         """Update data via library."""
@@ -77,11 +78,14 @@ class RoborockDataUpdateCoordinator(DataUpdateCoordinator[dict[str, RoborockDevi
                     await self.api.connect()
                 except Exception as exception:
                     raise UpdateFailed(exception) from exception
-            devices_prop = {}
             for device_id, _ in self.api.device_map.items():
                 device_prop = await self.api.get_prop(device_id)
-                devices_prop[device_id] = device_prop
-            return devices_prop
+                if device_prop:
+                    if device_id in self._devices_prop:
+                        self._devices_prop[device_id].update(device_prop)
+                    else:
+                        self._devices_prop[device_id] = device_prop
+            return self._devices_prop
         except Exception as e:
             _LOGGER.exception(e)
             raise e

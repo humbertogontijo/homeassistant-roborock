@@ -398,18 +398,24 @@ class RoborockVacuum(RoborockCoordinatedEntity, StateVacuumEntity, ABC):
 
     async def async_set_fan_speed(self, fan_speed: str, **kwargs: any):
         await self.send(
-            "set_custom_mode", [k for k, v in FAN_SPEED_CODES.items() if v == fan_speed]
+            "set_custom_mode", [k for k, v in FAN_SPEED_CODES.items() if v == fan_speed], True
         )
+        await self.coordinator.async_request_refresh()
 
-    async def async_set_mop_mode(self, mop_mode: str, _):
-        await self.send(
-            "set_mop_mode", [k for k, v in MOP_MODE_CODES.items() if v == mop_mode]
-        )
 
-    async def async_set_mop_intensity(self, mop_intensity: str, _):
+    async def async_set_mop_mode(self, mop_mode: str, _=None):
         await self.send(
-            "set_water_box_custom_mode", [k for k, v in MOP_INTENSITY_CODES.items() if v == mop_intensity]
+            "set_mop_mode", [k for k, v in MOP_MODE_CODES.items() if v == mop_mode], True
         )
+        await self.coordinator.async_request_refresh()
+
+
+    async def async_set_mop_intensity(self, mop_intensity: str, _=None):
+        await self.send(
+            "set_water_box_custom_mode", [k for k, v in MOP_INTENSITY_CODES.items() if v == mop_intensity], True
+        )
+        await self.coordinator.async_request_refresh()
+
 
     async def async_manual_start(self):
         """Start manual control mode."""

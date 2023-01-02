@@ -33,6 +33,7 @@ QUEUE_TIMEOUT = 4
 MQTT_KEEPALIVE = 60
 SESSION_EXPIRY_INTERVAL = 30 * 60
 
+
 def md5hex(message: str):
     md5 = hashlib.md5()
     md5.update(message.encode())
@@ -256,16 +257,19 @@ class RoborockMqttClient:
         if info.rc != 0:
             raise Exception("Failed to publish")
 
-    async def send_command(self, device_id: str, method: str, params: list = None, secure=False):
+    async def send_command(self, device_id: str, method: str, params: list = None, no_response=False):
         timestamp = math.floor(time.time())
         request_id = self._id_counter
         self._id_counter = (self._id_counter + 1) % 32767
-        inner = {"id": request_id, "method": method, "params": params or []}
-        if secure:
-            inner["security"] = {
+        inner = {
+            "id": request_id,
+            "method": method,
+            "params": params or [],
+            "security": {
                 "endpoint": self._endpoint,
                 "nonce": self._nonce.hex().upper(),
             }
+        }
         payload = bytes(
             json.dumps(
                 {
@@ -276,6 +280,9 @@ class RoborockMqttClient:
             ).encode()
         )
         _LOGGER.debug(f"id={request_id} Requesting method {method} with {params}")
+        if no_response:
+            self._send_msg_raw(device_id, 101, timestamp, payload)
+            return
         queue = RoborockQueue()
         self._waiting_queue[request_id] = queue
         self._send_msg_raw(device_id, 101, timestamp, payload)
@@ -326,7 +333,8 @@ class RoborockMqttClient:
         last_clean_record = None
         if clean_summary and clean_summary.records and len(clean_summary.records) > 0:
             last_clean_record = await self.get_clean_record(device_id, clean_summary.records[0])
-        return RoborockDeviceProp(status, dnd_timer, clean_summary, consumable, last_clean_record)
+        if any([status, dnd_timer, clean_summary, consumable]):
+            return RoborockDeviceProp(status, dnd_timer, clean_summary, consumable, last_clean_record)
 
 
 class RoborockClient:
@@ -420,7 +428,7 @@ class RoborockClient:
             ]
         )
         mac = base64.b64encode(
-            hmac.new(rriot.h_unkown.encode(), prestr.encode(), hashlib.sha256).digest()
+            hmac.new(rriot.h_unknown.encode(), prestr.encode(), hashlib.sha256).digest()
         ).decode()
         home_request = PreparedRequest(
             rriot.reference.api,

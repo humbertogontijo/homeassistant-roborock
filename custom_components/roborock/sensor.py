@@ -279,30 +279,27 @@ class RoborockSensor(RoborockCoordinatedEntity, SensorEntity):
         data = self.coordinator.data.get(self._device_id)
         if not data:
             return
-        native_value = None
-        try:
-            if self.entity_description.parent_key:
-                data = getattr(data, self.entity_description.parent_key)
+        if self.entity_description.parent_key:
+            data = getattr(data, self.entity_description.parent_key)
+            if not data:
+                return
 
-            if self.entity_description.keys:
-                native_value = [
-                    getattr(data, key) for key in self.entity_description.keys
-                ]
-                if not any(native_value):
-                    native_value = None
-            else:
-                native_value = getattr(data, self.entity_description.key)
-        except AttributeError as e:
-            _LOGGER.error(f"Failed to get value for {self.entity_description}; {e}")
+        if self.entity_description.keys:
+            native_value = [
+                getattr(data, key) for key in self.entity_description.keys
+            ]
+            if not any(native_value):
+                native_value = None
+        else:
+            native_value = getattr(data, self.entity_description.key)
 
-        if self.entity_description.value and native_value:
-            native_value = self.entity_description.value(native_value)
-
-        if (
-                self.device_class == SensorDeviceClass.TIMESTAMP
-                and native_value
-                and (native_datetime := datetime.fromtimestamp(native_value))
-        ):
-            return native_datetime.astimezone(dt_util.UTC)
+        if native_value:
+            if self.entity_description.value:
+                native_value = self.entity_description.value(native_value)
+            if (
+                    self.device_class == SensorDeviceClass.TIMESTAMP
+                    and (native_datetime := datetime.fromtimestamp(native_value))
+            ):
+                return native_datetime.astimezone(dt_util.UTC)
 
         return native_value
