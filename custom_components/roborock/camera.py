@@ -57,7 +57,7 @@ async def async_setup_entry(
     for device_id, device_info in coordinator.api.device_map.items():
         unique_id = slugify(device_id)
         entities.append(VacuumCameraMap(unique_id, device_info, coordinator))
-    async_add_entities(entities)
+    async_add_entities(entities, True)
 
 
 class VacuumCameraMap(RoborockCoordinatedEntity, Camera):
@@ -227,8 +227,6 @@ class VacuumCameraMap(RoborockCoordinatedEntity, Camera):
         return False
 
     async def _handle_map_data(self):
-        if self._image:
-            return
         _LOGGER.debug("Retrieving map from Roborock MQTT")
         store_map_path = self._store_map_path if self._store_map_raw else None
         map_data, map_stored = await self.get_map(
