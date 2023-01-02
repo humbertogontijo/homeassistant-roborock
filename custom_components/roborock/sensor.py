@@ -31,6 +31,7 @@ ATTR_DND_START = "start"
 ATTR_DND_END = "end"
 ATTR_LAST_CLEAN_TIME = "duration"
 ATTR_LAST_CLEAN_AREA = "area"
+ATTR_STATUS_ERROR = "error"
 ATTR_STATUS_CLEAN_TIME = "clean_time"
 ATTR_STATUS_CLEAN_AREA = "clean_area"
 ATTR_LAST_CLEAN_START = "start"
@@ -52,6 +53,7 @@ class RoborockSensorDescription(SensorEntityDescription):
     parent_key: str = None
     keys: list[str] = None
     value: Callable = None
+    translation_key = None
 
 
 VACUUM_SENSORS = {
@@ -107,6 +109,15 @@ VACUUM_SENSORS = {
         icon="mdi:texture-box",
         parent_key=RoborockDevicePropField.LAST_CLEAN_RECORD,
         name="Last clean area",
+        entity_category=EntityCategory.DIAGNOSTIC,
+    ),
+    f"current_{ATTR_STATUS_ERROR}": RoborockSensorDescription(
+        key=StatusField.ERROR_CODE,
+        value=lambda value: str(value),
+        icon="mdi:alert",
+        translation_key="roborock_vacuum_error",
+        parent_key=RoborockDevicePropField.STATUS,
+        name="Current error",
         entity_category=EntityCategory.DIAGNOSTIC,
     ),
     f"current_{ATTR_STATUS_CLEAN_TIME}": RoborockSensorDescription(
@@ -251,6 +262,10 @@ class RoborockSensor(RoborockCoordinatedEntity, SensorEntity):
         self.entity_description = description
         self._attr_native_value = self._determine_native_value()
         self._attr_extra_state_attributes = self._extract_attributes(coordinator.data.get(self._device_id))
+
+    @property
+    def translation_key(self):
+        return self.entity_description.translation_key
 
     @callback
     def _extract_attributes(self, data):

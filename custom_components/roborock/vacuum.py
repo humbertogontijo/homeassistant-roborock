@@ -108,41 +108,11 @@ MOP_INTENSITY_CODES = {
     204: "custom"
 }
 
-ERROR_CODES = {
-    1: "LiDAR turret or laser blocked. Check for obstruction and retry.",
-    2: "Bumper stuck. Clean it and lightly tap to release it.",
-    3: "Wheels suspended. Move robot and restart.",
-    4: "Cliff sensor error. Clean cliff sensors, move robot away from drops and restart.",
-    5: "Main brush jammed. Clean main brush and bearings.",
-    6: "Side brush jammed. Remove and clean side brush.",
-    7: "Wheels iammed. Move the robot and restart.",
-    8: "Robot trapped. Clear obstacles surrounding robot.",
-    9: "No dustbin. Install dustbin and filter.",
-    12: "Low battery. Recharge and retry.",
-    13: "Charging error. Clean charging contacts and retry.",
-    14: "Battery error.",
-    15: "Wall sensor dirty. Clean wall sensor.",
-    16: "Robot tilted. Move to level ground and restart.",
-    17: "Side brush error. Reset robot.",
-    18: "Fan error. Reset robot.",
-    21: "Vertical bumper pressed. Move robot and retry.",
-    22: "Dock locator error. Clean and retry.",
-    23: "Could not return to dock. Clean dock location beacon and retry.",
-    27: "VibraRise system jammed. Check for obstructions.",
-    28: "Robot on carpet. Move robot to floor and retry.",
-    29: "Filter blocked or wet. Clean, dry, and retry.",
-    30: "No-go zone or Invisible Wall detected. Move robot from this area.",
-    31: "Cannot cross carpet. Move robot across carpet and restart.",
-    32: "Internal error. Reset the robot."
-}
-
 ATTR_STATUS = "vacuum_status"
 ATTR_MOP_MODE = "mop_mode"
 ATTR_MOP_INTENSITY = "mop_intensity"
 ATTR_MOP_MODE_LIST = f"{ATTR_MOP_MODE}_list"
 ATTR_MOP_INTENSITY_LIST = f"{ATTR_MOP_INTENSITY}_list"
-ATTR_ERROR = "error"
-ATTR_ERROR_CODE = "error_code"
 
 
 def add_services():
@@ -311,7 +281,7 @@ class RoborockVacuum(RoborockCoordinatedEntity, StateVacuumEntity, ABC):
         """Return the state attributes of the vacuum cleaner."""
         if not self._device_status:
             return
-        data = dict(self._device_status.__dict__) or {}
+        data = dict(self._device_status.data)
 
         if self.supported_features & VacuumEntityFeature.BATTERY:
             data[ATTR_BATTERY_LEVEL] = self.battery_level
@@ -325,9 +295,6 @@ class RoborockVacuum(RoborockCoordinatedEntity, StateVacuumEntity, ABC):
         data[ATTR_MOP_MODE] = self.mop_mode
         data[ATTR_MOP_INTENSITY] = self.mop_intensity
         data.update(self.capability_attributes)
-        error_code = data.get(ATTR_ERROR_CODE)
-        error = ERROR_CODES.get(error_code)
-        data[ATTR_ERROR] = error
 
         return data
 
@@ -416,20 +383,17 @@ class RoborockVacuum(RoborockCoordinatedEntity, StateVacuumEntity, ABC):
         )
         await self.coordinator.async_request_refresh()
 
-
     async def async_set_mop_mode(self, mop_mode: str, _=None):
         await self.send(
             "set_mop_mode", [k for k, v in MOP_MODE_CODES.items() if v == mop_mode], True
         )
         await self.coordinator.async_request_refresh()
 
-
     async def async_set_mop_intensity(self, mop_intensity: str, _=None):
         await self.send(
             "set_water_box_custom_mode", [k for k, v in MOP_INTENSITY_CODES.items() if v == mop_intensity], True
         )
         await self.coordinator.async_request_refresh()
-
 
     async def async_manual_start(self):
         """Start manual control mode."""
