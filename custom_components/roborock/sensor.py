@@ -315,6 +315,11 @@ class RoborockSensor(RoborockCoordinatedEntity, SensorEntity):
                     self.device_class == SensorDeviceClass.TIMESTAMP
                     and (native_datetime := datetime.fromtimestamp(native_value))
             ):
-                return native_datetime.astimezone(dt_util.UTC)
+                native_value = native_datetime.astimezone(dt_util.UTC)
+
+        # This is a work around while https://github.com/home-assistant/core/pull/65743 is not merged
+        if self.entity_description.translation_key:
+            native_value = self.coordinator.translation.get("entity").get("sensor").get(
+                self.entity_description.translation_key).get("state").get(native_value)
 
         return native_value
