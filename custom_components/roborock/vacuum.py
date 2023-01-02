@@ -293,18 +293,24 @@ class RoborockVacuum(RoborockCoordinatedEntity, StateVacuumEntity, ABC):
     @property
     def state(self):
         """Return the status of the vacuum cleaner."""
+        if not self._device_status:
+            return
         state = self._device_status.state
         return STATE_CODE_TO_STATE.get(state)
 
     @property
     def status(self):
         """Return the status of the vacuum cleaner."""
+        if not self._device_status:
+            return
         status = self._device_status.state
         return STATE_CODES_TO_STATUS.get(status)
 
     @property
     def state_attributes(self):
         """Return the state attributes of the vacuum cleaner."""
+        if not self._device_status:
+            return
         data = dict(self._device_status.__dict__) or {}
 
         if self.supported_features & VacuumEntityFeature.BATTERY:
@@ -328,11 +334,15 @@ class RoborockVacuum(RoborockCoordinatedEntity, StateVacuumEntity, ABC):
     @property
     def battery_level(self):
         """Return the battery level of the vacuum cleaner."""
+        if not self._device_status:
+            return
         return self._device_status.battery
 
     @property
     def fan_speed(self):
         """Return the fan speed of the vacuum cleaner."""
+        if not self._device_status:
+            return
         fan_speed = self._device_status.fan_power
         return FAN_SPEED_CODES.get(fan_speed)
 
@@ -344,6 +354,8 @@ class RoborockVacuum(RoborockCoordinatedEntity, StateVacuumEntity, ABC):
     @property
     def mop_mode(self):
         """Return the mop mode of the vacuum cleaner."""
+        if not self._device_status:
+            return
         mop_mode = self._device_status.mop_mode
         return MOP_MODE_CODES.get(mop_mode)
 
@@ -355,6 +367,8 @@ class RoborockVacuum(RoborockCoordinatedEntity, StateVacuumEntity, ABC):
     @property
     def mop_intensity(self):
         """Return the mop intensity of the vacuum cleaner."""
+        if not self._device_status:
+            return
         mop_intensity = self._device_status.water_box_mode
         return MOP_INTENSITY_CODES.get(mop_intensity)
 

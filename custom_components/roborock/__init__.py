@@ -75,7 +75,7 @@ class RoborockDataUpdateCoordinator(DataUpdateCoordinator[dict[str, RoborockDevi
             if not self.api.is_connected:
                 try:
                     _LOGGER.debug("Connecting to roborock mqtt")
-                    await self.api.connect()
+                    await self.api.validate_connection()
                 except Exception as exception:
                     raise UpdateFailed(exception) from exception
             for device_id, _ in self.api.device_map.items():

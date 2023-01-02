@@ -111,7 +111,7 @@ class VacuumCameraMap(RoborockCoordinatedEntity, Camera):
     @property
     def should_poll(self) -> bool:
         """Return polling enabled."""
-        return self._should_poll
+        return self._should_poll and self._valid_refresh_state()
 
     @staticmethod
     def extract_attributes(
@@ -227,7 +227,7 @@ class VacuumCameraMap(RoborockCoordinatedEntity, Camera):
         return False
 
     async def _handle_map_data(self):
-        if self._image and not self._valid_refresh_state():
+        if self._image:
             return
         _LOGGER.debug("Retrieving map from Roborock MQTT")
         store_map_path = self._store_map_path if self._store_map_raw else None

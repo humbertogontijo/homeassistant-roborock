@@ -109,7 +109,7 @@ async def async_setup_entry(
                 _LOGGER.debug(
                     "It seems the %s does not support the %s as the initial value is None",
                     device_info.product.model,
-                    description.keys or description.key,
+                    description.key,
                 )
                 continue
             entities.append(
