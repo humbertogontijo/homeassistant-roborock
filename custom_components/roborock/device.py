@@ -1,4 +1,4 @@
-"""Code to handle a Roborock Device."""
+"""Support for Roborock device base class."""
 import datetime
 import logging
 
@@ -16,6 +16,7 @@ _LOGGER = logging.getLogger(__name__)
 
 
 def parse_datetime_time(initial_time: datetime.time):
+    """Helper to handle time data."""
     time = datetime.datetime.now().replace(
         hour=initial_time.hour, minute=initial_time.minute, second=0, microsecond=0
     )
@@ -32,10 +33,10 @@ class RoborockCoordinatedEntity(CoordinatorEntity[RoborockDataUpdateCoordinator]
     _attr_has_entity_name = True
 
     def __init__(
-            self,
-            device_info: RoborockDeviceInfo,
-            coordinator: RoborockDataUpdateCoordinator,
-            unique_id: str = None
+        self,
+        device_info: RoborockDeviceInfo,
+        coordinator: RoborockDataUpdateCoordinator,
+        unique_id: str = None,
     ):
         """Initialize the coordinated Roborock Device."""
         super().__init__(coordinator)
@@ -43,6 +44,7 @@ class RoborockCoordinatedEntity(CoordinatorEntity[RoborockDataUpdateCoordinator]
         self._attr_unique_id = unique_id
         self._device_id = str(device_info.device.duid)
         self._device_model = device_info.product.model
+        self._fw_version = device_info.device.fv
 
     @property
     def _device_status(self) -> Status:
@@ -56,8 +58,11 @@ class RoborockCoordinatedEntity(CoordinatorEntity[RoborockDataUpdateCoordinator]
             identifiers={(DOMAIN, self._device_id)},
             manufacturer="Roborock",
             model=self._device_model,
+            sw_version=self._fw_version,
         )
 
-    async def send(self, command: str, params=None, no_response=False):
+    async def send(self, command: str, params=None, no_response=False) -> dict:
         """Send a command to a vacuum cleaner."""
-        return await self.coordinator.api.send_command(self._device_id, command, params, no_response)
+        return await self.coordinator.api.send_command(
+            self._device_id, command, params, no_response
+        )
