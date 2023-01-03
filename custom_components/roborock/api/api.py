@@ -12,6 +12,7 @@ import secrets
 import struct
 import sys
 import time
+from asyncio import Lock
 from asyncio.exceptions import TimeoutError
 from urllib.parse import urlparse
 
@@ -31,7 +32,8 @@ from custom_components.roborock.api.util import run_in_executor
 _LOGGER = logging.getLogger(__name__)
 QUEUE_TIMEOUT = 4
 MQTT_KEEPALIVE = 60
-SESSION_EXPIRY_INTERVAL = 30 * 60
+SESSION_EXPIRY_INTERVAL = 1 * 60
+
 
 def md5hex(message: str):
     md5 = hashlib.md5()
@@ -109,10 +111,13 @@ class RoborockMqttClient:
         self.client = self._build_client()
         self._user_data = user_data
         self._first_connection = True
+        self._last_message_timestamp = time.time()
+        self._mutex = Lock()
 
     def _build_client(self) -> mqtt.Client:
         @run_in_executor()
-        async def on_connect(_client: mqtt.Client, connection_queue: RoborockQueue, _, rc, __=None):
+        async def on_connect(_client: mqtt.Client, _, __, rc, ___=None):
+            connection_queue = self._waiting_queue[0]
             if rc != 0:
                 await connection_queue.async_put((None, Exception("Failed to connect.")), timeout=QUEUE_TIMEOUT)
             _LOGGER.info(f"Connected to mqtt {self._mqtt_host}:{self._mqtt_port}")
@@ -127,6 +132,7 @@ class RoborockMqttClient:
         @run_in_executor()
         async def on_message(_client, _, msg, __=None):
             try:
+                self._last_message_timestamp = time.time()
                 device_id = msg.topic.split("/").pop()
                 data = self._decode_msg(msg.payload, self.device_map[device_id].device)
                 if data.get("protocol") == 102:
@@ -188,14 +194,16 @@ class RoborockMqttClient:
     def disconnect(self):
         self.is_connected = False
 
-    async def connect(self):
+    async def _connect(self):
         connection_queue = RoborockQueue()
-        self.client.user_data_set(connection_queue)
+        self._waiting_queue[0] = connection_queue
         if not self._first_connection:
+            _LOGGER.debug("Reconnecting to mqtt")
             self.client.reconnect()
         else:
+            _LOGGER.debug("Connecting to mqtt")
             properties = Properties(PacketTypes.CONNECT)
-            properties.SessionExpiryInterval = 30 * 60
+            properties.SessionExpiryInterval = SESSION_EXPIRY_INTERVAL
             self.client.connect(host=self._mqtt_host, port=self._mqtt_port,
                                 clean_start=mqtt.MQTT_CLEAN_START_FIRST_ONLY,
                                 properties=properties,
@@ -203,18 +211,18 @@ class RoborockMqttClient:
         try:
             (_, err) = await connection_queue.async_get(timeout=QUEUE_TIMEOUT)
             if err:
-                self.client.disconnect()
                 raise err
         except TimeoutError:
-            self.client.disconnect()
             raise Exception(f"Timeout after {QUEUE_TIMEOUT} seconds waiting for mqtt connection")
-        self.client.user_data_set(None)
+        finally:
+            del self._waiting_queue[0]
         if self._first_connection:
             self._first_connection = False
 
-    async def reconnect(self):
-        self.disconnect()
-        await self.connect()
+    async def validate_connection(self):
+        async with self._mutex:
+            if not self.is_connected or time.time() - self._last_message_timestamp > SESSION_EXPIRY_INTERVAL:
+                await self._connect()
 
     def _decode_msg(self, msg, device: HomeDataDevice):
         if msg[0:3] != "1.0".encode():
@@ -256,16 +264,20 @@ class RoborockMqttClient:
         if info.rc != 0:
             raise Exception("Failed to publish")
 
-    async def send_command(self, device_id: str, method: str, params: list = None, secure=False):
+    async def send_command(self, device_id: str, method: str, params: list = None, no_response=False):
+        await self.validate_connection()
         timestamp = math.floor(time.time())
         request_id = self._id_counter
         self._id_counter = (self._id_counter + 1) % 32767
-        inner = {"id": request_id, "method": method, "params": params or []}
-        if secure:
-            inner["security"] = {
+        inner = {
+            "id": request_id,
+            "method": method,
+            "params": params or [],
+            "security": {
                 "endpoint": self._endpoint,
                 "nonce": self._nonce.hex().upper(),
             }
+        }
         payload = bytes(
             json.dumps(
                 {
@@ -276,6 +288,9 @@ class RoborockMqttClient:
             ).encode()
         )
         _LOGGER.debug(f"id={request_id} Requesting method {method} with {params}")
+        if no_response:
+            self._send_msg_raw(device_id, 101, timestamp, payload)
+            return
         queue = RoborockQueue()
         self._waiting_queue[request_id] = queue
         self._send_msg_raw(device_id, 101, timestamp, payload)
@@ -326,7 +341,8 @@ class RoborockMqttClient:
         last_clean_record = None
         if clean_summary and clean_summary.records and len(clean_summary.records) > 0:
             last_clean_record = await self.get_clean_record(device_id, clean_summary.records[0])
-        return RoborockDeviceProp(status, dnd_timer, clean_summary, consumable, last_clean_record)
+        if any([status, dnd_timer, clean_summary, consumable]):
+            return RoborockDeviceProp(status, dnd_timer, clean_summary, consumable, last_clean_record)
 
 
 class RoborockClient:
@@ -420,7 +436,7 @@ class RoborockClient:
             ]
         )
         mac = base64.b64encode(
-            hmac.new(rriot.h_unkown.encode(), prestr.encode(), hashlib.sha256).digest()
+            hmac.new(rriot.h_unknown.encode(), prestr.encode(), hashlib.sha256).digest()
         ).decode()
         home_request = PreparedRequest(
             rriot.reference.api,
@@ -445,7 +461,6 @@ async def main():
     user_data = await client.code_login(int(code))
     home_data = await client.get_home_data(user_data)
     mqtt_client = RoborockMqttClient(user_data, home_data)
-    await mqtt_client.connect()
     status = await mqtt_client.send_command(next(iter(mqtt_client.device_map.values())).device.duid, "get_status")
     print(status)
 

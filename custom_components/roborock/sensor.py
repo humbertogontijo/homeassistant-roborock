@@ -37,6 +37,7 @@ ATTR_DND_START = "start"
 ATTR_DND_END = "end"
 ATTR_LAST_CLEAN_TIME = "duration"
 ATTR_LAST_CLEAN_AREA = "area"
+ATTR_STATUS_ERROR = "error"
 ATTR_STATUS_CLEAN_TIME = "clean_time"
 ATTR_STATUS_CLEAN_AREA = "clean_area"
 ATTR_LAST_CLEAN_START = "start"
@@ -58,6 +59,7 @@ class RoborockSensorDescription(SensorEntityDescription):
     parent_key: str = None
     keys: list[str] = None
     value: Callable = None
+    translation_key: str = None
 
 
 VACUUM_SENSORS = {
@@ -113,6 +115,15 @@ VACUUM_SENSORS = {
         icon="mdi:texture-box",
         parent_key=RoborockDevicePropField.LAST_CLEAN_RECORD,
         name="Last clean area",
+        entity_category=EntityCategory.DIAGNOSTIC,
+    ),
+    f"current_{ATTR_STATUS_ERROR}": RoborockSensorDescription(
+        key=StatusField.ERROR_CODE,
+        value=lambda value: str(value),
+        icon="mdi:alert",
+        translation_key="roborock_vacuum_error",
+        parent_key=RoborockDevicePropField.STATUS,
+        name="Current error",
         entity_category=EntityCategory.DIAGNOSTIC,
     ),
     f"current_{ATTR_STATUS_CLEAN_TIME}": RoborockSensorDescription(
@@ -258,6 +269,10 @@ class RoborockSensor(RoborockCoordinatedEntity, SensorEntity):
         self._attr_native_value = self._determine_native_value()
         self._attr_extra_state_attributes = self._extract_attributes(coordinator.data.get(self._device_id))
 
+    @property
+    def translation_key(self):
+        return self.entity_description.translation_key
+
     @callback
     def _extract_attributes(self, data):
         """Return state attributes with valid values."""
@@ -285,30 +300,32 @@ class RoborockSensor(RoborockCoordinatedEntity, SensorEntity):
         data = self.coordinator.data.get(self._device_id)
         if not data:
             return
-        native_value = None
-        try:
-            if self.entity_description.parent_key:
-                data = getattr(data, self.entity_description.parent_key)
+        if self.entity_description.parent_key:
+            data = getattr(data, self.entity_description.parent_key)
+            if not data:
+                return
 
-            if self.entity_description.keys:
-                native_value = [
-                    getattr(data, key) for key in self.entity_description.keys
-                ]
-                if not any(native_value):
-                    native_value = None
-            else:
-                native_value = getattr(data, self.entity_description.key)
-        except AttributeError as e:
-            _LOGGER.error(f"Failed to get value for {self.entity_description}; {e}")
+        if self.entity_description.keys:
+            native_value = [
+                getattr(data, key) for key in self.entity_description.keys
+            ]
+            if not any(native_value):
+                native_value = None
+        else:
+            native_value = getattr(data, self.entity_description.key)
 
-        if self.entity_description.value and native_value:
-            native_value = self.entity_description.value(native_value)
+        if native_value:
+            if self.entity_description.value:
+                native_value = self.entity_description.value(native_value)
+            if (
+                    self.device_class == SensorDeviceClass.TIMESTAMP
+                    and (native_datetime := datetime.fromtimestamp(native_value))
+            ):
+                native_value = native_datetime.astimezone(dt_util.UTC)
 
-        if (
-                self.device_class == SensorDeviceClass.TIMESTAMP
-                and native_value
-                and (native_datetime := datetime.fromtimestamp(native_value))
-        ):
-            return native_datetime.astimezone(dt_util.UTC)
+        # This is a work around while https://github.com/home-assistant/core/pull/65743 is not merged
+        if self.entity_description.translation_key:
+            native_value = self.coordinator.translation.get("entity").get("sensor").get(
+                self.entity_description.translation_key).get("state").get(native_value)
 
         return native_value

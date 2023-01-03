@@ -1,5 +1,6 @@
 """The Roborock component."""
 import asyncio
+import json
 import logging
 from datetime import timedelta
 
@@ -13,6 +14,7 @@ from .api.containers import Status, UserData, HomeData, CleanSummary
 from .api.typing import RoborockDeviceInfo, RoborockDeviceProp
 from .const import CONF_ENTRY_USERNAME, CONF_USER_DATA, CONF_BASE_URL
 from .const import DOMAIN, PLATFORMS
+from pathlib import Path
 
 SCAN_INTERVAL = timedelta(seconds=30)
 
@@ -34,11 +36,27 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
 
     device_map: dict[str, RoborockDeviceInfo] = {}
     for device in home_data.devices + home_data.received_devices:
-        product = next((product for product in home_data.products if product.id == device.product_id), {})
+        product = next(
+            (
+                product
+                for product in home_data.products
+                if product.id == device.product_id
+            ),
+            {},
+        )
         device_map[device.duid] = RoborockDeviceInfo(device, product)
 
+    default_translation_path = Path(
+        f"custom_components/roborock/translations/en.json"
+    )
+    translation_path = Path(
+        f"custom_components/roborock/translations/{hass.config.language}.json"
+    )
+    f = open(translation_path) if translation_path.is_file() else open(default_translation_path)
+    translation = json.load(f)
+
     client = RoborockMqttClient(user_data, device_map)
-    coordinator = RoborockDataUpdateCoordinator(hass, client)
+    coordinator = RoborockDataUpdateCoordinator(hass, client, translation)
 
     _LOGGER.debug("Searching for Roborock sensors...")
     await coordinator.async_refresh()
@@ -59,32 +77,35 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
     return True
 
 
-class RoborockDataUpdateCoordinator(DataUpdateCoordinator[dict[str, RoborockDeviceProp]]):
+class RoborockDataUpdateCoordinator(
+    DataUpdateCoordinator[dict[str, RoborockDeviceProp]]
+):
     """Class to manage fetching data from the API."""
 
-    def __init__(self, hass: HomeAssistant, client: RoborockMqttClient) -> None:
+    def __init__(
+        self, hass: HomeAssistant, client: RoborockMqttClient, translation: dict
+    ) -> None:
         """Initialize."""
         super().__init__(hass, _LOGGER, name=DOMAIN, update_interval=SCAN_INTERVAL)
         self.api = client
         self.platforms = []
+        self._devices_prop: dict[str, RoborockDeviceProp] = {}
+        self.translation = translation
 
     async def _async_update_data(self):
         """Update data via library."""
         try:
-            if not self.api.is_connected:
-                try:
-                    _LOGGER.debug("Connecting to roborock mqtt")
-                    await self.api.connect()
-                except Exception as exception:
-                    raise UpdateFailed(exception) from exception
-            devices_prop = {}
             for device_id, _ in self.api.device_map.items():
                 device_prop = await self.api.get_prop(device_id)
-                devices_prop[device_id] = device_prop
-            return devices_prop
-        except Exception as e:
-            _LOGGER.exception(e)
-            raise e
+                if device_prop:
+                    if device_id in self._devices_prop:
+                        self._devices_prop[device_id].update(device_prop)
+                    else:
+                        self._devices_prop[device_id] = device_prop
+            return self._devices_prop
+        except Exception as exception:
+            _LOGGER.exception(exception)
+            raise UpdateFailed(exception) from exception
 
 
 async def async_unload_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:

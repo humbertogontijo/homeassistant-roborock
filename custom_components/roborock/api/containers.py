@@ -5,13 +5,13 @@ class UserDataRRiotReferenceField(str, Enum):
     REGION = "r"
     API = "a"
     MQTT = "m"
-    L_UNKOWN = "l"
+    L_UNKNOWN = "l"
 
 
 class UserDataRRiotField(str, Enum):
     USER = "u"
     PASSWORD = "s"
-    H_UNKOWN = "h"
+    H_UNKNOWN = "h"
     DOMAIN = "k"
     REFERENCE = "r"
 
@@ -214,8 +214,8 @@ class Reference:
         return self.data.get(UserDataRRiotReferenceField.MQTT)
 
     @property
-    def l_unkown(self):
-        return self.data.get(UserDataRRiotReferenceField.L_UNKOWN)
+    def l_unknown(self):
+        return self.data.get(UserDataRRiotReferenceField.L_UNKNOWN)
 
 
 class RRiot:
@@ -231,8 +231,8 @@ class RRiot:
         return self.data.get(UserDataRRiotField.PASSWORD)
 
     @property
-    def h_unkown(self):
-        return self.data.get(UserDataRRiotField.H_UNKOWN)
+    def h_unknown(self):
+        return self.data.get(UserDataRRiotField.H_UNKNOWN)
 
     @property
     def domain(self):
