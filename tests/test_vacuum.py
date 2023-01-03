@@ -15,6 +15,7 @@ from homeassistant.components.vacuum import (
 )
 from homeassistant.core import HomeAssistant
 from homeassistant.helpers import entity_registry as er
+from custom_components.roborock.vacuum import ATTR_MOP_MODE_LIST, ATTR_MOP_INTENSITY_LIST
 
 from .common import setup_platform
 from .mock_data import HOME_DATA
@@ -127,10 +128,10 @@ async def test_mop_modes(hass: HomeAssistant, bypass_api_fixture) -> None:
     state = hass.states.get(ENTITY_ID)
     assert state.attributes.get("mop_mode") == "standard"
 
-    # fanspeeds = state.attributes.get(ATTR_FAN_SPEED_LIST)
+    mop_modes = state.attributes.get(ATTR_MOP_MODE_LIST)
 
-    # for speed in ["Off", "Silent", "Balanced", "Turbo", "Max", "Max+", "Custom"]:
-    #     assert speed in fanspeeds
+    for mode in ["standard", "deep", "deep_plus", "custom"]:
+        assert mode in mop_modes
     # Test setting mop mode to "deep"
     with patch(
         "custom_components.roborock.vacuum.RoborockVacuum.send"
@@ -151,7 +152,13 @@ async def test_mop_intensity(hass: HomeAssistant, bypass_api_fixture) -> None:
     entity_registry.async_get("vacuum.roborock_s7_maxv")
 
     state = hass.states.get(ENTITY_ID)
-    assert state.attributes.get("mop_mode") == "standard"
+    assert state.attributes.get("mop_intensity") == "intense"
+
+    mop_intensities = state.attributes.get(ATTR_MOP_INTENSITY_LIST)
+
+    for intensity in ["off", "mild", "moderate", "intense", "custom"]:
+        assert intensity in mop_intensities
+
     # Test setting intensity to "mild"
     with patch(
         "custom_components.roborock.vacuum.RoborockVacuum.send"
