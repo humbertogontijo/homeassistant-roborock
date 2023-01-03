@@ -103,23 +103,25 @@ async def async_setup_entry(
         if model in MODELS_VACUUM_WITH_SEPARATE_MOP:
             sensors = VACUUM_SENSORS_SEPARATE_MOP
         unique_id = slugify(device_id)
-        for sensor, description in sensors.items():
-            parent_key_data = getattr(coordinator.data.get(device_id), description.parent_key)
-            if not parent_key_data:
-                _LOGGER.debug(
-                    "It seems the %s does not support the %s as the initial value is None",
-                    device_info.product.model,
-                    description.key,
+        device_prop = coordinator.data.get(device_id)
+        if device_prop:
+            for sensor, description in sensors.items():
+                parent_key_data = getattr(device_prop, description.parent_key)
+                if not parent_key_data:
+                    _LOGGER.debug(
+                        "It seems the %s does not support the %s as the initial value is None",
+                        device_info.product.model,
+                        description.key,
+                    )
+                    continue
+                entities.append(
+                    RoborockBinarySensor(
+                        f"{sensor}_{unique_id}",
+                        device_info,
+                        coordinator,
+                        description,
+                    )
                 )
-                continue
-            entities.append(
-                RoborockBinarySensor(
-                    f"{sensor}_{unique_id}",
-                    device_info,
-                    coordinator,
-                    description,
-                )
-            )
 
     async_add_entities(entities)
 

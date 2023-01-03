@@ -54,20 +54,21 @@ async def async_setup_entry(
 ) -> None:
     """Setup Roborock cameras."""
     coordinator: RoborockDataUpdateCoordinator = hass.data[DOMAIN][config_entry.entry_id]
+    image_config = config_entry.options[CONF_MAP_TRANSFORM]
     entities = []
     for device_id, device_info in coordinator.api.device_map.items():
         unique_id = slugify(device_id)
-        entities.append(VacuumCameraMap(unique_id, device_info, coordinator))
+        entities.append(VacuumCameraMap(unique_id, image_config, device_info, coordinator))
     async_add_entities(entities, True)
 
 
 class VacuumCameraMap(RoborockCoordinatedEntity, Camera):
     """Representation of a Roborock camera map."""
-    def __init__(self, unique_id: str, device_info: RoborockDeviceInfo, coordinator: RoborockDataUpdateCoordinator):
+    def __init__(self, unique_id: str, image_config: dict, device_info: RoborockDeviceInfo, coordinator: RoborockDataUpdateCoordinator):
         Camera.__init__(self)
         RoborockCoordinatedEntity.__init__(self, device_info, coordinator, unique_id)
         self._store_map_image = False
-        self._image_config = {CONF_SCALE: 2, CONF_ROTATE: 0, CONF_TRIM: DEFAULT_TRIMS}
+        self._image_config = image_config
         self._sizes = DEFAULT_SIZES
         self._texts = []
         self._drawables = CONF_AVAILABLE_DRAWABLES

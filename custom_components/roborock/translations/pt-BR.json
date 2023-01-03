@@ -23,10 +23,12 @@
     "step": {
       "user": {
         "data": {
-          "binary_sensor": "Integrar sensores binarios de esfregão e reservatorio de agua",
-          "camera": "Integrar mapa como camera",
-          "sensor": "Integrar sensores de estado e sumario",
-          "vacuum": "Integrar aspirador"
+          "map_transformation.scale": "Escala do mapa",
+          "map_transformation.rotate": "Rotação do mapa",
+          "map_transformation.trim.left": "Guarnição esquerda do mapa",
+          "map_transformation.trim.right": "Guarnição direita do mapa",
+          "map_transformation.trim.top": "Guarnição superior do mapa",
+          "map_transformation.trim.bottom": "Guarnição inferior do mapa"
         }
       }
     }
@@ -35,6 +37,7 @@
     "sensor": {
       "roborock_vacuum_error": {
         "state": {
+          "0": "ok",
           "1": "Torre LiDAR ou laser bloqueado. Verifique se há obstrução e tente novamente.",
           "2": "Pára-choques preso. Limpe-o e bata levemente para soltá-lo.",
           "3": "Rodas suspensas. Mova o robô e reinicie.",

@@ -3,6 +3,7 @@ import asyncio
 import json
 import logging
 from datetime import timedelta
+from pathlib import Path
 
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.core import HomeAssistant
@@ -14,11 +15,42 @@ from .api.containers import Status, UserData, HomeData, CleanSummary
 from .api.typing import RoborockDeviceInfo, RoborockDeviceProp
 from .const import CONF_ENTRY_USERNAME, CONF_USER_DATA, CONF_BASE_URL
 from .const import DOMAIN, PLATFORMS
-from pathlib import Path
 
 SCAN_INTERVAL = timedelta(seconds=30)
 
 _LOGGER = logging.getLogger(__name__)
+
+
+def get_translation_file(file_url: str):
+    file_path = Path(file_url)
+    if file_path.is_file():
+        f = open(file_path)
+        translation = json.load(f)
+        entity = translation.get("entity")
+        sensor = entity.get("sensor")
+        for translation_key, value in sensor.items():
+            state = value.get("state")
+            if not len(state.keys()):
+                return
+        return translation
+
+
+def get_translation(hass: HomeAssistant):
+    language = hass.config.language
+    translation = get_translation_file(
+        f"custom_components/roborock/translations/{language}.json"
+    )
+    if translation:
+        return translation
+    wide_language = language.split("-")[0]
+    wide_translation = get_translation_file(
+        f"custom_components/roborock/translations/{wide_language}.json"
+    )
+    if wide_translation:
+        return wide_translation
+    return get_translation_file(
+        "custom_components/roborock/translations/en.json"
+    )
 
 
 async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
@@ -46,14 +78,7 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
         )
         device_map[device.duid] = RoborockDeviceInfo(device, product)
 
-    default_translation_path = Path(
-        f"custom_components/roborock/translations/en.json"
-    )
-    translation_path = Path(
-        f"custom_components/roborock/translations/{hass.config.language}.json"
-    )
-    f = open(translation_path) if translation_path.is_file() else open(default_translation_path)
-    translation = json.load(f)
+    translation = get_translation(hass)
 
     client = RoborockMqttClient(user_data, device_map)
     coordinator = RoborockDataUpdateCoordinator(hass, client, translation)
@@ -83,7 +108,7 @@ class RoborockDataUpdateCoordinator(
     """Class to manage fetching data from the API."""
 
     def __init__(
-        self, hass: HomeAssistant, client: RoborockMqttClient, translation: dict
+            self, hass: HomeAssistant, client: RoborockMqttClient, translation: dict
     ) -> None:
         """Initialize."""
         super().__init__(hass, _LOGGER, name=DOMAIN, update_interval=SCAN_INTERVAL)
@@ -96,7 +121,11 @@ class RoborockDataUpdateCoordinator(
         """Update data via library."""
         try:
             for device_id, _ in self.api.device_map.items():
-                device_prop = await self.api.get_prop(device_id)
+                device_prop = None
+                retries = 3
+                while not device_prop and retries > 0:
+                    device_prop = await self.api.get_prop(device_id)
+                    retries -= 1
                 if device_prop:
                     if device_id in self._devices_prop:
                         self._devices_prop[device_id].update(device_prop)

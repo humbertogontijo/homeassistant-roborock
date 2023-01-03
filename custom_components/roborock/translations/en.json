@@ -23,10 +23,12 @@
     "step": {
       "user": {
         "data": {
-          "binary_sensor": "Integrate mop & water box binary sensors",
-          "camera": "Integrate map as camera",
-          "sensor": "Integrate status & summary sensors",
-          "vacuum": "Integrate vacuum"
+          "map_transformation.scale": "Map scale",
+          "map_transformation.rotate": "Map rotation",
+          "map_transformation.trim.left": "Map left trim",
+          "map_transformation.trim.right": "Map right trim",
+          "map_transformation.trim.top": "Map top trim",
+          "map_transformation.trim.bottom": "Map bottom trim"
         }
       }
     }
@@ -35,6 +37,7 @@
     "sensor": {
       "roborock_vacuum_error": {
         "state": {
+          "0": "ok",
           "1": "LiDAR turret or laser blocked. Check for obstruction and retry.",
           "2": "Bumper stuck. Clean it and lightly tap to release it.",
           "3": "Wheels suspended. Move robot and restart.",

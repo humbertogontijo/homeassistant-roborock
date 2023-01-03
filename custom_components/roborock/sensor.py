@@ -119,7 +119,6 @@ VACUUM_SENSORS = {
     ),
     f"current_{ATTR_STATUS_ERROR}": RoborockSensorDescription(
         key=StatusField.ERROR_CODE,
-        value=lambda value: str(value),
         icon="mdi:alert",
         translation_key="roborock_vacuum_error",
         parent_key=RoborockDevicePropField.STATUS,
@@ -234,23 +233,25 @@ async def async_setup_entry(
 
     for device_id, device_info in coordinator.api.device_map.items():
         unique_id = slugify(device_id)
-        for sensor, description in VACUUM_SENSORS.items():
-            parent_key_data = getattr(coordinator.data.get(device_id), description.parent_key)
-            if not parent_key_data:
-                _LOGGER.debug(
-                    "It seems the %s does not support the %s as the initial value is None",
-                    device_info.product.model,
-                    description.key,
+        device_prop = coordinator.data.get(device_id)
+        if device_prop:
+            for sensor, description in VACUUM_SENSORS.items():
+                parent_key_data = getattr(device_prop, description.parent_key)
+                if not parent_key_data:
+                    _LOGGER.debug(
+                        "It seems the %s does not support the %s as the initial value is None",
+                        device_info.product.model,
+                        description.key,
+                    )
+                    continue
+                entities.append(
+                    RoborockSensor(
+                        f"{sensor}_{unique_id}",
+                        device_info,
+                        coordinator,
+                        description,
+                    )
                 )
-                continue
-            entities.append(
-                RoborockSensor(
-                    f"{sensor}_{unique_id}",
-                    device_info,
-                    coordinator,
-                    description,
-                )
-            )
 
     async_add_entities(entities)
 
@@ -326,6 +327,6 @@ class RoborockSensor(RoborockCoordinatedEntity, SensorEntity):
         # This is a work around while https://github.com/home-assistant/core/pull/65743 is not merged
         if self.entity_description.translation_key:
             native_value = self.coordinator.translation.get("entity").get("sensor").get(
-                self.entity_description.translation_key).get("state").get(native_value)
+                self.entity_description.translation_key).get("state").get(str(native_value))
 
         return native_value

@@ -3,9 +3,9 @@ from __future__ import annotations
 
 import logging
 
+import voluptuous as vol
 from homeassistant import config_entries
 from homeassistant.core import callback
-import voluptuous as vol
 
 from .api.api import RoborockClient
 from .api.containers import UserData
@@ -15,7 +15,7 @@ from .const import (
     CONF_ENTRY_USERNAME,
     CONF_USER_DATA,
     DOMAIN,
-    PLATFORMS,
+    CONF_SCALE, CONF_ROTATE, CONF_TRIM, CONF_MAP_TRANSFORM, CONF_LEFT, CONF_RIGHT, CONF_TOP, CONF_BOTTOM,
 )
 
 _LOGGER = logging.getLogger(__name__)
@@ -143,29 +143,62 @@ class RoborockFlowHandler(config_entries.ConfigFlow, domain=DOMAIN):
             return None
 
 
+PERCENT_SCHEMA = vol.All(vol.Coerce(float), vol.Range(min=0, max=100))
+POSITIVE_FLOAT_SCHEMA = vol.All(vol.Coerce(float), vol.Range(min=0))
+
+
+def set_nested_dict(data: dict, key_string: str, value):
+    here = data
+    keys = key_string.split(".")
+    for key in keys[:-1]:
+        here = here.setdefault(key, {})
+    here[keys[-1]] = value
+
+def get_nested_dict(data: dict, key_string: str, default=None):
+    here = data
+    keys = key_string.split(".")
+    for key in keys:
+        here = here.get(key)
+        if not here:
+            return default
+    return here
+
 class RoborockOptionsFlowHandler(config_entries.OptionsFlow):
     """Roborock config flow options handler."""
+
     def __init__(self, config_entry):
         """Initialize HACS options flow."""
         self.config_entry = config_entry
         self.options = dict(config_entry.options)
 
-    async def async_step_init(self, user_input=None):  # pylint: disable=unused-argument
+    async def async_step_init(self, _=None):  # pylint: disable=unused-argument
         """Manage the options."""
         return await self.async_step_user()
 
     async def async_step_user(self, user_input=None):
         """Handle a flow initialized by the user."""
         if user_input:
-            self.options.update(user_input)
+            data = {}
+            for key, value in user_input.items():
+                set_nested_dict(data, key, value)
+            self.options.update(data)
             return await self._update_options()
+
+        key_default_schema = [
+            [f"{CONF_MAP_TRANSFORM}.{CONF_SCALE}", 1, POSITIVE_FLOAT_SCHEMA],
+            [f"{CONF_MAP_TRANSFORM}.{CONF_ROTATE}", 0, vol.In([0, 90, 180, 270])],
+            [f"{CONF_MAP_TRANSFORM}.{CONF_TRIM}.{CONF_LEFT}", 0, PERCENT_SCHEMA],
+            [f"{CONF_MAP_TRANSFORM}.{CONF_TRIM}.{CONF_RIGHT}", 0, PERCENT_SCHEMA],
+            [f"{CONF_MAP_TRANSFORM}.{CONF_TRIM}.{CONF_TOP}", 0, PERCENT_SCHEMA],
+            [f"{CONF_MAP_TRANSFORM}.{CONF_TRIM}.{CONF_BOTTOM}", 0, PERCENT_SCHEMA]
+        ]
 
         return self.async_show_form(
             step_id="user",
             data_schema=vol.Schema(
                 {
-                    vol.Required(x, default=self.options.get(x, True)): bool
-                    for x in sorted(PLATFORMS)
+                    vol.Optional(key, default=get_nested_dict(self.options, key, default)): schema
+                    for [key, default, schema] in key_default_schema
                 }
             ),
         )

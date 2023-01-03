@@ -107,7 +107,6 @@ class RoborockMqttClient:
         self._endpoint = base64.b64encode(md5bin(self._mqtt_domain)[8:14]).decode()
         self._nonce = secrets.token_bytes(16)
         self._waiting_queue: dict[int, RoborockQueue] = {}
-        self.is_connected = False
         self.client = self._build_client()
         self._user_data = user_data
         self._first_connection = True
@@ -117,11 +116,11 @@ class RoborockMqttClient:
     def _build_client(self) -> mqtt.Client:
         @run_in_executor()
         async def on_connect(_client: mqtt.Client, _, __, rc, ___=None):
+            self._last_message_timestamp = time.time()
             connection_queue = self._waiting_queue[0]
             if rc != 0:
                 await connection_queue.async_put((None, Exception("Failed to connect.")), timeout=QUEUE_TIMEOUT)
             _LOGGER.info(f"Connected to mqtt {self._mqtt_host}:{self._mqtt_port}")
-            self.is_connected = True
             topic = f"rr/m/o/{self._mqtt_user}/{self._hashed_user}/#"
             (result, mid) = _client.subscribe(topic)
             if result != 0:
@@ -178,7 +177,6 @@ class RoborockMqttClient:
         @run_in_executor()
         async def on_disconnect(_client: mqtt.Client, _, rc, __=None):
             _LOGGER.error(f"Roborock mqtt client disconnected (rc: {rc})")
-            self.disconnect()
 
         client = mqtt.Client(client_id=self._hashed_user, protocol=mqtt.MQTTv5)
         client.on_connect = on_connect
@@ -190,9 +188,6 @@ class RoborockMqttClient:
         client.username_pw_set(self._hashed_user, self._hashed_password)
         client.loop_start()
         return client
-
-    def disconnect(self):
-        self.is_connected = False
 
     async def _connect(self):
         connection_queue = RoborockQueue()
@@ -221,7 +216,7 @@ class RoborockMqttClient:
 
     async def validate_connection(self):
         async with self._mutex:
-            if not self.is_connected or time.time() - self._last_message_timestamp > SESSION_EXPIRY_INTERVAL:
+            if not self.client.is_connected() or time.time() - self._last_message_timestamp > SESSION_EXPIRY_INTERVAL:
                 await self._connect()
 
     def _decode_msg(self, msg, device: HomeDataDevice):
