@@ -1,5 +1,9 @@
 """Global fixtures for Roborock integration."""
+from unittest.mock import patch
+
 import pytest
+
+from .mock_data import PROP
 
 pytest_plugins = "pytest_homeassistant_custom_component"
 
@@ -8,3 +12,14 @@ pytest_plugins = "pytest_homeassistant_custom_component"
 @pytest.fixture(autouse=True)
 def auto_enable_custom_integrations(enable_custom_integrations):
     yield
+
+
+@pytest.fixture(name="bypass_api_fixture")
+def bypass_api_fixture():
+    """Skip calls to the API."""
+    with patch("custom_components.roborock.RoborockMqttClient._connect"), patch(
+        "custom_components.roborock.RoborockMqttClient._send_msg_raw"
+    ), patch("custom_components.roborock.RoborockMqttClient.send_command"), patch(
+        "custom_components.roborock.RoborockMqttClient.get_prop", return_value=PROP
+    ):
+        yield
