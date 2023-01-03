@@ -92,7 +92,7 @@ async def test_vacuum_services(hass: HomeAssistant) -> None:
 
 
 @pytest.mark.asyncio
-async def test_vacuum_fan_speeds(hass: HomeAssistant) -> None:
+async def test_vacuum_fan_speeds(hass: HomeAssistant, bypass_api_fixture) -> None:
     """Test vacuum fan speeds."""
     await setup_platform(hass, VACUUM_DOMAIN)
     entity_registry = er.async_get(hass)
@@ -116,3 +116,50 @@ async def test_vacuum_fan_speeds(hass: HomeAssistant) -> None:
             blocking=True,
         )
         mock_send.assert_called_once_with("set_custom_mode", [103], True)
+
+@pytest.mark.asyncio
+async def test_mop_modes(hass: HomeAssistant, bypass_api_fixture) -> None:
+    """Test mop modes."""
+    await setup_platform(hass, VACUUM_DOMAIN)
+    entity_registry = er.async_get(hass)
+    entity_registry.async_get("vacuum.roborock_s7_maxv")
+
+    state = hass.states.get(ENTITY_ID)
+    assert state.attributes.get("mop_mode") == "standard"
+
+    # fanspeeds = state.attributes.get(ATTR_FAN_SPEED_LIST)
+
+    # for speed in ["Off", "Silent", "Balanced", "Turbo", "Max", "Max+", "Custom"]:
+    #     assert speed in fanspeeds
+    # Test setting mop mode to "deep"
+    with patch(
+        "custom_components.roborock.vacuum.RoborockVacuum.send"
+    ) as mock_send:
+        await hass.services.async_call(
+            "Roborock",
+            "vacuum_set_mop_mode",
+            {"entity_id": ENTITY_ID, "mop_mode": "deep"},
+            blocking=True,
+        )
+        mock_send.assert_called_once_with("set_mop_mode", [301], True)
+
+@pytest.mark.asyncio
+async def test_mop_intensity(hass: HomeAssistant, bypass_api_fixture) -> None:
+    """Test mop intensity."""
+    await setup_platform(hass, VACUUM_DOMAIN)
+    entity_registry = er.async_get(hass)
+    entity_registry.async_get("vacuum.roborock_s7_maxv")
+
+    state = hass.states.get(ENTITY_ID)
+    assert state.attributes.get("mop_mode") == "standard"
+    # Test setting intensity to "mild"
+    with patch(
+        "custom_components.roborock.vacuum.RoborockVacuum.send"
+    ) as mock_send:
+        await hass.services.async_call(
+            "Roborock",
+            "vacuum_set_mop_intensity",
+            {"entity_id": ENTITY_ID, "mop_intensity": "mild"},
+            blocking=True,
+        )
+        mock_send.assert_called_once_with("set_water_box_custom_mode", [201], True)
