@@ -197,11 +197,8 @@ class RoborockMqttClient:
             self.client.reconnect()
         else:
             _LOGGER.debug("Connecting to mqtt")
-            properties = Properties(PacketTypes.CONNECT)
-            properties.SessionExpiryInterval = SESSION_EXPIRY_INTERVAL
             self.client.connect(host=self._mqtt_host, port=self._mqtt_port,
                                 clean_start=mqtt.MQTT_CLEAN_START_FIRST_ONLY,
-                                properties=properties,
                                 keepalive=MQTT_KEEPALIVE)
         try:
             (_, err) = await connection_queue.async_get(timeout=QUEUE_TIMEOUT)
