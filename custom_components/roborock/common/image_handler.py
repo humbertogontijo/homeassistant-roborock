@@ -25,26 +25,31 @@ class ImageHandlerRoborock:
         COLOR_MAP_WALL_V2: (109, 110, 112),
         COLOR_GREY_WALL: (0, 0, 0, 0),
         COLOR_CLEANED_AREA: (127, 127, 127, 127),
-        COLOR_PATH: (147, 194, 238),
+        COLOR_PATH: (255, 255, 255),
+        COLOR_MOP_PATH: (255, 255, 255, 0x5F),
         COLOR_GOTO_PATH: (0, 255, 0),
         COLOR_PREDICTED_PATH: (255, 255, 0),
         COLOR_ZONES: (0xAD, 0xD8, 0xFF, 0x8F),
         COLOR_ZONES_OUTLINE: (0xAD, 0xD8, 0xFF),
         COLOR_VIRTUAL_WALLS: (255, 0, 0),
         COLOR_NEW_DISCOVERED_AREA: (64, 64, 64),
+        COLOR_CARPETS: (0, 0, 0, 51),
+        COLOR_NO_CARPET_ZONES: (255, 33, 55, 127),
+        COLOR_NO_CARPET_ZONES_OUTLINE: (255, 0, 0),
         COLOR_NO_GO_ZONES: (255, 94, 73, 102),
         COLOR_NO_GO_ZONES_OUTLINE: (255, 94, 73),
         COLOR_NO_MOPPING_ZONES: (163, 130, 211, 127),
         COLOR_NO_MOPPING_ZONES_OUTLINE: (163, 130, 211),
-        COLOR_CHARGER: (0x66, 0xfe, 0xda, 0x7f),
-        COLOR_CHARGER_OUTLINE: (0x66, 0xfe, 0xda, 0x7f),
+        COLOR_CHARGER: (86, 85, 210),
+        COLOR_CHARGER_OUTLINE: (255, 255, 255),
         COLOR_ROBO: (0xff, 0xff, 0xff),
         COLOR_ROBO_OUTLINE: (0, 0, 0),
         COLOR_ROOM_NAMES: (0, 0, 0),
-        COLOR_OBSTACLE: (0, 0, 0, 128),
-        COLOR_IGNORED_OBSTACLE: (0, 0, 0, 128),
-        COLOR_OBSTACLE_WITH_PHOTO: (0, 0, 0, 128),
-        COLOR_IGNORED_OBSTACLE_WITH_PHOTO: (0, 0, 0, 128),
+        COLOR_OBSTACLE: (63, 159, 254),
+        COLOR_IGNORED_OBSTACLE: (63, 159, 254),
+        COLOR_OBSTACLE_WITH_PHOTO: (63, 159, 254),
+        COLOR_IGNORED_OBSTACLE_WITH_PHOTO: (63, 159, 254),
+        COLOR_OBSTACLE_OUTLINE: (255, 255, 255),
         COLOR_UNKNOWN: (0, 0, 0),
         COLOR_SCAN: (0xDF, 0xDF, 0xDF),
         COLOR_ROOM_1: (240, 178, 122),
@@ -83,18 +88,25 @@ class ImageHandlerRoborock:
 
     @staticmethod
     def draw_path(image: ImageData, path: Path, sizes: Sizes, colors: Colors, scale: float):
-        ImageHandlerRoborock.__draw_path__(image, path, sizes, ImageHandlerRoborock.__get_color__(COLOR_PATH, colors),
-                                           scale)
+        ImageHandlerRoborock.__draw_path__(image, path, sizes[CONF_SIZE_PATH_WIDTH], ImageHandlerRoborock.__get_color__(COLOR_PATH, colors), scale)
 
     @staticmethod
     def draw_goto_path(image: ImageData, path: Path, sizes: Sizes, colors: Colors, scale: float):
-        ImageHandlerRoborock.__draw_path__(image, path, sizes,
-                                           ImageHandlerRoborock.__get_color__(COLOR_GOTO_PATH, colors), scale)
+        ImageHandlerRoborock.__draw_path__(image, path, sizes[CONF_SIZE_PATH_WIDTH], ImageHandlerRoborock.__get_color__(COLOR_GOTO_PATH, colors), scale)
 
     @staticmethod
     def draw_predicted_path(image: ImageData, path: Path, sizes: Sizes, colors: Colors, scale: float):
-        ImageHandlerRoborock.__draw_path__(image, path, sizes,
-                                           ImageHandlerRoborock.__get_color__(COLOR_PREDICTED_PATH, colors), scale)
+        ImageHandlerRoborock.__draw_path__(image, path, sizes[CONF_SIZE_PATH_WIDTH], ImageHandlerRoborock.__get_color__(COLOR_PREDICTED_PATH, colors), scale)
+
+    @staticmethod
+    def draw_mop_path(image: ImageData, path: Path, sizes: Sizes, colors: Colors, scale: float):
+        ImageHandlerRoborock.__draw_path__(image, path, sizes[CONF_SIZE_MOP_PATH_WIDTH], ImageHandlerRoborock.__get_color__(COLOR_MOP_PATH, colors), scale)
+
+    @staticmethod
+    def draw_no_carpet_areas(image: ImageData, areas: List[Area], colors: Colors):
+        ImageHandlerRoborock.__draw_areas__(image, areas,
+                                    ImageHandlerRoborock.__get_color__(COLOR_NO_CARPET_ZONES, colors),
+                                    ImageHandlerRoborock.__get_color__(COLOR_NO_CARPET_ZONES_OUTLINE, colors))
 
     @staticmethod
     def draw_no_go_areas(image: ImageData, areas: List[Area], colors: Colors):
@@ -133,30 +145,31 @@ class ImageHandlerRoborock:
     def draw_obstacles(image: ImageData, obstacles, sizes: Sizes, colors: Colors):
         color = ImageHandlerRoborock.__get_color__(COLOR_OBSTACLE, colors)
         radius = sizes[CONF_SIZE_OBSTACLE_RADIUS]
-        ImageHandlerRoborock.draw_all_obstacles(image, obstacles, radius, color)
+        ImageHandlerRoborock.draw_all_obstacles(image, obstacles, radius, color, colors)
 
     @staticmethod
     def draw_ignored_obstacles(image: ImageData, obstacles: List[Obstacle], sizes: Sizes, colors: Colors):
         color = ImageHandlerRoborock.__get_color__(COLOR_IGNORED_OBSTACLE, colors)
         radius = sizes[CONF_SIZE_IGNORED_OBSTACLE_RADIUS]
-        ImageHandlerRoborock.draw_all_obstacles(image, obstacles, radius, color)
+        ImageHandlerRoborock.draw_all_obstacles(image, obstacles, radius, color, colors)
 
     @staticmethod
     def draw_obstacles_with_photo(image: ImageData, obstacles: List[Obstacle], sizes: Sizes, colors: Colors):
         color = ImageHandlerRoborock.__get_color__(COLOR_OBSTACLE_WITH_PHOTO, colors)
         radius = sizes[CONF_SIZE_OBSTACLE_WITH_PHOTO_RADIUS]
-        ImageHandlerRoborock.draw_all_obstacles(image, obstacles, radius, color)
+        ImageHandlerRoborock.draw_all_obstacles(image, obstacles, radius, color, colors)
 
     @staticmethod
     def draw_ignored_obstacles_with_photo(image: ImageData, obstacles: List[Obstacle], sizes: Sizes, colors: Colors):
         color = ImageHandlerRoborock.__get_color__(COLOR_IGNORED_OBSTACLE_WITH_PHOTO, colors)
         radius = sizes[CONF_SIZE_IGNORED_OBSTACLE_WITH_PHOTO_RADIUS]
-        ImageHandlerRoborock.draw_all_obstacles(image, obstacles, radius, color)
+        ImageHandlerRoborock.draw_all_obstacles(image, obstacles, radius, color, colors)
 
     @staticmethod
-    def draw_all_obstacles(image: ImageData, obstacles: List[Obstacle], radius: float, color: Color):
+    def draw_all_obstacles(image: ImageData, obstacles: List[Obstacle], radius: float, color: Color, colors: Colors):
+        outline_color = ImageHandlerRoborock.__get_color__(COLOR_OBSTACLE_OUTLINE, colors)
         for obstacle in obstacles:
-            ImageHandlerRoborock.__draw_circle__(image, obstacle, radius, color, color)
+            ImageHandlerRoborock.__draw_circle__(image, obstacle, radius, outline_color, color)
 
     @staticmethod
     def draw_vacuum_position(image: ImageData, vacuum_position: Point, sizes: Sizes, colors: Colors):
@@ -277,26 +290,36 @@ class ImageHandlerRoborock:
 
         use_transparency = ImageHandlerRoborock.__use_transparency__(outline, fill)
         for area in areas:
+            current_area = area
             def draw_func(draw: ImageDraw):
-                draw.polygon(area.to_img(image.dimensions).as_list(), fill, outline)
+                draw.polygon(current_area.to_img(image.dimensions).as_list(), fill, outline)
 
             ImageHandlerRoborock.__draw_on_new_layer__(image, draw_func, 1, use_transparency)
 
     @staticmethod
-    def __draw_path__(image: ImageData, path: Path, sizes: Sizes, color: Color, scale: float):
+    def __draw_path__(image: ImageData, path: Path, path_width: int, color: Color, scale: float):
         if len(path.path) < 1:
             return
-
-        path_width = sizes[CONF_SIZE_PATH_WIDTH]
 
         def draw_func(draw: ImageDraw):
             for current_path in path.path:
                 if len(current_path) > 1:
                     s = current_path[0].to_img(image.dimensions)
+                    coords = None
                     for point in current_path[1:]:
                         e = point.to_img(image.dimensions)
-                        draw.line([s.x * scale, s.y * scale, e.x * scale, e.y * scale],
-                                  width=int(scale * path_width), fill=color)
+                        sx = s.x * scale
+                        sy = s.y * scale
+                        ex = e.x * scale
+                        ey = e.y * scale
+                        draw.line([sx, sy, ex, ey], width=int(scale * path_width), fill=color)
+                        if path_width > 4:
+                            r = scale * path_width / 2
+                            if not coords:
+                                coords = [sx - r, sy - r, sx + r, sy + r]
+                                draw.pieslice(coords, 0, 360, outline=color, fill=color)
+                            coords = [ex - r, ey - r, ex + r, ey + r]
+                            draw.pieslice(coords, 0, 360, outline=color, fill=color)
                         s = e
 
         ImageHandlerRoborock.__draw_on_new_layer__(image, draw_func, scale,
@@ -347,7 +370,7 @@ class ImageHandlerRoborock:
         image.data = Image.alpha_composite(image.data, layer)
 
     @staticmethod
-    def parse(raw_data: bytes, width: int, height: int, colors: Colors,
+    def parse(raw_data: bytes, width: int, height: int, carpet_map: List[int], colors: Colors,
               image_config: ImageConfig) -> Tuple[ImageType, dict]:
         rooms = {}
         scale = image_config[CONF_SCALE]
@@ -363,7 +386,8 @@ class ImageHandlerRoborock:
         pixels = image.load()
         for img_y in range(trimmed_height):
             for img_x in range(trimmed_width):
-                pixel_type = raw_data[img_x + trim_left + width * (img_y + trim_bottom)]
+                idx = img_x + trim_left + width * (img_y + trim_bottom)
+                pixel_type = raw_data[idx]
                 x = img_x
                 y = trimmed_height - img_y - 1
                 if pixel_type == ImageHandlerRoborock.MAP_OUTSIDE:
@@ -396,6 +420,20 @@ class ImageHandlerRoborock:
                                                                           default)
                     else:
                         pixels[x, y] = ImageHandlerRoborock.__get_color__(COLOR_UNKNOWN, colors)
+    
+                if idx in carpet_map and (x + y) % 2:
+                    def combine_color_component(base: int, overlay: int, alpha: int):
+                        return (int)((base * (255 - alpha) + overlay * alpha) / 255)
+
+                    carpet_color = ImageHandlerRoborock.__get_color__(COLOR_CARPETS, colors)
+
+                    if not pixels[x, y] or len(carpet_color) != 4:
+                        pixels[x, y] = carpet_color
+                    else:
+                        pixels[x, y] = (combine_color_component(pixels[x, y][0], carpet_color[0], carpet_color[3]),
+                            combine_color_component(pixels[x, y][1], carpet_color[1], carpet_color[3]),
+                            combine_color_component(pixels[x, y][2], carpet_color[2], carpet_color[3]))
+
         if image_config["scale"] != 1 and width != 0 and height != 0:
             image = image.resize((int(trimmed_width * scale), int(trimmed_height * scale)), resample=Image.NEAREST)
         return image, rooms
