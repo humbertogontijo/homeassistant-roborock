@@ -30,5 +30,38 @@
         }
       }
     }
+  },
+  "entity": {
+    "sensor": {
+      "roborock_vacuum_error": {
+        "state": {
+          "1": "LiDAR ou laser bloqué. Vérifier l'obstruction et réessayer.",
+          "2": "Pare-chocs coincé. Nettoyez-le et tapez légèrement pour le dégager.",
+          "3": "Roues suspendues. Déplacez le robot et recommencez.",
+          "4": "Erreur de capteur de chute. Nettoyez les capteurs de chute, éloignez le robot des obstacles et redémarrez.",
+          "5": "Brosse principale bloquée. Nettoyez la brosse principale et les roulements.",
+          "6": "Brosse latérale coincée. Retirez et nettoyez la brosse latérale.",
+          "7": "Roues bloquées. Déplacez le robot et redémarrez.",
+          "8": "Robot piégé. Dégagez les obstacles autour du robot.",
+          "9": "Pas de bac à poussière. Installez le bac à poussière et le filtre.",
+          "12": "Batterie faible. Rechargez et réessayez.",
+          "13": "Erreur de charge. Nettoyez les contacts de charge et réessayez.",
+          "14": "Erreur de batterie.",
+          "15": "Capteur mural sale. Nettoyez le capteur mural.",
+          "16": "Le robot a basculé. Déplacez-le sur un terrain plat et redémarrez-le.",
+          "17": "Erreur de brosse latérale. Réinitialisez le robot.",
+          "18": "Erreur de ventilateur. Réinitialisez le robot.",
+          "21": "Pare-chocs vertical enfoncé. Déplacez le robot et réessayez.",
+          "22": "Erreur de localisation de la station. Nettoyez et réessayez.",
+          "23": "Impossible de retourner à la station. Nettoyez la balise de localisation de la station et réessayez.",
+          "27": "Le système VibraRise s'est bloqué. Vérifiez les obstructions.",
+          "28": "Le robot est sur le tapis. Déplacez le robot au sol et réessayez.",
+          "29": "Filtre bloqué ou humide. Nettoyez, séchez et réessayez.",
+          "30": "Zone interdite ou mur invisible détecté. Éloignez le robot de cette zone.",
+          "31": "Impossible de traverser le tapis. Faites traverser le robot et redémarrez.",
+          "32": "Erreur interne. Réinitialisez le robot."
+        }
+      }
+    }
   }
 }
