@@ -36,10 +36,11 @@ DEFAULT_TRIMS = {CONF_LEFT: 0, CONF_RIGHT: 0, CONF_TOP: 0, CONF_BOTTOM: 0}
 DEFAULT_SIZES = {
     CONF_SIZE_VACUUM_RADIUS: 6,
     CONF_SIZE_PATH_WIDTH: 1,
-    CONF_SIZE_IGNORED_OBSTACLE_RADIUS: 3,
-    CONF_SIZE_IGNORED_OBSTACLE_WITH_PHOTO_RADIUS: 3,
-    CONF_SIZE_OBSTACLE_RADIUS: 3,
-    CONF_SIZE_OBSTACLE_WITH_PHOTO_RADIUS: 3,
+    CONF_SIZE_MOP_PATH_WIDTH: 12,
+    CONF_SIZE_IGNORED_OBSTACLE_RADIUS: 4,
+    CONF_SIZE_IGNORED_OBSTACLE_WITH_PHOTO_RADIUS: 4,
+    CONF_SIZE_OBSTACLE_RADIUS: 4,
+    CONF_SIZE_OBSTACLE_WITH_PHOTO_RADIUS: 4,
     CONF_SIZE_CHARGER_RADIUS: 6,
 }
 
@@ -66,7 +67,7 @@ class VacuumCameraMap(RoborockCoordinatedEntity, Camera):
         Camera.__init__(self)
         RoborockCoordinatedEntity.__init__(self, device_info, coordinator, unique_id)
         self._store_map_image = False
-        self._image_config = {CONF_SCALE: 1, CONF_ROTATE: 0, CONF_TRIM: DEFAULT_TRIMS}
+        self._image_config = {CONF_SCALE: 2, CONF_ROTATE: 0, CONF_TRIM: DEFAULT_TRIMS}
         self._sizes = DEFAULT_SIZES
         self._texts = []
         self._drawables = CONF_AVAILABLE_DRAWABLES
@@ -131,6 +132,7 @@ class VacuumCameraMap(RoborockCoordinatedEntity, Camera):
                 rooms = list(map_data.rooms.keys())
         for name, value in {
             ATTRIBUTE_CALIBRATION: map_data.calibration(),
+            ATTRIBUTE_CARPET_MAP: map_data.carpet_map,
             ATTRIBUTE_CHARGER: map_data.charger,
             ATTRIBUTE_CLEANED_ROOMS: map_data.cleaned_rooms,
             ATTRIBUTE_GOTO: map_data.goto,
@@ -141,6 +143,8 @@ class VacuumCameraMap(RoborockCoordinatedEntity, Camera):
             ATTRIBUTE_IMAGE: map_data.image,
             ATTRIBUTE_IS_EMPTY: map_data.image.is_empty,
             ATTRIBUTE_MAP_NAME: map_data.map_name,
+            ATTRIBUTE_MOP_PATH: map_data.mop_path,
+            ATTRIBUTE_NO_CARPET_AREAS: map_data.no_carpet_areas,
             ATTRIBUTE_NO_GO_AREAS: map_data.no_go_areas,
             ATTRIBUTE_NO_MOPPING_AREAS: map_data.no_mopping_areas,
             ATTRIBUTE_OBSTACLES: map_data.obstacles,
