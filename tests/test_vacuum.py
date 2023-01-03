@@ -105,15 +105,14 @@ async def test_vacuum_fan_speeds(hass: HomeAssistant) -> None:
 
     for speed in ["Off", "Silent", "Balanced", "Turbo", "Max", "Max+", "Custom"]:
         assert speed in fanspeeds
-
     # Test setting fan speed to "Turbo"
     with patch(
-        "custom_components.roborock.RoborockMqttClient.send_command"
-    ) as mock_api_command:
+        "custom_components.roborock.vacuum.RoborockVacuum.send"
+    ) as mock_send:
         await hass.services.async_call(
             VACUUM_DOMAIN,
             SERVICE_SET_FAN_SPEED,
             {"entity_id": ENTITY_ID, "fan_speed": "Turbo"},
             blocking=True,
         )
-        mock_api_command.assert_called()
+        mock_send.assert_called_once_with("set_custom_mode", [103], True)
