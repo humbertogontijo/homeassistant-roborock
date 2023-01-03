@@ -32,7 +32,7 @@ from custom_components.roborock.api.util import run_in_executor
 _LOGGER = logging.getLogger(__name__)
 QUEUE_TIMEOUT = 4
 MQTT_KEEPALIVE = 60
-SESSION_EXPIRY_INTERVAL = 1 * 60
+SESSION_EXPIRY_INTERVAL = 5 * 60
 
 
 def md5hex(message: str):

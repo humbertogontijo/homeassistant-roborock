@@ -113,7 +113,7 @@ class VacuumCameraMap(RoborockCoordinatedEntity, Camera):
     @property
     def should_poll(self) -> bool:
         """Return polling enabled."""
-        return self._should_poll and self._valid_refresh_state()
+        return self._should_poll and (not self._image or self._valid_refresh_state())
 
     @staticmethod
     def extract_attributes(
