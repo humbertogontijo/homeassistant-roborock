@@ -3,8 +3,13 @@ CONF_ENTRY_USERNAME = "username"
 CONF_ENTRY_CODE = "code"
 CONF_BASE_URL = "base_url"
 CONF_USER_DATA = "user_data"
-PLATFORMS = ["vacuum", "camera", "sensor", "binary_sensor"]
 DEFAULT_NAME = DOMAIN
+
+BINARY_SENSOR = "binary_sensor"
+CAMERA = "camera"
+SENSOR = "sensor"
+VACUUM = "vacuum"
+PLATFORMS = [VACUUM, CAMERA, SENSOR, BINARY_SENSOR]
 
 ROCKROBO_V1 = "rockrobo.vacuum.v1"
 ROCKROBO_S4 = "roborock.vacuum.s4"
@@ -228,3 +233,8 @@ ATTR_Y2 = "y2"
 ATTR_Y3 = "y3"
 
 MM = 50
+# Total time in seconds consumables have before Roborock recommends replacing
+MAIN_BRUSH_REPLACE_TIME = 1080000
+SIDE_BRUSH_REPLACE_TIME = 720000
+FILTER_REPLACE_TIME = 540000
+SENSOR_DIRTY_REPLACE_TIME = 108000
