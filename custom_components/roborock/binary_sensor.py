@@ -109,7 +109,7 @@ async def async_setup_entry(
                 _LOGGER.debug(
                     "It seems the %s does not support the %s as the initial value is None",
                     device_info.product.model,
-                    description.keys or description.key,
+                    description.key,
                 )
                 continue
             entities.append(
@@ -154,9 +154,11 @@ class RoborockBinarySensor(RoborockCoordinatedEntity, BinarySensorEntity):
             return
         if self.entity_description.parent_key:
             data = getattr(data, self.entity_description.parent_key)
+            if not data:
+                return
 
-        state = getattr(data, self.entity_description.key)
-        if self.entity_description.value and state:
-            return self.entity_description.value(state)
+        native_value = getattr(data, self.entity_description.key)
+        if native_value and self.entity_description.value:
+            return self.entity_description.value(native_value)
 
-        return state
+        return native_value

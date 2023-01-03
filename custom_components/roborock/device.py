@@ -58,6 +58,6 @@ class RoborockCoordinatedEntity(CoordinatorEntity[RoborockDataUpdateCoordinator]
             model=self._device_model,
         )
 
-    async def send(self, command: str, params=None):
+    async def send(self, command: str, params=None, no_response=False):
         """Send a command to a vacuum cleaner."""
-        return await self.coordinator.api.send_command(self._device_id, command, params, True)
+        return await self.coordinator.api.send_command(self._device_id, command, params, no_response)

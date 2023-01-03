@@ -108,41 +108,11 @@ MOP_INTENSITY_CODES = {
     204: "custom"
 }
 
-ERROR_CODES = {
-    1: "LiDAR turret or laser blocked. Check for obstruction and retry.",
-    2: "Bumper stuck. Clean it and lightly tap to release it.",
-    3: "Wheels suspended. Move robot and restart.",
-    4: "Cliff sensor error. Clean cliff sensors, move robot away from drops and restart.",
-    5: "Main brush jammed. Clean main brush and bearings.",
-    6: "Side brush jammed. Remove and clean side brush.",
-    7: "Wheels iammed. Move the robot and restart.",
-    8: "Robot trapped. Clear obstacles surrounding robot.",
-    9: "No dustbin. Install dustbin and filter.",
-    12: "Low battery. Recharge and retry.",
-    13: "Charging error. Clean charging contacts and retry.",
-    14: "Battery error.",
-    15: "Wall sensor dirty. Clean wall sensor.",
-    16: "Robot tilted. Move to level ground and restart.",
-    17: "Side brush error. Reset robot.",
-    18: "Fan error. Reset robot.",
-    21: "Vertical bumper pressed. Move robot and retry.",
-    22: "Dock locator error. Clean and retry.",
-    23: "Could not return to dock. Clean dock location beacon and retry.",
-    27: "VibraRise system jammed. Check for obstructions.",
-    28: "Robot on carpet. Move robot to floor and retry.",
-    29: "Filter blocked or wet. Clean, dry, and retry.",
-    30: "No-go zone or Invisible Wall detected. Move robot from this area.",
-    31: "Cannot cross carpet. Move robot across carpet and restart.",
-    32: "Internal error. Reset the robot."
-}
-
 ATTR_STATUS = "vacuum_status"
 ATTR_MOP_MODE = "mop_mode"
 ATTR_MOP_INTENSITY = "mop_intensity"
 ATTR_MOP_MODE_LIST = f"{ATTR_MOP_MODE}_list"
 ATTR_MOP_INTENSITY_LIST = f"{ATTR_MOP_INTENSITY}_list"
-ATTR_ERROR = "error"
-ATTR_ERROR_CODE = "error_code"
 
 
 def add_services():
@@ -293,19 +263,25 @@ class RoborockVacuum(RoborockCoordinatedEntity, StateVacuumEntity, ABC):
     @property
     def state(self):
         """Return the status of the vacuum cleaner."""
+        if not self._device_status:
+            return
         state = self._device_status.state
         return STATE_CODE_TO_STATE.get(state)
 
     @property
     def status(self):
         """Return the status of the vacuum cleaner."""
+        if not self._device_status:
+            return
         status = self._device_status.state
         return STATE_CODES_TO_STATUS.get(status)
 
     @property
     def state_attributes(self):
         """Return the state attributes of the vacuum cleaner."""
-        data = dict(self._device_status.__dict__) or {}
+        if not self._device_status:
+            return
+        data = dict(self._device_status.data)
 
         if self.supported_features & VacuumEntityFeature.BATTERY:
             data[ATTR_BATTERY_LEVEL] = self.battery_level
@@ -319,20 +295,21 @@ class RoborockVacuum(RoborockCoordinatedEntity, StateVacuumEntity, ABC):
         data[ATTR_MOP_MODE] = self.mop_mode
         data[ATTR_MOP_INTENSITY] = self.mop_intensity
         data.update(self.capability_attributes)
-        error_code = data.get(ATTR_ERROR_CODE)
-        error = ERROR_CODES.get(error_code)
-        data[ATTR_ERROR] = error
 
         return data
 
     @property
     def battery_level(self):
         """Return the battery level of the vacuum cleaner."""
+        if not self._device_status:
+            return
         return self._device_status.battery
 
     @property
     def fan_speed(self):
         """Return the fan speed of the vacuum cleaner."""
+        if not self._device_status:
+            return
         fan_speed = self._device_status.fan_power
         return FAN_SPEED_CODES.get(fan_speed)
 
@@ -344,6 +321,8 @@ class RoborockVacuum(RoborockCoordinatedEntity, StateVacuumEntity, ABC):
     @property
     def mop_mode(self):
         """Return the mop mode of the vacuum cleaner."""
+        if not self._device_status:
+            return
         mop_mode = self._device_status.mop_mode
         return MOP_MODE_CODES.get(mop_mode)
 
@@ -355,6 +334,8 @@ class RoborockVacuum(RoborockCoordinatedEntity, StateVacuumEntity, ABC):
     @property
     def mop_intensity(self):
         """Return the mop intensity of the vacuum cleaner."""
+        if not self._device_status:
+            return
         mop_intensity = self._device_status.water_box_mode
         return MOP_INTENSITY_CODES.get(mop_intensity)
 
@@ -398,18 +379,21 @@ class RoborockVacuum(RoborockCoordinatedEntity, StateVacuumEntity, ABC):
 
     async def async_set_fan_speed(self, fan_speed: str, **kwargs: any):
         await self.send(
-            "set_custom_mode", [k for k, v in FAN_SPEED_CODES.items() if v == fan_speed]
+            "set_custom_mode", [k for k, v in FAN_SPEED_CODES.items() if v == fan_speed], True
         )
+        await self.coordinator.async_request_refresh()
 
-    async def async_set_mop_mode(self, mop_mode: str, _):
+    async def async_set_mop_mode(self, mop_mode: str, _=None):
         await self.send(
-            "set_mop_mode", [k for k, v in MOP_MODE_CODES.items() if v == mop_mode]
+            "set_mop_mode", [k for k, v in MOP_MODE_CODES.items() if v == mop_mode], True
         )
+        await self.coordinator.async_request_refresh()
 
-    async def async_set_mop_intensity(self, mop_intensity: str, _):
+    async def async_set_mop_intensity(self, mop_intensity: str, _=None):
         await self.send(
-            "set_water_box_custom_mode", [k for k, v in MOP_INTENSITY_CODES.items() if v == mop_intensity]
+            "set_water_box_custom_mode", [k for k, v in MOP_INTENSITY_CODES.items() if v == mop_intensity], True
         )
+        await self.coordinator.async_request_refresh()
 
     async def async_manual_start(self):
         """Start manual control mode."""
