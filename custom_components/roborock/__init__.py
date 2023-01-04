@@ -39,18 +39,19 @@ def get_translation_file(file_url: str):
 
 
 def get_translation(hass: HomeAssistant):
-    language = hass.config.language
-    translation = get_translation_file(
-        f"custom_components/roborock/translations/{language}.json"
-    )
-    if translation:
-        return translation
-    wide_language = language.split("-")[0]
-    wide_translation = get_translation_file(
-        f"custom_components/roborock/translations/{wide_language}.json"
-    )
-    if wide_translation:
-        return wide_translation
+    if hasattr(hass.config, 'language'):
+        language = hass.config.language
+        translation = get_translation_file(
+            f"custom_components/roborock/translations/{language}.json"
+        )
+        if translation:
+            return translation
+        wide_language = language.split("-")[0]
+        wide_translation = get_translation_file(
+            f"custom_components/roborock/translations/{wide_language}.json"
+        )
+        if wide_translation:
+            return wide_translation
     return get_translation_file(
         "custom_components/roborock/translations/en.json"
     )
