@@ -20,8 +20,6 @@ import aiohttp
 import paho.mqtt.client as mqtt
 from Crypto.Cipher import AES
 from Crypto.Util.Padding import pad, unpad
-from paho.mqtt.packettypes import PacketTypes
-from paho.mqtt.properties import Properties
 
 from custom_components.roborock.api.containers import UserData, HomeDataDevice, Status, CleanSummary, Consumable, \
     DNDTimer, CleanRecord
@@ -112,14 +110,11 @@ class RoborockMqttClient:
         self._first_connection = True
         self._last_message_timestamp = time.time()
         self._mutex = Lock()
+        self._async_connect()
 
     def release(self):
         _LOGGER.debug("Stopping loop")
-        self.client.loop_stop()
-        try:
-            self._mutex.release()
-        except RuntimeError:
-            pass
+        self._disconnect()
 
     def __del__(self):
         self.release()
@@ -187,7 +182,8 @@ class RoborockMqttClient:
 
         @run_in_executor()
         async def on_disconnect(_client: mqtt.Client, _, rc, __=None):
-            _LOGGER.error(f"Roborock mqtt client disconnected (rc: {rc})")
+            if rc != 0:
+                _LOGGER.error(f"Roborock mqtt client disconnected (rc: {rc})")
 
         client = mqtt.Client(client_id=self._hashed_user, protocol=mqtt.MQTTv5)
         client.on_connect = on_connect
@@ -197,20 +193,29 @@ class RoborockMqttClient:
         if self._mqtt_ssl:
             client.tls_set()
         client.username_pw_set(self._hashed_user, self._hashed_password)
-        client.loop_start()
         return client
+
+    async def _reconnect(self):
+        self._disconnect()
+        await self._connect()
+
+    def _disconnect(self):
+        _LOGGER.debug("Disconnecting from mqtt")
+        self.client.loop_stop()
+        if self.client.is_connected():
+            self.client.disconnect()
+
+    def _async_connect(self):
+        _LOGGER.debug("Connecting to mqtt")
+        self.client.connect_async(host=self._mqtt_host, port=self._mqtt_port,
+                                  clean_start=mqtt.MQTT_CLEAN_START_FIRST_ONLY,
+                                  keepalive=MQTT_KEEPALIVE)
+        self.client.loop_start()
 
     async def _connect(self):
         connection_queue = RoborockQueue()
         self._waiting_queue[0] = connection_queue
-        if not self._first_connection:
-            _LOGGER.debug("Reconnecting to mqtt")
-            self.client.reconnect()
-        else:
-            _LOGGER.debug("Connecting to mqtt")
-            self.client.connect(host=self._mqtt_host, port=self._mqtt_port,
-                                clean_start=mqtt.MQTT_CLEAN_START_FIRST_ONLY,
-                                keepalive=MQTT_KEEPALIVE)
+        self._async_connect()
         try:
             (_, err) = await connection_queue.async_get(timeout=QUEUE_TIMEOUT)
             if err:
@@ -219,13 +224,12 @@ class RoborockMqttClient:
             raise Exception(f"Timeout after {QUEUE_TIMEOUT} seconds waiting for mqtt connection")
         finally:
             del self._waiting_queue[0]
-        if self._first_connection:
-            self._first_connection = False
 
     async def validate_connection(self):
         async with self._mutex:
-            if not self.client.is_connected() or time.time() - self._last_message_timestamp > SESSION_EXPIRY_INTERVAL:
-                await self._connect()
+            if self._first_connection or time.time() - self._last_message_timestamp > SESSION_EXPIRY_INTERVAL:
+                await self._reconnect()
+                self._first_connection = False
 
     def _decode_msg(self, msg, device: HomeDataDevice):
         if msg[0:3] != "1.0".encode():
