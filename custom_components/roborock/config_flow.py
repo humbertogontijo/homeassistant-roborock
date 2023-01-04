@@ -145,6 +145,7 @@ class RoborockFlowHandler(config_entries.ConfigFlow, domain=DOMAIN):
 
 PERCENT_SCHEMA = vol.All(vol.Coerce(float), vol.Range(min=0, max=100))
 POSITIVE_FLOAT_SCHEMA = vol.All(vol.Coerce(float), vol.Range(min=0))
+ROTATION_SCHEMA = vol.In(["0", "90", "180", "270"])
 
 
 def set_nested_dict(data: dict, key_string: str, value):
@@ -163,6 +164,45 @@ def get_nested_dict(data: dict, key_string: str, default=None):
             return default
     return here
 
+key_schema = {
+    f"{CONF_MAP_TRANSFORM}.{CONF_SCALE}": {
+        "store_type": int,
+        "show_type": int,
+        "default": 1,
+        "schema": POSITIVE_FLOAT_SCHEMA
+    },
+    f"{CONF_MAP_TRANSFORM}.{CONF_ROTATE}": {
+        "store_type": int,
+        "show_type": str,
+        "default": "0",
+        "schema": ROTATION_SCHEMA
+    },
+    f"{CONF_MAP_TRANSFORM}.{CONF_TRIM}.{CONF_LEFT}": {
+        "store_type": int,
+        "show_type": int,
+        "default": 0,
+        "schema": PERCENT_SCHEMA
+    },
+    f"{CONF_MAP_TRANSFORM}.{CONF_TRIM}.{CONF_RIGHT}": {
+        "store_type": int,
+        "show_type": int,
+        "default": 0,
+        "schema": PERCENT_SCHEMA
+    },
+    f"{CONF_MAP_TRANSFORM}.{CONF_TRIM}.{CONF_TOP}": {
+        "store_type": int,
+        "show_type": int,
+        "default": 0,
+        "schema": PERCENT_SCHEMA
+    },
+    f"{CONF_MAP_TRANSFORM}.{CONF_TRIM}.{CONF_BOTTOM}": {
+        "store_type": int,
+        "show_type": int,
+        "default": 0,
+        "schema": PERCENT_SCHEMA
+    },
+}
+
 class RoborockOptionsFlowHandler(config_entries.OptionsFlow):
     """Roborock config flow options handler."""
 
@@ -180,25 +220,21 @@ class RoborockOptionsFlowHandler(config_entries.OptionsFlow):
         if user_input:
             data = {}
             for key, value in user_input.items():
-                set_nested_dict(data, key, value)
-            self.options.update(data)
+                store_type = key_schema.get(key).get("store_type")
+                typed_value = store_type(value)
+                set_nested_dict(data, key, typed_value)
+            self.options = data
             return await self._update_options()
-
-        key_default_schema = [
-            [f"{CONF_MAP_TRANSFORM}.{CONF_SCALE}", 1, POSITIVE_FLOAT_SCHEMA],
-            [f"{CONF_MAP_TRANSFORM}.{CONF_ROTATE}", 0, vol.In([0, 90, 180, 270])],
-            [f"{CONF_MAP_TRANSFORM}.{CONF_TRIM}.{CONF_LEFT}", 0, PERCENT_SCHEMA],
-            [f"{CONF_MAP_TRANSFORM}.{CONF_TRIM}.{CONF_RIGHT}", 0, PERCENT_SCHEMA],
-            [f"{CONF_MAP_TRANSFORM}.{CONF_TRIM}.{CONF_TOP}", 0, PERCENT_SCHEMA],
-            [f"{CONF_MAP_TRANSFORM}.{CONF_TRIM}.{CONF_BOTTOM}", 0, PERCENT_SCHEMA]
-        ]
 
         return self.async_show_form(
             step_id="user",
             data_schema=vol.Schema(
                 {
-                    vol.Optional(key, default=get_nested_dict(self.options, key, default)): schema
-                    for [key, default, schema] in key_default_schema
+                    vol.Optional(
+                        key,
+                        default=schema.get("show_type")(get_nested_dict(self.options, key, schema.get("default")))
+                    ): schema.get("schema")
+                    for key, schema in key_schema.items()
                 }
             ),
         )
