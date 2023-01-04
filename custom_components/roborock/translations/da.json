@@ -23,8 +23,46 @@
     "step": {
       "user": {
         "data": {
-          "camera": "Integrere kort som kamera",
-          "vacuum": "Integrere som støvsuger"
+          "map_transformation.scale": "Map scale",
+          "map_transformation.rotate": "Map rotation",
+          "map_transformation.trim.left": "Map left trim",
+          "map_transformation.trim.right": "Map right trim",
+          "map_transformation.trim.top": "Map top trim",
+          "map_transformation.trim.bottom": "Map bottom trim"
+        }
+      }
+    }
+  },
+  "entity": {
+    "_": {
+      "roborock_vacuum": {
+        "error": {
+          "0": "None",
+          "1": "LiDAR turret or laser blocked. Check for obstruction and retry.",
+          "2": "Bumper stuck. Clean it and lightly tap to release it.",
+          "3": "Wheels suspended. Move robot and restart.",
+          "4": "Cliff sensor error. Clean cliff sensors, move robot away from drops and restart.",
+          "5": "Main brush jammed. Clean main brush and bearings.",
+          "6": "Side brush jammed. Remove and clean side brush.",
+          "7": "Wheels jammed. Move the robot and restart.",
+          "8": "Robot trapped. Clear obstacles surrounding robot.",
+          "9": "No dustbin. Install dustbin and filter.",
+          "12": "Low battery. Recharge and retry.",
+          "13": "Charging error. Clean charging contacts and retry.",
+          "14": "Battery error.",
+          "15": "Wall sensor dirty. Clean wall sensor.",
+          "16": "Robot tilted. Move to level ground and restart.",
+          "17": "Side brush error. Reset robot.",
+          "18": "Fan error. Reset robot.",
+          "21": "Vertical bumper pressed. Move robot and retry.",
+          "22": "Dock locator error. Clean and retry.",
+          "23": "Could not return to dock. Clean dock location beacon and retry.",
+          "27": "VibraRise system jammed. Check for obstructions.",
+          "28": "Robot on carpet. Move robot to floor and retry.",
+          "29": "Filter blocked or wet. Clean, dry, and retry.",
+          "30": "No-go zone or Invisible Wall detected. Move robot from this area.",
+          "31": "Cannot cross carpet. Move robot across carpet and restart.",
+          "32": "Internal error. Reset the robot."
         }
       }
     }
