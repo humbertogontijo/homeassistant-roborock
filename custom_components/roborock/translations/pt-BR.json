@@ -37,7 +37,7 @@
     "_": {
       "roborock_vacuum": {
         "error": {
-          "0": "ok",
+          "0": "None",
           "1": "Torre LiDAR ou laser bloqueado. Verifique se há obstrução e tente novamente.",
           "2": "Pára-choques preso. Limpe-o e bata levemente para soltá-lo.",
           "3": "Rodas suspensas. Mova o robô e reinicie.",
