@@ -1,6 +1,6 @@
 import logging
 import math
-from typing import Tuple, List, Dict, Callable
+from typing import Tuple, List, Dict, Callable, Set
 
 from PIL import Image, ImageDraw, ImageFont
 from PIL.Image import Image as ImageType
@@ -370,7 +370,7 @@ class ImageHandlerRoborock:
         image.data = Image.alpha_composite(image.data, layer)
 
     @staticmethod
-    def parse(raw_data: bytes, width: int, height: int, carpet_map: List[int], colors: Colors,
+    def parse(raw_data: bytes, width: int, height: int, carpet_map: Set[int], colors: Colors,
               image_config: ImageConfig) -> Tuple[ImageType, dict]:
         rooms = {}
         scale = image_config[CONF_SCALE]
