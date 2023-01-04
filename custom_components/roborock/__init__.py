@@ -27,12 +27,15 @@ def get_translation_file(file_url: str):
         f = open(file_path)
         translation = json.load(f)
         entity = translation.get("entity")
-        sensor = entity.get("sensor")
-        for translation_key, value in sensor.items():
-            state = value.get("state")
-            if not len(state.keys()):
-                return
-        return translation
+        if not entity:
+            return
+        domain = entity.get("_")
+        if not domain:
+            return
+        data = {}
+        for translation_key, value in domain.items():
+            data.update({translation_key: value})
+        return data
 
 
 def get_translation(hass: HomeAssistant):

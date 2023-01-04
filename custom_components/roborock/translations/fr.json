@@ -23,18 +23,21 @@
     "step": {
       "user": {
         "data": {
-          "binary_sensor": "Intégrer les capteurs du réservoir et de la serpillère",
-          "camera": "Intégrer la carte comme caméra",
-          "sensor": "Intégrer les capteurs d'état et de résumé de nettoyage",
-          "vacuum": "Intégrer l'aspirateur"
+          "map_transformation.scale": "Échelle de la carte",
+          "map_transformation.rotate": "Rotation de la carte",
+          "map_transformation.trim.left": "Trim gauche de la carte",
+          "map_transformation.trim.right": "Trim droite de la carte",
+          "map_transformation.trim.top": "Trim haut de la carte",
+          "map_transformation.trim.bottom": "Trim bas de la carte"
         }
       }
     }
   },
   "entity": {
-    "sensor": {
-      "roborock_vacuum_error": {
-        "state": {
+    "_": {
+      "roborock_vacuum": {
+        "error": {
+          "0": "ok",
           "1": "LiDAR ou laser bloqué. Vérifier l'obstruction et réessayer.",
           "2": "Pare-chocs coincé. Nettoyez-le et tapez légèrement pour le dégager.",
           "3": "Roues suspendues. Déplacez le robot et recommencez.",

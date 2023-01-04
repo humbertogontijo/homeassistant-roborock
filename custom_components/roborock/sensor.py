@@ -20,14 +20,14 @@ from homeassistant.helpers.entity_platform import AddEntitiesCallback
 from homeassistant.util import dt as dt_util, slugify
 
 from . import DOMAIN, RoborockDataUpdateCoordinator
+from .api.containers import CleanRecordField, StatusField, CleanSummaryField, ConsumableField, DNDTimerField
+from .api.typing import RoborockDeviceInfo, RoborockDevicePropField
 from .const import (
     MAIN_BRUSH_REPLACE_TIME,
     SIDE_BRUSH_REPLACE_TIME,
     FILTER_REPLACE_TIME,
     SENSOR_DIRTY_REPLACE_TIME
 )
-from .api.containers import CleanRecordField, StatusField, CleanSummaryField, ConsumableField, DNDTimerField
-from .api.typing import RoborockDeviceInfo, RoborockDevicePropField
 from .device import RoborockCoordinatedEntity, parse_datetime_time
 
 _LOGGER = logging.getLogger(__name__)
@@ -60,6 +60,7 @@ class RoborockSensorDescription(SensorEntityDescription):
     keys: list[str] = None
     value: Callable = None
     translation_key: str = None
+    translation_attr: str = None
 
 
 VACUUM_SENSORS = {
@@ -120,7 +121,8 @@ VACUUM_SENSORS = {
     f"current_{ATTR_STATUS_ERROR}": RoborockSensorDescription(
         key=StatusField.ERROR_CODE,
         icon="mdi:alert",
-        translation_key="roborock_vacuum_error",
+        translation_key="roborock_vacuum",
+        translation_attr="error",
         parent_key=RoborockDevicePropField.STATUS,
         name="Current error",
         entity_category=EntityCategory.DIAGNOSTIC,
@@ -326,7 +328,10 @@ class RoborockSensor(RoborockCoordinatedEntity, SensorEntity):
 
         # This is a work around while https://github.com/home-assistant/core/pull/65743 is not merged
         if self.entity_description.translation_key:
-            native_value = self.coordinator.translation.get("entity").get("sensor").get(
-                self.entity_description.translation_key).get("state").get(str(native_value))
+            native_value = self.translate(
+                self.entity_description.translation_key,
+                self.entity_description.translation_attr,
+                native_value
+            )
 
         return native_value

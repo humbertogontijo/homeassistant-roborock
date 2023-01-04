@@ -33,10 +33,10 @@ class RoborockCoordinatedEntity(CoordinatorEntity[RoborockDataUpdateCoordinator]
     _attr_has_entity_name = True
 
     def __init__(
-        self,
-        device_info: RoborockDeviceInfo,
-        coordinator: RoborockDataUpdateCoordinator,
-        unique_id: str = None,
+            self,
+            device_info: RoborockDeviceInfo,
+            coordinator: RoborockDataUpdateCoordinator,
+            unique_id: str = None,
     ):
         """Initialize the coordinated Roborock Device."""
         super().__init__(coordinator)
@@ -60,6 +60,9 @@ class RoborockCoordinatedEntity(CoordinatorEntity[RoborockDataUpdateCoordinator]
             model=self._device_model,
             sw_version=self._fw_version,
         )
+
+    def translate(self, translation_key: str, attr: str, value):
+        return self.coordinator.translation.get(translation_key).get(attr).get(str(value))
 
     async def send(self, command: str, params=None, no_response=False):
         """Send a command to a vacuum cleaner."""

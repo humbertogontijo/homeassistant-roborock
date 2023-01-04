@@ -34,9 +34,9 @@
     }
   },
   "entity": {
-    "sensor": {
-      "roborock_vacuum_error": {
-        "state": {
+    "_": {
+      "roborock_vacuum": {
+        "error": {
           "0": "ok",
           "1": "Torre LiDAR ou laser bloqueado. Verifique se há obstrução e tente novamente.",
           "2": "Pára-choques preso. Limpe-o e bata levemente para soltá-lo.",

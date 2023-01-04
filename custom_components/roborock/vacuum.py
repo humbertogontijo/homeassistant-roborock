@@ -113,6 +113,7 @@ ATTR_MOP_MODE = "mop_mode"
 ATTR_MOP_INTENSITY = "mop_intensity"
 ATTR_MOP_MODE_LIST = f"{ATTR_MOP_MODE}_list"
 ATTR_MOP_INTENSITY_LIST = f"{ATTR_MOP_INTENSITY}_list"
+ATTR_ERROR = "error"
 
 
 def add_services():
@@ -261,6 +262,10 @@ class RoborockVacuum(RoborockCoordinatedEntity, StateVacuumEntity, ABC):
         return "mdi:robot-vacuum"
 
     @property
+    def translation_key(self):
+        return "roborock_vacuum"
+
+    @property
     def state(self):
         """Return the status of the vacuum cleaner."""
         if not self._device_status:
@@ -294,6 +299,7 @@ class RoborockVacuum(RoborockCoordinatedEntity, StateVacuumEntity, ABC):
         data[ATTR_STATUS] = self.status
         data[ATTR_MOP_MODE] = self.mop_mode
         data[ATTR_MOP_INTENSITY] = self.mop_intensity
+        data[ATTR_ERROR] = self.error
         data.update(self.capability_attributes)
 
         return data
@@ -343,6 +349,13 @@ class RoborockVacuum(RoborockCoordinatedEntity, StateVacuumEntity, ABC):
     def mop_intensity_list(self):
         """Get the list of available mop intensity steps of the vacuum cleaner."""
         return list(MOP_INTENSITY_CODES.values())
+
+    @property
+    def error(self):
+        if not self._device_status:
+            return
+        error_code = self._device_status.error_code
+        return self.translate(self.translation_key, ATTR_ERROR, error_code)
 
     @property
     def capability_attributes(self):

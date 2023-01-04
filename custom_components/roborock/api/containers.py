@@ -596,7 +596,7 @@ class Status:
         return self.data.get(StatusField.CLEAN_AREA)
 
     @property
-    def error_code(self):
+    def error_code(self) -> int:
         return self.data.get(StatusField.ERROR_CODE)
 
     @property

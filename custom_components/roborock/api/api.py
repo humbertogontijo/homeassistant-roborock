@@ -116,7 +116,10 @@ class RoborockMqttClient:
     def release(self):
         _LOGGER.debug("Stopping loop")
         self.client.loop_stop()
-        self._mutex.release()
+        try:
+            self._mutex.release()
+        except RuntimeError:
+            pass
 
     def __del__(self):
         self.release()
