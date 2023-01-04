@@ -2,7 +2,7 @@
   "config": {
     "step": {
       "user": {
-        "description": "Usare le credenziali dell\'app",
+        "description": "Usare le credenziali dell'app",
         "data": {
           "username": "Email"
         }
@@ -27,7 +27,7 @@
           "map_transformation.rotate": "Rotazione della mappa",
           "map_transformation.trim.left": "Ritaglio mappa da sinistra",
           "map_transformation.trim.right": "Ritaglio mappa da destra",
-          "map_transformation.trim.top": "Ritaglio mappa dall\'alto",
+          "map_transformation.trim.top": "Ritaglio mappa dall'alto",
           "map_transformation.trim.bottom": "Ritaglio mappa dal basso"
         }
       }
