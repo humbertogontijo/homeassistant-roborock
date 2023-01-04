@@ -113,6 +113,14 @@ class RoborockMqttClient:
         self._last_message_timestamp = time.time()
         self._mutex = Lock()
 
+    def release(self):
+        _LOGGER.debug("Stopping loop")
+        self.client.loop_stop()
+        self._mutex.release()
+
+    def __del__(self):
+        self.release()
+
     def _build_client(self) -> mqtt.Client:
         @run_in_executor()
         async def on_connect(_client: mqtt.Client, _, __, rc, ___=None):

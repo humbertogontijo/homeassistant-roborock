@@ -117,6 +117,9 @@ class RoborockDataUpdateCoordinator(
         self._devices_prop: dict[str, RoborockDeviceProp] = {}
         self.translation = translation
 
+    def release(self):
+        self.api.release()
+
     async def _async_update_data(self):
         """Update data via library."""
         try:
@@ -139,7 +142,7 @@ class RoborockDataUpdateCoordinator(
 
 async def async_unload_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
     """Handle removal of an entry."""
-    coordinator = hass.data[DOMAIN][entry.entry_id]
+    coordinator: RoborockDataUpdateCoordinator = hass.data[DOMAIN][entry.entry_id]
     unloaded = all(
         await asyncio.gather(
             *[
@@ -151,6 +154,7 @@ async def async_unload_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
     )
     if unloaded:
         hass.data[DOMAIN].pop(entry.entry_id)
+        coordinator.release()
 
     return unloaded
 
