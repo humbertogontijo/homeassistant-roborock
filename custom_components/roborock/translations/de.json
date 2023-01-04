@@ -55,14 +55,14 @@
           "17": "Seitenbürstenfehler. Roboter zurücksetzen.",
           "18": "Lüfterfehler. Roboter zurücksetzen.",
           "21": "Vertikaler Stoßdämpfer betätigt. Roboter verschieben und erneut versuchen.",
-          "22": "Fehler beim Finden des Docks. Reinigen und erneut versuchen",
+          "22": "Fehler beim Finden des Docks. Reinigen und erneut versuchen.",
           "23": "Konnte nicht zum Dock zurückkehren. Dock-Ortungsbeacon reinigen und erneut versuchen.",
           "27": "VibraRise-System klemmt. Auf Hindernisse prüfen.",
-          "28": "Roboter auf Teppich. Roboter auf den Boden stellen und erneut versuchen,
-          "29": "Filter verstopft oder nass. Reinigen, trocknen und erneut versuchen",
-          "30": "No-Go-Zone oder Unsichtbare Wand entdeckt. Roboter aus diesem Bereich entfernen",
-          "31": "Kann Teppich nicht überqueren. Bewege den Roboter über den Teppich und starte neu,
-          "32": "Interner Fehler. Reset des Roboters".
+          "28": "Roboter auf Teppich. Roboter auf den Boden stellen und erneut versuchen.",
+          "29": "Filter verstopft oder nass. Reinigen, trocknen und erneut versuchen.",
+          "30": "No-Go-Zone oder unsichtbare Wand entdeckt. Roboter aus diesem Bereich entfernen.",
+          "31": "Kann Teppich nicht überqueren. Bewege den Roboter über den Teppich und starte ihn neu.",
+          "32": "Interner Fehler. Reset des Roboters."
         }
       }
     }
