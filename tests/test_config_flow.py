@@ -153,17 +153,25 @@ async def test_options_flow(hass):
     # Verify that the first options step is a user form
     assert result["type"] == data_entry_flow.RESULT_TYPE_FORM
     assert result["step_id"] == "user"
-    # Disable sensor option
+    # Change map transformation options
     result = await hass.config_entries.options.async_configure(
         result["flow_id"],
-        user_input={platform: platform != SENSOR for platform in PLATFORMS},
+        user_input={
+            "map_transformation.scale": 1.2,
+            "map_transformation.rotate": 90,
+            "map_transformation.trim.left": 5.0,
+            "map_transformation.trim.right": 5.0,
+            "map_transformation.trim.top": 5.0,
+            "map_transformation.trim.bottom": 5.0,
+        },
     )
     # Verify that the flow finishes
     assert result["type"] == data_entry_flow.RESULT_TYPE_CREATE_ENTRY
-    # Verify that the sensor option was disabled
+    # Verify the options were set
     assert entry.options == {
-        BINARY_SENSOR: True,
-        CAMERA: True,
-        SENSOR: False,
-        VACUUM: True,
+        "map_transformation": {
+            "scale": 1.2,
+            "rotate": 90,
+            "trim": {"left": 5.0, "right": 5.0, "top": 5.0, "bottom": 5.0},
+        }
     }
