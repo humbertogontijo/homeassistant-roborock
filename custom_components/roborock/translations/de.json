@@ -8,7 +8,7 @@
         }
       },
       "code": {
-        "description": "Geben Sie den Verifizierungscode ein, den Sie per E-Mail erhalten haben",
+        "description": "Gib den Verifizierungscode ein, den du per E-Mail erhalten hast",
         "data": {
           "code": "Verifizierungscode"
         }
@@ -16,15 +16,15 @@
     },
     "error": {
       "no_device": "Deinem Account ist kein Gerät zugeordnet",
-      "auth": "Login Fehlgeschlagen. Prüfe deine Zugangsdaten"
+      "auth": "Login fehlgeschlagen. Prüfe deine Zugangsdaten"
     }
   },
   "options": {
     "step": {
       "user": {
         "data": {
-          "map_transformation.scale": "Karte Größe",
-          "map_transformation.rotate": "Karte Drehung",
+          "map_transformation.scale": "Kartengröße",
+          "map_transformation.rotate": "Kartendrehung",
           "map_transformation.trim.left": "Karte beschneiden links",
           "map_transformation.trim.right": "Karte beschneiden rechts",
           "map_transformation.trim.top": "Karte beschneiden oben",
