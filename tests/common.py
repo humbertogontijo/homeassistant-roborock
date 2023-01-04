@@ -3,6 +3,7 @@ from unittest.mock import patch
 
 from custom_components.roborock.const import (CONF_BASE_URL,
                                               CONF_ENTRY_USERNAME,
+                                              CONF_MAP_TRANSFORM,
                                               CONF_USER_DATA, DOMAIN)
 from homeassistant.core import HomeAssistant
 from homeassistant.setup import async_setup_component
@@ -21,7 +22,9 @@ async def setup_platform(hass: HomeAssistant, platform: str) -> MockConfigEntry:
             CONF_USER_DATA: USER_DATA,
             CONF_BASE_URL: BASE_URL,
         },
-        options=None,
+        options={
+            CONF_MAP_TRANSFORM: None,
+        },
     )
     mock_entry.add_to_hass(hass)
 
