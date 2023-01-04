@@ -8,9 +8,9 @@
         }
       },
       "code": {
-        "description": "Type the verification code sent to your email",
+        "description": "Indtast verifikationskoden sent til din email",
         "data": {
-          "code": "Verification code"
+          "code": "Verifikationskode"
         }
       }
     },
@@ -23,12 +23,12 @@
     "step": {
       "user": {
         "data": {
-          "map_transformation.scale": "Map scale",
-          "map_transformation.rotate": "Map rotation",
-          "map_transformation.trim.left": "Map left trim",
-          "map_transformation.trim.right": "Map right trim",
-          "map_transformation.trim.top": "Map top trim",
-          "map_transformation.trim.bottom": "Map bottom trim"
+          "map_transformation.scale": "Kort skala",
+          "map_transformation.rotate": "Kort rotation",
+          "map_transformation.trim.left": "Kort venstre trim",
+          "map_transformation.trim.right": "Kort højre trim",
+          "map_transformation.trim.top": "Kort top trim",
+          "map_transformation.trim.bottom": "Kort bund trim"
         }
       }
     }
@@ -37,7 +37,7 @@
     "_": {
       "roborock_vacuum": {
         "error": {
-          "0": "None",
+          "0": "Ingen",
           "1": "LiDAR turret or laser blocked. Check for obstruction and retry.",
           "2": "Bumper stuck. Clean it and lightly tap to release it.",
           "3": "Wheels suspended. Move robot and restart.",
@@ -61,8 +61,8 @@
           "28": "Robot on carpet. Move robot to floor and retry.",
           "29": "Filter blocked or wet. Clean, dry, and retry.",
           "30": "No-go zone or Invisible Wall detected. Move robot from this area.",
-          "31": "Cannot cross carpet. Move robot across carpet and restart.",
-          "32": "Internal error. Reset the robot."
+          "31": "Ikke ikke køre på tæppe. Flyt robot over tæppet og genstart.",
+          "32": "Intern Fejl. Reset robotten."
         }
       }
     }
