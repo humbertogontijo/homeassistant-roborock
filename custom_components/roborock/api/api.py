@@ -110,7 +110,6 @@ class RoborockMqttClient:
         self._first_connection = True
         self._last_message_timestamp = time.time()
         self._mutex = Lock()
-        self._async_connect()
 
     def release(self):
         _LOGGER.debug("Stopping loop")
@@ -205,17 +204,14 @@ class RoborockMqttClient:
         if self.client.is_connected():
             self.client.disconnect()
 
-    def _async_connect(self):
+    async def _connect(self):
+        connection_queue = RoborockQueue()
+        self._waiting_queue[0] = connection_queue
         _LOGGER.debug("Connecting to mqtt")
         self.client.connect_async(host=self._mqtt_host, port=self._mqtt_port,
                                   clean_start=mqtt.MQTT_CLEAN_START_FIRST_ONLY,
                                   keepalive=MQTT_KEEPALIVE)
         self.client.loop_start()
-
-    async def _connect(self):
-        connection_queue = RoborockQueue()
-        self._waiting_queue[0] = connection_queue
-        self._async_connect()
         try:
             (_, err) = await connection_queue.async_get(timeout=QUEUE_TIMEOUT)
             if err:

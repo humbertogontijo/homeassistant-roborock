@@ -2,7 +2,7 @@
   "config": {
     "step": {
       "user": {
-        "description": "Le credenziali della tua app",
+        "description": "Usare le credenziali dell'app",
         "data": {
           "username": "Email"
         }
@@ -23,12 +23,12 @@
     "step": {
       "user": {
         "data": {
-          "map_transformation.scale": "Map scale",
-          "map_transformation.rotate": "Map rotation",
-          "map_transformation.trim.left": "Map left trim",
-          "map_transformation.trim.right": "Map right trim",
-          "map_transformation.trim.top": "Map top trim",
-          "map_transformation.trim.bottom": "Map bottom trim"
+          "map_transformation.scale": "Scala della mappa",
+          "map_transformation.rotate": "Rotazione della mappa",
+          "map_transformation.trim.left": "Ritaglio mappa da sinistra",
+          "map_transformation.trim.right": "Ritaglio mappa da destra",
+          "map_transformation.trim.top": "Ritaglio mappa dall'alto",
+          "map_transformation.trim.bottom": "Ritaglio mappa dal basso"
         }
       }
     }
@@ -37,32 +37,32 @@
     "_": {
       "roborock_vacuum": {
         "error": {
-          "0": "None",
-          "1": "LiDAR turret or laser blocked. Check for obstruction and retry.",
-          "2": "Bumper stuck. Clean it and lightly tap to release it.",
-          "3": "Wheels suspended. Move robot and restart.",
-          "4": "Cliff sensor error. Clean cliff sensors, move robot away from drops and restart.",
-          "5": "Main brush jammed. Clean main brush and bearings.",
-          "6": "Side brush jammed. Remove and clean side brush.",
-          "7": "Wheels jammed. Move the robot and restart.",
-          "8": "Robot trapped. Clear obstacles surrounding robot.",
-          "9": "No dustbin. Install dustbin and filter.",
-          "12": "Low battery. Recharge and retry.",
-          "13": "Charging error. Clean charging contacts and retry.",
-          "14": "Battery error.",
-          "15": "Wall sensor dirty. Clean wall sensor.",
-          "16": "Robot tilted. Move to level ground and restart.",
-          "17": "Side brush error. Reset robot.",
-          "18": "Fan error. Reset robot.",
-          "21": "Vertical bumper pressed. Move robot and retry.",
-          "22": "Dock locator error. Clean and retry.",
-          "23": "Could not return to dock. Clean dock location beacon and retry.",
-          "27": "VibraRise system jammed. Check for obstructions.",
-          "28": "Robot on carpet. Move robot to floor and retry.",
-          "29": "Filter blocked or wet. Clean, dry, and retry.",
-          "30": "No-go zone or Invisible Wall detected. Move robot from this area.",
-          "31": "Cannot cross carpet. Move robot across carpet and restart.",
-          "32": "Internal error. Reset the robot."
+          "0": "Nessuno",
+          "1": "Torretta LiDAR o laser bloccati. Controllare eventuali ostruzioni e riprovare.",
+          "2": "Paraurti bloccato. Pulirlo e toccarlo leggermente per sbloccarlo.",
+          "3": "Ruote sospese. Muovere il robot e riprovare.",
+          "4": "Errore sensore anti-caduta. Pulire il sensore, spostare il robot lontano dallo scalino e riprovare.",
+          "5": "Spazzola principale bloccata. Pulire la spazzola e i cuscinetti.",
+          "6": "Spazzola laterale bloccata. Rimuovere e pulire la spazzola.",
+          "7": "Ruote bloccate. Spostare il robot e riprovare.",
+          "8": "Robot intrappolato. Rimuovere gli ostacoli intorno al robot.",
+          "9": "Cassetto polvere mancante. Installare cassetto polvere e filtro.",
+          "12": "Batteria scarica. Ricaricare e riprovare.",
+          "13": "Errore di ricarica. Pulire i contatti di ricarica e riprovare.",
+          "14": "Errore batteria.",
+          "15": "Sensore ostacoli sporco. Pulire il sensore.",
+          "16": "Robot inclinato. Spostare il robot su una superficie piana e riprovare.",
+          "17": "Errore spazzola laterale. Effettuare il reset.",
+          "18": "Errore ventola. Effettuare il reset.",
+          "21": "Ammortizzatore verticale schiacciato. Spostare il robot e riprovare.",
+          "22": "Errore individuazione base. Pulire e riprovare.",
+          "23": "Impossibile ritornare alla base. Sgomberare il raggio di manovra intorno alla base e riprovare.",
+          "27": "Sistema VibraRise inceppato. Controllare ostruzioni.",
+          "28": "Il robot si trova su un tappeto. Spostare il robot sul pavimento e riprovare.",
+          "29": "Filtro intasato o bagnato. Pulire, asciugare e riprovare.",
+          "30": "Zona vietata o muro invisibile rilevato. Spostare il robot in un altra area.",
+          "31": "Impossibile attraversare il tappeto. Spostare il robot oltre il tappeto e riprovare.",
+          "32": "Errore interno. Effettuare il reset del robot."
         }
       }
     }

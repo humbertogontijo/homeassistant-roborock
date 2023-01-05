@@ -3,9 +3,8 @@ import io
 import logging
 from datetime import timedelta
 from enum import Enum
-from typing import Any, Dict, List, Optional, Tuple
+from typing import Any, Dict, List, Optional
 
-from PIL import Image
 from homeassistant.components.camera import Camera, SUPPORT_ON_OFF
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.core import HomeAssistant
@@ -64,7 +63,9 @@ async def async_setup_entry(
 
 class VacuumCameraMap(RoborockCoordinatedEntity, Camera):
     """Representation of a Roborock camera map."""
-    def __init__(self, unique_id: str, image_config: dict, device_info: RoborockDeviceInfo, coordinator: RoborockDataUpdateCoordinator):
+
+    def __init__(self, unique_id: str, image_config: dict, device_info: RoborockDeviceInfo,
+                 coordinator: RoborockDataUpdateCoordinator):
         Camera.__init__(self)
         RoborockCoordinatedEntity.__init__(self, device_info, coordinator, unique_id)
         self._store_map_image = False
@@ -73,8 +74,6 @@ class VacuumCameraMap(RoborockCoordinatedEntity, Camera):
         self._texts = []
         self._drawables = CONF_AVAILABLE_DRAWABLES
         self._colors = ImageHandlerRoborock.COLORS
-        self._store_map_raw = False
-        self._store_map_path = "/tmp"
         self.content_type = CONTENT_TYPE
         self._status = CameraStatus.INITIALIZING
         self._should_poll = True
@@ -186,27 +185,18 @@ class VacuumCameraMap(RoborockCoordinatedEntity, Camera):
             texts: Texts,
             sizes: Sizes,
             image_config: ImageConfig,
-            store_map_path: Optional[str] = None,
-    ) -> Tuple[Optional[MapData], bool]:
+    ) -> Optional[MapData]:
         """Get map image."""
         response = await self.send("get_map_v1")
         if not response:
-            return None, False
+            return
         elif not isinstance(response, bytes):
             _LOGGER.debug("Received non-bytes value for get_map_v1 function: %s", response)
-            return None, False
-        map_stored = False
-        if store_map_path:
-            raw_map_file = open(f"{store_map_path}/map_data_{self.unique_id}.raw", "wb")
-            raw_map_file.write(response)
-            raw_map_file.close()
-            map_stored = True
+            return
         map_data = self.decode_map(
             response, colors, drawables, texts, sizes, image_config
         )
-        if not map_data:
-            return None, map_stored
-        return map_data, map_stored
+        return map_data
 
     def decode_map(
             self,
@@ -233,20 +223,17 @@ class VacuumCameraMap(RoborockCoordinatedEntity, Camera):
 
     async def _handle_map_data(self):
         _LOGGER.debug("Retrieving map from Roborock MQTT")
-        store_map_path = self._store_map_path if self._store_map_raw else None
-        map_data, map_stored = await self.get_map(
+        map_data = await self.get_map(
             self._colors,
             self._drawables,
             self._texts,
             self._sizes,
             self._image_config,
-            store_map_path,
         )
         if map_data:
             # noinspection PyBroadException
             try:
                 _LOGGER.debug("Map data retrieved")
-                self._map_saved = map_stored
                 if map_data.image.is_empty:
                     _LOGGER.debug("Map is empty")
                     self._status = CameraStatus.EMPTY_MAP
@@ -268,15 +255,6 @@ class VacuumCameraMap(RoborockCoordinatedEntity, Camera):
         map_data.image.data.save(img_byte_arr, format="PNG")
         self._image = img_byte_arr.getvalue()
         self._map_data = map_data
-        self._store_image()
-
-    def _store_image(self):
-        if self._store_map_image:
-            try:
-                image = Image.open(io.BytesIO(self._image))
-                image.save(f"{self._store_map_path}/map_image_{self.unique_id}.png")
-            except:
-                _LOGGER.warning("Error while saving image")
 
 
 class CameraStatus(Enum):
