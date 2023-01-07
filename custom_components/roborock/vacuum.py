@@ -376,7 +376,7 @@ class RoborockVacuum(RoborockCoordinatedEntity, StateVacuumEntity, ABC):
         await self.send("app_start")
 
     async def async_pause(self):
-        await self.send("app_stop")
+        await self.send("app_pause")
 
     async def async_stop(self, **kwargs: any):
         await self.send("app_stop")
@@ -515,5 +515,10 @@ class RoborockVacuum(RoborockCoordinatedEntity, StateVacuumEntity, ABC):
         """Send a command to a vacuum cleaner."""
         return await self.send(command, params)
 
-    async def async_start_pause(self, _):
-        await self.send("app_pause")
+    async def async_start_pause(self):
+        """Pause cleaning if running."""
+        if self.state == STATE_CLEANING:
+            await self.async_pause()
+        else:
+            """Start/resume cleaning."""
+            await self.async_start()
