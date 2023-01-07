@@ -21,8 +21,8 @@ SCAN_INTERVAL = timedelta(seconds=30)
 _LOGGER = logging.getLogger(__name__)
 
 
-def get_translation_file(file_url: str):
-    file_path = Path(file_url)
+def get_translation_file(hass: HomeAssistant, file_url: str):
+    file_path = Path(hass.config.path(file_url))
     if file_path.is_file():
         f = open(file_path)
         translation = json.load(f)
@@ -41,18 +41,18 @@ def get_translation_file(file_url: str):
 def get_translation(hass: HomeAssistant):
     if hasattr(hass.config, 'language'):
         language = hass.config.language
-        translation = get_translation_file(
+        translation = get_translation_file(hass,
             f"custom_components/roborock/translations/{language}.json"
         )
         if translation:
             return translation
         wide_language = language.split("-")[0]
-        wide_translation = get_translation_file(
+        wide_translation = get_translation_file(hass,
             f"custom_components/roborock/translations/{wide_language}.json"
         )
         if wide_translation:
             return wide_translation
-    return get_translation_file(
+    return get_translation_file(hass,
         "custom_components/roborock/translations/en.json"
     )
 
