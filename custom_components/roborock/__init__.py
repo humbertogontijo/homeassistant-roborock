@@ -1,4 +1,6 @@
 """The Roborock component."""
+from __future__ import annotations
+
 import asyncio
 import json
 import logging
@@ -21,15 +23,15 @@ SCAN_INTERVAL = timedelta(seconds=30)
 _LOGGER = logging.getLogger(__name__)
 
 
-def get_translation_file(hass: HomeAssistant, file_url: str):
-    file_path = Path(hass.config.path(file_url))
+def get_translation_file(file_url):
+    file_path = Path(file_url) if isinstance(file_url, str) else file_url
     if file_path.is_file():
         f = open(file_path)
         translation = json.load(f)
         entity = translation.get("entity")
         if not entity:
             return
-        domain = entity.get("_")
+        domain = entity.get("vacuum")
         if not domain:
             return
         data = {}
@@ -39,21 +41,24 @@ def get_translation_file(hass: HomeAssistant, file_url: str):
 
 
 def get_translation(hass: HomeAssistant):
+    path = Path
+    if hasattr(hass.config, 'path'):
+        path = hass.config.path
     if hasattr(hass.config, 'language'):
         language = hass.config.language
-        translation = get_translation_file(hass,
-            f"custom_components/roborock/translations/{language}.json"
+        translation = get_translation_file(
+            path(f"custom_components/roborock/translations/{language}.json")
         )
         if translation:
             return translation
         wide_language = language.split("-")[0]
-        wide_translation = get_translation_file(hass,
-            f"custom_components/roborock/translations/{wide_language}.json"
+        wide_translation = get_translation_file(
+            path(f"custom_components/roborock/translations/{wide_language}.json")
         )
         if wide_translation:
             return wide_translation
-    return get_translation_file(hass,
-        "custom_components/roborock/translations/en.json"
+    return get_translation_file(
+        path("custom_components/roborock/translations/en.json")
     )
 
 

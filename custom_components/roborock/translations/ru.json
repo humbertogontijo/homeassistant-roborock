@@ -34,7 +34,7 @@
     }
   },
   "entity": {
-    "_": {
+    "vacuum": {
       "roborock_vacuum": {
         "error": {
           "0": "Отсутствует",

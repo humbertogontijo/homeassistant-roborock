@@ -48,7 +48,16 @@ class RoborockCoordinatedEntity(CoordinatorEntity[RoborockDataUpdateCoordinator]
 
     @property
     def _device_status(self) -> Status:
-        return self.coordinator.data.get(self._device_id).status
+        data = self.coordinator.data
+        if not data:
+            return Status({})
+        device_data = data.get(self._device_id)
+        if not device_data:
+            return Status({})
+        status = device_data.status
+        if not status:
+            return Status({})
+        return status
 
     @property
     def device_info(self) -> DeviceInfo:
@@ -62,7 +71,19 @@ class RoborockCoordinatedEntity(CoordinatorEntity[RoborockDataUpdateCoordinator]
         )
 
     def translate(self, translation_key: str, attr: str, value):
-        return self.coordinator.translation.get(translation_key).get(attr).get(str(value))
+        translation = self.coordinator.translation
+        if not translation:
+            return value
+        key = translation.get(translation_key)
+        if not key:
+            return value
+        attr_value = key.get(attr)
+        if not attr_value:
+            return value
+        translated_value = attr_value.get(str(value))
+        if not translated_value:
+            return value
+        return translated_value
 
     async def send(self, command: str, params=None, no_response=False):
         """Send a command to a vacuum cleaner."""
