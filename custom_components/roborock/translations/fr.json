@@ -34,9 +34,9 @@
     }
   },
   "entity": {
-    "vacuum": {
+    "sensor": {
       "roborock_vacuum": {
-        "error": {
+        "state": {
           "0": "ok",
           "1": "LiDAR ou laser bloqué. Vérifier l'obstruction et réessayer.",
           "2": "Pare-chocs coincé. Nettoyez-le et tapez légèrement pour le dégager.",

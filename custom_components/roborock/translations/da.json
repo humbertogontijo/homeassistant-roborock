@@ -34,9 +34,9 @@
     }
   },
   "entity": {
-    "vacuum": {
+    "sensor": {
       "roborock_vacuum": {
-        "error": {
+        "state": {
           "0": "Ingen",
           "1": "LiDAR tårn eller laser blokeret. Kontroller for fremmedelementer og prøv igen.",
           "2": "Kofanger sidder fast. Rens den og tryk forsigtig på den for at frigør.",

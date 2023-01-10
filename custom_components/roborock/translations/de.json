@@ -34,9 +34,9 @@
     }
   },
   "entity": {
-    "vacuum": {
+    "sensor": {
       "roborock_vacuum": {
-        "error": {
+        "state": {
           "0": "Keine",
           "1": "LiDAR-Turm oder -laser ist blockiert. Bitte Blockage entfernen und wiederholen.",
           "2": "Stoßstange klemmt. Reinigen Sie sie und klopfen Sie leicht darauf, um sie zu lösen.",

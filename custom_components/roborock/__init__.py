@@ -31,7 +31,7 @@ def get_translation_file(file_url):
         entity = translation.get("entity")
         if not entity:
             return
-        domain = entity.get("vacuum")
+        domain = entity.get("sensor")
         if not domain:
             return
         data = {}

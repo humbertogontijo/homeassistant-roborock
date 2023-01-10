@@ -34,9 +34,9 @@
     }
   },
   "entity": {
-    "vacuum": {
+    "sensor": {
       "roborock_vacuum": {
-        "error": {
+        "state": {
           "0": "Nessuno",
           "1": "Torretta LiDAR o laser bloccati. Controllare eventuali ostruzioni e riprovare.",
           "2": "Paraurti bloccato. Pulirlo e toccarlo leggermente per sbloccarlo.",

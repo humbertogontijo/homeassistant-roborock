@@ -355,7 +355,7 @@ class RoborockVacuum(RoborockCoordinatedEntity, StateVacuumEntity, ABC):
         if not self._device_status:
             return
         error_code = self._device_status.error_code
-        return self.translate(self.translation_key, ATTR_ERROR, error_code)
+        return self.translate(self.translation_key, "state", error_code)
 
     @property
     def capability_attributes(self):

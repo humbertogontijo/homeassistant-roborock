@@ -34,9 +34,9 @@
     }
   },
   "entity": {
-    "vacuum": {
+    "sensor": {
       "roborock_vacuum": {
-        "error": {
+        "state": {
           "0": "None",
           "1": "LiDAR turret or laser blocked. Check for obstruction and retry.",
           "2": "Bumper stuck. Clean it and lightly tap to release it.",
