@@ -23,6 +23,7 @@ from Crypto.Util.Padding import pad, unpad
 
 from custom_components.roborock.api.containers import UserData, HomeDataDevice, Status, CleanSummary, Consumable, \
     DNDTimer, CleanRecord
+from custom_components.roborock.api.exceptions import RoborockException, CommandVacuumError, VacuumError
 from custom_components.roborock.api.roborock_queue import RoborockQueue
 from custom_components.roborock.api.typing import RoborockDeviceInfo, RoborockDeviceProp
 from custom_components.roborock.api.util import run_in_executor
@@ -71,19 +72,6 @@ class PreparedRequest:
                 return await resp.json()
 
 
-class VacuumError(Exception):
-    def __init__(self, code, message):
-        self.code = code
-        self.message = message
-        super().__init__(self.message)
-
-
-class CommandVacuumError(Exception):
-    def __init__(self, command: str, vacuum_error: VacuumError):
-        self.message = f"{command}: {str(vacuum_error)}"
-        super().__init__(self.message)
-
-
 class RoborockMqttClient:
 
     def __init__(self, user_data: UserData, device_map: dict[str, RoborockDeviceInfo]):
@@ -124,12 +112,12 @@ class RoborockMqttClient:
             self._last_message_timestamp = time.time()
             connection_queue = self._waiting_queue[0]
             if rc != 0:
-                await connection_queue.async_put((None, Exception("Failed to connect.")), timeout=QUEUE_TIMEOUT)
+                await connection_queue.async_put((None, RoborockException("Failed to connect.")), timeout=QUEUE_TIMEOUT)
             _LOGGER.info(f"Connected to mqtt {self._mqtt_host}:{self._mqtt_port}")
             topic = f"rr/m/o/{self._mqtt_user}/{self._hashed_user}/#"
             (result, mid) = _client.subscribe(topic)
             if result != 0:
-                await connection_queue.async_put((None, Exception("Failed to subscribe.")), timeout=QUEUE_TIMEOUT)
+                await connection_queue.async_put((None, RoborockException("Failed to subscribe.")), timeout=QUEUE_TIMEOUT)
             _LOGGER.info(f"Subscribed to topic {topic}")
             await connection_queue.async_put(({}, None), timeout=QUEUE_TIMEOUT)
 
@@ -176,8 +164,8 @@ class RoborockMqttClient:
                             if isinstance(decrypted, list):
                                 decrypted = decrypted[0]
                             await queue.async_put((decrypted, None), timeout=QUEUE_TIMEOUT)
-            except Exception as exception:
-                _LOGGER.exception(exception)
+            except RoborockException as ex:
+                _LOGGER.exception(ex)
 
         @run_in_executor()
         async def on_disconnect(_client: mqtt.Client, _, rc, __=None):
@@ -216,8 +204,8 @@ class RoborockMqttClient:
             (_, err) = await connection_queue.async_get(timeout=QUEUE_TIMEOUT)
             if err:
                 raise err
-        except TimeoutError:
-            raise Exception(f"Timeout after {QUEUE_TIMEOUT} seconds waiting for mqtt connection")
+        except TimeoutError as ex:
+            raise RoborockException(f"Timeout after {QUEUE_TIMEOUT} seconds waiting for mqtt connection") from ex
         finally:
             del self._waiting_queue[0]
 
@@ -229,18 +217,18 @@ class RoborockMqttClient:
 
     def _decode_msg(self, msg, device: HomeDataDevice):
         if msg[0:3] != "1.0".encode():
-            raise Exception("Unknown protocol version")
+            raise RoborockException("Unknown protocol version")
         crc32 = binascii.crc32(msg[0: len(msg) - 4])
         expected_crc32 = struct.unpack_from("!I", msg, len(msg) - 4)
         if crc32 != expected_crc32[0]:
-            raise Exception(f"Wrong CRC32 {crc32}, expected {expected_crc32}")
+            raise RoborockException(f"Wrong CRC32 {crc32}, expected {expected_crc32}")
 
         [version, _seq, _random, timestamp, protocol, payload_len] = struct.unpack(
             "!3sIIIHH", msg[0:19]
         )
         [payload, expected_crc32] = struct.unpack_from(f"!{payload_len}sI", msg, 19)
         if crc32 != expected_crc32:
-            raise Exception(f"Wrong CRC32 {crc32}, expected {expected_crc32}")
+            raise RoborockException(f"Wrong CRC32 {crc32}, expected {expected_crc32}")
 
         aes_key = md5bin(encode_timestamp(timestamp) + device.local_key + self._salt)
         decipher = AES.new(aes_key, AES.MODE_ECB)
@@ -265,7 +253,7 @@ class RoborockMqttClient:
             f"rr/m/i/{self._mqtt_user}/{self._hashed_user}/{device_id}", msg
         )
         if info.rc != 0:
-            raise Exception("Failed to publish")
+            raise RoborockException("Failed to publish")
 
     async def send_command(self, device_id: str, method: str, params: list = None, no_response=False):
         await self.validate_connection()
@@ -306,9 +294,9 @@ class RoborockMqttClient:
             if err:
                 raise CommandVacuumError(method, err)
             return response
-        except TimeoutError:
-            _LOGGER.warning(f"Timeout after {QUEUE_TIMEOUT} seconds waiting for {method} response")
-            return None
+        except TimeoutError as ex:
+            _LOGGER.debug(f"Timeout after {QUEUE_TIMEOUT} seconds waiting for {method} response")
+            raise ex
         finally:
             del self._waiting_queue[request_id]
 
@@ -366,7 +354,7 @@ class RoborockClient:
                 params={"email": self._username, "needtwostepauth": "false"},
             )
             if response.get("code") != 200:
-                raise Exception(response.get("error"))
+                raise RoborockException(response.get("error"))
             self.base_url = response.get("data").get("url")
         return self.base_url
 
@@ -391,7 +379,7 @@ class RoborockClient:
         )
 
         if code_response.get("code") != 200:
-            raise Exception(code_response.get("msg"))
+            raise RoborockException(code_response.get("msg"))
 
     async def code_login(self, code):
         base_url = await self._get_base_url()
@@ -409,7 +397,7 @@ class RoborockClient:
         )
 
         if login_response.get("code") != 200:
-            raise Exception(login_response.get("msg"))
+            raise RoborockException(login_response.get("msg"))
         return UserData(login_response.get("data"))
 
     async def get_home_data(self, user_data: UserData):
@@ -423,7 +411,7 @@ class RoborockClient:
             headers={"Authorization": user_data.token},
         )
         if home_id_response.get("code") != 200:
-            raise Exception(home_id_response.get("msg"))
+            raise RoborockException(home_id_response.get("msg"))
         home_id = home_id_response.get("data").get("rrHomeId")
         timestamp = math.floor(time.time())
         nonce = secrets.token_urlsafe(6)
@@ -450,7 +438,7 @@ class RoborockClient:
         )
         home_response = await home_request.request("get", "/user/homes/" + str(home_id))
         if not home_response.get("success"):
-            raise Exception(home_response)
+            raise RoborockException(home_response)
         home_data = home_response.get("result")
         return home_data
 
