@@ -164,7 +164,7 @@ def get_nested_dict(data: dict, key_string: str, default=None):
             return default
     return here
 
-key_schema = {
+CAMERA_OPTIONS = {
     f"{CONF_MAP_TRANSFORM}.{CONF_SCALE}": {
         "store_type": int,
         "show_type": int,
@@ -174,7 +174,7 @@ key_schema = {
     f"{CONF_MAP_TRANSFORM}.{CONF_ROTATE}": {
         "store_type": int,
         "show_type": str,
-        "default": "0",
+        "default": 0,
         "schema": ROTATION_SCHEMA
     },
     f"{CONF_MAP_TRANSFORM}.{CONF_TRIM}.{CONF_LEFT}": {
@@ -220,7 +220,7 @@ class RoborockOptionsFlowHandler(config_entries.OptionsFlow):
         if user_input:
             data = {}
             for key, value in user_input.items():
-                store_type = key_schema.get(key).get("store_type")
+                store_type = CAMERA_OPTIONS.get(key).get("store_type")
                 typed_value = store_type(value)
                 set_nested_dict(data, key, typed_value)
             self.options = data
@@ -234,7 +234,7 @@ class RoborockOptionsFlowHandler(config_entries.OptionsFlow):
                         key,
                         default=schema.get("show_type")(get_nested_dict(self.options, key, schema.get("default")))
                     ): schema.get("schema")
-                    for key, schema in key_schema.items()
+                    for key, schema in CAMERA_OPTIONS.items()
                 }
             ),
         )

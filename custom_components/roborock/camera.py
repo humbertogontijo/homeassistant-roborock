@@ -23,6 +23,7 @@ from .common.types import (
     Sizes,
     Texts,
 )
+from .config_flow import CAMERA_OPTIONS, set_nested_dict
 from .const import *
 from .device import RoborockCoordinatedEntity
 
@@ -53,7 +54,13 @@ async def async_setup_entry(
 ) -> None:
     """Setup Roborock cameras."""
     coordinator: RoborockDataUpdateCoordinator = hass.data[DOMAIN][config_entry.entry_id]
-    image_config = config_entry.options[CONF_MAP_TRANSFORM]
+    image_config = config_entry.options.get(CONF_MAP_TRANSFORM)
+    if not image_config:
+        data = {}
+        for key, value in CAMERA_OPTIONS.items():
+            value = value.get("default")
+            set_nested_dict(data, key, value)
+        image_config = data.get(CONF_MAP_TRANSFORM)
     entities = []
     for device_id, device_info in coordinator.api.device_map.items():
         unique_id = slugify(device_id)
@@ -89,11 +96,11 @@ class VacuumCameraMap(RoborockCoordinatedEntity, Camera):
         return self._image
 
     def turn_on(self):
-        """"Disable polling for map image."""
+        """"Enable polling for map image."""
         self._should_poll = True
 
     def turn_off(self):
-        """"Enable polling for map image."""
+        """"Disable polling for map image."""
         self._should_poll = False
 
     @property
@@ -110,9 +117,20 @@ class VacuumCameraMap(RoborockCoordinatedEntity, Camera):
         return attributes
 
     @property
+    def is_streaming(self) -> bool:
+        """Return true if the device is streaming."""
+        updated_status = self._device_status
+        if (
+                updated_status
+                and updated_status.state not in NON_REFRESHING_STATES
+        ):
+            return True
+        return False
+
+    @property
     def should_poll(self) -> bool:
         """Return polling enabled."""
-        return self._should_poll and (not self._image or self._valid_refresh_state())
+        return self._should_poll
 
     @staticmethod
     def extract_attributes(
@@ -165,7 +183,8 @@ class VacuumCameraMap(RoborockCoordinatedEntity, Camera):
     async def async_update(self) -> None:
         """Handle map image update."""
         try:
-            await self._handle_map_data()
+            if not self.camera_image() or self.is_streaming:
+                await self._handle_map_data()
         except Exception as err:
             _LOGGER.exception(err)
             self._set_map_data(
@@ -211,15 +230,6 @@ class VacuumCameraMap(RoborockCoordinatedEntity, Camera):
         return MapDataParserRoborock.parse(
             raw_map, colors, drawables, texts, sizes, image_config
         )
-
-    def _valid_refresh_state(self):
-        updated_status = self._device_status
-        if (
-                updated_status
-                and updated_status.state not in NON_REFRESHING_STATES
-        ):
-            return True
-        return False
 
     async def _handle_map_data(self):
         _LOGGER.debug("Retrieving map from Roborock MQTT")
