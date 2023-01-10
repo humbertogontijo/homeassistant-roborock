@@ -2,9 +2,6 @@
 
 class RoborockException(Exception):
     """Class for Roborock exceptions."""
-    def __init__(self, message):
-        self.message = message
-        super().__init__(self.message)
 
 
 class VacuumError(RoborockException):
@@ -12,7 +9,7 @@ class VacuumError(RoborockException):
     def __init__(self, code, message):
         self.code = code
         self.message = message
-        super().__init__(self.message)
+        super().__init__()
 
 
 class CommandVacuumError(RoborockException):
