@@ -12,8 +12,9 @@ from homeassistant.core import HomeAssistant
 from homeassistant.exceptions import ConfigEntryNotReady
 from homeassistant.helpers.update_coordinator import DataUpdateCoordinator, UpdateFailed
 
-from custom_components.roborock.api.api import RoborockClient, RoborockMqttClient
-from .api.containers import Status, UserData, HomeData, CleanSummary
+from .api.api import RoborockClient, RoborockMqttClient
+from .api.containers import UserData, HomeData
+from .api.exceptions import RoborockException
 from .api.typing import RoborockDeviceInfo, RoborockDeviceProp
 from .const import CONF_ENTRY_USERNAME, CONF_USER_DATA, CONF_BASE_URL
 from .const import DOMAIN, PLATFORMS
@@ -134,19 +135,16 @@ class RoborockDataUpdateCoordinator(
         try:
             for device_id, _ in self.api.device_map.items():
                 device_prop = None
-                retries = 3
-                while not device_prop and retries > 0:
-                    device_prop = await self.api.get_prop(device_id)
-                    retries -= 1
+                device_prop = await self.api.get_prop(device_id)
                 if device_prop:
                     if device_id in self._devices_prop:
                         self._devices_prop[device_id].update(device_prop)
                     else:
                         self._devices_prop[device_id] = device_prop
             return self._devices_prop
-        except Exception as exception:
-            _LOGGER.exception(exception)
-            raise UpdateFailed(exception) from exception
+        except (TimeoutError, RoborockException) as ex:
+            _LOGGER.exception(ex)
+            raise UpdateFailed(ex) from ex
 
 
 async def async_unload_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
