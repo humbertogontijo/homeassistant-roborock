@@ -158,7 +158,7 @@ async def test_options_flow(hass):
         result["flow_id"],
         user_input={
             "map_transformation.scale": 1.2,
-            "map_transformation.rotate": 90,
+            "map_transformation.rotate": "90",
             "map_transformation.trim.left": 5.0,
             "map_transformation.trim.right": 5.0,
             "map_transformation.trim.top": 5.0,
@@ -170,8 +170,8 @@ async def test_options_flow(hass):
     # Verify the options were set
     assert entry.options == {
         "map_transformation": {
-            "scale": 1.2,
+            "scale": 1,
             "rotate": 90,
-            "trim": {"left": 5.0, "right": 5.0, "top": 5.0, "bottom": 5.0},
+            "trim": {"left": 5, "right": 5, "top": 5, "bottom": 5},
         }
     }

@@ -62,7 +62,7 @@ async def test_vacuum_services(hass: HomeAssistant) -> None:
         await hass.services.async_call(
             VACUUM_DOMAIN, SERVICE_PAUSE, {"entity_id": ENTITY_ID}, blocking=True
         )
-        mock_api_command.assert_called_once_with(DEVICE_ID, "app_stop", None, False)
+        mock_api_command.assert_called_once_with(DEVICE_ID, "app_pause", None, False)
     # Test return to base
     with patch(
         "custom_components.roborock.RoborockMqttClient.send_command"
