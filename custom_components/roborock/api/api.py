@@ -164,7 +164,7 @@ class RoborockMqttClient:
                             if isinstance(decrypted, list):
                                 decrypted = decrypted[0]
                             await queue.async_put((decrypted, None), timeout=QUEUE_TIMEOUT)
-            except RoborockException as ex:
+            except Exception as ex:
                 _LOGGER.exception(ex)
 
         @run_in_executor()
