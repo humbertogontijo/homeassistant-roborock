@@ -88,11 +88,11 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
         device_map[device.duid] = RoborockDeviceInfo(device, product)
 
     translation = get_translation(hass)
+    _LOGGER.debug(f"Using translation {translation}")
 
     client = RoborockMqttClient(user_data, device_map)
     coordinator = RoborockDataUpdateCoordinator(hass, client, translation)
 
-    _LOGGER.debug("Searching for Roborock sensors...")
     await coordinator.async_refresh()
 
     if not coordinator.last_update_success:
