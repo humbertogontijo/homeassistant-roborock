@@ -10,10 +10,10 @@ import logging
 import math
 import secrets
 import struct
-import sys
+import threading
 import time
 from asyncio import Lock
-from asyncio.exceptions import TimeoutError
+from asyncio.exceptions import TimeoutError, CancelledError
 from urllib.parse import urlparse
 
 import aiohttp
@@ -22,7 +22,7 @@ from Crypto.Cipher import AES
 from Crypto.Util.Padding import pad, unpad
 
 from custom_components.roborock.api.containers import UserData, HomeDataDevice, Status, CleanSummary, Consumable, \
-    DNDTimer, CleanRecord
+    DNDTimer, CleanRecord, HomeData
 from custom_components.roborock.api.exceptions import RoborockException, CommandVacuumError, VacuumError
 from custom_components.roborock.api.roborock_queue import RoborockQueue
 from custom_components.roborock.api.typing import RoborockDeviceInfo, RoborockDeviceProp
@@ -72,7 +72,8 @@ class PreparedRequest:
                 return await resp.json()
 
 
-class RoborockMqttClient:
+class RoborockMqttClient(mqtt.Client):
+    _thread: threading.Thread
 
     def __init__(self, user_data: UserData, device_map: dict[str, RoborockDeviceInfo]):
         self.device_map = device_map
@@ -93,113 +94,113 @@ class RoborockMqttClient:
         self._endpoint = base64.b64encode(md5bin(self._mqtt_domain)[8:14]).decode()
         self._nonce = secrets.token_bytes(16)
         self._waiting_queue: dict[int, RoborockQueue] = {}
-        self.client = self._build_client()
         self._user_data = user_data
         self._first_connection = True
         self._last_message_timestamp = time.time()
         self._mutex = Lock()
+        super().__init__(client_id=self._hashed_user, protocol=mqtt.MQTTv5)
+        if self._mqtt_ssl:
+            super().tls_set()
+        super().username_pw_set(self._hashed_user, self._hashed_password)
 
     def release(self):
         _LOGGER.debug("Stopping loop")
-        self._disconnect()
+        self.disconnect()
 
     def __del__(self):
         self.release()
 
-    def _build_client(self) -> mqtt.Client:
-        @run_in_executor()
-        async def on_connect(_client: mqtt.Client, _, __, rc, ___=None):
+    @run_in_executor()
+    async def on_connect(self, _client: mqtt.Client, _, __, rc, ___=None):
+        self._last_message_timestamp = time.time()
+        connection_queue = self._waiting_queue[0]
+        if rc != 0:
+            await connection_queue.async_put((None, RoborockException("Failed to connect.")), timeout=QUEUE_TIMEOUT)
+        _LOGGER.info(f"Connected to mqtt {self._mqtt_host}:{self._mqtt_port}")
+        topic = f"rr/m/o/{self._mqtt_user}/{self._hashed_user}/#"
+        (result, mid) = _client.subscribe(topic)
+        if result != 0:
+            await connection_queue.async_put((None, RoborockException("Failed to subscribe.")), timeout=QUEUE_TIMEOUT)
+        _LOGGER.info(f"Subscribed to topic {topic}")
+        await connection_queue.async_put(({}, None), timeout=QUEUE_TIMEOUT)
+
+    @run_in_executor()
+    async def on_message(self, _client, _, msg, __=None):
+        try:
             self._last_message_timestamp = time.time()
-            connection_queue = self._waiting_queue[0]
-            if rc != 0:
-                await connection_queue.async_put((None, RoborockException("Failed to connect.")), timeout=QUEUE_TIMEOUT)
-            _LOGGER.info(f"Connected to mqtt {self._mqtt_host}:{self._mqtt_port}")
-            topic = f"rr/m/o/{self._mqtt_user}/{self._hashed_user}/#"
-            (result, mid) = _client.subscribe(topic)
-            if result != 0:
-                await connection_queue.async_put((None, RoborockException("Failed to subscribe.")), timeout=QUEUE_TIMEOUT)
-            _LOGGER.info(f"Subscribed to topic {topic}")
-            await connection_queue.async_put(({}, None), timeout=QUEUE_TIMEOUT)
-
-        @run_in_executor()
-        async def on_message(_client, _, msg, __=None):
-            try:
-                self._last_message_timestamp = time.time()
-                device_id = msg.topic.split("/").pop()
-                data = self._decode_msg(msg.payload, self.device_map[device_id].device)
-                if data.get("protocol") == 102:
-                    payload = json.loads(data.get("payload").decode())
-                    for data_point_number, data_point in payload.get("dps").items():
-                        if data_point_number == "102":
-                            data_point_response = json.loads(data_point)
-                            request_id = data_point_response.get("id")
-                            queue = self._waiting_queue.get(request_id)
-                            error = data_point_response.get("error")
-                            if queue:
-                                if error:
-                                    await queue.async_put((None, VacuumError(error.get("code"), error.get("message"))),
-                                                          timeout=QUEUE_TIMEOUT)
-                                else:
-                                    result = data_point_response.get("result")
-                                    if isinstance(result, list) and len(result) > 0:
-                                        result = result[0]
-                                    if result != "ok":
-                                        await queue.async_put((result, None), timeout=QUEUE_TIMEOUT)
-                        elif data_point_number == "121":
-                            _LOGGER.debug(f"Remote control {data_point}")
-                        else:
-                            _LOGGER.debug(f"Unknown data point number received {data_point_number} with {data_point}")
-                elif data.get("protocol") == 301:
-                    payload = data.get("payload")[0:24]
-                    [endpoint, _, request_id, _] = struct.unpack(
-                        "<15sBH6s", payload
-                    )
-                    if endpoint.decode().startswith(self._endpoint):
-                        iv = bytes(AES.block_size)
-                        decipher = AES.new(self._nonce, AES.MODE_CBC, iv)
-                        decrypted = unpad(decipher.decrypt(data.get("payload")[24:]), AES.block_size)
-                        decrypted = gzip.decompress(decrypted)
+            device_id = msg.topic.split("/").pop()
+            data = self._decode_msg(msg.payload, self.device_map[device_id].device)
+            if data.get("protocol") == 102:
+                payload = json.loads(data.get("payload").decode())
+                for data_point_number, data_point in payload.get("dps").items():
+                    if data_point_number == "102":
+                        data_point_response = json.loads(data_point)
+                        request_id = data_point_response.get("id")
                         queue = self._waiting_queue.get(request_id)
+                        error = data_point_response.get("error")
                         if queue:
-                            if isinstance(decrypted, list):
-                                decrypted = decrypted[0]
-                            await queue.async_put((decrypted, None), timeout=QUEUE_TIMEOUT)
-            except Exception as ex:
-                _LOGGER.exception(ex)
+                            if error:
+                                await queue.async_put((None, VacuumError(error.get("code"), error.get("message"))),
+                                                      timeout=QUEUE_TIMEOUT)
+                            else:
+                                result = data_point_response.get("result")
+                                if isinstance(result, list) and len(result) > 0:
+                                    result = result[0]
+                                if result != "ok":
+                                    await queue.async_put((result, None), timeout=QUEUE_TIMEOUT)
+                    elif data_point_number == "121":
+                        _LOGGER.debug(f"Remote control {data_point}")
+                    else:
+                        _LOGGER.debug(f"Unknown data point number received {data_point_number} with {data_point}")
+            elif data.get("protocol") == 301:
+                payload = data.get("payload")[0:24]
+                [endpoint, _, request_id, _] = struct.unpack(
+                    "<15sBH6s", payload
+                )
+                if endpoint.decode().startswith(self._endpoint):
+                    iv = bytes(AES.block_size)
+                    decipher = AES.new(self._nonce, AES.MODE_CBC, iv)
+                    decrypted = unpad(decipher.decrypt(data.get("payload")[24:]), AES.block_size)
+                    decrypted = gzip.decompress(decrypted)
+                    queue = self._waiting_queue.get(request_id)
+                    if queue:
+                        if isinstance(decrypted, list):
+                            decrypted = decrypted[0]
+                        await queue.async_put((decrypted, None), timeout=QUEUE_TIMEOUT)
+        except Exception as ex:
+            _LOGGER.exception(ex)
 
-        @run_in_executor()
-        async def on_disconnect(_client: mqtt.Client, _, rc, __=None):
-            if rc != 0:
-                _LOGGER.error(f"Roborock mqtt client disconnected (rc: {rc})")
+    @run_in_executor()
+    async def on_disconnect(self, _client: mqtt.Client, _, rc, __=None):
+        if rc != 0:
+            _LOGGER.error(f"Roborock mqtt client disconnected (rc: {rc})")
 
-        client = mqtt.Client(client_id=self._hashed_user, protocol=mqtt.MQTTv5)
-        client.on_connect = on_connect
-        client.on_message = on_message
-        client.on_disconnect = on_disconnect
+    def safe_init_thread(self):
+        if not self._thread or not self._thread.is_alive():
+            self.loop_start()
 
-        if self._mqtt_ssl:
-            client.tls_set()
-        client.username_pw_set(self._hashed_user, self._hashed_password)
-        return client
+    async def async_reconnect(self):
+        await self.connect()
 
-    async def _reconnect(self):
-        self._disconnect()
-        await self._connect()
-
-    def _disconnect(self):
+    def disconnect(self, **kwargs):
         _LOGGER.debug("Disconnecting from mqtt")
-        self.client.loop_stop()
-        if self.client.is_connected():
-            self.client.disconnect()
+        super().disconnect()
 
-    async def _connect(self):
+    async def connect_async(self, **kwargs):
+        raise RoborockException("Use connect instead")
+
+    async def connect(self, **kwargs):
         connection_queue = RoborockQueue()
         self._waiting_queue[0] = connection_queue
-        _LOGGER.debug("Connecting to mqtt")
-        self.client.connect_async(host=self._mqtt_host, port=self._mqtt_port,
+        if self.is_connected():
+            _LOGGER.debug("Reconnecting to mqtt")
+            super().reconnect()
+        else:
+            _LOGGER.debug("Connecting to mqtt")
+            super().connect_async(host=self._mqtt_host, port=self._mqtt_port,
                                   clean_start=mqtt.MQTT_CLEAN_START_FIRST_ONLY,
                                   keepalive=MQTT_KEEPALIVE)
-        self.client.loop_start()
+        self.safe_init_thread()
         try:
             (_, err) = await connection_queue.async_get(timeout=QUEUE_TIMEOUT)
             if err:
@@ -212,7 +213,7 @@ class RoborockMqttClient:
     async def validate_connection(self):
         async with self._mutex:
             if self._first_connection or time.time() - self._last_message_timestamp > SESSION_EXPIRY_INTERVAL:
-                await self._reconnect()
+                await self.async_reconnect()
                 self._first_connection = False
 
     def _decode_msg(self, msg, device: HomeDataDevice):
@@ -249,7 +250,7 @@ class RoborockMqttClient:
         msg = msg[0:19] + encrypted
         crc32 = binascii.crc32(msg)
         msg += struct.pack("!I", crc32)
-        info = self.client.publish(
+        info = self.publish(
             f"rr/m/i/{self._mqtt_user}/{self._hashed_user}/{device_id}", msg
         )
         if info.rc != 0:
@@ -294,7 +295,7 @@ class RoborockMqttClient:
             if err:
                 raise CommandVacuumError(method, err)
             return response
-        except TimeoutError as ex:
+        except (TimeoutError, CancelledError) as ex:
             _LOGGER.debug(f"Timeout after {QUEUE_TIMEOUT} seconds waiting for {method} response")
             raise ex
         finally:
@@ -381,6 +382,25 @@ class RoborockClient:
         if code_response.get("code") != 200:
             raise RoborockException(code_response.get("msg"))
 
+    async def pass_login(self, password: str):
+        base_url = await self._get_base_url()
+        header_clientid = self._get_header_client_id()
+
+        login_request = PreparedRequest(base_url, {"header_clientid": header_clientid})
+        login_response = await login_request.request(
+            "post",
+            "/api/v1/login",
+            params={
+                "username": self._username,
+                "password": password,
+                "needtwostepauth": "false",
+            },
+        )
+
+        if login_response.get("code") != 200:
+            raise RoborockException(login_response.get("msg"))
+        return UserData(login_response.get("data"))
+
     async def code_login(self, code):
         base_url = await self._get_base_url()
         header_clientid = self._get_header_client_id()
@@ -440,21 +460,4 @@ class RoborockClient:
         if not home_response.get("success"):
             raise RoborockException(home_response)
         home_data = home_response.get("result")
-        return home_data
-
-
-async def main():
-    logging.basicConfig()
-    _LOGGER.setLevel(logging.INFO)
-    client = RoborockClient(sys.argv[1])
-    await client.request_code()
-    code = input("Type the code sent to your email.\n")
-    user_data = await client.code_login(int(code))
-    home_data = await client.get_home_data(user_data)
-    mqtt_client = RoborockMqttClient(user_data, home_data)
-    status = await mqtt_client.send_command(next(iter(mqtt_client.device_map.values())).device.duid, "get_status")
-    print(status)
-
-
-if __name__ == "__main__":
-    asyncio.run(main())
+        return HomeData(home_data)

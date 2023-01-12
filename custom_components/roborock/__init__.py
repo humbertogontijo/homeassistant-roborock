@@ -73,7 +73,7 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
     username = entry.data.get(CONF_ENTRY_USERNAME)
     api_client = RoborockClient(username, base_url)
     _LOGGER.debug("Getting home data")
-    home_data = HomeData(await api_client.get_home_data(user_data))
+    home_data = await api_client.get_home_data(user_data)
     _LOGGER.debug(f"Got home data {home_data.data}")
 
     device_map: dict[str, RoborockDeviceInfo] = {}

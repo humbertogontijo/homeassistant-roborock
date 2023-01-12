@@ -187,9 +187,7 @@ class VacuumCameraMap(RoborockCoordinatedEntity, Camera):
                 await self._handle_map_data()
         except Exception as err:
             _LOGGER.exception(err)
-            self._set_map_data(
-                MapDataParserRoborock.create_empty(self._colors, str(self._status))
-            )
+            raise err
 
     def enable_motion_detection(self) -> None:
         pass
