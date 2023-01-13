@@ -57,6 +57,7 @@
           "21": "Vertical bumper pressed. Move robot and retry.",
           "22": "Dock locator error. Clean and retry.",
           "23": "Could not return to dock. Clean dock location beacon and retry.",
+          "24": "No-go zone or invisible wall detected. Move the robot.",
           "27": "VibraRise system jammed. Check for obstructions.",
           "28": "Robot on carpet. Move robot to floor and retry.",
           "29": "Filter blocked or wet. Clean, dry, and retry.",

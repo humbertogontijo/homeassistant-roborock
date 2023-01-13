@@ -57,6 +57,7 @@
           "21": "Amortecedor vertical pressionado. Mova o robô e tente novamente.",
           "22": "Erro no localizador de docas. Limpe e tente novamente.",
           "23": "Não foi possível retornar a base. Limpe o sinalizador de localização da base e tente novamente.",
+          "24": "Zona interdita ou parede invisivel detectada. Mover o robô.",
           "27": "Sistema VibraRise emperrado. Verifique se há obstruções.",
           "28": "Robô no tapete. Mova o robô para o chão e tente novamente.",
           "29": "Filtro bloqueado ou molhado. Limpe, seque e tente novamente.",

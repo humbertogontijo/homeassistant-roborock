@@ -192,6 +192,7 @@ class RoborockMqttClient(mqtt.Client):
     async def connect(self, **kwargs):
         connection_queue = RoborockQueue()
         self._waiting_queue[0] = connection_queue
+        self.safe_init_thread()
         if self.is_connected():
             _LOGGER.debug("Reconnecting to mqtt")
             super().reconnect()
@@ -200,7 +201,6 @@ class RoborockMqttClient(mqtt.Client):
             super().connect_async(host=self._mqtt_host, port=self._mqtt_port,
                                   clean_start=mqtt.MQTT_CLEAN_START_FIRST_ONLY,
                                   keepalive=MQTT_KEEPALIVE)
-        self.safe_init_thread()
         try:
             (_, err) = await connection_queue.async_get(timeout=QUEUE_TIMEOUT)
             if err:

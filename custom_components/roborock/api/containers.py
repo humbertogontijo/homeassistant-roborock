@@ -429,7 +429,7 @@ class HomeDataDevice:
         return self.data.get(HomeDataDeviceField.ACTIVETIME)
 
     @property
-    def local_key(self):
+    def local_key(self) -> str:
         return self.data.get(HomeDataDeviceField.LOCAL_KEY)
 
     @property
