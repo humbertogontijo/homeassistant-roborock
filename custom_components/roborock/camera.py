@@ -12,7 +12,8 @@ from homeassistant.helpers.entity_platform import AddEntitiesCallback
 from homeassistant.util import slugify
 
 from . import RoborockDataUpdateCoordinator
-from .api.typing import RoborockDeviceInfo
+from .api.exceptions import RoborockTimeout
+from .api.typing import RoborockDeviceInfo, RoborockCommand
 from .common.image_handler import ImageHandlerRoborock
 from .common.map_data import MapData
 from .common.map_data_parser import MapDataParserRoborock
@@ -204,7 +205,10 @@ class VacuumCameraMap(RoborockCoordinatedEntity, Camera):
             image_config: ImageConfig,
     ) -> Optional[MapData]:
         """Get map image."""
-        response = await self.send("get_map_v1")
+        try:
+            response = await self.send(RoborockCommand.GET_MAP_V1)
+        except RoborockTimeout:
+            return
         if not response:
             return
         elif not isinstance(response, bytes):

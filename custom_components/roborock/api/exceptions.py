@@ -3,6 +3,8 @@
 class RoborockException(Exception):
     """Class for Roborock exceptions."""
 
+class RoborockTimeout(RoborockException):
+    """Class for Roborock timeout exceptions."""
 
 class VacuumError(RoborockException):
     """Class for vacuum errors."""

@@ -25,7 +25,7 @@ from homeassistant.helpers.entity_platform import AddEntitiesCallback
 from homeassistant.util import slugify
 
 from . import RoborockDataUpdateCoordinator
-from .api.typing import RoborockDeviceInfo
+from .api.typing import RoborockDeviceInfo, RoborockCommand
 from .const import DOMAIN
 from .device import RoborockCoordinatedEntity
 
@@ -409,43 +409,43 @@ class RoborockVacuum(RoborockCoordinatedEntity, StateVacuumEntity, ABC):
     @property
     async def async_map(self):
         """Return map token."""
-        return await self.send("get_map_v1")
+        return await self.send(RoborockCommand.GET_MAP_V1)
 
     async def async_start(self):
-        await self.send("app_start")
+        await self.send(RoborockCommand.APP_START)
 
     async def async_pause(self):
-        await self.send("app_pause")
+        await self.send(RoborockCommand.APP_PAUSE)
 
     async def async_stop(self, **kwargs: any):
-        await self.send("app_stop")
+        await self.send(RoborockCommand.APP_STOP)
 
     async def async_return_to_base(self, **kwargs: any):
-        await self.send("app_charge")
+        await self.send(RoborockCommand.APP_CHARGE)
 
     async def async_clean_spot(self, **kwargs: any):
-        await self.send("app_spot")
+        await self.send(RoborockCommand.APP_SPOT)
 
     async def async_locate(self, **kwargs: any):
-        await self.send("find_me")
+        await self.send(RoborockCommand.FIND_ME)
 
     async def async_set_fan_speed(self, fan_speed: str, **kwargs: any):
         await self.send(
-            "set_custom_mode",
+            RoborockCommand.SET_CUSTOM_MODE,
             [k for k, v in FAN_SPEED_CODES.items() if v == fan_speed],
         )
         await self.coordinator.async_request_refresh()
 
     async def async_set_mop_mode(self, mop_mode: str, _=None):
         await self.send(
-            "set_mop_mode",
+            RoborockCommand.SET_MOP_MODE,
             [k for k, v in MOP_MODE_CODES.items() if v == mop_mode],
         )
         await self.coordinator.async_request_refresh()
 
     async def async_set_mop_intensity(self, mop_intensity: str, _=None):
         await self.send(
-            "set_water_box_custom_mode",
+            RoborockCommand.SET_WATER_BOX_CUSTOM_MODE,
             [k for k, v in MOP_INTENSITY_CODES.items() if v == mop_intensity],
         )
         await self.coordinator.async_request_refresh()
@@ -453,12 +453,12 @@ class RoborockVacuum(RoborockCoordinatedEntity, StateVacuumEntity, ABC):
     async def async_manual_start(self):
         """Start manual control mode."""
         self.manual_seqnum = 0
-        return await self.send("app_rc_start")
+        return await self.send(RoborockCommand.APP_RC_START)
 
     async def async_manual_stop(self):
         """Stop manual control mode."""
         self.manual_seqnum = 0
-        return await self.send("app_rc_end")
+        return await self.send(RoborockCommand.APP_RC_END)
 
     MANUAL_ROTATION_MAX = 180
     MANUAL_ROTATION_MIN = -MANUAL_ROTATION_MAX
@@ -489,7 +489,7 @@ class RoborockVacuum(RoborockCoordinatedEntity, StateVacuumEntity, ABC):
             "seqnum": self.manual_seqnum,
         }
 
-        await self.send("app_rc_move", [params])
+        await self.send(RoborockCommand.APP_RC_MOVE, [params])
 
     async def async_manual_control_once(
             self, rotation: int, velocity: float, duration: int = MANUAL_DURATION_DEFAULT
@@ -532,25 +532,25 @@ class RoborockVacuum(RoborockCoordinatedEntity, StateVacuumEntity, ABC):
         await self.async_manual_control_once(rotation, velocity, duration)
 
     async def async_goto(self, x_coord: int, y_coord: int):
-        await self.send("app_goto_target", [x_coord, y_coord])
+        await self.send(RoborockCommand.APP_GOTO_TARGET, [x_coord, y_coord])
 
     async def async_clean_segment(self, segments):
         """Clean the specified segments(s)."""
         if isinstance(segments, int):
             segments = [segments]
 
-        await self.send("app_segment_clean", segments)
+        await self.send(RoborockCommand.APP_SEGMENT_CLEAN, segments)
 
     async def async_clean_zone(self, zone: list, repeats: int = 1):
         """Clean selected area for the number of repeats indicated."""
         for _zone in zone:
             _zone.append(repeats)
         _LOGGER.debug("Zone with repeats: %s", zone)
-        await self.send("app_zoned_clean", zone)
+        await self.send(RoborockCommand.APP_ZONED_CLEAN, zone)
 
     async def async_send_command(
             self,
-            command,
+            command: RoborockCommand,
             params=None,
             **kwargs: any,
     ):

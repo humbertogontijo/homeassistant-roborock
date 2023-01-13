@@ -11,6 +11,29 @@ class RoborockDevicePropField(str, Enum):
     CONSUMABLE = "consumable"
     LAST_CLEAN_RECORD = "last_clean_record"
 
+class RoborockCommand(str, Enum):
+    GET_MAP_V1 = "get_map_v1",
+    GET_STATUS = "get_status"
+    GET_DND_TIMER = "get_dnd_timer"
+    GET_CLEAN_SUMMARY = "get_clean_summary"
+    GET_CLEAN_RECORD = "get_clean_record"
+    GET_CONSUMABLE = "get_consumable"
+    APP_START = "app_start",
+    APP_PAUSE = "app_pause",
+    APP_STOP = "app_stop",
+    APP_CHARGE = "app_charge",
+    APP_SPOT = "app_spot",
+    FIND_ME = "find_me",
+    SET_CUSTOM_MODE = "set_custom_mode",
+    SET_MOP_MODE = "set_mop_mode",
+    SET_WATER_BOX_CUSTOM_MODE = "set_water_box_custom_mode",
+    APP_RC_START = "app_rc_start",
+    APP_RC_END = "app_rc_end",
+    APP_RC_MOVE = "app_rc_move",
+    APP_GOTO_TARGET = "app_goto_target",
+    APP_SEGMENT_CLEAN = "app_segment_clean",
+    APP_ZONED_CLEAN = "app_zoned_clean",
+
 
 class RoborockDeviceInfo:
     def __init__(self, device: HomeDataDevice, product: HomeDataProduct):

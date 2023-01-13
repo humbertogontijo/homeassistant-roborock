@@ -134,7 +134,6 @@ class RoborockDataUpdateCoordinator(
         """Update data via library."""
         try:
             for device_id, _ in self.api.device_map.items():
-                device_prop = None
                 device_prop = await self.api.get_prop(device_id)
                 if device_prop:
                     if device_id in self._devices_prop:

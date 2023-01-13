@@ -9,7 +9,7 @@ from homeassistant.helpers.update_coordinator import (
 
 from . import RoborockDataUpdateCoordinator
 from .api.containers import Status
-from .api.typing import RoborockDeviceInfo
+from .api.typing import RoborockDeviceInfo, RoborockCommand
 from .const import DOMAIN
 
 _LOGGER = logging.getLogger(__name__)
@@ -85,7 +85,7 @@ class RoborockCoordinatedEntity(CoordinatorEntity[RoborockDataUpdateCoordinator]
             return value
         return translated_value
 
-    async def send(self, command: str, params=None):
+    async def send(self, command: RoborockCommand, params=None):
         """Send a command to a vacuum cleaner."""
         return await self.coordinator.api.send_command(
             self._device_id, command, params
