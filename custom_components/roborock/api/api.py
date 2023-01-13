@@ -72,6 +72,9 @@ class PreparedRequest:
                 return await resp.json()
 
 
+METHODS_WITHOUT_RESPONSE = ["set_custom_mode", "set_mop_mode", "set_water_box_custom_mode"]
+
+
 class RoborockMqttClient(mqtt.Client):
     _thread: threading.Thread
 
@@ -256,7 +259,7 @@ class RoborockMqttClient(mqtt.Client):
         if info.rc != 0:
             raise RoborockException("Failed to publish")
 
-    async def send_command(self, device_id: str, method: str, params: list = None, no_response=False):
+    async def send_command(self, device_id: str, method: str, params: list = None):
         await self.validate_connection()
         timestamp = math.floor(time.time())
         request_id = self._id_counter
@@ -280,8 +283,10 @@ class RoborockMqttClient(mqtt.Client):
             ).encode()
         )
         _LOGGER.debug(f"id={request_id} Requesting method {method} with {params}")
+        no_response = method in METHODS_WITHOUT_RESPONSE
         if no_response:
             self._send_msg_raw(device_id, 101, timestamp, payload)
+            _LOGGER.debug(f"id={request_id} Response from {method}: None (This method has no response)")
             return
         queue = RoborockQueue()
         self._waiting_queue[request_id] = queue

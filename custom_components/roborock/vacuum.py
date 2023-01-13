@@ -84,20 +84,20 @@ STATE_CODE_TO_STATE = {
 }
 
 FAN_SPEED_CODES = {
-    105: "Off",
-    101: "Silent",
-    102: "Balanced",
-    103: "Turbo",
-    104: "Max",
-    108: "Max+",
-    106: "Custom"
+    105: "off",
+    101: "silent",
+    102: "balanced",
+    103: "turbo",
+    104: "max",
+    108: "max_plus",
+    106: "custom",
 }
 
 MOP_MODE_CODES = {
     300: "standard",
     301: "deep",
     303: "deep_plus",
-    302: "custom"
+    302: "custom",
 }
 
 MOP_INTENSITY_CODES = {
@@ -105,7 +105,7 @@ MOP_INTENSITY_CODES = {
     201: "mild",
     202: "moderate",
     203: "intense",
-    204: "custom"
+    204: "custom",
 }
 
 ATTR_STATUS = "vacuum_status"
@@ -133,78 +133,110 @@ def add_services():
 
     platform.async_register_entity_service(
         "vacuum_remote_control_move",
-        cv.make_entity_service_schema({
-            vol.Optional("velocity"): vol.All(
-                vol.Coerce(float), vol.Clamp(min=-0.29, max=0.29)
-            ),
-            vol.Optional("rotation"): vol.All(
-                vol.Coerce(int), vol.Clamp(min=-179, max=179)
-            ),
-            vol.Optional("duration"): cv.positive_int,
-        }),
+        cv.make_entity_service_schema(
+            {
+                vol.Optional("velocity"): vol.All(
+                    vol.Coerce(float), vol.Clamp(min=-0.29, max=0.29)
+                ),
+                vol.Optional("rotation"): vol.All(
+                    vol.Coerce(int), vol.Clamp(min=-179, max=179)
+                ),
+                vol.Optional("duration"): cv.positive_int,
+            }
+        ),
         RoborockVacuum.async_remote_control_move.__name__,
     )
 
     platform.async_register_entity_service(
         "vacuum_remote_control_move_step",
-        cv.make_entity_service_schema({
-            vol.Optional("velocity"): vol.All(
-                vol.Coerce(float), vol.Clamp(min=-0.29, max=0.29)
-            ),
-            vol.Optional("rotation"): vol.All(
-                vol.Coerce(int), vol.Clamp(min=-179, max=179)
-            ),
-            vol.Optional("duration"): cv.positive_int,
-        }),
+        cv.make_entity_service_schema(
+            {
+                vol.Optional("velocity"): vol.All(
+                    vol.Coerce(float), vol.Clamp(min=-0.29, max=0.29)
+                ),
+                vol.Optional("rotation"): vol.All(
+                    vol.Coerce(int), vol.Clamp(min=-179, max=179)
+                ),
+                vol.Optional("duration"): cv.positive_int,
+            }
+        ),
         RoborockVacuum.async_remote_control_move_step.__name__,
     )
 
     platform.async_register_entity_service(
         "vacuum_clean_zone",
-        cv.make_entity_service_schema({
-            vol.Required("zone"): vol.All(
-                list,
-                [
-                    vol.ExactSequence(
-                        [
-                            vol.Coerce(int),
-                            vol.Coerce(int),
-                            vol.Coerce(int),
-                            vol.Coerce(int),
-                        ]
-                    )
-                ],
-            ),
-            vol.Optional("repeats"): vol.All(
-                vol.Coerce(int), vol.Clamp(min=1, max=3)
-            ),
-        }),
+        cv.make_entity_service_schema(
+            {
+                vol.Required("zone"): vol.All(
+                    list,
+                    [
+                        vol.ExactSequence(
+                            [
+                                vol.Coerce(int),
+                                vol.Coerce(int),
+                                vol.Coerce(int),
+                                vol.Coerce(int),
+                            ]
+                        )
+                    ],
+                ),
+                vol.Optional("repeats"): vol.All(
+                    vol.Coerce(int), vol.Clamp(min=1, max=3)
+                ),
+            }
+        ),
         RoborockVacuum.async_clean_zone.__name__,
     )
 
     platform.async_register_entity_service(
         "vacuum_goto",
-        cv.make_entity_service_schema({
-            vol.Required("x_coord"): vol.Coerce(int),
-            vol.Required("y_coord"): vol.Coerce(int),
-        }),
+        cv.make_entity_service_schema(
+            {
+                vol.Required("x_coord"): vol.Coerce(int),
+                vol.Required("y_coord"): vol.Coerce(int),
+            }
+        ),
         RoborockVacuum.async_goto.__name__,
     )
     platform.async_register_entity_service(
         "vacuum_clean_segment",
-        cv.make_entity_service_schema({vol.Required("segments"): vol.Any(vol.Coerce(int), [vol.Coerce(int)])}),
+        cv.make_entity_service_schema(
+            {vol.Required("segments"): vol.Any(vol.Coerce(int), [vol.Coerce(int)])}
+        ),
         RoborockVacuum.async_clean_segment.__name__,
     )
     platform.async_register_entity_service(
         "vacuum_set_mop_mode",
-        cv.make_entity_service_schema({vol.Required("mop_mode"): vol.In(item for item in MOP_MODE_CODES.values())}),
+        cv.make_entity_service_schema(
+            {
+                vol.Required("mop_mode"): vol.In(
+                    [item for item in MOP_MODE_CODES.values()]
+                )
+            }
+        ),
         RoborockVacuum.async_set_mop_mode.__name__,
     )
     platform.async_register_entity_service(
         "vacuum_set_mop_intensity",
         cv.make_entity_service_schema(
-            {vol.Required("mop_intensity"): vol.In(item for item in MOP_INTENSITY_CODES.values())}),
+            {
+                vol.Required("mop_intensity"): vol.In(
+                    [item for item in MOP_INTENSITY_CODES.values()]
+                )
+            }
+        ),
         RoborockVacuum.async_set_mop_intensity.__name__,
+    )
+    platform.async_register_entity_service(
+        "vacuum_set_fan_speed",
+        cv.make_entity_service_schema(
+            {
+                vol.Required("fan_speed"): vol.In(
+                    [item for item in FAN_SPEED_CODES.values()]
+                )
+            }
+        ),
+        RoborockVacuum.async_set_fan_speed.__name__,
     )
 
 
@@ -216,7 +248,9 @@ async def async_setup_entry(
     """Set up the Roborock sensor."""
     add_services()
 
-    coordinator: RoborockDataUpdateCoordinator = hass.data[DOMAIN][config_entry.entry_id]
+    coordinator: RoborockDataUpdateCoordinator = hass.data[DOMAIN][
+        config_entry.entry_id
+    ]
     entities = []
     for device_id, device_info in coordinator.api.device_map.items():
         unique_id = slugify(device_id)
@@ -227,7 +261,12 @@ async def async_setup_entry(
 class RoborockVacuum(RoborockCoordinatedEntity, StateVacuumEntity, ABC):
     """General Representation of a Roborock sensor."""
 
-    def __init__(self, unique_id: str, device: RoborockDeviceInfo, coordinator: RoborockDataUpdateCoordinator):
+    def __init__(
+            self,
+            unique_id: str,
+            device: RoborockDeviceInfo,
+            coordinator: RoborockDataUpdateCoordinator,
+    ):
         """Initialize a sensor."""
         StateVacuumEntity.__init__(self)
         RoborockCoordinatedEntity.__init__(self, device, coordinator, unique_id)
@@ -392,19 +431,22 @@ class RoborockVacuum(RoborockCoordinatedEntity, StateVacuumEntity, ABC):
 
     async def async_set_fan_speed(self, fan_speed: str, **kwargs: any):
         await self.send(
-            "set_custom_mode", [k for k, v in FAN_SPEED_CODES.items() if v == fan_speed], True
+            "set_custom_mode",
+            [k for k, v in FAN_SPEED_CODES.items() if v == fan_speed],
         )
         await self.coordinator.async_request_refresh()
 
     async def async_set_mop_mode(self, mop_mode: str, _=None):
         await self.send(
-            "set_mop_mode", [k for k, v in MOP_MODE_CODES.items() if v == mop_mode], True
+            "set_mop_mode",
+            [k for k, v in MOP_MODE_CODES.items() if v == mop_mode],
         )
         await self.coordinator.async_request_refresh()
 
     async def async_set_mop_intensity(self, mop_intensity: str, _=None):
         await self.send(
-            "set_water_box_custom_mode", [k for k, v in MOP_INTENSITY_CODES.items() if v == mop_intensity], True
+            "set_water_box_custom_mode",
+            [k for k, v in MOP_INTENSITY_CODES.items() if v == mop_intensity],
         )
         await self.coordinator.async_request_refresh()
 
@@ -481,7 +523,10 @@ class RoborockVacuum(RoborockCoordinatedEntity, StateVacuumEntity, ABC):
         await self.async_manual_control(rotation, velocity, duration)
 
     async def async_remote_control_move_step(
-            self, rotation: int = 0, velocity: float = 0.2, duration: int = MANUAL_DURATION_DEFAULT
+            self,
+            rotation: int = 0,
+            velocity: float = 0.2,
+            duration: int = MANUAL_DURATION_DEFAULT,
     ):
         """Move vacuum one step with remote control mode."""
         await self.async_manual_control_once(rotation, velocity, duration)
@@ -494,10 +539,7 @@ class RoborockVacuum(RoborockCoordinatedEntity, StateVacuumEntity, ABC):
         if isinstance(segments, int):
             segments = [segments]
 
-        await self.send(
-            "app_segment_clean",
-            segments
-        )
+        await self.send("app_segment_clean", segments)
 
     async def async_clean_zone(self, zone: list, repeats: int = 1):
         """Clean selected area for the number of repeats indicated."""
