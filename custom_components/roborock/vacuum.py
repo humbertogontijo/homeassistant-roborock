@@ -406,7 +406,6 @@ class RoborockVacuum(RoborockCoordinatedEntity, StateVacuumEntity, ABC):
         capability_attributes[ATTR_MOP_INTENSITY_LIST] = self.mop_intensity_list
         return capability_attributes
 
-    @property
     async def async_map(self):
         """Return map token."""
         return await self.send(RoborockCommand.GET_MAP_V1)

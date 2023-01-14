@@ -184,3 +184,35 @@ vacuum_set_mop_intensity:
             - "moderate"
             - "intense"
             - "custom"
+
+vacuum_set_fan_speed:
+  name: Vacuum set fan speed
+  description: Change vacuum fan speed.
+  target:
+    entity:
+      integration: roborock
+      domain: vacuum
+  fields:
+    fan_speed:
+      name: Fan speed
+      description: Fan speed.
+      required: true
+      example: "balanced"
+      selector:
+        select:
+          options:
+            - "off"
+            - "silent"
+            - "balanced"
+            - "turbo"
+            - "max"
+            - "max_plus"
+            - "custom"
+
+camera_load_multi_map:
+  name: Vacuum camera map load multi map
+  description: Change vacuum camera map.
+  target:
+    entity:
+      integration: roborock
+      domain: camera

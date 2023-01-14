@@ -27,6 +27,7 @@ class RoborockCommand(str, Enum):
     SET_CUSTOM_MODE = "set_custom_mode",
     SET_MOP_MODE = "set_mop_mode",
     SET_WATER_BOX_CUSTOM_MODE = "set_water_box_custom_mode",
+    LOAD_MULTI_MAP = "load_multi_map",
     APP_RC_START = "app_rc_start",
     APP_RC_END = "app_rc_end",
     APP_RC_MOVE = "app_rc_move",
