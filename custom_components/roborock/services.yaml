@@ -224,3 +224,12 @@ camera_load_multi_map:
     entity:
       integration: roborock
       domain: camera
+  fields:
+    map_id:
+      name: Map id
+      description: The id of the map to be loaded
+      required: true
+      example: 0
+      selector:
+        number:
+          min: 0

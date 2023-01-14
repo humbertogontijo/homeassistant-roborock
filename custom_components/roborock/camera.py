@@ -5,6 +5,7 @@ from datetime import timedelta
 from enum import Enum
 from typing import Any, Dict, List, Optional
 
+import voluptuous as vol
 from homeassistant.components.camera import Camera, SUPPORT_ON_OFF
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.core import HomeAssistant
@@ -54,7 +55,11 @@ def add_services():
 
     platform.async_register_entity_service(
         "camera_load_multi_map",
-        cv.make_entity_service_schema({}),
+        cv.make_entity_service_schema({
+            vol.Required("map_id"): vol.All(
+                    vol.Coerce(int), vol.Clamp(min=0)
+                ),
+        }),
         VacuumCameraMap.async_load_multi_map.__name__,
     )
 
@@ -232,9 +237,9 @@ class VacuumCameraMap(RoborockCoordinatedEntity, Camera):
         except RoborockTimeout:
             self.set_invalid_map()
 
-    async def async_load_multi_map(self):
+    async def async_load_multi_map(self, map_id: int):
         """Return map token."""
-        await self.send(RoborockCommand.LOAD_MULTI_MAP)
+        await self.send(RoborockCommand.LOAD_MULTI_MAP, [map_id])
         self.set_invalid_map()
 
     async def get_map(

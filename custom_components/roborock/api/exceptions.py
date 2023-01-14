@@ -13,6 +13,10 @@ class VacuumError(RoborockException):
         self.message = message
         super().__init__()
 
+    def __str__(self, *args, **kwargs): # real signature unknown
+        """ Return str(self). """
+        return f"{self.code}: {self.message}"
+
 
 class CommandVacuumError(RoborockException):
     """Class for command vacuum errors."""
