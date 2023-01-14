@@ -12,7 +12,7 @@
     "pyasn1",
     "pillow"
   ],
-  "version": "0.0.23",
+  "version": "0.0.24",
   "iot_class": "cloud_polling",
   "codeowners": [
     "@humbertogontijo"
