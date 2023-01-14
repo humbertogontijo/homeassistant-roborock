@@ -57,7 +57,7 @@ def add_services():
         "camera_load_multi_map",
         cv.make_entity_service_schema({
             vol.Required("map_id"): vol.All(
-                    vol.Coerce(int), vol.Clamp(min=0)
+                    vol.Coerce(int), vol.Clamp(min=0, max=4)
                 ),
         }),
         VacuumCameraMap.async_load_multi_map.__name__,

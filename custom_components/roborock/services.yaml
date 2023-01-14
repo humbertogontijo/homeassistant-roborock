@@ -233,3 +233,4 @@ camera_load_multi_map:
       selector:
         number:
           min: 0
+          max: 4
