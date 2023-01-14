@@ -209,6 +209,14 @@ vacuum_set_fan_speed:
             - "max_plus"
             - "custom"
 
+vacuum_reset_consumables:
+  name: Vacuum reset consumables
+  description: Reset vacuum consumables.
+  target:
+    entity:
+      integration: roborock
+      domain: vacuum
+
 camera_load_multi_map:
   name: Vacuum camera map load multi map
   description: Change vacuum camera map.

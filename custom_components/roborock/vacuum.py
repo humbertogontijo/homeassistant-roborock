@@ -238,6 +238,11 @@ def add_services():
         ),
         RoborockVacuum.async_set_fan_speed.__name__,
     )
+    platform.async_register_entity_service(
+        "vacuum_reset_consumables",
+        cv.make_entity_service_schema({}),
+        RoborockVacuum.async_reset_consumable.__name__,
+    )
 
 
 async def async_setup_entry(
@@ -547,6 +552,18 @@ class RoborockVacuum(RoborockCoordinatedEntity, StateVacuumEntity, ABC):
         _LOGGER.debug("Zone with repeats: %s", zone)
         await self.send(RoborockCommand.APP_ZONED_CLEAN, zone)
 
+    async def async_start_pause(self):
+        """Pause cleaning if running."""
+        if self.state == STATE_CLEANING:
+            await self.async_pause()
+        else:
+            """Start/resume cleaning."""
+            await self.async_start()
+
+    async def async_reset_consumable(self):
+        await self.send(RoborockCommand.RESET_CONSUMABLE)
+        await self.coordinator.async_request_refresh()
+
     async def async_send_command(
             self,
             command: RoborockCommand,
@@ -555,11 +572,3 @@ class RoborockVacuum(RoborockCoordinatedEntity, StateVacuumEntity, ABC):
     ):
         """Send a command to a vacuum cleaner."""
         return await self.send(command, params)
-
-    async def async_start_pause(self):
-        """Pause cleaning if running."""
-        if self.state == STATE_CLEANING:
-            await self.async_pause()
-        else:
-            """Start/resume cleaning."""
-            await self.async_start()
