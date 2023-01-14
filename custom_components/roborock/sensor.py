@@ -46,10 +46,10 @@ ATTR_CLEAN_SUMMARY_TOTAL_DURATION = "total_duration"
 ATTR_CLEAN_SUMMARY_TOTAL_AREA = "total_area"
 ATTR_CLEAN_SUMMARY_COUNT = "count"
 ATTR_CLEAN_SUMMARY_DUST_COLLECTION_COUNT = "dust_collection_count"
-ATTR_CONSUMABLE_STATUS_MAIN_BRUSH_REMAINING = "main_brush_remaining"
-ATTR_CONSUMABLE_STATUS_SIDE_BRUSH_REMAINING = "side_brush_remaining"
-ATTR_CONSUMABLE_STATUS_FILTER_REMAINING = "filter_remaining"
-ATTR_CONSUMABLE_STATUS_SENSOR_DIRTY_REMAINING = "sensor_dirty_remaining"
+ATTR_CONSUMABLE_STATUS_MAIN_BRUSH_LEFT = "main_brush_left"
+ATTR_CONSUMABLE_STATUS_SIDE_BRUSH_LEFT = "side_brush_left"
+ATTR_CONSUMABLE_STATUS_FILTER_LEFT = "filter_left"
+ATTR_CONSUMABLE_STATUS_SENSOR_DIRTY_LEFT = "sensor_dirty_left"
 
 
 @dataclass
@@ -181,44 +181,44 @@ VACUUM_SENSORS = {
         name="Total dust collection count",
         entity_category=EntityCategory.DIAGNOSTIC,
     ),
-    f"consumable_{ATTR_CONSUMABLE_STATUS_MAIN_BRUSH_REMAINING}": RoborockSensorDescription(
+    f"consumable_{ATTR_CONSUMABLE_STATUS_MAIN_BRUSH_LEFT}": RoborockSensorDescription(
         native_unit_of_measurement=TIME_SECONDS,
         key=ConsumableField.MAIN_BRUSH_WORK_TIME,
         value=lambda value: MAIN_BRUSH_REPLACE_TIME - value,
         icon="mdi:brush",
         device_class=SensorDeviceClass.DURATION,
         parent_key=RoborockDevicePropField.CONSUMABLE,
-        name="Main brush remaining",
+        name="Main brush left",
         entity_category=EntityCategory.DIAGNOSTIC,
     ),
-    f"consumable_{ATTR_CONSUMABLE_STATUS_SIDE_BRUSH_REMAINING}": RoborockSensorDescription(
+    f"consumable_{ATTR_CONSUMABLE_STATUS_SIDE_BRUSH_LEFT}": RoborockSensorDescription(
         native_unit_of_measurement=TIME_SECONDS,
         key=ConsumableField.SIDE_BRUSH_WORK_TIME,
         value=lambda value: SIDE_BRUSH_REPLACE_TIME - value,
         icon="mdi:brush",
         device_class=SensorDeviceClass.DURATION,
         parent_key=RoborockDevicePropField.CONSUMABLE,
-        name="Side brush remaining",
+        name="Side brush left",
         entity_category=EntityCategory.DIAGNOSTIC,
     ),
-    f"consumable_{ATTR_CONSUMABLE_STATUS_FILTER_REMAINING}": RoborockSensorDescription(
+    f"consumable_{ATTR_CONSUMABLE_STATUS_FILTER_LEFT}": RoborockSensorDescription(
         native_unit_of_measurement=TIME_SECONDS,
         key=ConsumableField.FILTER_WORK_TIME,
         value=lambda value: FILTER_REPLACE_TIME - value,
         icon="mdi:air-filter",
         device_class=SensorDeviceClass.DURATION,
         parent_key=RoborockDevicePropField.CONSUMABLE,
-        name="Filter remaining",
+        name="Filter left",
         entity_category=EntityCategory.DIAGNOSTIC,
     ),
-    f"consumable_{ATTR_CONSUMABLE_STATUS_SENSOR_DIRTY_REMAINING}": RoborockSensorDescription(
+    f"consumable_{ATTR_CONSUMABLE_STATUS_SENSOR_DIRTY_LEFT}": RoborockSensorDescription(
         native_unit_of_measurement=TIME_SECONDS,
         key=ConsumableField.SENSOR_DIRTY_TIME,
         value=lambda value: SENSOR_DIRTY_REPLACE_TIME - value,
         icon="mdi:eye-outline",
         device_class=SensorDeviceClass.DURATION,
         parent_key=RoborockDevicePropField.CONSUMABLE,
-        name="Sensor dirty remaining",
+        name="Sensor dirty left",
         entity_category=EntityCategory.DIAGNOSTIC,
     ),
 }
