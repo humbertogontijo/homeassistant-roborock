@@ -13,7 +13,7 @@ from homeassistant.exceptions import ConfigEntryNotReady
 from homeassistant.helpers.update_coordinator import DataUpdateCoordinator, UpdateFailed
 
 from .api.api import RoborockClient, RoborockMqttClient
-from .api.containers import UserData, HomeData
+from .api.containers import UserData, HomeData, MultiMapsList
 from .api.exceptions import RoborockException
 from .api.typing import RoborockDeviceInfo, RoborockDeviceProp
 from .const import CONF_ENTRY_USERNAME, CONF_USER_DATA, CONF_BASE_URL
@@ -94,6 +94,7 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
     client = RoborockMqttClient(user_data, device_map)
     coordinator = RoborockDataUpdateCoordinator(hass, client, translation)
 
+    await coordinator.init()
     await coordinator.async_refresh()
 
     if not coordinator.last_update_success:
@@ -126,9 +127,15 @@ class RoborockDataUpdateCoordinator(
         self.platforms = []
         self._devices_prop: dict[str, RoborockDeviceProp] = {}
         self.translation = translation
+        self.devices_maps: dict[str, MultiMapsList] = {}
 
     def release(self):
         self.api.release()
+
+    async def init(self):
+        for device_id, _ in self.api.device_map.items():
+            multi_maps_list = await self.api.get_multi_maps_list(device_id)
+            self.devices_maps[device_id] = multi_maps_list
 
     async def _async_update_data(self):
         """Update data via library."""

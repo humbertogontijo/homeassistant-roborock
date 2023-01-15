@@ -18,6 +18,7 @@ class RoborockCommand(str, Enum):
     GET_CLEAN_SUMMARY = "get_clean_summary"
     GET_CLEAN_RECORD = "get_clean_record"
     GET_CONSUMABLE = "get_consumable"
+    GET_MULTI_MAPS_LIST = "get_multi_maps_list",
     APP_START = "app_start",
     APP_PAUSE = "app_pause",
     APP_STOP = "app_stop",

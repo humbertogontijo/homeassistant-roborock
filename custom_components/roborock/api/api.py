@@ -22,7 +22,7 @@ from Crypto.Cipher import AES
 from Crypto.Util.Padding import pad, unpad
 
 from custom_components.roborock.api.containers import UserData, HomeDataDevice, Status, CleanSummary, Consumable, \
-    DNDTimer, CleanRecord, HomeData
+    DNDTimer, CleanRecord, HomeData, MultiMapsList
 from custom_components.roborock.api.exceptions import RoborockException, CommandVacuumError, VacuumError, \
     RoborockTimeout
 from custom_components.roborock.api.roborock_queue import RoborockQueue
@@ -338,6 +338,12 @@ class RoborockMqttClient(mqtt.Client):
             last_clean_record = await self.get_clean_record(device_id, clean_summary.records[0])
         if any([status, dnd_timer, clean_summary, consumable]):
             return RoborockDeviceProp(status, dnd_timer, clean_summary, consumable, last_clean_record)
+
+    async def get_multi_maps_list(self, device_id):
+        multi_maps_list = await self.send_command(device_id, RoborockCommand.GET_MULTI_MAPS_LIST)
+        if isinstance(multi_maps_list, dict):
+            return MultiMapsList(multi_maps_list)
+
 
 
 class RoborockClient:

@@ -9,6 +9,7 @@ import voluptuous as vol
 from homeassistant.components.camera import Camera, SUPPORT_ON_OFF
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.core import HomeAssistant
+from homeassistant.exceptions import HomeAssistantError
 from homeassistant.helpers import config_validation as cv, entity_platform
 from homeassistant.helpers.entity_platform import AddEntitiesCallback
 from homeassistant.util import slugify
@@ -56,9 +57,9 @@ def add_services():
     platform.async_register_entity_service(
         "camera_load_multi_map",
         cv.make_entity_service_schema({
-            vol.Required("map_id"): vol.All(
-                    vol.Coerce(int), vol.Clamp(min=0, max=4)
-                ),
+            vol.Required("map_flag"): vol.All(
+                vol.Coerce(int), vol.Clamp(min=0, max=4)
+            ),
         }),
         VacuumCameraMap.async_load_multi_map.__name__,
     )
@@ -237,10 +238,20 @@ class VacuumCameraMap(RoborockCoordinatedEntity, Camera):
         except RoborockTimeout:
             self.set_invalid_map()
 
-    async def async_load_multi_map(self, map_id: int):
-        """Return map token."""
-        await self.send(RoborockCommand.LOAD_MULTI_MAP, [map_id])
-        self.set_invalid_map()
+    def maps(self):
+        return self.coordinator.devices_maps.get(self._device_id)
+
+    async def async_load_multi_map(self, map_flag: int):
+        """Load another map."""
+        maps = self.maps()
+        map_flags = {map_info.name or str(map_info.mapflag): map_info.mapflag for map_info in maps.map_info}
+        if any(mapflag == map_flag for name, mapflag in map_flags.items()):
+            await self.send(RoborockCommand.LOAD_MULTI_MAP, [map_flag])
+            self.set_invalid_map()
+        else:
+            raise HomeAssistantError(
+                f"Map flag {map_flag} is invalid. Available map flags for device are {map_flags}"
+            )
 
     async def get_map(
             self,
@@ -255,7 +266,7 @@ class VacuumCameraMap(RoborockCoordinatedEntity, Camera):
         if not response:
             return
         elif not isinstance(response, bytes):
-            _LOGGER.debug("Received non-bytes value for get_map_v1 function: %s", response)
+            _LOGGER.debug(f"Received non-bytes value for get_map_v1 function: {response}")
             return
         map_data = self.decode_map(
             response, colors, drawables, texts, sizes, image_config

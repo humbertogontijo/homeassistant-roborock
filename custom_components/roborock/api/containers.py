@@ -197,6 +197,26 @@ class ConsumableField(str, Enum):
     CLEANING_BRUSH_WORK_TIMES = "cleaning_brush_work_times"
 
 
+class MultiMapListMapInfoBakMapsField(str, Enum):
+    MAPFLAG = "mapFlag"
+    ADD_TIME = "add_time"
+
+
+class MultiMapListMapInfoField(str, Enum):
+    MAPFLAG = "mapFlag"
+    ADD_TIME = "add_time"
+    LENGTH = "length"
+    NAME = "name"
+    BAK_MAPS = "bak_maps"
+
+
+class MultiMapListField(str, Enum):
+    MAX_MULTI_MAP = "max_multi_map"
+    MAX_BAK_MAP = "max_bak_map"
+    MULTI_MAP_COUNT = "multi_map_count"
+    MAP_INFO = "map_info"
+
+
 class Reference:
     def __init__(self, data: dict[str, any]) -> None:
         self.data = data if isinstance(data, dict) else {}
@@ -882,3 +902,65 @@ class Consumable:
     @property
     def cleaning_brush_work_times(self):
         return self.data.get(ConsumableField.CLEANING_BRUSH_WORK_TIMES)
+
+
+class MultiMapsListMapInfoBakMaps:
+
+    def __init__(self, data: dict[str, any]) -> None:
+        self.data = data if isinstance(data, dict) else {}
+
+    @property
+    def mapflag(self):
+        return self.data.get(MultiMapListMapInfoBakMapsField.MAPFLAG)
+
+    @property
+    def add_time(self):
+        return self.data.get(MultiMapListMapInfoBakMapsField.ADD_TIME)
+
+
+class MultiMapsListMapInfo:
+
+    def __init__(self, data: dict[str, any]) -> None:
+        self.data = data if isinstance(data, dict) else {}
+
+    @property
+    def mapflag(self):
+        return self.data.get(MultiMapListMapInfoField.MAPFLAG)
+
+    @property
+    def add_time(self):
+        return self.data.get(MultiMapListMapInfoField.ADD_TIME)
+
+    @property
+    def length(self):
+        return self.data.get(MultiMapListMapInfoField.LENGTH)
+
+    @property
+    def name(self):
+        return self.data.get(MultiMapListMapInfoField.NAME)
+
+    @property
+    def bak_maps(self):
+        return [MultiMapsListMapInfoBakMaps(bak_maps) for bak_maps in self.data.get(MultiMapListMapInfoField.BAK_MAPS)]
+
+
+class MultiMapsList:
+
+    def __init__(self, data: dict[str, any]) -> None:
+        self.data = data if isinstance(data, dict) else {}
+
+    @property
+    def max_multi_map(self):
+        return self.data.get(MultiMapListField.MAX_MULTI_MAP)
+
+    @property
+    def max_bak_map(self):
+        return self.data.get(MultiMapListField.MAX_BAK_MAP)
+
+    @property
+    def multi_map_count(self):
+        return self.data.get(MultiMapListField.MULTI_MAP_COUNT)
+
+    @property
+    def map_info(self):
+        return [MultiMapsListMapInfo(map_info) for map_info in self.data.get(MultiMapListField.MAP_INFO)]

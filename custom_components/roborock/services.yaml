@@ -225,8 +225,8 @@ camera_load_multi_map:
       integration: roborock
       domain: camera
   fields:
-    map_id:
-      name: Map id
+    map_flag:
+      name: Map flag
       description: The id of the map to be loaded
       required: true
       example: 0
