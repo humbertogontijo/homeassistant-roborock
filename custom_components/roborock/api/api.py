@@ -213,7 +213,7 @@ class RoborockMqttClient(mqtt.Client):
         try:
             (_, err) = await connection_queue.async_get(timeout=QUEUE_TIMEOUT)
             if err:
-                raise err
+                raise RoborockException(err) from err
         except TimeoutError as ex:
             raise RoborockTimeout(f"Timeout after {QUEUE_TIMEOUT} seconds waiting for mqtt connection") from ex
         finally:
@@ -300,7 +300,7 @@ class RoborockMqttClient(mqtt.Client):
             return response
         except (TimeoutError, CancelledError) as ex:
             _LOGGER.debug(f"Timeout after {QUEUE_TIMEOUT} seconds waiting for {method} response")
-            raise RoborockTimeout("Timeout waiting for response") from ex
+            raise RoborockTimeout(f"Timeout after {QUEUE_TIMEOUT} waiting for response") from ex
         finally:
             del self._waiting_queue[request_id]
 
