@@ -12,7 +12,7 @@ from homeassistant.core import HomeAssistant
 from homeassistant.setup import async_setup_component
 from pytest_homeassistant_custom_component.common import MockConfigEntry
 
-from .mock_data import BASE_URL, HOME_DATA, PROP, USER_DATA, USER_EMAIL
+from .mock_data import BASE_URL, HOME_DATA, USER_DATA, USER_EMAIL
 
 
 async def setup_platform(hass: HomeAssistant, platform: str) -> MockConfigEntry:
