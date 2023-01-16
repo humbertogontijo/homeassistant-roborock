@@ -215,7 +215,7 @@ class RoborockMqttClient(mqtt.Client):
             if err:
                 raise err
         except TimeoutError as ex:
-            raise RoborockException(f"Timeout after {QUEUE_TIMEOUT} seconds waiting for mqtt connection") from ex
+            raise RoborockTimeout(f"Timeout after {QUEUE_TIMEOUT} seconds waiting for mqtt connection") from ex
         finally:
             del self._waiting_queue[0]
 
