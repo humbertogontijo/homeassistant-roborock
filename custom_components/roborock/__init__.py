@@ -13,8 +13,8 @@ from homeassistant.exceptions import ConfigEntryNotReady
 from homeassistant.helpers.update_coordinator import DataUpdateCoordinator, UpdateFailed
 
 from .api.api import RoborockClient, RoborockMqttClient
-from .api.containers import UserData, HomeData, MultiMapsList
-from .api.exceptions import RoborockException
+from .api.containers import UserData, MultiMapsList
+from .api.exceptions import RoborockException, RoborockTimeout
 from .api.typing import RoborockDeviceInfo, RoborockDeviceProp
 from .const import CONF_ENTRY_USERNAME, CONF_USER_DATA, CONF_BASE_URL
 from .const import DOMAIN, PLATFORMS
@@ -25,6 +25,7 @@ _LOGGER = logging.getLogger(__name__)
 
 
 def get_translation_file(file_url):
+    """Get translation file."""
     file_path = Path(file_url) if isinstance(file_url, str) else file_url
     if file_path.is_file():
         f = open(file_path)
@@ -42,6 +43,7 @@ def get_translation_file(file_url):
 
 
 def get_translation(hass: HomeAssistant):
+    """Get translation."""
     path = Path
     if hasattr(hass.config, 'path'):
         path = hass.config.path
@@ -65,7 +67,7 @@ def get_translation(hass: HomeAssistant):
 
 async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
     """Set up roborock from a config entry."""
-    _LOGGER.debug(f"integration async setup entry: {entry.as_dict()}")
+    _LOGGER.debug("Integration async setup entry: %s", entry.as_dict())
     hass.data.setdefault(DOMAIN, {})
 
     user_data = UserData(entry.data.get(CONF_USER_DATA))
@@ -74,7 +76,7 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
     api_client = RoborockClient(username, base_url)
     _LOGGER.debug("Getting home data")
     home_data = await api_client.get_home_data(user_data)
-    _LOGGER.debug(f"Got home data {home_data.data}")
+    _LOGGER.debug("Got home data %s", home_data.data)
 
     device_map: dict[str, RoborockDeviceInfo] = {}
     for device in home_data.devices + home_data.received_devices:
@@ -89,7 +91,7 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
         device_map[device.duid] = RoborockDeviceInfo(device, product)
 
     translation = get_translation(hass)
-    _LOGGER.debug(f"Using translation {translation}")
+    _LOGGER.debug("Using translation %s", translation)
 
     client = RoborockMqttClient(user_data, device_map)
     coordinator = RoborockDataUpdateCoordinator(hass, client, translation)
@@ -130,9 +132,11 @@ class RoborockDataUpdateCoordinator(
         self.devices_maps: dict[str, MultiMapsList] = {}
 
     def release(self):
+        """Disconnect from API."""
         self.api.release()
 
     async def init(self):
+        """Get multi maps list."""
         for device_id, _ in self.api.device_map.items():
             multi_maps_list = await self.api.get_multi_maps_list(device_id)
             self.devices_maps[device_id] = multi_maps_list
@@ -148,8 +152,7 @@ class RoborockDataUpdateCoordinator(
                     else:
                         self._devices_prop[device_id] = device_prop
             return self._devices_prop
-        except (TimeoutError, RoborockException) as ex:
-            _LOGGER.exception(ex)
+        except (RoborockTimeout, RoborockException) as ex:
             raise UpdateFailed(ex) from ex
 
 
