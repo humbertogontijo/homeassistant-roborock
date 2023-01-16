@@ -34,7 +34,7 @@ async def setup_platform(hass: HomeAssistant, platform: str) -> MockConfigEntry:
     ), patch("custom_components.roborock.api.api.mqtt"), patch(
         "custom_components.roborock.RoborockMqttClient.send_command"
     ), patch(
-        "custom_components.roborock.RoborockMqttClient._connect", return_value=True
+        "custom_components.roborock.RoborockMqttClient.connect", return_value=True
     ), patch(
         "custom_components.roborock.RoborockMqttClient.get_prop", return_value=PROP):
         assert await async_setup_component(hass, DOMAIN, {})

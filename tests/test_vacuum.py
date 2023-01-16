@@ -16,12 +16,13 @@ from homeassistant.components.vacuum import (
 from homeassistant.core import HomeAssistant
 from homeassistant.helpers import entity_registry as er
 from custom_components.roborock.vacuum import ATTR_MOP_MODE_LIST, ATTR_MOP_INTENSITY_LIST
+from custom_components.roborock.api.typing import RoborockCommand
 
 from .common import setup_platform
 from .mock_data import HOME_DATA
 
 ENTITY_ID = "vacuum.roborock_s7_maxv"
-DEVICE_ID = HOME_DATA["devices"][0]["duid"]
+DEVICE_ID = HOME_DATA.devices[0].duid
 
 
 @pytest.mark.asyncio
@@ -46,7 +47,7 @@ async def test_vacuum_services(hass: HomeAssistant) -> None:
         await hass.services.async_call(
             VACUUM_DOMAIN, SERVICE_START, {"entity_id": ENTITY_ID}, blocking=True
         )
-        mock_api_command.assert_called_once_with(DEVICE_ID, "app_start", None, False)
+        mock_api_command.assert_called_once_with(DEVICE_ID, RoborockCommand.APP_START, None)
     # Test stopping
     with patch(
         "custom_components.roborock.RoborockMqttClient.send_command"
@@ -54,7 +55,7 @@ async def test_vacuum_services(hass: HomeAssistant) -> None:
         await hass.services.async_call(
             VACUUM_DOMAIN, SERVICE_STOP, {"entity_id": ENTITY_ID}, blocking=True
         )
-        mock_api_command.assert_called_once_with(DEVICE_ID, "app_stop", None, False)
+        mock_api_command.assert_called_once_with(DEVICE_ID, RoborockCommand.APP_STOP, None)
     # Test pausing
     with patch(
         "custom_components.roborock.RoborockMqttClient.send_command"
@@ -62,7 +63,7 @@ async def test_vacuum_services(hass: HomeAssistant) -> None:
         await hass.services.async_call(
             VACUUM_DOMAIN, SERVICE_PAUSE, {"entity_id": ENTITY_ID}, blocking=True
         )
-        mock_api_command.assert_called_once_with(DEVICE_ID, "app_stop", None, False)
+        mock_api_command.assert_called_once_with(DEVICE_ID, RoborockCommand.APP_PAUSE, None)
     # Test return to base
     with patch(
         "custom_components.roborock.RoborockMqttClient.send_command"
@@ -73,7 +74,7 @@ async def test_vacuum_services(hass: HomeAssistant) -> None:
             {"entity_id": ENTITY_ID},
             blocking=True,
         )
-        mock_api_command.assert_called_once_with(DEVICE_ID, "app_charge", None, False)
+        mock_api_command.assert_called_once_with(DEVICE_ID, RoborockCommand.APP_CHARGE, None)
     # Test clean spot
     with patch(
         "custom_components.roborock.RoborockMqttClient.send_command"
@@ -81,7 +82,7 @@ async def test_vacuum_services(hass: HomeAssistant) -> None:
         await hass.services.async_call(
             VACUUM_DOMAIN, SERVICE_CLEAN_SPOT, {"entity_id": ENTITY_ID}, blocking=True
         )
-        mock_api_command.assert_called_once_with(DEVICE_ID, "app_spot", None, False)
+        mock_api_command.assert_called_once_with(DEVICE_ID, RoborockCommand.APP_SPOT, None)
     # Test locate
     with patch(
         "custom_components.roborock.RoborockMqttClient.send_command"
@@ -89,7 +90,7 @@ async def test_vacuum_services(hass: HomeAssistant) -> None:
         await hass.services.async_call(
             VACUUM_DOMAIN, SERVICE_LOCATE, {"entity_id": ENTITY_ID}, blocking=True
         )
-        mock_api_command.assert_called_once_with(DEVICE_ID, "find_me", None, False)
+        mock_api_command.assert_called_once_with(DEVICE_ID, RoborockCommand.FIND_ME, None)
 
 
 @pytest.mark.asyncio
@@ -100,11 +101,11 @@ async def test_vacuum_fan_speeds(hass: HomeAssistant, bypass_api_fixture) -> Non
     entity_registry.async_get("vacuum.roborock_s7_maxv")
 
     state = hass.states.get(ENTITY_ID)
-    assert state.attributes.get(ATTR_FAN_SPEED) == "Balanced"
+    assert state.attributes.get(ATTR_FAN_SPEED) == "balanced"
 
     fanspeeds = state.attributes.get(ATTR_FAN_SPEED_LIST)
 
-    for speed in ["Off", "Silent", "Balanced", "Turbo", "Max", "Max+", "Custom"]:
+    for speed in ["off", "silent", "balanced", "turbo", "max", "max_plus", "custom"]:
         assert speed in fanspeeds
     # Test setting fan speed to "Turbo"
     with patch(
@@ -116,7 +117,7 @@ async def test_vacuum_fan_speeds(hass: HomeAssistant, bypass_api_fixture) -> Non
             {"entity_id": ENTITY_ID, "fan_speed": "Turbo"},
             blocking=True,
         )
-        mock_send.assert_called_once_with("set_custom_mode", [103], True)
+        mock_send.assert_called_once_with(RoborockCommand.SET_CUSTOM_MODE, [])
 
 @pytest.mark.asyncio
 async def test_mop_modes(hass: HomeAssistant, bypass_api_fixture) -> None:
@@ -142,7 +143,7 @@ async def test_mop_modes(hass: HomeAssistant, bypass_api_fixture) -> None:
             {"entity_id": ENTITY_ID, "mop_mode": "deep"},
             blocking=True,
         )
-        mock_send.assert_called_once_with("set_mop_mode", [301], True)
+        mock_send.assert_called_once_with(RoborockCommand.SET_MOP_MODE, [301])
 
 @pytest.mark.asyncio
 async def test_mop_intensity(hass: HomeAssistant, bypass_api_fixture) -> None:
@@ -169,4 +170,4 @@ async def test_mop_intensity(hass: HomeAssistant, bypass_api_fixture) -> None:
             {"entity_id": ENTITY_ID, "mop_intensity": "mild"},
             blocking=True,
         )
-        mock_send.assert_called_once_with("set_water_box_custom_mode", [201], True)
+        mock_send.assert_called_once_with(RoborockCommand.SET_WATER_BOX_CUSTOM_MODE, [201])

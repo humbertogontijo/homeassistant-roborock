@@ -21,7 +21,7 @@ async def test_registry_entries(hass: HomeAssistant) -> None:
     await setup_platform(hass, BINARY_SENSOR_DOMAIN)
     entity_registry = er.async_get(hass)
 
-    duid = HOME_DATA["devices"][0]["duid"]
+    duid = HOME_DATA.devices[0].duid
 
     entry = entity_registry.async_get("binary_sensor.roborock_s7_maxv_mop_attached")
     assert entry.unique_id == f"{ATTR_MOP_ATTACHED}_{duid}"

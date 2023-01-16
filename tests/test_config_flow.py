@@ -3,14 +3,8 @@ from unittest.mock import patch
 
 import pytest
 from custom_components.roborock.api.containers import UserData
-from custom_components.roborock.const import (
-    BINARY_SENSOR,
-    CAMERA,
-    DOMAIN,
-    PLATFORMS,
-    SENSOR,
-    VACUUM,
-)
+from custom_components.roborock.const import DOMAIN
+
 from homeassistant import config_entries, data_entry_flow
 from pytest_homeassistant_custom_component.common import MockConfigEntry
 
@@ -158,7 +152,7 @@ async def test_options_flow(hass):
         result["flow_id"],
         user_input={
             "map_transformation.scale": 1.2,
-            "map_transformation.rotate": 90,
+            "map_transformation.rotate": '90',
             "map_transformation.trim.left": 5.0,
             "map_transformation.trim.right": 5.0,
             "map_transformation.trim.top": 5.0,
@@ -168,10 +162,10 @@ async def test_options_flow(hass):
     # Verify that the flow finishes
     assert result["type"] == data_entry_flow.RESULT_TYPE_CREATE_ENTRY
     # Verify the options were set
-    assert entry.options == {
+    assert dict(entry.options) == {
         "map_transformation": {
             "scale": 1.2,
             "rotate": 90,
-            "trim": {"left": 5.0, "right": 5.0, "top": 5.0, "bottom": 5.0},
+            "trim": {"left": 5, "right": 5, "top": 5, "bottom": 5},
         }
     }
