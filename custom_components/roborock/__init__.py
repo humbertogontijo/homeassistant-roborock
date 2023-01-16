@@ -96,7 +96,6 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
     client = RoborockMqttClient(user_data, device_map)
     coordinator = RoborockDataUpdateCoordinator(hass, client, translation)
 
-    await coordinator.init()
     await coordinator.async_refresh()
 
     if not coordinator.last_update_success:
@@ -120,6 +119,8 @@ class RoborockDataUpdateCoordinator(
 ):
     """Class to manage fetching data from the API."""
 
+    ACCEPTABLE_NUMBER_OF_TIMEOUTS = 3
+
     def __init__(
             self, hass: HomeAssistant, client: RoborockMqttClient, translation: dict
     ) -> None:
@@ -130,30 +131,49 @@ class RoborockDataUpdateCoordinator(
         self._devices_prop: dict[str, RoborockDeviceProp] = {}
         self.translation = translation
         self.devices_maps: dict[str, MultiMapsList] = {}
+        self.retries = int(self.ACCEPTABLE_NUMBER_OF_TIMEOUTS)
+        self._timeout_countdown = int(self.ACCEPTABLE_NUMBER_OF_TIMEOUTS)
 
     def release(self):
         """Disconnect from API."""
         self.api.release()
 
-    async def init(self):
+    async def _get_device_multi_maps_list(self, device_id: str):
         """Get multi maps list."""
-        for device_id, _ in self.api.device_map.items():
-            multi_maps_list = await self.api.get_multi_maps_list(device_id)
+        multi_maps_list = await self.api.get_multi_maps_list(device_id)
+        if multi_maps_list:
             self.devices_maps[device_id] = multi_maps_list
+
+    async def _get_device_prop(self, device_id: str):
+        """Get device properties."""
+        device_prop = await self.api.get_prop(device_id)
+        if device_id in self._devices_prop:
+            self._devices_prop[device_id].update(device_prop)
+        else:
+            self._devices_prop[device_id] = device_prop
 
     async def _async_update_data(self):
         """Update data via library."""
         try:
+            funcs = []
             for device_id, _ in self.api.device_map.items():
-                device_prop = await self.api.get_prop(device_id)
-                if device_prop:
-                    if device_id in self._devices_prop:
-                        self._devices_prop[device_id].update(device_prop)
-                    else:
-                        self._devices_prop[device_id] = device_prop
-            return self._devices_prop
+                if not self.devices_maps.get(device_id):
+                    funcs.append(self._get_device_multi_maps_list(device_id))
+                funcs.append(self._get_device_prop(device_id))
+            await asyncio.gather(*funcs)
+            self._timeout_countdown = int(self.ACCEPTABLE_NUMBER_OF_TIMEOUTS)
         except (RoborockTimeout, RoborockException) as ex:
-            raise UpdateFailed(ex) from ex
+            if self._timeout_countdown > 0:
+                _LOGGER.debug("Timeout updating coordinator. Acceptable timeouts countdown = %s", self._timeout_countdown)
+                self._timeout_countdown -= 1
+            else:
+                raise UpdateFailed(ex) from ex
+        if self._devices_prop:
+            return self._devices_prop
+        # Only for the first attempt
+        if self.retries > 0:
+            self.retries -= 1
+            return self._async_update_data()
 
 
 async def async_unload_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:

@@ -140,7 +140,7 @@ class RoborockFlowHandler(config_entries.ConfigFlow, domain=DOMAIN):
         except Exception as ex:
             _LOGGER.exception(ex)
             self._errors["base"] = "auth"
-            return None
+            return
 
 
 PERCENT_SCHEMA = vol.All(vol.Coerce(float), vol.Range(min=0, max=100))
