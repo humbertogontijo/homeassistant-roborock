@@ -26,7 +26,7 @@ DEVICE_ID = HOME_DATA.devices[0].duid
 
 
 @pytest.mark.asyncio
-async def test_registry_entries(hass: HomeAssistant) -> None:
+async def test_registry_entries(hass: HomeAssistant, bypass_api_fixture) -> None:
     """Tests devices are registered in the entity registry."""
     await setup_platform(hass, VACUUM_DOMAIN)
     entity_registry = er.async_get(hass)
@@ -35,7 +35,7 @@ async def test_registry_entries(hass: HomeAssistant) -> None:
 
 
 @pytest.mark.asyncio
-async def test_vacuum_services(hass: HomeAssistant) -> None:
+async def test_vacuum_services(hass: HomeAssistant, bypass_api_fixture) -> None:
     """Test vacuum services."""
     await setup_platform(hass, VACUUM_DOMAIN)
     entity_registry = er.async_get(hass)

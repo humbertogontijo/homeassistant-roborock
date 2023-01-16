@@ -20,6 +20,8 @@ def bypass_api_fixture():
     with patch("custom_components.roborock.RoborockMqttClient.connect"), patch(
         "custom_components.roborock.RoborockMqttClient._send_msg_raw"
     ), patch("custom_components.roborock.RoborockMqttClient.send_command"), patch(
+        "custom_components.roborock.api.api.mqtt"
+    ), patch(
         "custom_components.roborock.RoborockMqttClient.get_prop", return_value=PROP
     ):
         yield

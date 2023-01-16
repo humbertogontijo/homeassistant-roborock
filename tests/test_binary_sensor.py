@@ -16,7 +16,7 @@ from .mock_data import HOME_DATA
 
 
 @pytest.mark.asyncio
-async def test_registry_entries(hass: HomeAssistant) -> None:
+async def test_registry_entries(hass: HomeAssistant, bypass_api_fixture) -> None:
     """Tests devices are registered in the entity registry."""
     await setup_platform(hass, BINARY_SENSOR_DOMAIN)
     entity_registry = er.async_get(hass)
@@ -36,7 +36,7 @@ async def test_registry_entries(hass: HomeAssistant) -> None:
 
 
 @pytest.mark.asyncio
-async def test_mop_attached(hass: HomeAssistant) -> None:
+async def test_mop_attached(hass: HomeAssistant, bypass_api_fixture) -> None:
     """Tests mop_attached is getting the correct values."""
     await setup_platform(hass, BINARY_SENSOR_DOMAIN)
     state = hass.states.get("binary_sensor.roborock_s7_maxv_mop_attached")
@@ -48,7 +48,7 @@ async def test_mop_attached(hass: HomeAssistant) -> None:
 
 
 @pytest.mark.asyncio
-async def test_water_box_attached(hass: HomeAssistant) -> None:
+async def test_water_box_attached(hass: HomeAssistant, bypass_api_fixture) -> None:
     """Tests water_box_attached is getting the correct values."""
     await setup_platform(hass, BINARY_SENSOR_DOMAIN)
     state = hass.states.get("binary_sensor.roborock_s7_maxv_water_box_attached")
@@ -60,7 +60,7 @@ async def test_water_box_attached(hass: HomeAssistant) -> None:
 
 
 @pytest.mark.asyncio
-async def test_water_shortage(hass: HomeAssistant) -> None:
+async def test_water_shortage(hass: HomeAssistant, bypass_api_fixture) -> None:
     """Tests water_shortage is getting the correct values."""
     await setup_platform(hass, BINARY_SENSOR_DOMAIN)
     state = hass.states.get("binary_sensor.roborock_s7_maxv_water_shortage")

@@ -12,7 +12,7 @@ from .mock_data import MOCK_CONFIG, USER_DATA, USER_EMAIL
 
 
 @pytest.mark.asyncio
-async def test_successful_config_flow(hass):
+async def test_successful_config_flow(hass, bypass_api_fixture):
     """Test a successful config flow."""
     # Initialize a config flow
     result = await hass.config_entries.flow.async_init(
@@ -48,7 +48,7 @@ async def test_successful_config_flow(hass):
 
 
 @pytest.mark.asyncio
-async def test_invalid_code(hass):
+async def test_invalid_code(hass, bypass_api_fixture):
     """Test a failed config flow due to incorrect code."""
     result = await hass.config_entries.flow.async_init(
         DOMAIN, context={"source": config_entries.SOURCE_USER}
@@ -81,7 +81,7 @@ async def test_invalid_code(hass):
 
 
 @pytest.mark.asyncio
-async def test_no_devices(hass):
+async def test_no_devices(hass, bypass_api_fixture):
     """Test a failed config flow due to no devices on Roborock account."""
     result = await hass.config_entries.flow.async_init(
         DOMAIN, context={"source": config_entries.SOURCE_USER}
@@ -114,7 +114,7 @@ async def test_no_devices(hass):
 
 
 @pytest.mark.asyncio
-async def test_unknown_user(hass):
+async def test_unknown_user(hass, bypass_api_fixture):
     """Test a failed config flow due to credential validation failure."""
     result = await hass.config_entries.flow.async_init(
         DOMAIN, context={"source": config_entries.SOURCE_USER}
@@ -136,7 +136,7 @@ async def test_unknown_user(hass):
 
 
 @pytest.mark.asyncio
-async def test_options_flow(hass):
+async def test_options_flow(hass, bypass_api_fixture):
     """Test options flow."""
     # Create a new MockConfigEntry and add to HASS (we're bypassing config
     # flow entirely)
