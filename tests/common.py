@@ -1,6 +1,10 @@
 """Common methods used across tests for Roborock."""
 from unittest.mock import patch
 
+from homeassistant.core import HomeAssistant
+from homeassistant.setup import async_setup_component
+from pytest_homeassistant_custom_component.common import MockConfigEntry
+
 from custom_components.roborock.const import (
     CONF_BASE_URL,
     CONF_ENTRY_USERNAME,
@@ -8,9 +12,6 @@ from custom_components.roborock.const import (
     CONF_USER_DATA,
     DOMAIN,
 )
-from homeassistant.core import HomeAssistant
-from homeassistant.setup import async_setup_component
-from pytest_homeassistant_custom_component.common import MockConfigEntry
 
 from .mock_data import BASE_URL, HOME_DATA, USER_DATA, USER_EMAIL
 

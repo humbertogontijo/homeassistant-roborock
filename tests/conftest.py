@@ -5,7 +5,6 @@ import pytest
 
 from .mock_data import PROP
 
-pytest_plugins = "pytest_homeassistant_custom_component"
 
 # This fixture enables loading custom integrations in all tests.
 # Remove to enable selective use of this fixture

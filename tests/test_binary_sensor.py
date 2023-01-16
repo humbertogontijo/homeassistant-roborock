@@ -1,15 +1,16 @@
 """Tests for Roborock binary sensors."""
 import pytest
-from custom_components.roborock.binary_sensor import (
-    ATTR_MOP_ATTACHED,
-    ATTR_WATER_BOX_ATTACHED,
-    ATTR_WATER_SHORTAGE,
-)
 from homeassistant.components.binary_sensor import DOMAIN as BINARY_SENSOR_DOMAIN
 from homeassistant.components.binary_sensor import BinarySensorDeviceClass
 from homeassistant.const import ATTR_DEVICE_CLASS, STATE_OFF, STATE_ON
 from homeassistant.core import HomeAssistant
 from homeassistant.helpers import entity_registry as er
+
+from custom_components.roborock.binary_sensor import (
+    ATTR_MOP_ATTACHED,
+    ATTR_WATER_BOX_ATTACHED,
+    ATTR_WATER_SHORTAGE,
+)
 
 from .common import setup_platform
 from .mock_data import HOME_DATA

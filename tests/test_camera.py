@@ -1,6 +1,5 @@
 """Tests for Roborock cameras."""
 import pytest
-
 from homeassistant.components.camera import DOMAIN as CAMERA_DOMAIN
 from homeassistant.const import STATE_IDLE
 from homeassistant.core import HomeAssistant

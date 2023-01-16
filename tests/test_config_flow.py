@@ -2,11 +2,11 @@
 from unittest.mock import patch
 
 import pytest
-from custom_components.roborock.api.containers import UserData
-from custom_components.roborock.const import DOMAIN
-
 from homeassistant import config_entries, data_entry_flow
 from pytest_homeassistant_custom_component.common import MockConfigEntry
+
+from custom_components.roborock.api.containers import UserData
+from custom_components.roborock.const import DOMAIN
 
 from .mock_data import MOCK_CONFIG, USER_DATA, USER_EMAIL
 
@@ -152,7 +152,7 @@ async def test_options_flow(hass, bypass_api_fixture):
         result["flow_id"],
         user_input={
             "map_transformation.scale": 1.2,
-            "map_transformation.rotate": '90',
+            "map_transformation.rotate": "90",
             "map_transformation.trim.left": 5.0,
             "map_transformation.trim.right": 5.0,
             "map_transformation.trim.top": 5.0,

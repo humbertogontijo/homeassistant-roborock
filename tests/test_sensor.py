@@ -2,6 +2,13 @@
 from datetime import datetime, time
 
 import pytest
+from homeassistant.components.sensor import DOMAIN as SENSOR_DOMAIN
+from homeassistant.components.sensor import SensorDeviceClass, SensorStateClass
+from homeassistant.const import ATTR_DEVICE_CLASS, STATE_OFF, STATE_ON
+from homeassistant.core import HomeAssistant
+from homeassistant.helpers import entity_registry as er
+from homeassistant.util import dt as dt_util
+
 from custom_components.roborock.api.containers import CleanRecordField, DNDTimerField
 from custom_components.roborock.const import (
     FILTER_REPLACE_TIME,
@@ -28,12 +35,6 @@ from custom_components.roborock.sensor import (
     ATTR_STATUS_CLEAN_AREA,
     ATTR_STATUS_CLEAN_TIME,
 )
-from homeassistant.components.sensor import DOMAIN as SENSOR_DOMAIN
-from homeassistant.components.sensor import SensorDeviceClass, SensorStateClass
-from homeassistant.const import ATTR_DEVICE_CLASS, STATE_OFF, STATE_ON
-from homeassistant.core import HomeAssistant
-from homeassistant.helpers import entity_registry as er
-from homeassistant.util import dt as dt_util
 
 from .common import setup_platform
 from .mock_data import (
@@ -99,21 +100,16 @@ async def test_registry_entries(hass: HomeAssistant, bypass_api_fixture) -> None
 
     entry = entity_registry.async_get("sensor.roborock_s7_maxv_main_brush_left")
     assert (
-        entry.unique_id
-        == f"consumable_{ATTR_CONSUMABLE_STATUS_MAIN_BRUSH_LEFT}_{duid}"
+        entry.unique_id == f"consumable_{ATTR_CONSUMABLE_STATUS_MAIN_BRUSH_LEFT}_{duid}"
     )
 
     entry = entity_registry.async_get("sensor.roborock_s7_maxv_side_brush_left")
     assert (
-        entry.unique_id
-        == f"consumable_{ATTR_CONSUMABLE_STATUS_SIDE_BRUSH_LEFT}_{duid}"
+        entry.unique_id == f"consumable_{ATTR_CONSUMABLE_STATUS_SIDE_BRUSH_LEFT}_{duid}"
     )
 
     entry = entity_registry.async_get("sensor.roborock_s7_maxv_filter_left")
-    assert (
-        entry.unique_id
-        == f"consumable_{ATTR_CONSUMABLE_STATUS_FILTER_LEFT}_{duid}"
-    )
+    assert entry.unique_id == f"consumable_{ATTR_CONSUMABLE_STATUS_FILTER_LEFT}_{duid}"
 
     entry = entity_registry.async_get("sensor.roborock_s7_maxv_sensor_dirty_left")
     assert (
@@ -249,7 +245,9 @@ async def test_total_clean_count(hass: HomeAssistant, bypass_api_fixture) -> Non
 
 
 @pytest.mark.asyncio
-async def test_total_dust_collection_count(hass: HomeAssistant, bypass_api_fixture) -> None:
+async def test_total_dust_collection_count(
+    hass: HomeAssistant, bypass_api_fixture
+) -> None:
     """Tests total_dust_collection_count is getting the correct values."""
     await setup_platform(hass, SENSOR_DOMAIN)
     state = hass.states.get("sensor.roborock_s7_maxv_total_dust_collection_count")
