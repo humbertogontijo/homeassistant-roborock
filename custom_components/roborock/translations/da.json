@@ -57,6 +57,7 @@
           "21": "Lodret kofanger påvirket. Flyt robotten og genstart.",
           "22": "Dock lokations fejl. Rens dock og genstart.",
           "23": "Kunne ikke returnere til dock. Rens dock lokations beacon og genstart.",
+          "24": "No-go zone eller Usynligvæg detekteret. Flyt robotten væk fra dette område.",
           "27": "VibraRise system fastklemte. Kontroller for forhindringer.",
           "28": "Robot på tæppe. Flyt robot til gulv og genstart.",
           "29": "Filter blokeret eller vådt. Rens, tør og restart.",
