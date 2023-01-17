@@ -287,7 +287,7 @@ HOME_DATA_SHARED_RAW["receivedDevices"].append(
         "tuyaUuid": None,
         "tuyaMigrated": False,
         "extra": '{"RRPhotoPrivacyVersion": "1"}',
-        "sn": "abc123",
+        "sn": "abc123_shared",
         "featureSet": "2234201184108543",
         "newFeatureSet": "0000000000002041",
         "deviceStatus": {
