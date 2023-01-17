@@ -166,8 +166,8 @@ def get_nested_dict(data: dict, key_string: str, default=None):
 
 CAMERA_OPTIONS = {
     f"{CONF_MAP_TRANSFORM}.{CONF_SCALE}": {
-        "store_type": int,
-        "show_type": int,
+        "store_type": float,
+        "show_type": float,
         "default": 1,
         "schema": POSITIVE_FLOAT_SCHEMA
     },

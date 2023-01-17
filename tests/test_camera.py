@@ -1,6 +1,5 @@
 """Tests for Roborock cameras."""
 import pytest
-
 from homeassistant.components.camera import DOMAIN as CAMERA_DOMAIN
 from homeassistant.const import STATE_IDLE
 from homeassistant.core import HomeAssistant
@@ -16,7 +15,7 @@ async def test_registry_entries(hass: HomeAssistant, bypass_api_fixture) -> None
     await setup_platform(hass, CAMERA_DOMAIN)
     entity_registry = er.async_get(hass)
 
-    duid = HOME_DATA["devices"][0]["duid"]
+    duid = HOME_DATA.devices[0].duid
 
     entry = entity_registry.async_get("camera.roborock_s7_maxv_map")
     assert entry.unique_id == f"{duid}"
