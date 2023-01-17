@@ -173,7 +173,7 @@ class RoborockDataUpdateCoordinator(
         # Only for the first attempt
         if self.retries > 0:
             self.retries -= 1
-            return self._async_update_data()
+            return await self._async_update_data()
 
 
 async def async_unload_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:

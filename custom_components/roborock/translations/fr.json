@@ -17,11 +17,21 @@
     "error": {
       "no_device": "Aucun appareil trouvé dans votre compte Roborock",
       "auth": "Echec de la connexion. Vérifiez vos identifiants"
+    },
+    "abort": {
+      "already_configured": "Device is already configured"
     }
   },
   "options": {
     "step": {
       "user": {
+        "description": "Select a platform to configure",
+        "data": {
+          "platform": "Platform"
+        }
+      },
+      "camera": {
+        "description": "Camera Options",
         "data": {
           "map_transformation.scale": "Échelle de la carte",
           "map_transformation.rotate": "Rotation de la carte",

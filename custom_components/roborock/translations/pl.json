@@ -17,11 +17,21 @@
     "error": {
       "no_device": "Nie znaleziono urządzenia na koncie Roborock",
       "auth": "Logowanie nieudane. Sprawdź nazwę użytkownika lub hasło"
+    },
+    "abort": {
+      "already_configured": "Device is already configured"
     }
   },
   "options": {
     "step": {
       "user": {
+        "description": "Select a platform to configure",
+        "data": {
+          "platform": "Platform"
+        }
+      },
+      "camera": {
+        "description": "Camera Options",
         "data": {
           "map_transformation.scale": "Map scale",
           "map_transformation.rotate": "Map rotation",

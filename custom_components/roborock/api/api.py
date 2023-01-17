@@ -296,7 +296,7 @@ class RoborockMqttClient(mqtt.Client):
                 _LOGGER.debug(f"id={request_id} Response from {method}: {response}")
             return response
         except (TimeoutError, CancelledError) as ex:
-            _LOGGER.debug(f"Timeout after {QUEUE_TIMEOUT} seconds waiting for {method} response")
+            self._should_connect = True
             raise RoborockTimeout(f"Timeout after {QUEUE_TIMEOUT} waiting for response") from ex
         finally:
             del self._waiting_queue[request_id]

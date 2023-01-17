@@ -17,11 +17,21 @@
     "error": {
       "no_device": "Nessun dispositivo trovato nel tuo account Roborock",
       "auth": "Accesso fallito. Controlla le credenziali"
+    },
+    "abort": {
+      "already_configured": "Device is already configured"
     }
   },
   "options": {
     "step": {
       "user": {
+        "description": "Select a platform to configure",
+        "data": {
+          "platform": "Platform"
+        }
+      },
+      "camera": {
+        "description": "Camera Options",
         "data": {
           "map_transformation.scale": "Scala della mappa",
           "map_transformation.rotate": "Rotazione della mappa",

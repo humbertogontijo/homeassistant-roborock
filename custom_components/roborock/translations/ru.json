@@ -17,11 +17,21 @@
     "error": {
       "no_device": "В вашей учетной записи Roborock не найдено ни одного устройства",
       "auth": "Не удалось войти. Проверьте данные."
+    },
+    "abort": {
+      "already_configured": "Device is already configured"
     }
   },
   "options": {
     "step": {
       "user": {
+        "description": "Select a platform to configure",
+        "data": {
+          "platform": "Platform"
+        }
+      },
+      "camera": {
+        "description": "Camera Options",
         "data": {
           "map_transformation.scale": "Масштаб карты",
           "map_transformation.rotate": "Вращение карты",
