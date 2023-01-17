@@ -2,8 +2,6 @@
 from __future__ import annotations
 
 import logging
-from enum import Enum
-from types import DynamicClassAttribute
 
 import voluptuous as vol
 from homeassistant import config_entries
@@ -29,6 +27,7 @@ from .const import (
     CAMERA,
     VACUUM,
 )
+from .utils import get_nested_dict, set_nested_dict
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -158,43 +157,12 @@ class RoborockFlowHandler(config_entries.ConfigFlow, domain=DOMAIN):
             return
 
 
-def set_nested_dict(data: dict, key_string: str, value):
-    here = data
-    keys = key_string.split(".")
-    for key in keys[:-1]:
-        here = here.setdefault(key, {})
-    here[keys[-1]] = value
-
-
-def get_nested_dict(data: dict, key_string: str, default=None):
-    here = data
-    keys = key_string.split(".")
-    for key in keys:
-        here = here.get(key)
-        if here is None:
-            return default
-    return here
-
-
-# Workaround for HA front end ignoring int 0 on lists
-class RotationEnum(int, Enum):
-    ZERO = 0
-    NINETY = 90
-    ONE_EIGHTY = 180
-    TWO_SEVENTY = 270
-
-    @classmethod
-    def _missing_(cls, value: str):
-        return RotationEnum(int(value))
-
-    @DynamicClassAttribute
-    def value(self):
-        """The value of the Enum member."""
-        return str(self._value_)
+def discriminant(_, validators):
+    return list(validators).__reversed__()
 
 
 POSITIVE_FLOAT_SCHEMA = vol.All(vol.Coerce(float), vol.Range(min=0))
-ROTATION_SCHEMA = vol.Coerce(RotationEnum)
+ROTATION_SCHEMA = vol.All(vol.Coerce(int), vol.Coerce(str), vol.In(["0", "90", "180", "270"]), discriminant=discriminant)
 PERCENT_SCHEMA = vol.All(vol.Coerce(float), vol.Range(min=0, max=100))
 
 CAMERA_OPTIONS = {
@@ -256,7 +224,7 @@ class RoborockOptionsFlowHandler(config_entries.OptionsFlow):
             data_schema=vol.Schema(
                 {
                     vol.Optional(
-                        key, default=get_nested_dict(self.options, key, value)
+                        key, default=CAMERA_SCHEMA.get(key)(get_nested_dict(self.options, key, value))
                     ): CAMERA_SCHEMA.get(key)
                     for key, value in CAMERA_OPTIONS.items()
                 }

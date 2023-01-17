@@ -2,67 +2,43 @@
 from __future__ import annotations
 
 import asyncio
-import json
 import logging
 from datetime import timedelta
-from pathlib import Path
 
 from homeassistant.config_entries import ConfigEntry
+from homeassistant.const import ATTR_STATE
 from homeassistant.core import HomeAssistant
 from homeassistant.exceptions import ConfigEntryNotReady
+from homeassistant.helpers.translation import async_get_translations
 from homeassistant.helpers.update_coordinator import DataUpdateCoordinator, UpdateFailed
 
 from .api.api import RoborockClient, RoborockMqttClient
 from .api.containers import UserData, MultiMapsList
 from .api.exceptions import RoborockException, RoborockTimeout
 from .api.typing import RoborockDeviceInfo, RoborockDeviceProp
-from .const import CONF_ENTRY_USERNAME, CONF_USER_DATA, CONF_BASE_URL
+from .const import CONF_ENTRY_USERNAME, CONF_USER_DATA, CONF_BASE_URL, SENSOR
 from .const import DOMAIN, PLATFORMS
+from .utils import set_nested_dict, get_nested_dict
 
 SCAN_INTERVAL = timedelta(seconds=30)
 
 _LOGGER = logging.getLogger(__name__)
 
 
-def get_translation_file(file_url):
-    """Get translation file."""
-    file_path = Path(file_url) if isinstance(file_url, str) else file_url
-    if file_path.is_file():
-        f = open(file_path)
-        translation = json.load(f)
-        entity = translation.get("entity")
-        if not entity:
-            return
-        domain = entity.get("sensor")
-        if not domain:
-            return
-        data = {}
-        for translation_key, value in domain.items():
-            data.update({translation_key: value})
-        return data
-
-
-def get_translation(hass: HomeAssistant):
+async def get_translation(hass: HomeAssistant):
     """Get translation."""
-    path = Path
-    if hasattr(hass.config, 'path'):
-        path = hass.config.path
     if hasattr(hass.config, 'language'):
         language = hass.config.language
-        translation = get_translation_file(
-            path(f"custom_components/roborock/translations/{language}.json")
-        )
-        if translation:
-            return translation
-        wide_language = language.split("-")[0]
-        wide_translation = get_translation_file(
-            path(f"custom_components/roborock/translations/{wide_language}.json")
-        )
-        if wide_translation:
-            return wide_translation
-    return get_translation_file(
-        path("custom_components/roborock/translations/en.json")
-    )
+    else:
+        language = "en"
+    entity_translations = await async_get_translations(hass, language, "entity", [DOMAIN])
+    if not entity_translations:
+        return {}
+    data = {}
+    for key, value in entity_translations.items():
+        set_nested_dict(data, key, value)
+    states_translation = get_nested_dict(data, f"component.{DOMAIN}.entity.{SENSOR}.roborock_vacuum.{ATTR_STATE}", {})
+    return states_translation
 
 
 async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
@@ -90,7 +66,7 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
         )
         device_map[device.duid] = RoborockDeviceInfo(device, product)
 
-    translation = get_translation(hass)
+    translation = await get_translation(hass)
     _LOGGER.debug("Using translation %s", translation)
 
     client = RoborockMqttClient(user_data, device_map)
@@ -164,7 +140,8 @@ class RoborockDataUpdateCoordinator(
             self._timeout_countdown = int(self.ACCEPTABLE_NUMBER_OF_TIMEOUTS)
         except (RoborockTimeout, RoborockException) as ex:
             if self._timeout_countdown > 0:
-                _LOGGER.debug("Timeout updating coordinator. Acceptable timeouts countdown = %s", self._timeout_countdown)
+                _LOGGER.debug("Timeout updating coordinator. Acceptable timeouts countdown = %s",
+                              self._timeout_countdown)
                 self._timeout_countdown -= 1
             else:
                 raise UpdateFailed(ex) from ex

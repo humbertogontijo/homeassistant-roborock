@@ -2,7 +2,7 @@ aiohttp==3.8.3
 paho-mqtt~=1.6.1
 pycryptodome~=3.16.0
 pycryptodomex~=3.16.0; sys_platform == 'darwin'
-homeassistant~=2022.11.4
+homeassistant~=2023.1.4
 voluptuous~=0.13.1
 ndg-httpsclient~=0.5.1
 pyopenssl~=22.1.0
