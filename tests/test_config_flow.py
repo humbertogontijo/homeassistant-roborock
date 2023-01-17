@@ -3,12 +3,16 @@ from unittest.mock import patch
 
 import pytest
 from homeassistant import config_entries, data_entry_flow
+from homeassistant.components.vacuum import DOMAIN as VACUUM_DOMAIN
+from homeassistant.core import HomeAssistant
+from homeassistant.helpers import entity_registry as er
 from pytest_homeassistant_custom_component.common import MockConfigEntry
 
 from custom_components.roborock.api.containers import UserData
 from custom_components.roborock.const import DOMAIN
 
-from .mock_data import MOCK_CONFIG, USER_DATA, USER_EMAIL
+from .common import setup_platform
+from .mock_data import HOME_DATA, MOCK_CONFIG, USER_DATA, USER_EMAIL
 
 
 @pytest.mark.asyncio
@@ -157,6 +161,7 @@ async def test_options_flow(hass, bypass_api_fixture):
             "map_transformation.trim.right": 5.0,
             "map_transformation.trim.top": 5.0,
             "map_transformation.trim.bottom": 5.0,
+            "include_shared": True,
         },
     )
     # Verify that the flow finishes
@@ -167,5 +172,18 @@ async def test_options_flow(hass, bypass_api_fixture):
             "scale": 1.2,
             "rotate": 90,
             "trim": {"left": 5, "right": 5, "top": 5, "bottom": 5},
-        }
+        },
+        "include_shared": True,
     }
+
+
+@pytest.mark.asyncio
+async def test_disable_include_shared(hass: HomeAssistant, bypass_api_fixture) -> None:
+    """Tests devices are registered in the entity registry."""
+    await setup_platform(hass, VACUUM_DOMAIN, include_shared=False)
+    entity_registry = er.async_get(hass)
+    entry = entity_registry.async_get("vacuum.roborock_s7_maxv")
+    assert entry.unique_id == HOME_DATA.devices[0].duid
+
+    entry = entity_registry.async_get("vacuum.roborock_s7_maxv_shared")
+    assert entry is None

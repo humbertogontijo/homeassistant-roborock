@@ -28,7 +28,8 @@
           "map_transformation.trim.left": "Trim gauche de la carte",
           "map_transformation.trim.right": "Trim droite de la carte",
           "map_transformation.trim.top": "Trim haut de la carte",
-          "map_transformation.trim.bottom": "Trim bas de la carte"
+          "map_transformation.trim.bottom": "Trim bas de la carte",
+          "include_shared": "Include shared devices"
         }
       }
     }

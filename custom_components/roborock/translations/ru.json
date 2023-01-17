@@ -28,7 +28,8 @@
           "map_transformation.trim.left": "Выравнивание карты слева",
           "map_transformation.trim.right": "Выравнивание карты справа",
           "map_transformation.trim.top": "Выравнивание карты сверху",
-          "map_transformation.trim.bottom": "Выравнивание карты снизу"
+          "map_transformation.trim.bottom": "Выравнивание карты снизу",
+          "include_shared": "Include shared devices"
         }
       }
     }

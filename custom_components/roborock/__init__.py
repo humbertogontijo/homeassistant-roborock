@@ -16,7 +16,7 @@ from .api.api import RoborockClient, RoborockMqttClient
 from .api.containers import UserData, MultiMapsList
 from .api.exceptions import RoborockException, RoborockTimeout
 from .api.typing import RoborockDeviceInfo, RoborockDeviceProp
-from .const import CONF_ENTRY_USERNAME, CONF_USER_DATA, CONF_BASE_URL
+from .const import CONF_BASE_URL, CONF_ENTRY_USERNAME, CONF_INCLUDE_SHARED, CONF_USER_DATA
 from .const import DOMAIN, PLATFORMS
 
 SCAN_INTERVAL = timedelta(seconds=30)
@@ -73,13 +73,22 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
     user_data = UserData(entry.data.get(CONF_USER_DATA))
     base_url = entry.data.get(CONF_BASE_URL)
     username = entry.data.get(CONF_ENTRY_USERNAME)
+    include_shared = entry.options.get(CONF_INCLUDE_SHARED)
     api_client = RoborockClient(username, base_url)
+
     _LOGGER.debug("Getting home data")
     home_data = await api_client.get_home_data(user_data)
     _LOGGER.debug("Got home data %s", home_data.data)
 
     device_map: dict[str, RoborockDeviceInfo] = {}
-    for device in home_data.devices + home_data.received_devices:
+
+    devices = (
+        home_data.devices + home_data.received_devices
+        if include_shared
+        else home_data.devices
+    )
+
+    for device in devices:
         product = next(
             (
                 product

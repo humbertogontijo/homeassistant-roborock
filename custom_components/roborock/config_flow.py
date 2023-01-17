@@ -14,8 +14,16 @@ from .const import (
     CONF_ENTRY_CODE,
     CONF_ENTRY_USERNAME,
     CONF_USER_DATA,
+    CONF_INCLUDE_SHARED,
+    CONF_SCALE,
+    CONF_ROTATE,
+    CONF_TRIM,
+    CONF_MAP_TRANSFORM,
+    CONF_LEFT,
+    CONF_RIGHT,
+    CONF_TOP,
+    CONF_BOTTOM,
     DOMAIN,
-    CONF_SCALE, CONF_ROTATE, CONF_TRIM, CONF_MAP_TRANSFORM, CONF_LEFT, CONF_RIGHT, CONF_TOP, CONF_BOTTOM,
 )
 
 _LOGGER = logging.getLogger(__name__)
@@ -149,20 +157,25 @@ ROTATION_SCHEMA = vol.In(["0", "90", "180", "270"])
 
 
 def set_nested_dict(data: dict, key_string: str, value):
+    """Set nested dict."""
     here = data
     keys = key_string.split(".")
     for key in keys[:-1]:
         here = here.setdefault(key, {})
     here[keys[-1]] = value
 
+
 def get_nested_dict(data: dict, key_string: str, default=None):
+    """Get nested dict."""
     here = data
     keys = key_string.split(".")
     for key in keys:
         here = here.get(key)
-        if not here:
+        # Check for None type since CONF_INCLUDE_SHARED can return False
+        if here is None:
             return default
     return here
+
 
 CAMERA_OPTIONS = {
     f"{CONF_MAP_TRANSFORM}.{CONF_SCALE}": {
@@ -203,6 +216,17 @@ CAMERA_OPTIONS = {
     },
 }
 
+OPTIONS = CAMERA_OPTIONS.copy()
+
+OPTIONS.update({
+    CONF_INCLUDE_SHARED: {
+        "store_type": bool,
+        "show_type": bool,
+        "default": True,
+        "schema": bool
+    },
+})
+
 class RoborockOptionsFlowHandler(config_entries.OptionsFlow):
     """Roborock config flow options handler."""
 
@@ -220,7 +244,7 @@ class RoborockOptionsFlowHandler(config_entries.OptionsFlow):
         if user_input:
             data = {}
             for key, value in user_input.items():
-                store_type = CAMERA_OPTIONS.get(key).get("store_type")
+                store_type = OPTIONS.get(key).get("store_type")
                 typed_value = store_type(value)
                 set_nested_dict(data, key, typed_value)
             self.options = data
@@ -234,7 +258,7 @@ class RoborockOptionsFlowHandler(config_entries.OptionsFlow):
                         key,
                         default=schema.get("show_type")(get_nested_dict(self.options, key, schema.get("default")))
                     ): schema.get("schema")
-                    for key, schema in CAMERA_OPTIONS.items()
+                    for key, schema in OPTIONS.items()
                 }
             ),
         )

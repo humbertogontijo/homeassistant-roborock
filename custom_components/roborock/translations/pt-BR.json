@@ -28,7 +28,8 @@
           "map_transformation.trim.left": "Guarnição esquerda do mapa",
           "map_transformation.trim.right": "Guarnição direita do mapa",
           "map_transformation.trim.top": "Guarnição superior do mapa",
-          "map_transformation.trim.bottom": "Guarnição inferior do mapa"
+          "map_transformation.trim.bottom": "Guarnição inferior do mapa",
+          "include_shared": "Include shared devices"
         }
       }
     }

@@ -28,7 +28,8 @@
           "map_transformation.trim.left": "Kort venstre trim",
           "map_transformation.trim.right": "Kort højre trim",
           "map_transformation.trim.top": "Kort top trim",
-          "map_transformation.trim.bottom": "Kort bund trim"
+          "map_transformation.trim.bottom": "Kort bund trim",
+          "include_shared": "Include shared devices"
         }
       }
     }
