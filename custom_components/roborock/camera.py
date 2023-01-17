@@ -78,7 +78,6 @@ async def async_setup_entry(
     if not image_config:
         data = {}
         for key, value in CAMERA_OPTIONS.items():
-            value = value.get("default")
             set_nested_dict(data, key, value)
         image_config = data.get(CONF_MAP_TRANSFORM)
     entities = []
