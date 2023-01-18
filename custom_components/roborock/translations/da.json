@@ -17,11 +17,21 @@
     "error": {
       "no_device": "Der blev ikke fundet nogen enhed på din Roborock konto",
       "auth": "Login fejl. Kontroller login informationer"
+    },
+    "abort": {
+      "already_configured": "Device is already configured"
     }
   },
   "options": {
     "step": {
       "user": {
+        "description": "Select a platform to configure",
+        "data": {
+          "platform": "Platform"
+        }
+      },
+      "camera": {
+        "description": "Camera Options",
         "data": {
           "map_transformation.scale": "Kort skala",
           "map_transformation.rotate": "Kort rotation",
@@ -29,6 +39,12 @@
           "map_transformation.trim.right": "Kort højre trim",
           "map_transformation.trim.top": "Kort top trim",
           "map_transformation.trim.bottom": "Kort bund trim"
+        }
+      },
+      "vacuum": {
+        "description": "Vacuum options",
+        "data": {
+          "include_shared": "Include shared devices"
         }
       }
     }

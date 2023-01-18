@@ -32,7 +32,6 @@ from custom_components.roborock.api.util import run_in_executor
 _LOGGER = logging.getLogger(__name__)
 QUEUE_TIMEOUT = 4
 MQTT_KEEPALIVE = 60
-SESSION_EXPIRY_INTERVAL = 2 * 60
 
 
 def md5hex(message: str):
@@ -101,8 +100,7 @@ class RoborockMqttClient(mqtt.Client):
         self._nonce = secrets.token_bytes(16)
         self._waiting_queue: dict[int, RoborockQueue] = {}
         self._user_data = user_data
-        self._first_connection = True
-        self._last_message_timestamp = time.time()
+        self._should_connect = True
         self._mutex = Lock()
         super().__init__(client_id=self._hashed_user, protocol=mqtt.MQTTv5)
         if self._mqtt_ssl:
@@ -118,7 +116,6 @@ class RoborockMqttClient(mqtt.Client):
 
     @run_in_executor()
     async def on_connect(self, _client: mqtt.Client, _, __, rc, ___=None):
-        self._last_message_timestamp = time.time()
         connection_queue = self._waiting_queue[0]
         if rc != 0:
             await connection_queue.async_put((None, RoborockException("Failed to connect.")), timeout=QUEUE_TIMEOUT)
@@ -133,7 +130,6 @@ class RoborockMqttClient(mqtt.Client):
     @run_in_executor()
     async def on_message(self, _client, _, msg, __=None):
         try:
-            self._last_message_timestamp = time.time()
             device_id = msg.topic.split("/").pop()
             data = self._decode_msg(msg.payload, self.device_map[device_id].device)
             protocol = data.get("protocol")
@@ -213,17 +209,18 @@ class RoborockMqttClient(mqtt.Client):
         try:
             (_, err) = await connection_queue.async_get(timeout=QUEUE_TIMEOUT)
             if err:
-                raise err
+                raise RoborockException(err) from err
         except TimeoutError as ex:
-            raise RoborockException(f"Timeout after {QUEUE_TIMEOUT} seconds waiting for mqtt connection") from ex
+            self._should_connect = True
+            raise RoborockTimeout(f"Timeout after {QUEUE_TIMEOUT} seconds waiting for mqtt connection") from ex
         finally:
             del self._waiting_queue[0]
 
     async def validate_connection(self):
         async with self._mutex:
-            if self._first_connection or time.time() - self._last_message_timestamp > SESSION_EXPIRY_INTERVAL:
+            if self._should_connect:
                 await self.async_reconnect()
-                self._first_connection = False
+                self._should_connect = False
 
     def _decode_msg(self, msg, device: HomeDataDevice):
         if msg[0:3] != "1.0".encode():
@@ -299,8 +296,8 @@ class RoborockMqttClient(mqtt.Client):
                 _LOGGER.debug(f"id={request_id} Response from {method}: {response}")
             return response
         except (TimeoutError, CancelledError) as ex:
-            _LOGGER.debug(f"Timeout after {QUEUE_TIMEOUT} seconds waiting for {method} response")
-            raise RoborockTimeout(ex) from ex
+            self._should_connect = True
+            raise RoborockTimeout(f"Timeout after {QUEUE_TIMEOUT} waiting for response") from ex
         finally:
             del self._waiting_queue[request_id]
 
@@ -343,7 +340,6 @@ class RoborockMqttClient(mqtt.Client):
         multi_maps_list = await self.send_command(device_id, RoborockCommand.GET_MULTI_MAPS_LIST)
         if isinstance(multi_maps_list, dict):
             return MultiMapsList(multi_maps_list)
-
 
 
 class RoborockClient:

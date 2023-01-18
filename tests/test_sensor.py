@@ -2,6 +2,13 @@
 from datetime import datetime, time
 
 import pytest
+from homeassistant.components.sensor import DOMAIN as SENSOR_DOMAIN
+from homeassistant.components.sensor import SensorDeviceClass, SensorStateClass
+from homeassistant.const import ATTR_DEVICE_CLASS, STATE_OFF, STATE_ON
+from homeassistant.core import HomeAssistant
+from homeassistant.helpers import entity_registry as er
+from homeassistant.util import dt as dt_util
+
 from custom_components.roborock.api.containers import CleanRecordField, DNDTimerField
 from custom_components.roborock.const import (
     FILTER_REPLACE_TIME,
@@ -15,10 +22,10 @@ from custom_components.roborock.sensor import (
     ATTR_CLEAN_SUMMARY_DUST_COLLECTION_COUNT,
     ATTR_CLEAN_SUMMARY_TOTAL_AREA,
     ATTR_CLEAN_SUMMARY_TOTAL_DURATION,
-    ATTR_CONSUMABLE_STATUS_FILTER_REMAINING,
-    ATTR_CONSUMABLE_STATUS_MAIN_BRUSH_REMAINING,
-    ATTR_CONSUMABLE_STATUS_SENSOR_DIRTY_REMAINING,
-    ATTR_CONSUMABLE_STATUS_SIDE_BRUSH_REMAINING,
+    ATTR_CONSUMABLE_STATUS_FILTER_LEFT,
+    ATTR_CONSUMABLE_STATUS_MAIN_BRUSH_LEFT,
+    ATTR_CONSUMABLE_STATUS_SENSOR_DIRTY_LEFT,
+    ATTR_CONSUMABLE_STATUS_SIDE_BRUSH_LEFT,
     ATTR_DND_END,
     ATTR_DND_START,
     ATTR_LAST_CLEAN_AREA,
@@ -28,12 +35,6 @@ from custom_components.roborock.sensor import (
     ATTR_STATUS_CLEAN_AREA,
     ATTR_STATUS_CLEAN_TIME,
 )
-from homeassistant.components.sensor import DOMAIN as SENSOR_DOMAIN
-from homeassistant.components.sensor import SensorDeviceClass, SensorStateClass
-from homeassistant.const import ATTR_DEVICE_CLASS, STATE_OFF, STATE_ON
-from homeassistant.core import HomeAssistant
-from homeassistant.helpers import entity_registry as er
-from homeassistant.util import dt as dt_util
 
 from .common import setup_platform
 from .mock_data import (
@@ -47,12 +48,12 @@ from .mock_data import (
 
 
 @pytest.mark.asyncio
-async def test_registry_entries(hass: HomeAssistant) -> None:
+async def test_registry_entries(hass: HomeAssistant, bypass_api_fixture) -> None:
     """Tests devices are registered in the entity registry."""
     await setup_platform(hass, SENSOR_DOMAIN)
     entity_registry = er.async_get(hass)
 
-    duid = HOME_DATA["devices"][0]["duid"]
+    duid = HOME_DATA.devices[0].duid
 
     entry = entity_registry.async_get("sensor.roborock_s7_maxv_dnd_start")
     assert entry.unique_id == f"dnd_{ATTR_DND_START}_{duid}"
@@ -97,33 +98,28 @@ async def test_registry_entries(hass: HomeAssistant) -> None:
         == f"clean_history_{ATTR_CLEAN_SUMMARY_DUST_COLLECTION_COUNT}_{duid}"
     )
 
-    entry = entity_registry.async_get("sensor.roborock_s7_maxv_main_brush_remaining")
+    entry = entity_registry.async_get("sensor.roborock_s7_maxv_main_brush_left")
     assert (
-        entry.unique_id
-        == f"consumable_{ATTR_CONSUMABLE_STATUS_MAIN_BRUSH_REMAINING}_{duid}"
+        entry.unique_id == f"consumable_{ATTR_CONSUMABLE_STATUS_MAIN_BRUSH_LEFT}_{duid}"
     )
 
-    entry = entity_registry.async_get("sensor.roborock_s7_maxv_side_brush_remaining")
+    entry = entity_registry.async_get("sensor.roborock_s7_maxv_side_brush_left")
     assert (
-        entry.unique_id
-        == f"consumable_{ATTR_CONSUMABLE_STATUS_SIDE_BRUSH_REMAINING}_{duid}"
+        entry.unique_id == f"consumable_{ATTR_CONSUMABLE_STATUS_SIDE_BRUSH_LEFT}_{duid}"
     )
 
-    entry = entity_registry.async_get("sensor.roborock_s7_maxv_filter_remaining")
-    assert (
-        entry.unique_id
-        == f"consumable_{ATTR_CONSUMABLE_STATUS_FILTER_REMAINING}_{duid}"
-    )
+    entry = entity_registry.async_get("sensor.roborock_s7_maxv_filter_left")
+    assert entry.unique_id == f"consumable_{ATTR_CONSUMABLE_STATUS_FILTER_LEFT}_{duid}"
 
-    entry = entity_registry.async_get("sensor.roborock_s7_maxv_sensor_dirty_remaining")
+    entry = entity_registry.async_get("sensor.roborock_s7_maxv_sensor_dirty_left")
     assert (
         entry.unique_id
-        == f"consumable_{ATTR_CONSUMABLE_STATUS_SENSOR_DIRTY_REMAINING}_{duid}"
+        == f"consumable_{ATTR_CONSUMABLE_STATUS_SENSOR_DIRTY_LEFT}_{duid}"
     )
 
 
 @pytest.mark.asyncio
-async def test_dnd_start(hass: HomeAssistant) -> None:
+async def test_dnd_start(hass: HomeAssistant, bypass_api_fixture) -> None:
     """Tests dnd_start is getting the correct values."""
     await setup_platform(hass, SENSOR_DOMAIN)
     state = hass.states.get("sensor.roborock_s7_maxv_dnd_start")
@@ -138,7 +134,7 @@ async def test_dnd_start(hass: HomeAssistant) -> None:
 
 
 @pytest.mark.asyncio
-async def test_dnd_end(hass: HomeAssistant) -> None:
+async def test_dnd_end(hass: HomeAssistant, bypass_api_fixture) -> None:
     """Tests dnd_end is getting the correct values."""
     await setup_platform(hass, SENSOR_DOMAIN)
     state = hass.states.get("sensor.roborock_s7_maxv_dnd_end")
@@ -153,7 +149,7 @@ async def test_dnd_end(hass: HomeAssistant) -> None:
 
 
 @pytest.mark.asyncio
-async def test_last_clean_duration(hass: HomeAssistant) -> None:
+async def test_last_clean_duration(hass: HomeAssistant, bypass_api_fixture) -> None:
     """Tests last_clean_duration is getting the correct values."""
     await setup_platform(hass, SENSOR_DOMAIN)
     state = hass.states.get("sensor.roborock_s7_maxv_last_clean_duration")
@@ -163,7 +159,7 @@ async def test_last_clean_duration(hass: HomeAssistant) -> None:
 
 
 @pytest.mark.asyncio
-async def test_clean_area(hass: HomeAssistant) -> None:
+async def test_clean_area(hass: HomeAssistant, bypass_api_fixture) -> None:
     """Tests last_clean_area is getting the correct values."""
     await setup_platform(hass, SENSOR_DOMAIN)
     state = hass.states.get("sensor.roborock_s7_maxv_last_clean_area")
@@ -173,7 +169,7 @@ async def test_clean_area(hass: HomeAssistant) -> None:
 
 
 @pytest.mark.asyncio
-async def test_current_clean_duration(hass: HomeAssistant) -> None:
+async def test_current_clean_duration(hass: HomeAssistant, bypass_api_fixture) -> None:
     """Tests current_clean_duration is getting the correct values."""
     await setup_platform(hass, SENSOR_DOMAIN)
     state = hass.states.get("sensor.roborock_s7_maxv_current_clean_duration")
@@ -183,7 +179,7 @@ async def test_current_clean_duration(hass: HomeAssistant) -> None:
 
 
 @pytest.mark.asyncio
-async def test_current_clean_area(hass: HomeAssistant) -> None:
+async def test_current_clean_area(hass: HomeAssistant, bypass_api_fixture) -> None:
     """Tests current_clean_area is getting the correct values."""
     await setup_platform(hass, SENSOR_DOMAIN)
     state = hass.states.get("sensor.roborock_s7_maxv_current_clean_area")
@@ -193,7 +189,7 @@ async def test_current_clean_area(hass: HomeAssistant) -> None:
 
 
 @pytest.mark.asyncio
-async def test_last_clean_start(hass: HomeAssistant) -> None:
+async def test_last_clean_start(hass: HomeAssistant, bypass_api_fixture) -> None:
     """Tests last_clean_start is getting the correct values."""
     await setup_platform(hass, SENSOR_DOMAIN)
     state = hass.states.get("sensor.roborock_s7_maxv_last_clean_start")
@@ -206,7 +202,7 @@ async def test_last_clean_start(hass: HomeAssistant) -> None:
 
 
 @pytest.mark.asyncio
-async def test_last_clean_end(hass: HomeAssistant) -> None:
+async def test_last_clean_end(hass: HomeAssistant, bypass_api_fixture) -> None:
     """Tests last_clean_end is getting the correct values."""
     await setup_platform(hass, SENSOR_DOMAIN)
     state = hass.states.get("sensor.roborock_s7_maxv_last_clean_end")
@@ -219,7 +215,7 @@ async def test_last_clean_end(hass: HomeAssistant) -> None:
 
 
 @pytest.mark.asyncio
-async def test_total_duration(hass: HomeAssistant) -> None:
+async def test_total_duration(hass: HomeAssistant, bypass_api_fixture) -> None:
     """Tests total_duration is getting the correct values."""
     await setup_platform(hass, SENSOR_DOMAIN)
     state = hass.states.get("sensor.roborock_s7_maxv_total_duration")
@@ -229,7 +225,7 @@ async def test_total_duration(hass: HomeAssistant) -> None:
 
 
 @pytest.mark.asyncio
-async def test_total_clean_area(hass: HomeAssistant) -> None:
+async def test_total_clean_area(hass: HomeAssistant, bypass_api_fixture) -> None:
     """Tests total_clean_area is getting the correct values."""
     await setup_platform(hass, SENSOR_DOMAIN)
     state = hass.states.get("sensor.roborock_s7_maxv_total_clean_area")
@@ -239,7 +235,7 @@ async def test_total_clean_area(hass: HomeAssistant) -> None:
 
 
 @pytest.mark.asyncio
-async def test_total_clean_count(hass: HomeAssistant) -> None:
+async def test_total_clean_count(hass: HomeAssistant, bypass_api_fixture) -> None:
     """Tests total_clean_count is getting the correct values."""
     await setup_platform(hass, SENSOR_DOMAIN)
     state = hass.states.get("sensor.roborock_s7_maxv_total_clean_count")
@@ -249,7 +245,9 @@ async def test_total_clean_count(hass: HomeAssistant) -> None:
 
 
 @pytest.mark.asyncio
-async def test_total_dust_collection_count(hass: HomeAssistant) -> None:
+async def test_total_dust_collection_count(
+    hass: HomeAssistant, bypass_api_fixture
+) -> None:
     """Tests total_dust_collection_count is getting the correct values."""
     await setup_platform(hass, SENSOR_DOMAIN)
     state = hass.states.get("sensor.roborock_s7_maxv_total_dust_collection_count")
@@ -259,10 +257,10 @@ async def test_total_dust_collection_count(hass: HomeAssistant) -> None:
 
 
 @pytest.mark.asyncio
-async def test_main_brush_remaining(hass: HomeAssistant) -> None:
-    """Tests main_brush_remaining is getting the correct values."""
+async def test_main_brush_left(hass: HomeAssistant, bypass_api_fixture) -> None:
+    """Tests main_brush_left is getting the correct values."""
     await setup_platform(hass, SENSOR_DOMAIN)
-    state = hass.states.get("sensor.roborock_s7_maxv_main_brush_remaining")
+    state = hass.states.get("sensor.roborock_s7_maxv_main_brush_left")
 
     assert state.state == str(
         MAIN_BRUSH_REPLACE_TIME - CONSUMABLE["main_brush_work_time"]
@@ -271,10 +269,10 @@ async def test_main_brush_remaining(hass: HomeAssistant) -> None:
 
 
 @pytest.mark.asyncio
-async def test_side_brush_remaining(hass: HomeAssistant) -> None:
-    """Tests side_brush_remaining is getting the correct values."""
+async def test_side_brush_left(hass: HomeAssistant, bypass_api_fixture) -> None:
+    """Tests side_brush_left is getting the correct values."""
     await setup_platform(hass, SENSOR_DOMAIN)
-    state = hass.states.get("sensor.roborock_s7_maxv_side_brush_remaining")
+    state = hass.states.get("sensor.roborock_s7_maxv_side_brush_left")
 
     assert state.state == str(
         SIDE_BRUSH_REPLACE_TIME - CONSUMABLE["side_brush_work_time"]
@@ -283,20 +281,20 @@ async def test_side_brush_remaining(hass: HomeAssistant) -> None:
 
 
 @pytest.mark.asyncio
-async def test_filter_remaining(hass: HomeAssistant) -> None:
-    """Tests filter_remaining is getting the correct values."""
+async def test_filter_left(hass: HomeAssistant, bypass_api_fixture) -> None:
+    """Tests filter_left is getting the correct values."""
     await setup_platform(hass, SENSOR_DOMAIN)
-    state = hass.states.get("sensor.roborock_s7_maxv_filter_remaining")
+    state = hass.states.get("sensor.roborock_s7_maxv_filter_left")
 
     assert state.state == str(FILTER_REPLACE_TIME - CONSUMABLE["filter_work_time"])
     assert state.attributes.get(ATTR_DEVICE_CLASS) == SensorDeviceClass.DURATION
 
 
 @pytest.mark.asyncio
-async def test_sensor_dirty_remaining(hass: HomeAssistant) -> None:
-    """Tests sensor_dirty_remaining is getting the correct values."""
+async def test_sensor_dirty_left(hass: HomeAssistant, bypass_api_fixture) -> None:
+    """Tests sensor_dirty_left is getting the correct values."""
     await setup_platform(hass, SENSOR_DOMAIN)
-    state = hass.states.get("sensor.roborock_s7_maxv_sensor_dirty_remaining")
+    state = hass.states.get("sensor.roborock_s7_maxv_sensor_dirty_left")
 
     assert state.state == str(
         SENSOR_DIRTY_REPLACE_TIME - CONSUMABLE["sensor_dirty_time"]

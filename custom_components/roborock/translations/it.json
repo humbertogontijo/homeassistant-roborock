@@ -17,11 +17,21 @@
     "error": {
       "no_device": "Nessun dispositivo trovato nel tuo account Roborock",
       "auth": "Accesso fallito. Controlla le credenziali"
+    },
+    "abort": {
+      "already_configured": "Device is already configured"
     }
   },
   "options": {
     "step": {
       "user": {
+        "description": "Select a platform to configure",
+        "data": {
+          "platform": "Platform"
+        }
+      },
+      "camera": {
+        "description": "Camera Options",
         "data": {
           "map_transformation.scale": "Scala della mappa",
           "map_transformation.rotate": "Rotazione della mappa",
@@ -29,6 +39,12 @@
           "map_transformation.trim.right": "Ritaglio mappa da destra",
           "map_transformation.trim.top": "Ritaglio mappa dall'alto",
           "map_transformation.trim.bottom": "Ritaglio mappa dal basso"
+        }
+      },
+      "vacuum": {
+        "description": "Vacuum options",
+        "data": {
+          "include_shared": "Include shared devices"
         }
       }
     }

@@ -17,11 +17,21 @@
     "error": {
       "no_device": "Deinem Account ist kein Gerät zugeordnet",
       "auth": "Login fehlgeschlagen. Prüfe deine Zugangsdaten"
+    },
+    "abort": {
+      "already_configured": "Device is already configured"
     }
   },
   "options": {
     "step": {
       "user": {
+        "description": "Select a platform to configure",
+        "data": {
+          "platform": "Platform"
+        }
+      },
+      "camera": {
+        "description": "Camera Options",
         "data": {
           "map_transformation.scale": "Kartengröße",
           "map_transformation.rotate": "Kartendrehung",
@@ -29,6 +39,12 @@
           "map_transformation.trim.right": "Karte beschneiden rechts",
           "map_transformation.trim.top": "Karte beschneiden oben",
           "map_transformation.trim.bottom": "Karte beschneiden unten"
+        }
+      },
+      "vacuum": {
+        "description": "Vacuum options",
+        "data": {
+          "include_shared": "Include shared devices"
         }
       }
     }

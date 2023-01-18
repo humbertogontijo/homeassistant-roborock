@@ -4,6 +4,7 @@ from custom_components.roborock.api.containers import (
     CleanSummary,
     Consumable,
     DNDTimer,
+    HomeData,
     Status,
 )
 from custom_components.roborock.api.typing import RoborockDeviceProp
@@ -46,7 +47,7 @@ MOCK_CONFIG = {
     "base_url": None,
 }
 
-HOME_DATA = {
+HOME_DATA_RAW = {
     "id": 123456,
     "name": "My Home",
     "lon": None,
@@ -257,6 +258,69 @@ HOME_DATA = {
         {"id": 2362041, "name": "Example room 3"},
     ],
 }
+
+HOME_DATA = HomeData(HOME_DATA_RAW)
+
+HOME_DATA_SHARED_RAW = HOME_DATA_RAW.copy()
+
+# Not sure if this is what receivedDevices list looks like.
+# I just copied the devices and product list for now.
+HOME_DATA_SHARED_RAW["receivedDevices"].append(
+    {
+        "duid": "abc123_shared",
+        "name": "Roborock S7 MaxV Shared",
+        "attribute": None,
+        "activeTime": 1672364449,
+        "localKey": "abc123_shared",
+        "runtimeEnv": None,
+        "timeZoneId": "America/Los_Angeles",
+        "iconUrl": "",
+        "productId": "abc123_shared",
+        "lon": None,
+        "lat": None,
+        "share": False,
+        "shareTime": None,
+        "online": True,
+        "fv": "02.56.02",
+        "pv": "1.0",
+        "roomId": 2362003,
+        "tuyaUuid": None,
+        "tuyaMigrated": False,
+        "extra": '{"RRPhotoPrivacyVersion": "1"}',
+        "sn": "abc123_shared",
+        "featureSet": "2234201184108543",
+        "newFeatureSet": "0000000000002041",
+        "deviceStatus": {
+            "121": 8,
+            "122": 100,
+            "123": 102,
+            "124": 203,
+            "125": 94,
+            "126": 90,
+            "127": 87,
+            "128": 0,
+            "133": 1,
+            "120": 0,
+        },
+        "silentOtaSwitch": True,
+    }
+)
+
+HOME_DATA_SHARED_RAW["products"].append(
+    {
+        "id": "abc123_shared",
+        "name": "Roborock S7 MaxV Shared",
+        "code": "a27",
+        "model": "roborock.vacuum.a27",
+        "iconUrl": None,
+        "attribute": None,
+        "capability": 0,
+        "category": "robot.vacuum.cleaner",
+        "schema": [],
+    }
+)
+
+HOME_DATA_SHARED = HomeData(HOME_DATA_SHARED_RAW)
 
 CLEAN_RECORD = {
     "begin": 1672543330,

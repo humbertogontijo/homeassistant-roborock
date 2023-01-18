@@ -2,9 +2,11 @@
 from __future__ import annotations
 
 import logging
+from typing import Any
 
 import voluptuous as vol
 from homeassistant import config_entries
+from homeassistant.const import CONF_PLATFORM
 from homeassistant.core import callback
 
 from .api.api import RoborockClient
@@ -15,8 +17,19 @@ from .const import (
     CONF_ENTRY_USERNAME,
     CONF_USER_DATA,
     DOMAIN,
-    CONF_SCALE, CONF_ROTATE, CONF_TRIM, CONF_MAP_TRANSFORM, CONF_LEFT, CONF_RIGHT, CONF_TOP, CONF_BOTTOM,
+    CONF_SCALE,
+    CONF_ROTATE,
+    CONF_TRIM,
+    CONF_MAP_TRANSFORM,
+    CONF_LEFT,
+    CONF_RIGHT,
+    CONF_TOP,
+    CONF_BOTTOM,
+    CAMERA,
+    VACUUM,
+    CONF_INCLUDE_SHARED,
 )
+from .utils import get_nested_dict, set_nested_dict
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -71,11 +84,14 @@ class RoborockFlowHandler(config_entries.ConfigFlow, domain=DOMAIN):
             code = user_input[CONF_ENTRY_CODE]
             login_data = await self._login(code)
             if login_data:
-                return self.async_create_entry(title=self._username, data={
-                    CONF_ENTRY_USERNAME: self._username,
-                    CONF_USER_DATA: login_data.data,
-                    CONF_BASE_URL: self._base_url
-                })
+                return self.async_create_entry(
+                    title=self._username,
+                    data={
+                        CONF_ENTRY_USERNAME: self._username,
+                        CONF_USER_DATA: login_data.data,
+                        CONF_BASE_URL: self._base_url,
+                    },
+                )
             else:
                 self._errors["base"] = "no_device"
 
@@ -131,7 +147,7 @@ class RoborockFlowHandler(config_entries.ConfigFlow, domain=DOMAIN):
             self._errors["base"] = "auth"
             return None
 
-    async def _login(self, code) -> UserData:
+    async def _login(self, code) -> UserData | None:
         """Return UserData if login code is valid."""
         try:
             _LOGGER.debug("Logging into Roborock account using email provided code")
@@ -140,68 +156,54 @@ class RoborockFlowHandler(config_entries.ConfigFlow, domain=DOMAIN):
         except Exception as ex:
             _LOGGER.exception(ex)
             self._errors["base"] = "auth"
-            return None
+            return
 
 
-PERCENT_SCHEMA = vol.All(vol.Coerce(float), vol.Range(min=0, max=100))
+def discriminant(_, validators):
+    return list(validators).__reversed__()
+
+
 POSITIVE_FLOAT_SCHEMA = vol.All(vol.Coerce(float), vol.Range(min=0))
-ROTATION_SCHEMA = vol.In(["0", "90", "180", "270"])
+ROTATION_SCHEMA = vol.All(vol.Coerce(int), vol.Coerce(str), vol.In(["0", "90", "180", "270"]),
+                          discriminant=discriminant)
+PERCENT_SCHEMA = vol.All(vol.Coerce(float), vol.Range(min=0, max=100))
 
-
-def set_nested_dict(data: dict, key_string: str, value):
-    here = data
-    keys = key_string.split(".")
-    for key in keys[:-1]:
-        here = here.setdefault(key, {})
-    here[keys[-1]] = value
-
-def get_nested_dict(data: dict, key_string: str, default=None):
-    here = data
-    keys = key_string.split(".")
-    for key in keys:
-        here = here.get(key)
-        if not here:
-            return default
-    return here
-
-CAMERA_OPTIONS = {
-    f"{CONF_MAP_TRANSFORM}.{CONF_SCALE}": {
-        "store_type": int,
-        "show_type": int,
-        "default": 1,
-        "schema": POSITIVE_FLOAT_SCHEMA
-    },
-    f"{CONF_MAP_TRANSFORM}.{CONF_ROTATE}": {
-        "store_type": int,
-        "show_type": str,
-        "default": 0,
-        "schema": ROTATION_SCHEMA
-    },
-    f"{CONF_MAP_TRANSFORM}.{CONF_TRIM}.{CONF_LEFT}": {
-        "store_type": int,
-        "show_type": int,
-        "default": 0,
-        "schema": PERCENT_SCHEMA
-    },
-    f"{CONF_MAP_TRANSFORM}.{CONF_TRIM}.{CONF_RIGHT}": {
-        "store_type": int,
-        "show_type": int,
-        "default": 0,
-        "schema": PERCENT_SCHEMA
-    },
-    f"{CONF_MAP_TRANSFORM}.{CONF_TRIM}.{CONF_TOP}": {
-        "store_type": int,
-        "show_type": int,
-        "default": 0,
-        "schema": PERCENT_SCHEMA
-    },
-    f"{CONF_MAP_TRANSFORM}.{CONF_TRIM}.{CONF_BOTTOM}": {
-        "store_type": int,
-        "show_type": int,
-        "default": 0,
-        "schema": PERCENT_SCHEMA
-    },
+CAMERA_VALUES = {
+    f"{CONF_MAP_TRANSFORM}.{CONF_SCALE}": 1.0,
+    f"{CONF_MAP_TRANSFORM}.{CONF_ROTATE}": 0,
+    f"{CONF_MAP_TRANSFORM}.{CONF_TRIM}.{CONF_LEFT}": 0.0,
+    f"{CONF_MAP_TRANSFORM}.{CONF_TRIM}.{CONF_RIGHT}": 0.0,
+    f"{CONF_MAP_TRANSFORM}.{CONF_TRIM}.{CONF_TOP}": 0.0,
+    f"{CONF_MAP_TRANSFORM}.{CONF_TRIM}.{CONF_BOTTOM}": 0.0,
 }
+
+CAMERA_SCHEMA = {
+    f"{CONF_MAP_TRANSFORM}.{CONF_SCALE}": POSITIVE_FLOAT_SCHEMA,
+    f"{CONF_MAP_TRANSFORM}.{CONF_ROTATE}": ROTATION_SCHEMA,
+    f"{CONF_MAP_TRANSFORM}.{CONF_TRIM}.{CONF_LEFT}": PERCENT_SCHEMA,
+    f"{CONF_MAP_TRANSFORM}.{CONF_TRIM}.{CONF_RIGHT}": PERCENT_SCHEMA,
+    f"{CONF_MAP_TRANSFORM}.{CONF_TRIM}.{CONF_TOP}": PERCENT_SCHEMA,
+    f"{CONF_MAP_TRANSFORM}.{CONF_TRIM}.{CONF_BOTTOM}": PERCENT_SCHEMA,
+}
+
+VACUUM_VALUES = {
+    CONF_INCLUDE_SHARED: True
+}
+
+VACUUM_SCHEMA = {
+    CONF_INCLUDE_SHARED: vol.Coerce(bool)
+}
+
+OPTION_VALUES = {
+    VACUUM: VACUUM_VALUES,
+    CAMERA: CAMERA_VALUES,
+}
+
+OPTION_SCHEMA = {
+    **{f"{VACUUM}.{vs_key}": vs_value for vs_key, vs_value in VACUUM_SCHEMA.items()},
+    **{f"{CAMERA}.{cs_key}": cs_value for cs_key, cs_value in CAMERA_SCHEMA.items()},
+}
+
 
 class RoborockOptionsFlowHandler(config_entries.OptionsFlow):
     """Roborock config flow options handler."""
@@ -218,23 +220,44 @@ class RoborockOptionsFlowHandler(config_entries.OptionsFlow):
     async def async_step_user(self, user_input=None):
         """Handle a flow initialized by the user."""
         if user_input:
-            data = {}
-            for key, value in user_input.items():
-                store_type = CAMERA_OPTIONS.get(key).get("store_type")
-                typed_value = store_type(value)
-                set_nested_dict(data, key, typed_value)
-            self.options = data
-            return await self._update_options()
+            if user_input.get(CONF_PLATFORM) == CAMERA:
+                return await self.async_step_camera()
+            elif user_input.get(CONF_PLATFORM) == VACUUM:
+                return await self.async_step_vacuum()
 
         return self.async_show_form(
             step_id="user",
             data_schema=vol.Schema(
+                {vol.Required(CONF_PLATFORM): vol.In([CAMERA, VACUUM])}
+            ),
+        )
+
+    async def async_step_camera(self, user_input=None):
+        return await self._async_step_platform(CAMERA, CAMERA_SCHEMA, CAMERA_VALUES, user_input)
+
+    async def async_step_vacuum(self, user_input=None):
+        return await self._async_step_platform(VACUUM, VACUUM_SCHEMA, VACUUM_VALUES, user_input)
+
+    async def _async_step_platform(self, platform: str, schema: dict[str, Any], values: dict[str, Any],
+                                   user_input=None):
+        if user_input:
+            data = {}
+            for key, value in user_input.items():
+                set_nested_dict(data, key, value)
+            if self.options:
+                self.options[platform] = data
+            else:
+                self.options = {platform: data}
+            return await self._update_options()
+        options = self.options.get(platform) if self.options else None
+        return self.async_show_form(
+            step_id=platform,
+            data_schema=vol.Schema(
                 {
                     vol.Optional(
-                        key,
-                        default=schema.get("show_type")(get_nested_dict(self.options, key, schema.get("default")))
-                    ): schema.get("schema")
-                    for key, schema in CAMERA_OPTIONS.items()
+                        key, default=schema.get(key)(get_nested_dict(options or {}, key, value))
+                    ): schema.get(key)
+                    for key, value in values.items()
                 }
             ),
         )
