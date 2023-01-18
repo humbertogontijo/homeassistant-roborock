@@ -10,7 +10,8 @@ from homeassistant.core import HomeAssistant
 from pytest_homeassistant_custom_component.common import MockConfigEntry
 
 from custom_components.roborock.api.containers import UserData
-from custom_components.roborock.const import DOMAIN, CAMERA
+from custom_components.roborock.const import DOMAIN, CAMERA, CONF_MAP_TRANSFORM, CONF_SCALE, CONF_ROTATE, CONF_TRIM, \
+    CONF_LEFT, CONF_RIGHT, CONF_TOP, CONF_BOTTOM, VACUUM, CONF_INCLUDE_SHARED
 from .mock_data import MOCK_CONFIG, USER_DATA, USER_EMAIL
 
 
@@ -139,7 +140,7 @@ async def test_unknown_user(hass: HomeAssistant, bypass_api_fixture):
 
 
 @pytest.mark.asyncio
-async def test_options_flow(hass: HomeAssistant, bypass_api_fixture):
+async def test_camera_options_flow(hass: HomeAssistant, bypass_api_fixture):
     """Test options flow."""
     # Create a new MockConfigEntry and add to HASS (we're bypassing config
     # flow entirely)
@@ -165,24 +166,24 @@ async def test_options_flow(hass: HomeAssistant, bypass_api_fixture):
     )
     for serialized_schema in serialized_schemas:
         assert (serialized_schema["name"], serialized_schema["default"]) in {
-            "map_transformation.scale": 1,
-            "map_transformation.rotate": "0",
-            "map_transformation.trim.left": 0,
-            "map_transformation.trim.right": 0,
-            "map_transformation.trim.top": 0,
-            "map_transformation.trim.bottom": 0,
+            f"{CONF_MAP_TRANSFORM}.{CONF_SCALE}": 1,
+            f"{CONF_MAP_TRANSFORM}.{CONF_ROTATE}": "0",
+            f"{CONF_MAP_TRANSFORM}.{CONF_TRIM}.{CONF_LEFT}": 0,
+            f"{CONF_MAP_TRANSFORM}.{CONF_TRIM}.{CONF_RIGHT}": 0,
+            f"{CONF_MAP_TRANSFORM}.{CONF_TRIM}.{CONF_TOP}": 0,
+            f"{CONF_MAP_TRANSFORM}.{CONF_TRIM}.{CONF_BOTTOM}": 0,
         }.items()
 
     # Change map transformation options
     result = await hass.config_entries.options.async_configure(
         result["flow_id"],
         user_input={
-            "map_transformation.scale": 1.2,
-            "map_transformation.rotate": "90",
-            "map_transformation.trim.left": 5.0,
-            "map_transformation.trim.right": 5.0,
-            "map_transformation.trim.top": 5.0,
-            "map_transformation.trim.bottom": 5.0,
+            f"{CONF_MAP_TRANSFORM}.{CONF_SCALE}": 1.2,
+            f"{CONF_MAP_TRANSFORM}.{CONF_ROTATE}": "90",
+            f"{CONF_MAP_TRANSFORM}.{CONF_TRIM}.{CONF_LEFT}": 5.0,
+            f"{CONF_MAP_TRANSFORM}.{CONF_TRIM}.{CONF_RIGHT}": 5.0,
+            f"{CONF_MAP_TRANSFORM}.{CONF_TRIM}.{CONF_TOP}": 5.0,
+            f"{CONF_MAP_TRANSFORM}.{CONF_TRIM}.{CONF_BOTTOM}": 5.0,
         },
     )
 
@@ -190,9 +191,130 @@ async def test_options_flow(hass: HomeAssistant, bypass_api_fixture):
     assert result["type"] == data_entry_flow.RESULT_TYPE_CREATE_ENTRY
     # Verify the options were set
     assert dict(entry.options) == {
-        "map_transformation": {
-            "scale": 1.2,
-            "rotate": 90,
-            "trim": {"left": 5, "right": 5, "top": 5, "bottom": 5},
+        CAMERA: {
+            CONF_MAP_TRANSFORM: {
+                CONF_SCALE: 1.2,
+                CONF_ROTATE: 90,
+                CONF_TRIM: {CONF_LEFT: 5, CONF_RIGHT: 5, CONF_TOP: 5, CONF_BOTTOM: 5},
+            }
         }
     }
+
+
+@pytest.mark.asyncio
+async def test_vacuum_options_flow(hass: HomeAssistant, bypass_api_fixture):
+    """Test options flow."""
+    # Create a new MockConfigEntry and add to HASS (we're bypassing config
+    # flow entirely)
+    entry = MockConfigEntry(domain=DOMAIN, data=MOCK_CONFIG, entry_id="test")
+    entry.add_to_hass(hass)
+    await hass.config_entries.flow.async_init(
+        DOMAIN, context={"source": config_entries.SOURCE_USER}
+    )
+    # Initialize an options flow
+    result = await hass.config_entries.options.async_init(entry.entry_id)
+    # Verify that the first options step is a user form
+    assert result["type"] == data_entry_flow.RESULT_TYPE_FORM
+    assert result["step_id"] == "user"
+    result = await hass.config_entries.options.async_configure(
+        result["flow_id"],
+        user_input={
+            CONF_PLATFORM: VACUUM
+        },
+    )
+    # Check if its serializable
+    serialized_schemas = voluptuous_serialize.convert(
+        result["data_schema"], custom_serializer=cv.custom_serializer
+    )
+    for serialized_schema in serialized_schemas:
+        assert (serialized_schema["name"], serialized_schema["default"]) in {
+            CONF_INCLUDE_SHARED: True,
+        }.items()
+
+    # Change map transformation options
+    result = await hass.config_entries.options.async_configure(
+        result["flow_id"],
+        user_input={
+            CONF_INCLUDE_SHARED: False
+        },
+    )
+
+    # Verify that the flow finishes
+    assert result["type"] == data_entry_flow.RESULT_TYPE_CREATE_ENTRY
+    # Verify the options were set
+    assert dict(entry.options) == {
+        VACUUM: {
+            CONF_INCLUDE_SHARED: False
+        }
+    }
+
+@pytest.mark.asyncio
+async def test_vacuum_options_flow_persistence(hass: HomeAssistant, bypass_api_fixture):
+    """Test options flow."""
+    # Create a new MockConfigEntry and add to HASS (we're bypassing config
+    # flow entirely)
+    entry = MockConfigEntry(domain=DOMAIN, data=MOCK_CONFIG, entry_id="test")
+    entry.add_to_hass(hass)
+    await hass.config_entries.flow.async_init(
+        DOMAIN, context={"source": config_entries.SOURCE_USER}
+    )
+    # Initialize an options flow
+    result = await hass.config_entries.options.async_init(entry.entry_id)
+    # Verify that the first options step is a user form
+    assert result["type"] == data_entry_flow.RESULT_TYPE_FORM
+    assert result["step_id"] == "user"
+    result = await hass.config_entries.options.async_configure(
+        result["flow_id"],
+        user_input={
+            CONF_PLATFORM: VACUUM
+        },
+    )
+    # Check if its serializable
+    serialized_schemas = voluptuous_serialize.convert(
+        result["data_schema"], custom_serializer=cv.custom_serializer
+    )
+    for serialized_schema in serialized_schemas:
+        assert (serialized_schema["name"], serialized_schema["default"]) in {
+            CONF_INCLUDE_SHARED: True,
+        }.items()
+
+    # Change map transformation options
+    result = await hass.config_entries.options.async_configure(
+        result["flow_id"],
+        user_input={
+            CONF_INCLUDE_SHARED: False
+        },
+    )
+
+    # Verify that the flow finishes
+    assert result["type"] == data_entry_flow.RESULT_TYPE_CREATE_ENTRY
+    # Verify the options were set
+    assert dict(entry.options) == {
+        VACUUM: {
+            CONF_INCLUDE_SHARED: False
+        }
+    }
+
+    await hass.config_entries.flow.async_init(
+        DOMAIN, context={"source": config_entries.SOURCE_USER}
+    )
+    # Initialize an options flow
+    result = await hass.config_entries.options.async_init(entry.entry_id)
+    # Verify that the first options step is a user form
+    assert result["type"] == data_entry_flow.RESULT_TYPE_FORM
+    assert result["step_id"] == "user"
+    result = await hass.config_entries.options.async_configure(
+        result["flow_id"],
+        user_input={
+            CONF_PLATFORM: VACUUM
+        },
+    )
+    # Check if its serializable
+    serialized_schemas = voluptuous_serialize.convert(
+        result["data_schema"], custom_serializer=cv.custom_serializer
+    )
+    for serialized_schema in serialized_schemas:
+        assert (serialized_schema["name"], serialized_schema["default"]) in {
+            CONF_INCLUDE_SHARED: False,
+        }.items()
+

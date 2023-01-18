@@ -40,6 +40,12 @@
           "map_transformation.trim.top": "Guarnição superior do mapa",
           "map_transformation.trim.bottom": "Guarnição inferior do mapa"
         }
+      },
+      "vacuum": {
+        "description": "Opções do aspirador",
+        "data": {
+          "include_shared": "Incluir dispositivos compartilhados"
+        }
       }
     }
   },

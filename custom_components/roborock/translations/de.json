@@ -40,6 +40,12 @@
           "map_transformation.trim.top": "Karte beschneiden oben",
           "map_transformation.trim.bottom": "Karte beschneiden unten"
         }
+      },
+      "vacuum": {
+        "description": "Vacuum options",
+        "data": {
+          "include_shared": "Include shared devices"
+        }
       }
     }
   },

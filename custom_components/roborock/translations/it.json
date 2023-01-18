@@ -40,6 +40,12 @@
           "map_transformation.trim.top": "Ritaglio mappa dall'alto",
           "map_transformation.trim.bottom": "Ritaglio mappa dal basso"
         }
+      },
+      "vacuum": {
+        "description": "Vacuum options",
+        "data": {
+          "include_shared": "Include shared devices"
+        }
       }
     }
   },

@@ -40,6 +40,12 @@
           "map_transformation.trim.top": "Trim haut de la carte",
           "map_transformation.trim.bottom": "Trim bas de la carte"
         }
+      },
+      "vacuum": {
+        "description": "Vacuum options",
+        "data": {
+          "include_shared": "Include shared devices"
+        }
       }
     }
   },

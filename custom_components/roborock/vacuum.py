@@ -284,19 +284,19 @@ class RoborockVacuum(RoborockCoordinatedEntity, StateVacuumEntity, ABC):
         """Flag vacuum cleaner features that are supported."""
         features = (
                 VacuumEntityFeature.TURN_ON
-                + VacuumEntityFeature.TURN_OFF
-                + VacuumEntityFeature.PAUSE
-                + VacuumEntityFeature.STOP
-                + VacuumEntityFeature.RETURN_HOME
-                + VacuumEntityFeature.FAN_SPEED
-                + VacuumEntityFeature.BATTERY
-                + VacuumEntityFeature.STATUS
-                + VacuumEntityFeature.SEND_COMMAND
-                + VacuumEntityFeature.LOCATE
-                + VacuumEntityFeature.CLEAN_SPOT
-                + VacuumEntityFeature.STATE
-                + VacuumEntityFeature.START
-                + VacuumEntityFeature.MAP
+                | VacuumEntityFeature.TURN_OFF
+                | VacuumEntityFeature.PAUSE
+                | VacuumEntityFeature.STOP
+                | VacuumEntityFeature.RETURN_HOME
+                | VacuumEntityFeature.FAN_SPEED
+                | VacuumEntityFeature.BATTERY
+                | VacuumEntityFeature.STATUS
+                | VacuumEntityFeature.SEND_COMMAND
+                | VacuumEntityFeature.LOCATE
+                | VacuumEntityFeature.CLEAN_SPOT
+                | VacuumEntityFeature.STATE
+                | VacuumEntityFeature.START
+                | VacuumEntityFeature.MAP
         )
         return features
 

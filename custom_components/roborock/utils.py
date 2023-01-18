@@ -1,4 +1,5 @@
 def set_nested_dict(data: dict, key_string: str, value):
+    """Set nested dict."""
     here = data
     keys = key_string.split(".")
     for key in keys[:-1]:
@@ -7,6 +8,7 @@ def set_nested_dict(data: dict, key_string: str, value):
 
 
 def get_nested_dict(data: dict, key_string: str, default=None):
+    """Get nested dict."""
     here = data
     keys = key_string.split(".")
     for key in keys:

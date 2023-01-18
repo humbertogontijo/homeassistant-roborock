@@ -16,7 +16,7 @@ from .api.api import RoborockClient, RoborockMqttClient
 from .api.containers import UserData, MultiMapsList
 from .api.exceptions import RoborockException, RoborockTimeout
 from .api.typing import RoborockDeviceInfo, RoborockDeviceProp
-from .const import CONF_ENTRY_USERNAME, CONF_USER_DATA, CONF_BASE_URL, SENSOR
+from .const import CONF_ENTRY_USERNAME, CONF_USER_DATA, CONF_BASE_URL, SENSOR, CONF_INCLUDE_SHARED, VACUUM
 from .const import DOMAIN, PLATFORMS
 from .utils import set_nested_dict, get_nested_dict
 
@@ -25,12 +25,8 @@ SCAN_INTERVAL = timedelta(seconds=30)
 _LOGGER = logging.getLogger(__name__)
 
 
-async def get_translation(hass: HomeAssistant):
-    """Get translation."""
-    if hasattr(hass.config, 'language'):
-        language = hass.config.language
-    else:
-        language = "en"
+async def get_translation_from_hass(hass: HomeAssistant, language: str):
+    """Get translation from hass."""
     entity_translations = await async_get_translations(hass, language, "entity", [DOMAIN])
     if not entity_translations:
         return {}
@@ -41,6 +37,20 @@ async def get_translation(hass: HomeAssistant):
     return states_translation
 
 
+async def get_translation(hass: HomeAssistant):
+    """Get translation."""
+    if hasattr(hass.config, 'language'):
+        language = hass.config.language
+        translation = await get_translation_from_hass(hass, language)
+        if translation:
+            return translation
+        wide_language = language.split("-")[0]
+        wide_translation = await get_translation_from_hass(hass, wide_language)
+        if wide_translation:
+            return wide_translation
+    return await get_translation_from_hass(hass, "en")
+
+
 async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
     """Set up roborock from a config entry."""
     _LOGGER.debug("Integration async setup entry: %s", entry.as_dict())
@@ -49,13 +59,20 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
     user_data = UserData(entry.data.get(CONF_USER_DATA))
     base_url = entry.data.get(CONF_BASE_URL)
     username = entry.data.get(CONF_ENTRY_USERNAME)
+    vacuum_options = entry.options.get(VACUUM)
+    include_shared = vacuum_options.get(CONF_INCLUDE_SHARED) if vacuum_options else False
     api_client = RoborockClient(username, base_url)
     _LOGGER.debug("Getting home data")
     home_data = await api_client.get_home_data(user_data)
     _LOGGER.debug("Got home data %s", home_data.data)
 
     device_map: dict[str, RoborockDeviceInfo] = {}
-    for device in home_data.devices + home_data.received_devices:
+    devices = (
+        home_data.devices + home_data.received_devices
+        if include_shared
+        else home_data.devices
+    )
+    for device in devices:
         product = next(
             (
                 product

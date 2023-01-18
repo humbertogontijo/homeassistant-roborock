@@ -40,6 +40,12 @@
           "map_transformation.trim.top": "Map top trim",
           "map_transformation.trim.bottom": "Map bottom trim"
         }
+      },
+      "vacuum": {
+        "description": "Vacuum options",
+        "data": {
+          "include_shared": "Include shared devices"
+        }
       }
     }
   },

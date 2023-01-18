@@ -40,6 +40,12 @@
           "map_transformation.trim.top": "Выравнивание карты сверху",
           "map_transformation.trim.bottom": "Выравнивание карты снизу"
         }
+      },
+      "vacuum": {
+        "description": "Vacuum options",
+        "data": {
+          "include_shared": "Include shared devices"
+        }
       }
     }
   },

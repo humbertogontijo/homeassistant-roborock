@@ -2,6 +2,7 @@
 from __future__ import annotations
 
 import logging
+from typing import Any
 
 import voluptuous as vol
 from homeassistant import config_entries
@@ -26,6 +27,7 @@ from .const import (
     CONF_BOTTOM,
     CAMERA,
     VACUUM,
+    CONF_INCLUDE_SHARED,
 )
 from .utils import get_nested_dict, set_nested_dict
 
@@ -162,10 +164,11 @@ def discriminant(_, validators):
 
 
 POSITIVE_FLOAT_SCHEMA = vol.All(vol.Coerce(float), vol.Range(min=0))
-ROTATION_SCHEMA = vol.All(vol.Coerce(int), vol.Coerce(str), vol.In(["0", "90", "180", "270"]), discriminant=discriminant)
+ROTATION_SCHEMA = vol.All(vol.Coerce(int), vol.Coerce(str), vol.In(["0", "90", "180", "270"]),
+                          discriminant=discriminant)
 PERCENT_SCHEMA = vol.All(vol.Coerce(float), vol.Range(min=0, max=100))
 
-CAMERA_OPTIONS = {
+CAMERA_VALUES = {
     f"{CONF_MAP_TRANSFORM}.{CONF_SCALE}": 1.0,
     f"{CONF_MAP_TRANSFORM}.{CONF_ROTATE}": 0,
     f"{CONF_MAP_TRANSFORM}.{CONF_TRIM}.{CONF_LEFT}": 0.0,
@@ -181,6 +184,24 @@ CAMERA_SCHEMA = {
     f"{CONF_MAP_TRANSFORM}.{CONF_TRIM}.{CONF_RIGHT}": PERCENT_SCHEMA,
     f"{CONF_MAP_TRANSFORM}.{CONF_TRIM}.{CONF_TOP}": PERCENT_SCHEMA,
     f"{CONF_MAP_TRANSFORM}.{CONF_TRIM}.{CONF_BOTTOM}": PERCENT_SCHEMA,
+}
+
+VACUUM_VALUES = {
+    CONF_INCLUDE_SHARED: True
+}
+
+VACUUM_SCHEMA = {
+    CONF_INCLUDE_SHARED: vol.Coerce(bool)
+}
+
+OPTION_VALUES = {
+    VACUUM: VACUUM_VALUES,
+    CAMERA: CAMERA_VALUES,
+}
+
+OPTION_SCHEMA = {
+    **{f"{VACUUM}.{vs_key}": vs_value for vs_key, vs_value in VACUUM_SCHEMA.items()},
+    **{f"{CAMERA}.{cs_key}": cs_value for cs_key, cs_value in CAMERA_SCHEMA.items()},
 }
 
 
@@ -212,27 +233,34 @@ class RoborockOptionsFlowHandler(config_entries.OptionsFlow):
         )
 
     async def async_step_camera(self, user_input=None):
+        return await self._async_step_platform(CAMERA, CAMERA_SCHEMA, CAMERA_VALUES, user_input)
+
+    async def async_step_vacuum(self, user_input=None):
+        return await self._async_step_platform(VACUUM, VACUUM_SCHEMA, VACUUM_VALUES, user_input)
+
+    async def _async_step_platform(self, platform: str, schema: dict[str, Any], values: dict[str, Any],
+                                   user_input=None):
         if user_input:
             data = {}
             for key, value in user_input.items():
                 set_nested_dict(data, key, value)
-            self.options = data
+            if self.options:
+                self.options[platform] = data
+            else:
+                self.options = {platform: data}
             return await self._update_options()
-
+        options = self.options.get(platform) if self.options else None
         return self.async_show_form(
-            step_id="camera",
+            step_id=platform,
             data_schema=vol.Schema(
                 {
                     vol.Optional(
-                        key, default=CAMERA_SCHEMA.get(key)(get_nested_dict(self.options, key, value))
-                    ): CAMERA_SCHEMA.get(key)
-                    for key, value in CAMERA_OPTIONS.items()
+                        key, default=schema.get(key)(get_nested_dict(options or {}, key, value))
+                    ): schema.get(key)
+                    for key, value in values.items()
                 }
             ),
         )
-
-    async def async_step_vacuum(self):
-        return await self._update_options()
 
     async def _update_options(self):
         """Update config entry options."""
