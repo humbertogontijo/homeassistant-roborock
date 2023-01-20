@@ -1,6 +1,6 @@
 """Roborock exceptions."""
 
-class RoborockException(Exception):
+class RoborockException(BaseException):
     """Class for Roborock exceptions."""
 
 class RoborockTimeout(RoborockException):
