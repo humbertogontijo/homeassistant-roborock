@@ -413,7 +413,7 @@ class RoborockVacuum(RoborockCoordinatedEntity, StateVacuumEntity, ABC):
 
     async def async_map(self):
         """Return map token."""
-        return await self.send(RoborockCommand.GET_MAP_V1)
+        return await self.coordinator.api.get_map_v1(self._device_id)
 
     async def async_start(self):
         await self.send(RoborockCommand.APP_START)

@@ -15,7 +15,7 @@ from homeassistant.helpers.entity_platform import AddEntitiesCallback
 from homeassistant.util import slugify
 
 from . import RoborockDataUpdateCoordinator, set_nested_dict
-from .api.exceptions import RoborockTimeout
+from .api.exceptions import RoborockTimeout, RoborockBackoffException
 from .api.typing import RoborockDeviceInfo, RoborockCommand
 from .common.image_handler import ImageHandlerRoborock
 from .common.map_data import MapData
@@ -232,12 +232,12 @@ class VacuumCameraMap(RoborockCoordinatedEntity, Camera):
     async def async_map(self):
         """Return map token."""
         try:
-            map_v1 = await self.send(RoborockCommand.GET_MAP_V1)
+            map_v1 = await self.coordinator.api.get_map_v1(self._device_id)
             if not map_v1:
                 self.set_invalid_map()
             self.set_valid_map()
             return map_v1
-        except RoborockTimeout:
+        except (RoborockTimeout, RoborockBackoffException):
             self.set_invalid_map()
 
     def maps(self):

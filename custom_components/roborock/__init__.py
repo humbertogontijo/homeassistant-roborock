@@ -14,7 +14,7 @@ from homeassistant.helpers.update_coordinator import DataUpdateCoordinator, Upda
 
 from .api.api import RoborockClient, RoborockMqttClient
 from .api.containers import UserData, MultiMapsList
-from .api.exceptions import RoborockException, RoborockTimeout
+from .api.exceptions import RoborockException, RoborockTimeout, RoborockBackoffException
 from .api.typing import RoborockDeviceInfo, RoborockDeviceProp
 from .const import CONF_ENTRY_USERNAME, CONF_USER_DATA, CONF_BASE_URL, SENSOR, CONF_INCLUDE_SHARED, VACUUM
 from .const import DOMAIN, PLATFORMS
@@ -140,10 +140,11 @@ class RoborockDataUpdateCoordinator(
     async def _get_device_prop(self, device_id: str):
         """Get device properties."""
         device_prop = await self.api.get_prop(device_id)
-        if device_id in self._devices_prop:
-            self._devices_prop[device_id].update(device_prop)
-        else:
-            self._devices_prop[device_id] = device_prop
+        if device_prop:
+            if device_id in self._devices_prop:
+                self._devices_prop[device_id].update(device_prop)
+            else:
+                self._devices_prop[device_id] = device_prop
 
     async def _async_update_data(self):
         """Update data via library."""
@@ -155,13 +156,18 @@ class RoborockDataUpdateCoordinator(
                 funcs.append(self._get_device_prop(device_id))
             await asyncio.gather(*funcs)
             self._timeout_countdown = int(self.ACCEPTABLE_NUMBER_OF_TIMEOUTS)
-        except (RoborockTimeout, RoborockException) as ex:
+        # except RoborockBackoffException:
+        #     #TODO Define if None should be returned so the entities get unavailable state
+        #     return self._devices_prop
+        except RoborockTimeout as ex:
             if self._timeout_countdown > 0:
                 _LOGGER.debug("Timeout updating coordinator. Acceptable timeouts countdown = %s",
                               self._timeout_countdown)
                 self._timeout_countdown -= 1
             else:
-                raise UpdateFailed(ex) from ex
+                raise UpdateFailed(ex)
+        except RoborockException as ex:
+            raise UpdateFailed(ex) from ex
         if self._devices_prop:
             return self._devices_prop
         # Only for the first attempt

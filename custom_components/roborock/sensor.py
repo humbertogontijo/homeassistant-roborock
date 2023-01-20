@@ -235,25 +235,28 @@ async def async_setup_entry(
 
     for device_id, device_info in coordinator.api.device_map.items():
         unique_id = slugify(device_id)
-        device_prop = coordinator.data.get(device_id)
-        if device_prop:
-            for sensor, description in VACUUM_SENSORS.items():
-                parent_key_data = getattr(device_prop, description.parent_key)
-                if not parent_key_data:
-                    _LOGGER.debug(
-                        "It seems the %s does not support the %s as the initial value is None",
-                        device_info.product.model,
-                        description.key,
+        if coordinator.data:
+            device_prop = coordinator.data.get(device_id)
+            if device_prop:
+                for sensor, description in VACUUM_SENSORS.items():
+                    parent_key_data = getattr(device_prop, description.parent_key)
+                    if not parent_key_data:
+                        _LOGGER.debug(
+                            "It seems the %s does not support the %s as the initial value is None",
+                            device_info.product.model,
+                            sensor,
+                        )
+                        continue
+                    entities.append(
+                        RoborockSensor(
+                            f"{sensor}_{unique_id}",
+                            device_info,
+                            coordinator,
+                            description,
+                        )
                     )
-                    continue
-                entities.append(
-                    RoborockSensor(
-                        f"{sensor}_{unique_id}",
-                        device_info,
-                        coordinator,
-                        description,
-                    )
-                )
+        else:
+            _LOGGER.warning("Failed setting up sensors no Roborock data")
 
     async_add_entities(entities)
 

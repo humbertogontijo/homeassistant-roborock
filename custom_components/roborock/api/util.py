@@ -17,8 +17,7 @@ def run_in_executor():
     def decorator(func):
         @functools.wraps(func)
         def wrapped(*args, **kwargs):
-            _func = functools.partial(func, *args, **kwargs)
-            return asyncio.run_coroutine_threadsafe(coro=_func(), loop=loop)
+            return asyncio.run_coroutine_threadsafe(coro=func(*args, **kwargs), loop=loop)
 
         return wrapped
 

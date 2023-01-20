@@ -6,6 +6,9 @@ class RoborockException(Exception):
 class RoborockTimeout(RoborockException):
     """Class for Roborock timeout exceptions."""
 
+class RoborockBackoffException(RoborockException):
+    """Class for Roborock exceptions when many retries were made."""
+
 class VacuumError(RoborockException):
     """Class for vacuum errors."""
     def __init__(self, code, message):
