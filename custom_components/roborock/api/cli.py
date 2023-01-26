@@ -12,8 +12,6 @@ _LOGGER = logging.getLogger(__name__)
 
 
 async def main():
-    logging.basicConfig()
-    _LOGGER.setLevel(logging.INFO)
     client = RoborockClient(sys.argv[1])
     user_data_path = Path("user_data.json")
     if user_data_path.is_file():
@@ -44,9 +42,11 @@ async def main():
         device_map[device.duid] = RoborockDeviceInfo(device, product)
     mqtt_client = RoborockMqttClient(user_data, device_map)
     status = await mqtt_client.get_status(home_data.devices[0].duid)
-    print(status.data)
+    _LOGGER.info(status.data)
+    mqtt_client.__del__()
 
 
 if __name__ == "__main__":
+    logging.basicConfig(level=logging.DEBUG)
     loop = get_running_loop_or_create_one()
     loop.run_until_complete(main())

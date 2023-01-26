@@ -70,11 +70,11 @@ class RoborockCoordinatedEntity(CoordinatorEntity[RoborockDataUpdateCoordinator]
             sw_version=self._fw_version,
         )
 
-    def translate(self, translation_key: str, attr: str, value):
+    def translate(self, attr: str, value):
         translation = self.coordinator.translation
         if not translation:
             return value
-        key = translation.get(translation_key)
+        key = translation.get(self.translation_key)
         if not key:
             return value
         attr_value = key.get(attr)

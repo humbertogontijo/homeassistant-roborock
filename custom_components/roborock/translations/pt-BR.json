@@ -2,6 +2,13 @@
   "config": {
     "step": {
       "user": {
+        "description": "Selecione um método de autenticação",
+        "menu_options": {
+          "code": "Login com codigo de autenticação por email",
+          "password": "Login com senha"
+        }
+      },
+      "email": {
         "description": "Suas credenciais do app",
         "data": {
           "username": "Email"
@@ -12,6 +19,12 @@
         "data": {
           "code": "Codigo de verificação"
         }
+      },
+      "password": {
+        "description": "Digite sua senha",
+        "data": {
+          "password": "Senha"
+        }
       }
     },
     "error": {
@@ -19,15 +32,17 @@
       "auth": "Falha no login. Verifique suas credenciais"
     },
     "abort": {
-      "already_configured": "Dispositivo já configurado"
+      "already_configured": "Conta já configurada",
+      "already_in_progress": "Conta já esta sendo configurada"
     }
   },
   "options": {
     "step": {
       "user": {
         "description": "Selecione uma plataforma para configurar",
-        "data": {
-          "platform": "Plataforma"
+        "menu_options": {
+          "vacuum": "Vacuum",
+          "camera": "Camera"
         }
       },
       "camera": {

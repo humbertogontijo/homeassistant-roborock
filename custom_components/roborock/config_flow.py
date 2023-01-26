@@ -6,7 +6,6 @@ from typing import Any
 
 import voluptuous as vol
 from homeassistant import config_entries
-from homeassistant.const import CONF_PLATFORM
 from homeassistant.core import callback
 
 from .api.api import RoborockClient
@@ -28,6 +27,7 @@ from .const import (
     CAMERA,
     VACUUM,
     CONF_INCLUDE_SHARED,
+    CONF_ENTRY_PASSWORD,
 )
 from .utils import get_nested_dict, set_nested_dict
 
@@ -42,104 +42,156 @@ class RoborockFlowHandler(config_entries.ConfigFlow, domain=DOMAIN):
 
     def __init__(self):
         """Initialize the config flow."""
-        self._errors = {}
-        self._client = None
         self._username = None
-        self._base_url = None
+        self._errors = {}
+        self._username = None
+        self._client = None
+        self._auth_method = None
 
-    async def async_step_reauth(self, user_input=None):
+    async def async_step_reauth(self, _user_input=None):
         """Handle a reauth flow."""
         await self.hass.config_entries.async_remove(self.context["entry_id"])
-        return await self._show_user_form(user_input)
+        return self._show_user_form()
 
-    async def async_step_user(self, user_input=None):
+    async def async_step_user(self, _user_input=None):
+        """Handle a flow initialized by the user."""
+        return self._show_user_form()
+
+    async def async_step_email(self, user_input=None):
         """Handle a flow initialized by the user."""
         self._errors = {}
 
-        if user_input:
-            self._username = user_input[CONF_ENTRY_USERNAME]
-            await self.async_set_unique_id(self._username)
+        if user_input and user_input[CONF_ENTRY_USERNAME]:
+            username = user_input[CONF_ENTRY_USERNAME]
+            await self.async_set_unique_id(username)
             self._abort_if_unique_id_configured()
-            client = await self._request_code()
-            if client:
-                self._client = client
-                self._base_url = client.base_url
-                user_input[CONF_ENTRY_CODE] = ""
-                return await self._show_code_form(user_input)
-            else:
-                self._errors["base"] = "auth"
+            self._username = username
+            if self._auth_method == CONF_ENTRY_CODE:
+                client = await self._request_code(username)
+                if client:
+                    self._client = client
+                    return self._show_code_form(user_input)
+                else:
+                    self._errors["base"] = "auth"
+            elif self._auth_method == CONF_ENTRY_PASSWORD:
+                client = RoborockClient(username)
+                if client:
+                    self._client = client
+                    return self._show_password_form(user_input)
+                else:
+                    self._errors["base"] = "auth"
+            return self._show_email_form(user_input)
 
-            return await self._show_user_form(user_input)
-
-        # Provide defaults for form
-        user_input = {CONF_ENTRY_USERNAME: ""}
-
-        return await self._show_user_form(user_input)
+        return self._show_email_form(user_input)
 
     async def async_step_code(self, user_input=None):
         """Handle a flow initialized by the user."""
         self._errors = {}
 
-        if user_input:
-            code = user_input[CONF_ENTRY_CODE]
-            login_data = await self._login(code)
-            if login_data:
-                return self.async_create_entry(
-                    title=self._username,
-                    data={
-                        CONF_ENTRY_USERNAME: self._username,
-                        CONF_USER_DATA: login_data.data,
-                        CONF_BASE_URL: self._base_url,
-                    },
-                )
-            else:
-                self._errors["base"] = "no_device"
+        if not user_input:
+            self._auth_method = CONF_ENTRY_CODE
+            return self._show_email_form()
 
-            return await self._show_code_form(user_input)
+        username = self._username
+        code = user_input[CONF_ENTRY_CODE]
+        user_data = await self._code_login(code)
+        if user_data:
+            return self._create_entry(username, user_data)
+        else:
+            self._errors["base"] = "no_device"
 
-        # Provide defaults for form
-        user_input = {CONF_ENTRY_CODE: ""}
+        return self._show_code_form(user_input)
 
-        return await self._show_code_form(user_input)
+    async def async_step_password(self, user_input=None):
+        """Handle a flow initialized by the user."""
+        self._errors = {}
+
+        if not user_input:
+            self._auth_method = CONF_ENTRY_PASSWORD
+            return self._show_email_form()
+
+        username = self._username
+        code = user_input[CONF_ENTRY_PASSWORD]
+        user_data = await self._pass_login(code)
+        if user_data:
+            return self._create_entry(username, user_data)
+        else:
+            self._errors["base"] = "no_device"
+
+        return self._show_password_form(user_input)
 
     @staticmethod
     @callback
     def async_get_options_flow(config_entry):
         return RoborockOptionsFlowHandler(config_entry)
 
-    async def _show_user_form(self, user_input):  # pylint: disable=unused-argument
-        """Show the configuration form to provide user email."""
-        return self.async_show_form(
+    def _show_user_form(self):
+        """Show the configuration form to choose authentication method."""
+        return self.async_show_menu(
             step_id="user",
+            menu_options=[CONF_ENTRY_CODE, CONF_ENTRY_PASSWORD]
+        )
+
+    def _show_email_form(self, user_input=None):
+        """Show the configuration form to provide user email."""
+        if user_input is None:
+            user_input = {}
+        return self.async_show_form(
+            step_id="email",
             data_schema=vol.Schema(
                 {
                     vol.Required(
-                        CONF_ENTRY_USERNAME, default=user_input[CONF_ENTRY_USERNAME]
+                        CONF_ENTRY_USERNAME, default=user_input.get(CONF_ENTRY_USERNAME)
                     ): str
                 }
             ),
             errors=self._errors,
+            last_step=False,
         )
 
-    async def _show_code_form(self, user_input):  # pylint: disable=unused-argument
+    def _show_code_form(self, user_input):
         """Show the configuration form to provide authentication code."""
         return self.async_show_form(
             step_id="code",
             data_schema=vol.Schema(
                 {
                     vol.Required(
-                        CONF_ENTRY_CODE, default=user_input[CONF_ENTRY_CODE]
+                        CONF_ENTRY_CODE, default=user_input.get(CONF_ENTRY_CODE)
                     ): str
                 }
             ),
             errors=self._errors,
         )
 
-    async def _request_code(self):
+    def _show_password_form(self, user_input):  # pylint: disable=unused-argument
+        """Show the configuration form to provide authentication code."""
+        return self.async_show_form(
+            step_id="password",
+            data_schema=vol.Schema(
+                {
+                    vol.Required(
+                        CONF_ENTRY_PASSWORD, default=user_input.get(CONF_ENTRY_PASSWORD)
+                    ): str
+                }
+            ),
+            errors=self._errors,
+        )
+
+    def _create_entry(self, username: str, user_data: UserData):
+        return self.async_create_entry(
+            title=username,
+            data={
+                CONF_ENTRY_USERNAME: username,
+                CONF_USER_DATA: user_data.data,
+                CONF_BASE_URL: self._client.base_url,
+            },
+        )
+
+    async def _request_code(self, username: str):
         """Return true if credentials is valid."""
         try:
             _LOGGER.debug("Requesting code for Roborock account")
-            client = RoborockClient(self._username)
+            client = RoborockClient(username)
             await client.request_code()
             return client
         except Exception as ex:
@@ -147,11 +199,22 @@ class RoborockFlowHandler(config_entries.ConfigFlow, domain=DOMAIN):
             self._errors["base"] = "auth"
             return None
 
-    async def _login(self, code) -> UserData | None:
+    async def _code_login(self, code) -> UserData | None:
         """Return UserData if login code is valid."""
         try:
             _LOGGER.debug("Logging into Roborock account using email provided code")
             login_data = await self._client.code_login(code)
+            return login_data
+        except Exception as ex:
+            _LOGGER.exception(ex)
+            self._errors["base"] = "auth"
+            return
+
+    async def _pass_login(self, password) -> UserData | None:
+        """Return UserData if login code is valid."""
+        try:
+            _LOGGER.debug("Logging into Roborock account using email provided code")
+            login_data = await self._client.pass_login(password)
             return login_data
         except Exception as ex:
             _LOGGER.exception(ex)
@@ -217,19 +280,11 @@ class RoborockOptionsFlowHandler(config_entries.OptionsFlow):
         """Manage the options."""
         return await self.async_step_user()
 
-    async def async_step_user(self, user_input=None):
+    async def async_step_user(self, _user_input=None):
         """Handle a flow initialized by the user."""
-        if user_input:
-            if user_input.get(CONF_PLATFORM) == CAMERA:
-                return await self.async_step_camera()
-            elif user_input.get(CONF_PLATFORM) == VACUUM:
-                return await self.async_step_vacuum()
-
-        return self.async_show_form(
+        return self.async_show_menu(
             step_id="user",
-            data_schema=vol.Schema(
-                {vol.Required(CONF_PLATFORM): vol.In([CAMERA, VACUUM])}
-            ),
+            menu_options=[CAMERA, VACUUM],
         )
 
     async def async_step_camera(self, user_input=None):

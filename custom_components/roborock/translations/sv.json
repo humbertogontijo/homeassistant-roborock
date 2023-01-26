@@ -2,6 +2,13 @@
   "config": {
     "step": {
       "user": {
+        "description": "Select an authentication method",
+        "menu_options": {
+          "code": "Login with email authentication code",
+          "password": "Login with password"
+        }
+      },
+      "email": {
         "description": "Dina inloggningsuppgifter till appen",
         "data": {
           "username": "E-post/Användarnamn"
@@ -12,6 +19,12 @@
         "data": {
           "code": "Verification code"
         }
+      },
+      "password": {
+        "description": "Type your password",
+        "data": {
+          "password": "Password"
+        }
       }
     },
     "error": {
@@ -19,15 +32,17 @@
       "auth": "Inloggning misslyckades. Kontrollera dina inloggningsuppgifter"
     },
     "abort": {
-      "already_configured": "Enheten redan konfigurerad"
+      "already_configured": "Enheten redan konfigurerad",
+      "already_in_progress": "Account is already being configured"
     }
   },
   "options": {
     "step": {
       "user": {
         "description": "Välj en plattform att konfigurera",
-        "data": {
-          "platform": "Plattform"
+        "menu_options": {
+          "vacuum": "Vacuum",
+          "camera": "Camera"
         }
       },
       "camera": {

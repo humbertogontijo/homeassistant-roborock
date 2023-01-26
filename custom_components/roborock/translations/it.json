@@ -2,6 +2,13 @@
   "config": {
     "step": {
       "user": {
+        "description": "Select an authentication method",
+        "menu_options": {
+          "code": "Login with email authentication code",
+          "password": "Login with password"
+        }
+      },
+      "email": {
         "description": "Usare le credenziali dell'app",
         "data": {
           "username": "Email"
@@ -12,6 +19,12 @@
         "data": {
           "code": "Codice di verifica"
         }
+      },
+      "password": {
+        "description": "Type your password",
+        "data": {
+          "password": "Password"
+        }
       }
     },
     "error": {
@@ -19,15 +32,17 @@
       "auth": "Accesso fallito. Controlla le credenziali"
     },
     "abort": {
-      "already_configured": "Device is already configured"
+      "already_configured": "Account is already configured",
+      "already_in_progress": "Account is already being configured"
     }
   },
   "options": {
     "step": {
       "user": {
         "description": "Select a platform to configure",
-        "data": {
-          "platform": "Platform"
+        "menu_options": {
+          "vacuum": "Vacuum",
+          "camera": "Camera"
         }
       },
       "camera": {

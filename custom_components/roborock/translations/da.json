@@ -2,6 +2,13 @@
   "config": {
     "step": {
       "user": {
+        "description": "Select an authentication method",
+        "menu_options": {
+          "code": "Login with email authentication code",
+          "password": "Login with password"
+        }
+      },
+      "email": {
         "description": "Login info til Roborock app",
         "data": {
           "username": "Brugernavn"
@@ -12,6 +19,12 @@
         "data": {
           "code": "Verifikationskode"
         }
+      },
+      "password": {
+        "description": "Type your password",
+        "data": {
+          "password": "Password"
+        }
       }
     },
     "error": {
@@ -19,15 +32,17 @@
       "auth": "Login fejl. Kontroller login informationer"
     },
     "abort": {
-      "already_configured": "Enhed er allerede konfigureret"
+      "already_configured": "Enhed er allerede konfigureret",
+      "already_in_progress": "Account is already being configured"
     }
   },
   "options": {
     "step": {
       "user": {
         "description": "Vælg platform der skal konfigures",
-        "data": {
-          "platform": "Platform"
+        "menu_options": {
+          "vacuum": "Vacuum",
+          "camera": "Camera"
         }
       },
       "camera": {

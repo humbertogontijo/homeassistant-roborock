@@ -332,7 +332,6 @@ class RoborockSensor(RoborockCoordinatedEntity, SensorEntity):
         # This is a work around while https://github.com/home-assistant/core/pull/65743 is not merged
         if self.entity_description.translation_key:
             native_value = self.translate(
-                self.entity_description.translation_key,
                 self.entity_description.translation_attr,
                 native_value
             )

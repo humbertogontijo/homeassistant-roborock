@@ -6,7 +6,6 @@ import logging
 from datetime import timedelta
 
 from homeassistant.config_entries import ConfigEntry
-from homeassistant.const import ATTR_STATE
 from homeassistant.core import HomeAssistant
 from homeassistant.exceptions import ConfigEntryNotReady
 from homeassistant.helpers.translation import async_get_translations
@@ -33,7 +32,7 @@ async def get_translation_from_hass(hass: HomeAssistant, language: str):
     data = {}
     for key, value in entity_translations.items():
         set_nested_dict(data, key, value)
-    states_translation = get_nested_dict(data, f"component.{DOMAIN}.entity.{SENSOR}.roborock_vacuum.{ATTR_STATE}", {})
+    states_translation = get_nested_dict(data, f"component.{DOMAIN}.entity.{SENSOR}", {})
     return states_translation
 
 
@@ -127,9 +126,9 @@ class RoborockDataUpdateCoordinator(
         self.retries = int(self.ACCEPTABLE_NUMBER_OF_TIMEOUTS)
         self._timeout_countdown = int(self.ACCEPTABLE_NUMBER_OF_TIMEOUTS)
 
-    def release(self):
+    async def release(self):
         """Disconnect from API."""
-        self.api.release()
+        await self.api.async_disconnect()
 
     async def _get_device_multi_maps_list(self, device_id: str):
         """Get multi maps list."""
@@ -190,7 +189,7 @@ async def async_unload_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
     )
     if unloaded:
         hass.data[DOMAIN].pop(entry.entry_id)
-        coordinator.release()
+        await coordinator.release()
 
     return unloaded
 
