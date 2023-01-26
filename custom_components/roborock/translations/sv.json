@@ -1,0 +1,87 @@
+{
+  "config": {
+    "step": {
+      "user": {
+        "description": "Dina inloggningsuppgifter till appen",
+        "data": {
+          "username": "E-post/Användarnamn"
+        }
+      },
+      "code": {
+        "description": "Ange verifikationskoden som skickades till din e-post",
+        "data": {
+          "code": "Verification code"
+        }
+      }
+    },
+    "error": {
+      "no_device": "Inga enheter hittades på ditt Roborock konto",
+      "auth": "Inloggning misslyckades. Kontrollera dina inloggningsuppgifter"
+    },
+    "abort": {
+      "already_configured": "Enheten redan konfigurerad"
+    }
+  },
+  "options": {
+    "step": {
+      "user": {
+        "description": "Välj en plattform att konfigurera",
+        "data": {
+          "platform": "Plattform"
+        }
+      },
+      "camera": {
+        "description": "Kartalternativ (Camera)",
+        "data": {
+          "map_transformation.scale": "Kartskala",
+          "map_transformation.rotate": "Rotera kartan",
+          "map_transformation.trim.left": "Trimma vänster kant",
+          "map_transformation.trim.right": "Trimma höger kant",
+          "map_transformation.trim.top": "Trimma övere kant",
+          "map_transformation.trim.bottom": "Trimma undre kant"
+        }
+      },
+      "vacuum": {
+        "description": "Dammsugaralternativ (Vacuum)",
+        "data": {
+          "include_shared": "Inkludera delade enheter"
+        }
+      }
+    }
+  },
+  "entity": {
+    "sensor": {
+      "roborock_vacuum": {
+        "state": {
+          "0": "Inget",
+          "1": "LiDAR torn eller lasern är blockerad. Kontrollera hinder och försök igen.",
+          "2": "Stötfångaren har fastnat. Rengör och tryck försiktigt för att frigöra den.",
+          "3": "Hjulen upphängda. Flytta roboten och starta om.",
+          "4": "Fel på fallsensorn. Rengör fallsensorerna, flytta roboten från trappor etc. och starta om.",
+          "5": "Huvudborsten har fastnat. Rengör huvudborsten och dess kugghjul.",
+          "6": "Sidoborsten har fastnat. Montera av och rengör sidoborsten.",
+          "7": "Hjulen har fastnat. Flytta roboten och starta om.",
+          "8": "Roboten har fastnat. Ta bort hinder runtomkring roboten och starta om.",
+          "9": "Ingen smutsbehållare. Installera smutbehållare och filter.",
+          "12": "Lågt batteri. Ludda upp och försök igen.",
+          "13": "Uppladdningsfel. Rengör uppladdningskontakterna och försök igen.",
+          "14": "Batterifel.",
+          "15": "Smutsiga väggsensorer. Rengör väggsensorerna.",
+          "16": "Roboten lutar. Flytta till jämnt underlag och starta om.",
+          "17": "Fel på sidoborsten. Återställ roboten.",
+          "18": "Fel på fläkten. Återställ roboten.",
+          "21": "Vertikal stötfångare intryckt. Flytta roboten och starta om.",
+          "22": "Fel på laddstationssensorn. Rengör och försök igen.",
+          "23": "Kunde inte går tillbaka till laddstationen. Rengör laddstationssensorn och försök igen.",
+          "24": "No-go zon eller osynlig vägg upptäckt. Flytta roboten.",
+          "27": "VibraRise systemet har fastnat. Kontrollera hinder.",
+          "28": "Roboten på matta. Flytta roboten till golv och försök igen.",
+          "29": "Blockerat eller blött filter. Rengör, torka och försök igen.",
+          "30": "No-go zon eller osynlig vägg upptäckt. Flytta bort roboten från detta område.",
+          "31": "Kan inte köra över matta. Flytta över roboten och starta om.",
+          "32": "Internt fel. Återställ roboten."
+        }
+      }
+    }
+  }
+}
