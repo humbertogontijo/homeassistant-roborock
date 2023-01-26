@@ -19,19 +19,19 @@
       "auth": "Login fejl. Kontroller login informationer"
     },
     "abort": {
-      "already_configured": "Device is already configured"
+      "already_configured": "Enhed er allerede konfigureret"
     }
   },
   "options": {
     "step": {
       "user": {
-        "description": "Select a platform to configure",
+        "description": "Vælg platform der skal konfigures",
         "data": {
           "platform": "Platform"
         }
       },
       "camera": {
-        "description": "Camera Options",
+        "description": "Kamera Indstillinger",
         "data": {
           "map_transformation.scale": "Kort skala",
           "map_transformation.rotate": "Kort rotation",
@@ -42,9 +42,9 @@
         }
       },
       "vacuum": {
-        "description": "Vacuum options",
+        "description": "Støvsuger Indstillinger",
         "data": {
-          "include_shared": "Include shared devices"
+          "include_shared": "Inkluder delte enheder"
         }
       }
     }
@@ -73,10 +73,11 @@
           "21": "Lodret kofanger påvirket. Flyt robotten og genstart.",
           "22": "Dock lokations fejl. Rens dock og genstart.",
           "23": "Kunne ikke returnere til dock. Rens dock lokations beacon og genstart.",
+          "24": "No-go zone eller usynligvæg detekteret. Flyt robotten væk fra dette område.",
           "27": "VibraRise system fastklemte. Kontroller for forhindringer.",
           "28": "Robot på tæppe. Flyt robot til gulv og genstart.",
           "29": "Filter blokeret eller vådt. Rens, tør og restart.",
-          "30": "No-go zone eller Usynligvæg detekteret. Flyt robotten væk fra dette område.",
+          "30": "No-go zone eller usynligvæg detekteret. Flyt robotten væk fra dette område.",
           "31": "Kan ikke køre på tæppe. Flyt robot over tæppet og genstart.",
           "32": "Intern Fejl. Reset robotten."
         }
