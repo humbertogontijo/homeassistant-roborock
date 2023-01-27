@@ -423,7 +423,7 @@ class ImageHandlerRoborock:
     
                 if idx in carpet_map and (x + y) % 2:
                     def combine_color_component(base: int, overlay: int, alpha: int):
-                        return (int)((base * (255 - alpha) + overlay * alpha) / 255)
+                        return int((base * (255 - alpha) + overlay * alpha) / 255)
 
                     carpet_color = ImageHandlerRoborock.__get_color__(COLOR_CARPETS, colors)
 

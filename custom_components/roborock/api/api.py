@@ -22,8 +22,6 @@ import aiohttp
 import paho.mqtt.client as mqtt
 from Crypto.Cipher import AES
 from Crypto.Util.Padding import pad, unpad
-from paho.mqtt.packettypes import PacketTypes
-from paho.mqtt.properties import Properties
 
 from custom_components.roborock.api.containers import (
     UserData,
@@ -102,30 +100,31 @@ class RoborockMqttClient(mqtt.Client):
     _thread: threading.Thread
 
     def __init__(self, user_data: UserData, device_map: dict[str, RoborockDeviceInfo]):
-        self.device_map = device_map
         rriot = user_data.rriot
-        self._seq = 1
-        self._random = 4711
-        self._id_counter = 2
-        self._salt = "TXdfu$jyZ#TZHsg4"
         self._mqtt_user = rriot.user
-        self._mqtt_password = rriot.password
         self._mqtt_domain = rriot.domain
         self._hashed_user = md5hex(self._mqtt_user + ":" + self._mqtt_domain)[2:10]
-        self._hashed_password = md5hex(self._mqtt_password + ":" + self._mqtt_domain)[16:]
+        super().__init__(client_id=self._hashed_user, protocol=mqtt.MQTTv5)
         url = urlparse(rriot.reference.mqtt)
         self._mqtt_host = url.hostname
         self._mqtt_port = url.port
         self._mqtt_ssl = url.scheme == "ssl"
+        if self._mqtt_ssl:
+            super().tls_set()
+        self._mqtt_password = rriot.password
+        self._hashed_password = md5hex(self._mqtt_password + ":" + self._mqtt_domain)[16:]
+        super().username_pw_set(self._hashed_user, self._hashed_password)
+        self.device_map = device_map
+        self._seq = 1
+        self._random = 4711
+        self._id_counter = 2
+        self._salt = "TXdfu$jyZ#TZHsg4"
         self._endpoint = base64.b64encode(md5bin(self._mqtt_domain)[8:14]).decode()
         self._nonce = secrets.token_bytes(16)
         self._waiting_queue: dict[int, RoborockQueue] = {}
-        self._user_data = user_data
         self._mutex = Lock()
-        super().__init__(client_id=self._hashed_user, protocol=mqtt.MQTTv5)
-        if self._mqtt_ssl:
-            super().tls_set()
-        super().username_pw_set(self._hashed_user, self._hashed_password)
+        self._last_device_msg_in = mqtt.time_func()
+        self._last_mqtt_msg_in = mqtt.time_func()
 
     def __del__(self):
         self.sync_disconnect()
@@ -133,7 +132,7 @@ class RoborockMqttClient(mqtt.Client):
     @run_in_executor()
     async def on_connect(self, _client, _, __, rc, ___=None):
         connection_queue = self._waiting_queue.get(0)
-        if rc != 0:
+        if rc != mqtt.MQTT_ERR_SUCCESS:
             message = f"Failed to connect (rc: {rc})"
             _LOGGER.error(message)
             if connection_queue:
@@ -160,6 +159,7 @@ class RoborockMqttClient(mqtt.Client):
     async def on_message(self, _client, _, msg, __=None):
         try:
             device_id = msg.topic.split("/").pop()
+            self._last_device_msg_in = mqtt.time_func()
             data = self._decode_msg(msg.payload, self.device_map[device_id].device)
             protocol = data.get("protocol")
             if protocol == 102:
@@ -220,7 +220,7 @@ class RoborockMqttClient(mqtt.Client):
     @run_in_executor()
     async def on_disconnect(self, _client: mqtt.Client, _, rc, __=None):
         connection_queue = self._waiting_queue.get(1)
-        if rc != 0:
+        if rc != mqtt.MQTT_ERR_SUCCESS:
             message = f"Roborock mqtt client disconnected (rc: {rc})"
             _LOGGER.error(message)
             await self.async_disconnect()
@@ -234,37 +234,54 @@ class RoborockMqttClient(mqtt.Client):
                 (True, None), timeout=QUEUE_TIMEOUT
             )
 
-    def sync_disconnect(self):
+    @property
+    def _last_msg_in(self):
+        if self._last_mqtt_msg_in - self._last_device_msg_in > self._keepalive * 2:
+            # Give up on retrying
+            return self._last_mqtt_msg_in
+        return self._last_device_msg_in
+
+    @_last_msg_in.setter
+    def _last_msg_in(self, value):
+        self._last_mqtt_msg_in = value
+
+    def sync_stop_loop(self):
         if self._thread:
             _LOGGER.info("Stopping mqtt loop")
             super().loop_stop()
+
+    def sync_start_loop(self):
+        if not self._thread or not self._thread.is_alive():
+            self.sync_stop_loop()
+            _LOGGER.info("Starting mqtt loop")
+            super().loop_start()
+
+    def sync_disconnect(self):
+        rc = -1
+        self.sync_stop_loop()
         if self.is_connected():
             _LOGGER.info("Disconnecting from mqtt")
             rc = super().disconnect()
             if rc != 0:
                 raise RoborockException(f"Failed to disconnect (rc:{rc})")
-            return True
-        return False
+            return rc == mqtt.MQTT_ERR_SUCCESS
+        return rc == mqtt.MQTT_ERR_SUCCESS
 
     def sync_connect(self):
-        if not self._thread or not self._thread.is_alive():
-            _LOGGER.info("Starting mqtt loop")
-            super().loop_start()
+        rc = -1
+        self.sync_start_loop()
         if not self.is_connected():
             _LOGGER.info("Connecting to mqtt")
-            properties = Properties(PacketTypes.CONNECT)
-            properties.SessionExpiryInterval = MQTT_KEEPALIVE
             rc = super().connect(
                 host=self._mqtt_host,
                 port=self._mqtt_port,
-                clean_start=False,
-                properties=properties,
-                keepalive=MQTT_KEEPALIVE,
+                keepalive=MQTT_KEEPALIVE
             )
-            if rc != 0:
+            if rc != mqtt.MQTT_ERR_SUCCESS:
                 raise RoborockException(f"Failed to connect (rc:{rc})")
-            return True
-        return False
+            self._last_device_msg_in = mqtt.time_func()
+            return rc == mqtt.MQTT_ERR_SUCCESS
+        return rc == mqtt.MQTT_ERR_SUCCESS
 
     async def _async_response(self, request_id: int, protocol_id: int = 0):
         try:
@@ -292,14 +309,10 @@ class RoborockMqttClient(mqtt.Client):
         async with self._mutex:
             connecting = self.sync_connect()
             if connecting:
-                try:
-                    (response, err) = await self._async_response(0)
-                    if err:
-                        raise RoborockException(err) from err
-                    return response
-                except RoborockTimeout as ex:
-                    self.sync_disconnect()
-                    raise ex
+                (response, err) = await self._async_response(0)
+                if err:
+                    raise RoborockException(err) from err
+                return response
 
     async def validate_connection(self):
         await self.async_connect()
@@ -349,7 +362,7 @@ class RoborockMqttClient(mqtt.Client):
         info = self.publish(
             f"rr/m/i/{self._mqtt_user}/{self._hashed_user}/{device_id}", msg
         )
-        if info.rc != 0:
+        if info.rc != mqtt.MQTT_ERR_SUCCESS:
             raise RoborockException(f"Failed to publish (rc: {info.rc})")
 
     async def send_command(

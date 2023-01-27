@@ -26,7 +26,7 @@ _LOGGER = logging.getLogger(__name__)
 
 async def get_translation_from_hass(hass: HomeAssistant, language: str):
     """Get translation from hass."""
-    entity_translations = await async_get_translations(hass, language, "entity", [DOMAIN])
+    entity_translations = await async_get_translations(hass, language, "entity", tuple([DOMAIN]))
     if not entity_translations:
         return {}
     data = {}
@@ -123,7 +123,6 @@ class RoborockDataUpdateCoordinator(
         self._devices_prop: dict[str, RoborockDeviceProp] = {}
         self.translation = translation
         self.devices_maps: dict[str, MultiMapsList] = {}
-        self.retries = int(self.ACCEPTABLE_NUMBER_OF_TIMEOUTS)
         self._timeout_countdown = int(self.ACCEPTABLE_NUMBER_OF_TIMEOUTS)
 
     async def release(self):
@@ -155,11 +154,8 @@ class RoborockDataUpdateCoordinator(
                 funcs.append(self._get_device_prop(device_id))
             await asyncio.gather(*funcs)
             self._timeout_countdown = int(self.ACCEPTABLE_NUMBER_OF_TIMEOUTS)
-        # except RoborockBackoffException:
-        #     #TODO Define if None should be returned so the entities get unavailable state
-        #     return self._devices_prop
         except RoborockTimeout as ex:
-            if self._timeout_countdown > 0:
+            if self._devices_prop and self._timeout_countdown > 0:
                 _LOGGER.debug("Timeout updating coordinator. Acceptable timeouts countdown = %s",
                               self._timeout_countdown)
                 self._timeout_countdown -= 1
@@ -169,10 +165,6 @@ class RoborockDataUpdateCoordinator(
             raise UpdateFailed(ex) from ex
         if self._devices_prop:
             return self._devices_prop
-        # Only for the first attempt
-        if self.retries > 0:
-            self.retries -= 1
-            return await self._async_update_data()
 
 
 async def async_unload_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
