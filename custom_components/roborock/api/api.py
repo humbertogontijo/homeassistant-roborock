@@ -279,7 +279,6 @@ class RoborockMqttClient(mqtt.Client):
             )
             if rc != mqtt.MQTT_ERR_SUCCESS:
                 raise RoborockException(f"Failed to connect (rc:{rc})")
-            self._last_device_msg_in = mqtt.time_func()
             return rc == mqtt.MQTT_ERR_SUCCESS
         return rc == mqtt.MQTT_ERR_SUCCESS
 
