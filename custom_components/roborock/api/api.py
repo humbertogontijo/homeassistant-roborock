@@ -257,18 +257,16 @@ class RoborockMqttClient(mqtt.Client):
             super().loop_start()
 
     def sync_disconnect(self):
-        rc = -1
-        self.sync_stop_loop()
+        rc = mqtt.MQTT_ERR_AGAIN
         if self.is_connected():
             _LOGGER.info("Disconnecting from mqtt")
             rc = super().disconnect()
-            if rc != 0:
+            if not rc in [mqtt.MQTT_ERR_SUCCESS, mqtt.MQTT_ERR_NO_CONN]:
                 raise RoborockException(f"Failed to disconnect (rc:{rc})")
-            return rc == mqtt.MQTT_ERR_SUCCESS
         return rc == mqtt.MQTT_ERR_SUCCESS
 
     def sync_connect(self):
-        rc = -1
+        rc = mqtt.MQTT_ERR_AGAIN
         self.sync_start_loop()
         if not self.is_connected():
             _LOGGER.info("Connecting to mqtt")
@@ -279,7 +277,6 @@ class RoborockMqttClient(mqtt.Client):
             )
             if rc != mqtt.MQTT_ERR_SUCCESS:
                 raise RoborockException(f"Failed to connect (rc:{rc})")
-            return rc == mqtt.MQTT_ERR_SUCCESS
         return rc == mqtt.MQTT_ERR_SUCCESS
 
     async def _async_response(self, request_id: int, protocol_id: int = 0):
