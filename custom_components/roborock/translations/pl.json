@@ -91,7 +91,7 @@
           "27": "System VibraRise zaciął się. Sprawdź czy nie ma przeszkód.",
           "28": "Robot na dywanie. Przenieś robota na podłogę i ponów próbę.",
           "29": "Filtr zablokowany lub mokry. Wyczyść, wysusz i spróbuj ponownie.",
-          "30": "Wykryto strefę "No-go" lub niewidzialną ścianę. Przenieś robota z tego obszaru.",
+          "30": "Wykryto strefę No-go lub niewidzialną ścianę. Przenieś robota z tego obszaru.",
           "31": "Nie można przejść przez dywan. Przenieś robota przez dywan i uruchom ponownie.",
           "32": "Błąd wewnętrzny. Zresetuj robota."
         }
