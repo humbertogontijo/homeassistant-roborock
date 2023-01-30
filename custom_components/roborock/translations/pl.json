@@ -2,10 +2,10 @@
   "config": {
     "step": {
       "user": {
-        "description": "Select an authentication method",
+        "description": "Wybierz metodę uwierzytelniania",
         "menu_options": {
-          "code": "Login with email authentication code",
-          "password": "Login with password"
+          "code": "Zaloguj się za pomocą kodu uwierzytelniającego z e-maila",
+          "password": "Zaloguj się za pomocą hasła"
         }
       },
       "email": {
@@ -15,15 +15,15 @@
         }
       },
       "code": {
-        "description": "Type the verification code sent to your email",
+        "description": "Wpisz kod weryfikacyjny wysłany na Twój e-mail",
         "data": {
-          "code": "Verification code"
+          "code": "Kod"
         }
       },
       "password": {
-        "description": "Type your password",
+        "description": "Podaj hasło",
         "data": {
-          "password": "Password"
+          "password": "Hasło"
         }
       }
     },
@@ -32,34 +32,34 @@
       "auth": "Logowanie nieudane. Sprawdź nazwę użytkownika lub hasło"
     },
     "abort": {
-      "already_configured": "Account is already configured",
-      "already_in_progress": "Account is already being configured"
+      "already_configured": "Konto jest już skonfigurowane",
+      "already_in_progress": "Konto jest już w trakcie konfiguracji"
     }
   },
   "options": {
     "step": {
       "user": {
-        "description": "Select a platform to configure",
+        "description": "Wybierz platformę do skonfigurowania",
         "menu_options": {
-          "vacuum": "Vacuum",
-          "camera": "Camera"
+          "vacuum": "Odkurzacz",
+          "camera": "Kamera"
         }
       },
       "camera": {
-        "description": "Camera Options",
+        "description": "Opcje kamery",
         "data": {
-          "map_transformation.scale": "Map scale",
-          "map_transformation.rotate": "Map rotation",
-          "map_transformation.trim.left": "Map left trim",
-          "map_transformation.trim.right": "Map right trim",
-          "map_transformation.trim.top": "Map top trim",
-          "map_transformation.trim.bottom": "Map bottom trim"
+          "map_transformation.scale": "Skala mapy",
+          "map_transformation.rotate": "Obrót mapy",
+          "map_transformation.trim.left": "Przycięcie mapy z lewej",
+          "map_transformation.trim.right": "Przycięcie mapy z prawej",
+          "map_transformation.trim.top": "Przycięcie mapy z góry",
+          "map_transformation.trim.bottom": "Przycięcie mapy od dołu"
         }
       },
       "vacuum": {
-        "description": "Vacuum options",
+        "description": "IOpcje odkurzacza",
         "data": {
-          "include_shared": "Include shared devices"
+          "include_shared": "Uwzględnij urządzenia współdzielone"
         }
       }
     }
@@ -68,32 +68,32 @@
     "sensor": {
       "roborock_vacuum": {
         "state": {
-          "0": "None",
-          "1": "LiDAR turret or laser blocked. Check for obstruction and retry.",
-          "2": "Bumper stuck. Clean it and lightly tap to release it.",
-          "3": "Wheels suspended. Move robot and restart.",
-          "4": "Cliff sensor error. Clean cliff sensors, move robot away from drops and restart.",
-          "5": "Main brush jammed. Clean main brush and bearings.",
-          "6": "Side brush jammed. Remove and clean side brush.",
-          "7": "Wheels jammed. Move the robot and restart.",
-          "8": "Robot trapped. Clear obstacles surrounding robot.",
-          "9": "No dustbin. Install dustbin and filter.",
-          "12": "Low battery. Recharge and retry.",
-          "13": "Charging error. Clean charging contacts and retry.",
-          "14": "Battery error.",
-          "15": "Wall sensor dirty. Clean wall sensor.",
-          "16": "Robot tilted. Move to level ground and restart.",
-          "17": "Side brush error. Reset robot.",
-          "18": "Fan error. Reset robot.",
-          "21": "Vertical bumper pressed. Move robot and retry.",
-          "22": "Dock locator error. Clean and retry.",
-          "23": "Could not return to dock. Clean dock location beacon and retry.",
-          "27": "VibraRise system jammed. Check for obstructions.",
-          "28": "Robot on carpet. Move robot to floor and retry.",
-          "29": "Filter blocked or wet. Clean, dry, and retry.",
-          "30": "No-go zone or Invisible Wall detected. Move robot from this area.",
-          "31": "Cannot cross carpet. Move robot across carpet and restart.",
-          "32": "Internal error. Reset the robot."
+          "0": "zadne",
+          "1": "LiDAR lub laser zablokowany. Sprawdź, czy nie ma przeszkód i ponów próbę.",
+          "2": "Zderzak utknął. Oczyść go i lekko stuknij, aby go uwolnić.",
+          "3": "Koła zawieszone. Przesuń robota i uruchom ponownie.",
+          "4": "Błąd czujnika klifu. Wyczyść czujniki klifu, odsuń robota od spadków i uruchom ponownie.",
+          "5": "Szczotka główna zakleszczona. Oczyścić szczotkę główną i łożyska.",
+          "6": "Szczotka boczna zacięła się. Wyjmij i wyczyścić szczotkę boczną.",
+          "7": "Koła się zacięły. Przesuń robota i uruchom ponownie.",
+          "8": "Robot uwięziony. Usuń przeszkody otaczające robota.",
+          "9": "Brak pojemnika na śmieci. Zainstaluj kosz na śmieci i filtr.",
+          "12": "Niski poziom baterii. Naładuj i ponów próbę.",
+          "13": "Błąd ładowania. Oczyść styki ładowania i spróbuj ponownie.",
+          "14": "Błąd baterii.",
+          "15": "Zabrudzony czujnik ścian. Wyczyść czujnik ścian.",
+          "16": "Robot jest przechylony. Przenieś na równy grunt i uruchom ponownie.",
+          "17": "Błąd szczotki bocznej. Zresetuj robota.",
+          "18": "Błąd wentylatora. Zresetuj robota.",
+          "21": "Pionowy zderzak wciśnięty. Przesuń robota i spróbuj ponownie.",
+          "22": "Błąd lokalizatora bazy. Wyczyść i spróbuj ponownie.",
+          "23": "Nie można wrócić do bazy. Usuń lokalizację bazy i ponów próbę.",
+          "27": "System VibraRise zaciął się. Sprawdź czy nie ma przeszkód.",
+          "28": "Robot na dywanie. Przenieś robota na podłogę i ponów próbę.",
+          "29": "Filtr zablokowany lub mokry. Wyczyść, wysusz i spróbuj ponownie.",
+          "30": "Wykryto strefę "No-go" lub niewidzialną ścianę. Przenieś robota z tego obszaru.",
+          "31": "Nie można przejść przez dywan. Przenieś robota przez dywan i uruchom ponownie.",
+          "32": "Błąd wewnętrzny. Zresetuj robota."
         }
       }
     }
