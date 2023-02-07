@@ -1,5 +1,6 @@
 # Roborock integration for HomeAsssistant
 
+WARNING: There are reports of temporary bans for using the integration. I'm actively working to get around the [issue](https://github.com/humbertogontijo/homeassistant-roborock/issues/163)
 
 ## About this repo
 I've bought a Roborock S7 Maxv and hated the fact that I had to use the Roborock App or the previous existing HomeAssistant integration. But not both.
