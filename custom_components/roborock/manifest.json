@@ -1,17 +1,16 @@
 {
   "domain": "roborock",
   "name": "Roborock",
-  "integration_type": "hub",
   "config_flow": true,
   "documentation": "https://github.com/humbertogontijo/homeassistant-roborock",
   "issue_tracker": "https://github.com/humbertogontijo/homeassistant-roborock/issues",
   "requirements": [
-    "paho-mqtt~=1.6.1",
-    "pycryptodome~=3.16.0",
-    "ndg-httpsclient~=0.5.1",
-    "pyopenssl~=22.1.0",
-    "pyasn1~=0.4.8",
-    "pillow~=9.3.0"
+    "paho-mqtt",
+    "pycryptodome",
+    "ndg-httpsclient",
+    "pyopenssl",
+    "pyasn1",
+    "pillow"
   ],
   "version": "0.0.28",
   "iot_class": "cloud_polling",

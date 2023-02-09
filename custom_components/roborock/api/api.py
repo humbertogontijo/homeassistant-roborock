@@ -219,20 +219,23 @@ class RoborockMqttClient(mqtt.Client):
 
     @run_in_executor()
     async def on_disconnect(self, _client: mqtt.Client, _, rc, __=None):
-        connection_queue = self._waiting_queue.get(1)
-        if rc != mqtt.MQTT_ERR_SUCCESS:
-            message = f"Roborock mqtt client disconnected (rc: {rc})"
-            _LOGGER.error(message)
-            await self.async_disconnect()
+        try:
+            connection_queue = self._waiting_queue.get(1)
+            if rc != mqtt.MQTT_ERR_SUCCESS:
+                message = f"Roborock mqtt client disconnected (rc: {rc})"
+                _LOGGER.error(message)
+                await self.async_disconnect()
+                if connection_queue:
+                    await connection_queue.async_put(
+                        (None, RoborockException(message)), timeout=QUEUE_TIMEOUT
+                    )
+                return
             if connection_queue:
                 await connection_queue.async_put(
-                    (None, RoborockException(message)), timeout=QUEUE_TIMEOUT
+                    (True, None), timeout=QUEUE_TIMEOUT
                 )
-            return
-        if connection_queue:
-            await connection_queue.async_put(
-                (True, None), timeout=QUEUE_TIMEOUT
-            )
+        except Exception as ex:
+            _LOGGER.exception(ex)
 
     @property
     def _last_msg_in(self):
