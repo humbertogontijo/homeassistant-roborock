@@ -41,12 +41,12 @@
       "user": {
         "description": "Seleziona una piattaforma da configurare",
         "menu_options": {
-          "vacuum": "Vacuum",
+          "vacuum": "Aspirapolvere",
           "camera": "Camera"
         }
       },
       "camera": {
-        "description": "Camera Options",
+        "description": "Opzioni camera",
         "data": {
           "map_transformation.scale": "Scala della mappa",
           "map_transformation.rotate": "Rotazione della mappa",
@@ -57,7 +57,7 @@
         }
       },
       "vacuum": {
-        "description": "Vacuum options",
+        "description": "Opzioni aspirapolvere",
         "data": {
           "include_shared": "Includi i dispositivi condivisi"
         }
