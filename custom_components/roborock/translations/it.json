@@ -2,10 +2,10 @@
   "config": {
     "step": {
       "user": {
-        "description": "Select an authentication method",
+        "description": "Seleziona un metodo di autenticazione",
         "menu_options": {
-          "code": "Login with email authentication code",
-          "password": "Login with password"
+          "code": "Accedi con il codice di autenticazione e-mail",
+          "password": "Accedi con password"
         }
       },
       "email": {
@@ -21,7 +21,7 @@
         }
       },
       "password": {
-        "description": "Type your password",
+        "description": "Digita la tua password",
         "data": {
           "password": "Password"
         }
@@ -32,14 +32,14 @@
       "auth": "Accesso fallito. Controlla le credenziali"
     },
     "abort": {
-      "already_configured": "Account is already configured",
-      "already_in_progress": "Account is already being configured"
+      "already_configured": "L'account è già configurato",
+      "already_in_progress": "L'account è in fase di configurazione"
     }
   },
   "options": {
     "step": {
       "user": {
-        "description": "Select a platform to configure",
+        "description": "Seleziona una piattaforma da configurare",
         "menu_options": {
           "vacuum": "Vacuum",
           "camera": "Camera"
@@ -59,7 +59,7 @@
       "vacuum": {
         "description": "Vacuum options",
         "data": {
-          "include_shared": "Include shared devices"
+          "include_shared": "Includi i dispositivi condivisi"
         }
       }
     }
