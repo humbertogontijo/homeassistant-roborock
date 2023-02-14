@@ -123,6 +123,7 @@ VACUUM_SENSORS = {
         icon="mdi:alert",
         translation_key="roborock_vacuum",
         translation_attr="state",
+        attributes=tuple([StatusField.ERROR_CODE]),
         parent_key=RoborockDevicePropField.STATUS,
         name="Current error",
         entity_category=EntityCategory.DIAGNOSTIC,
@@ -282,9 +283,12 @@ class RoborockSensor(RoborockCoordinatedEntity, SensorEntity):
     @callback
     def _extract_attributes(self, data):
         """Return state attributes with valid values."""
-        value = None
+        if self.entity_description.parent_key:
+            data = getattr(data, self.entity_description.parent_key)
+            if not data:
+                return
         return {
-            attr: value
+            attr: getattr(data, attr)
             for attr in self.entity_description.attributes
             if hasattr(data, attr)
         }
@@ -295,7 +299,7 @@ class RoborockSensor(RoborockCoordinatedEntity, SensorEntity):
         native_value = self._determine_native_value()
         # Sometimes (quite rarely) the device returns None as the sensor value so we
         # check that the value: before updating the state.
-        if native_value:
+        if native_value is not None:
             data = self.coordinator.data.get(self._device_id)
             self._attr_native_value = native_value
             self._attr_extra_state_attributes = self._extract_attributes(data)
