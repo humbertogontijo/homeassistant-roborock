@@ -11,10 +11,10 @@ from homeassistant.exceptions import ConfigEntryNotReady
 from homeassistant.helpers.translation import async_get_translations
 from homeassistant.helpers.update_coordinator import DataUpdateCoordinator, UpdateFailed
 
-from .api.api import RoborockClient, RoborockMqttClient
-from .api.containers import UserData, MultiMapsList
-from .api.exceptions import RoborockException, RoborockTimeout, RoborockBackoffException
-from .api.typing import RoborockDeviceInfo, RoborockDeviceProp
+from roborock.api import RoborockClient, RoborockMqttClient
+from roborock.containers import UserData, MultiMapsList
+from roborock.exceptions import RoborockException, RoborockTimeout
+from roborock.typing import RoborockDeviceInfo, RoborockDeviceProp
 from .const import CONF_ENTRY_USERNAME, CONF_USER_DATA, CONF_BASE_URL, SENSOR, CONF_INCLUDE_SHARED, VACUUM
 from .const import DOMAIN, PLATFORMS
 from .utils import set_nested_dict, get_nested_dict
@@ -63,7 +63,7 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
     api_client = RoborockClient(username, base_url)
     _LOGGER.debug("Getting home data")
     home_data = await api_client.get_home_data(user_data)
-    _LOGGER.debug("Got home data %s", home_data.data)
+    _LOGGER.debug("Got home data %s", home_data)
 
     device_map: dict[str, RoborockDeviceInfo] = {}
     devices = (

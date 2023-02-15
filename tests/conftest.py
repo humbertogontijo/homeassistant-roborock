@@ -16,9 +16,9 @@ def auto_enable_custom_integrations(enable_custom_integrations):
 @pytest.fixture(name="bypass_api_fixture")
 def bypass_api_fixture():
     """Skip calls to the API."""
-    with patch("custom_components.roborock.RoborockMqttClient.connect"), patch(
-        "custom_components.roborock.RoborockMqttClient.send_command"
-    ), patch("custom_components.roborock.api.api.mqtt"), patch(
-        "custom_components.roborock.RoborockMqttClient.get_prop", return_value=PROP
+    with patch("roborock.RoborockMqttClient.connect"), patch(
+        "roborock.RoborockMqttClient.send_command"
+    ), patch("roborock.api.mqtt"), patch(
+        "roborock.RoborockMqttClient.get_prop", return_value=PROP
     ):
         yield

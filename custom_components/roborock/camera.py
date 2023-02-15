@@ -15,8 +15,8 @@ from homeassistant.helpers.entity_platform import AddEntitiesCallback
 from homeassistant.util import slugify
 
 from . import RoborockDataUpdateCoordinator, set_nested_dict
-from .api.exceptions import RoborockTimeout, RoborockBackoffException
-from .api.typing import RoborockDeviceInfo, RoborockCommand
+from roborock.exceptions import RoborockTimeout, RoborockBackoffException
+from roborock.typing import RoborockDeviceInfo, RoborockCommand
 from .common.image_handler import ImageHandlerRoborock
 from .common.map_data import MapData
 from .common.map_data_parser import MapDataParserRoborock

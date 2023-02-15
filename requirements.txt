@@ -1,10 +1,3 @@
-aiohttp
-paho-mqtt
-pycryptodome
-pycryptodomex; sys_platform == 'darwin'
 homeassistant
+python_roborock
 voluptuous
-ndg-httpsclient
-pyopenssl
-pyasn1
-pillow

@@ -5,14 +5,12 @@ import homeassistant.helpers.config_validation as cv
 import pytest
 import voluptuous_serialize
 from homeassistant import config_entries, data_entry_flow
-from homeassistant.const import CONF_PLATFORM
 from homeassistant.core import HomeAssistant
 from pytest_homeassistant_custom_component.common import MockConfigEntry
 
-from custom_components.roborock.api.containers import UserData
 from custom_components.roborock.const import DOMAIN, CAMERA, CONF_MAP_TRANSFORM, CONF_SCALE, CONF_ROTATE, CONF_TRIM, \
-    CONF_LEFT, CONF_RIGHT, CONF_TOP, CONF_BOTTOM, VACUUM, CONF_INCLUDE_SHARED
-from .mock_data import MOCK_CONFIG, USER_DATA, USER_EMAIL
+    CONF_LEFT, CONF_RIGHT, CONF_TOP, CONF_BOTTOM, VACUUM, CONF_INCLUDE_SHARED, CONF_ENTRY_CODE, CONF_ENTRY_USERNAME
+from .mock_data import MOCK_CONFIG, USER_EMAIL
 
 
 @pytest.mark.asyncio
@@ -22,27 +20,35 @@ async def test_successful_config_flow(hass: HomeAssistant, bypass_api_fixture):
     result = await hass.config_entries.flow.async_init(
         DOMAIN, context={"source": config_entries.SOURCE_USER}
     )
+    assert result["type"] == data_entry_flow.RESULT_TYPE_MENU
+    assert result["step_id"] == "user"
+
+    result = await hass.config_entries.flow.async_configure(
+        result["flow_id"], {"next_step_id": CONF_ENTRY_CODE}
+    )
     # Check that user form requesting username (email) is shown
     assert result["type"] == data_entry_flow.RESULT_TYPE_FORM
-    assert result["step_id"] == "user"
+    assert result["step_id"] == "email"
+
     # Provide email address to config flow
     with patch(
             "custom_components.roborock.config_flow.RoborockClient.request_code",
             return_value=None,
     ):
         result = await hass.config_entries.flow.async_configure(
-            result["flow_id"], {"username": USER_EMAIL}
+            result["flow_id"], {CONF_ENTRY_USERNAME: USER_EMAIL}
         )
         # Check that user form requesting a code is shown
         assert result["type"] == data_entry_flow.RESULT_TYPE_FORM
         assert result["step_id"] == "code"
+
     # Provide code from email to config flow
     with patch(
             "custom_components.roborock.config_flow.RoborockClient.code_login",
-            return_value=UserData(USER_DATA),
+            return_value=MOCK_CONFIG.get("user_data"),
     ):
         result = await hass.config_entries.flow.async_configure(
-            result["flow_id"], user_input={"code": "123456"}
+            result["flow_id"], user_input={CONF_ENTRY_CODE: "123456"}
         )
     # Check config flow completed and a new entry is created
     assert result["type"] == data_entry_flow.RESULT_TYPE_CREATE_ENTRY
@@ -57,9 +63,14 @@ async def test_invalid_code(hass: HomeAssistant, bypass_api_fixture):
     result = await hass.config_entries.flow.async_init(
         DOMAIN, context={"source": config_entries.SOURCE_USER}
     )
-
-    assert result["type"] == data_entry_flow.RESULT_TYPE_FORM
+    assert result["type"] == data_entry_flow.RESULT_TYPE_MENU
     assert result["step_id"] == "user"
+
+    result = await hass.config_entries.flow.async_configure(
+        result["flow_id"], {"next_step_id": CONF_ENTRY_CODE}
+    )
+    assert result["type"] == data_entry_flow.RESULT_TYPE_FORM
+    assert result["step_id"] == "email"
 
     with patch(
             "custom_components.roborock.config_flow.RoborockClient.request_code",
@@ -77,7 +88,7 @@ async def test_invalid_code(hass: HomeAssistant, bypass_api_fixture):
             side_effect=Exception("invalid code"),
     ):
         result = await hass.config_entries.flow.async_configure(
-            result["flow_id"], user_input={"code": "123456"}
+            result["flow_id"], user_input={CONF_ENTRY_CODE: "123456"}
         )
     # Check the user form is presented with the error
     assert result["type"] == data_entry_flow.RESULT_TYPE_FORM
@@ -90,9 +101,14 @@ async def test_no_devices(hass: HomeAssistant, bypass_api_fixture):
     result = await hass.config_entries.flow.async_init(
         DOMAIN, context={"source": config_entries.SOURCE_USER}
     )
-
-    assert result["type"] == data_entry_flow.RESULT_TYPE_FORM
+    assert result["type"] == data_entry_flow.RESULT_TYPE_MENU
     assert result["step_id"] == "user"
+
+    result = await hass.config_entries.flow.async_configure(
+        result["flow_id"], {"next_step_id": CONF_ENTRY_CODE}
+    )
+    assert result["type"] == data_entry_flow.RESULT_TYPE_FORM
+    assert result["step_id"] == "email"
 
     with patch(
             "custom_components.roborock.config_flow.RoborockClient.request_code",
@@ -123,9 +139,14 @@ async def test_unknown_user(hass: HomeAssistant, bypass_api_fixture):
     result = await hass.config_entries.flow.async_init(
         DOMAIN, context={"source": config_entries.SOURCE_USER}
     )
-
-    assert result["type"] == data_entry_flow.RESULT_TYPE_FORM
+    assert result["type"] == data_entry_flow.RESULT_TYPE_MENU
     assert result["step_id"] == "user"
+
+    result = await hass.config_entries.flow.async_configure(
+        result["flow_id"], {"next_step_id": CONF_ENTRY_CODE}
+    )
+    assert result["type"] == data_entry_flow.RESULT_TYPE_FORM
+    assert result["step_id"] == "email"
 
     with patch(
             "custom_components.roborock.config_flow.RoborockClient.request_code",
@@ -152,14 +173,15 @@ async def test_camera_options_flow(hass: HomeAssistant, bypass_api_fixture):
     # Initialize an options flow
     result = await hass.config_entries.options.async_init(entry.entry_id)
     # Verify that the first options step is a user form
-    assert result["type"] == data_entry_flow.RESULT_TYPE_FORM
+    assert result["type"] == data_entry_flow.RESULT_TYPE_MENU
     assert result["step_id"] == "user"
+
     result = await hass.config_entries.options.async_configure(
-        result["flow_id"],
-        user_input={
-            CONF_PLATFORM: CAMERA
-        },
+        result["flow_id"], {"next_step_id": CAMERA}
     )
+    assert result["type"] == data_entry_flow.RESULT_TYPE_FORM
+    assert result["step_id"] == "camera"
+
     # Check if its serializable
     serialized_schemas = voluptuous_serialize.convert(
         result["data_schema"], custom_serializer=cv.custom_serializer
@@ -214,14 +236,14 @@ async def test_vacuum_options_flow(hass: HomeAssistant, bypass_api_fixture):
     # Initialize an options flow
     result = await hass.config_entries.options.async_init(entry.entry_id)
     # Verify that the first options step is a user form
-    assert result["type"] == data_entry_flow.RESULT_TYPE_FORM
+    assert result["type"] == data_entry_flow.RESULT_TYPE_MENU
     assert result["step_id"] == "user"
+
     result = await hass.config_entries.options.async_configure(
-        result["flow_id"],
-        user_input={
-            CONF_PLATFORM: VACUUM
-        },
+        result["flow_id"], {"next_step_id": VACUUM}
     )
+    assert result["type"] == data_entry_flow.RESULT_TYPE_FORM
+    assert result["step_id"] == "vacuum"
     # Check if its serializable
     serialized_schemas = voluptuous_serialize.convert(
         result["data_schema"], custom_serializer=cv.custom_serializer
@@ -247,6 +269,7 @@ async def test_vacuum_options_flow(hass: HomeAssistant, bypass_api_fixture):
             CONF_INCLUDE_SHARED: False
         }
     }
+
 
 @pytest.mark.asyncio
 async def test_vacuum_options_flow_persistence(hass: HomeAssistant, bypass_api_fixture):
@@ -261,14 +284,14 @@ async def test_vacuum_options_flow_persistence(hass: HomeAssistant, bypass_api_f
     # Initialize an options flow
     result = await hass.config_entries.options.async_init(entry.entry_id)
     # Verify that the first options step is a user form
-    assert result["type"] == data_entry_flow.RESULT_TYPE_FORM
+    assert result["type"] == data_entry_flow.RESULT_TYPE_MENU
     assert result["step_id"] == "user"
+
     result = await hass.config_entries.options.async_configure(
-        result["flow_id"],
-        user_input={
-            CONF_PLATFORM: VACUUM
-        },
+        result["flow_id"], {"next_step_id": VACUUM}
     )
+    assert result["type"] == data_entry_flow.RESULT_TYPE_FORM
+    assert result["step_id"] == "vacuum"
     # Check if its serializable
     serialized_schemas = voluptuous_serialize.convert(
         result["data_schema"], custom_serializer=cv.custom_serializer
@@ -301,14 +324,14 @@ async def test_vacuum_options_flow_persistence(hass: HomeAssistant, bypass_api_f
     # Initialize an options flow
     result = await hass.config_entries.options.async_init(entry.entry_id)
     # Verify that the first options step is a user form
-    assert result["type"] == data_entry_flow.RESULT_TYPE_FORM
+    assert result["type"] == data_entry_flow.RESULT_TYPE_MENU
     assert result["step_id"] == "user"
+
     result = await hass.config_entries.options.async_configure(
-        result["flow_id"],
-        user_input={
-            CONF_PLATFORM: VACUUM
-        },
+        result["flow_id"], {"next_step_id": VACUUM}
     )
+    assert result["type"] == data_entry_flow.RESULT_TYPE_FORM
+    assert result["step_id"] == "vacuum"
     # Check if its serializable
     serialized_schemas = voluptuous_serialize.convert(
         result["data_schema"], custom_serializer=cv.custom_serializer
@@ -317,4 +340,3 @@ async def test_vacuum_options_flow_persistence(hass: HomeAssistant, bypass_api_f
         assert (serialized_schema["name"], serialized_schema["default"]) in {
             CONF_INCLUDE_SHARED: False,
         }.items()
-

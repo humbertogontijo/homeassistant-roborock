@@ -8,8 +8,8 @@ from homeassistant.helpers.update_coordinator import (
 )
 
 from . import RoborockDataUpdateCoordinator
-from .api.containers import Status
-from .api.typing import RoborockDeviceInfo, RoborockCommand
+from roborock.containers import Status
+from roborock.typing import RoborockDeviceInfo, RoborockCommand
 from .const import DOMAIN
 
 _LOGGER = logging.getLogger(__name__)

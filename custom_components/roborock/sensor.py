@@ -20,8 +20,8 @@ from homeassistant.helpers.entity_platform import AddEntitiesCallback
 from homeassistant.util import dt as dt_util, slugify
 
 from . import DOMAIN, RoborockDataUpdateCoordinator
-from .api.containers import CleanRecordField, StatusField, CleanSummaryField, ConsumableField, DNDTimerField
-from .api.typing import RoborockDeviceInfo, RoborockDevicePropField
+from roborock.containers import CleanRecordField, StatusField, CleanSummaryField, ConsumableField, DNDTimerField
+from roborock.typing import RoborockDeviceInfo, RoborockDevicePropField
 from .const import (
     MAIN_BRUSH_REPLACE_TIME,
     SIDE_BRUSH_REPLACE_TIME,
@@ -324,7 +324,7 @@ class RoborockSensor(RoborockCoordinatedEntity, SensorEntity):
         else:
             native_value = getattr(data, self.entity_description.key)
 
-        if native_value:
+        if native_value is not None:
             if self.entity_description.value:
                 native_value = self.entity_description.value(native_value)
             if (

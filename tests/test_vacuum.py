@@ -16,7 +16,7 @@ from homeassistant.components.vacuum import (
 from homeassistant.core import HomeAssistant
 from homeassistant.helpers import entity_registry as er
 
-from custom_components.roborock.api.typing import RoborockCommand
+from roborock.typing import RoborockCommand
 from custom_components.roborock.vacuum import (
     ATTR_MOP_INTENSITY_LIST,
     ATTR_MOP_MODE_LIST,
@@ -46,7 +46,7 @@ async def test_vacuum_services(hass: HomeAssistant, bypass_api_fixture) -> None:
     entity_registry.async_get(ENTITY_ID)
     # Test starting
     with patch(
-        "custom_components.roborock.RoborockMqttClient.send_command"
+        "roborock.RoborockMqttClient.send_command"
     ) as mock_api_command:
         await hass.services.async_call(
             VACUUM_DOMAIN, SERVICE_START, {"entity_id": ENTITY_ID}, blocking=True
@@ -56,7 +56,7 @@ async def test_vacuum_services(hass: HomeAssistant, bypass_api_fixture) -> None:
         )
     # Test stopping
     with patch(
-        "custom_components.roborock.RoborockMqttClient.send_command"
+        "roborock.RoborockMqttClient.send_command"
     ) as mock_api_command:
         await hass.services.async_call(
             VACUUM_DOMAIN, SERVICE_STOP, {"entity_id": ENTITY_ID}, blocking=True
@@ -66,7 +66,7 @@ async def test_vacuum_services(hass: HomeAssistant, bypass_api_fixture) -> None:
         )
     # Test pausing
     with patch(
-        "custom_components.roborock.RoborockMqttClient.send_command"
+        "roborock.RoborockMqttClient.send_command"
     ) as mock_api_command:
         await hass.services.async_call(
             VACUUM_DOMAIN, SERVICE_PAUSE, {"entity_id": ENTITY_ID}, blocking=True
@@ -76,7 +76,7 @@ async def test_vacuum_services(hass: HomeAssistant, bypass_api_fixture) -> None:
         )
     # Test return to base
     with patch(
-        "custom_components.roborock.RoborockMqttClient.send_command"
+        "roborock.RoborockMqttClient.send_command"
     ) as mock_api_command:
         await hass.services.async_call(
             VACUUM_DOMAIN,
@@ -89,7 +89,7 @@ async def test_vacuum_services(hass: HomeAssistant, bypass_api_fixture) -> None:
         )
     # Test clean spot
     with patch(
-        "custom_components.roborock.RoborockMqttClient.send_command"
+        "roborock.RoborockMqttClient.send_command"
     ) as mock_api_command:
         await hass.services.async_call(
             VACUUM_DOMAIN, SERVICE_CLEAN_SPOT, {"entity_id": ENTITY_ID}, blocking=True
@@ -99,7 +99,7 @@ async def test_vacuum_services(hass: HomeAssistant, bypass_api_fixture) -> None:
         )
     # Test locate
     with patch(
-        "custom_components.roborock.RoborockMqttClient.send_command"
+        "roborock.RoborockMqttClient.send_command"
     ) as mock_api_command:
         await hass.services.async_call(
             VACUUM_DOMAIN, SERVICE_LOCATE, {"entity_id": ENTITY_ID}, blocking=True

@@ -25,7 +25,7 @@ from homeassistant.helpers.entity_platform import AddEntitiesCallback
 from homeassistant.util import slugify
 
 from . import RoborockDataUpdateCoordinator
-from .api.typing import RoborockDeviceInfo, RoborockCommand
+from roborock.typing import RoborockDeviceInfo, RoborockCommand
 from .const import DOMAIN
 from .device import RoborockCoordinatedEntity
 
@@ -330,7 +330,7 @@ class RoborockVacuum(RoborockCoordinatedEntity, StateVacuumEntity, ABC):
         """Return the state attributes of the vacuum cleaner."""
         if not self._device_status:
             return
-        data = dict(self._device_status.data)
+        data = dict(self._device_status)
 
         if self.supported_features & VacuumEntityFeature.BATTERY:
             data[ATTR_BATTERY_LEVEL] = self.battery_level

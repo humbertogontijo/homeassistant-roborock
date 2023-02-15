@@ -8,8 +8,8 @@ import voluptuous as vol
 from homeassistant import config_entries
 from homeassistant.core import callback
 
-from .api.api import RoborockClient
-from .api.containers import UserData
+from roborock.api import RoborockClient
+from roborock.containers import UserData
 from .const import (
     CONF_BASE_URL,
     CONF_ENTRY_CODE,
@@ -182,7 +182,7 @@ class RoborockFlowHandler(config_entries.ConfigFlow, domain=DOMAIN):
             title=username,
             data={
                 CONF_ENTRY_USERNAME: username,
-                CONF_USER_DATA: user_data.data,
+                CONF_USER_DATA: user_data,
                 CONF_BASE_URL: self._client.base_url,
             },
         )

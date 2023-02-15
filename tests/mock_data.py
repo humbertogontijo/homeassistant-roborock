@@ -1,5 +1,5 @@
 """Mock data for Roborock tests."""
-from custom_components.roborock.api.containers import (
+from roborock.containers import (
     CleanRecord,
     CleanSummary,
     Consumable,
@@ -7,7 +7,7 @@ from custom_components.roborock.api.containers import (
     HomeData,
     Status,
 )
-from custom_components.roborock.api.typing import RoborockDeviceProp
+from roborock.typing import RoborockDeviceProp
 
 # All data is based on a U.S. customer with a Roborock S7 MaxV Ultra
 USER_EMAIL = "user@domain.com"

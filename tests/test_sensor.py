@@ -9,7 +9,7 @@ from homeassistant.core import HomeAssistant
 from homeassistant.helpers import entity_registry as er
 from homeassistant.util import dt as dt_util
 
-from custom_components.roborock.api.containers import CleanRecordField, DNDTimerField
+from roborock.containers import CleanRecordField, DNDTimerField
 from custom_components.roborock.const import (
     FILTER_REPLACE_TIME,
     MAIN_BRUSH_REPLACE_TIME,
