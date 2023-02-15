@@ -4,7 +4,7 @@ logger:
   default: info
   logs:
     custom_components.roborock: debug
+    roborock: debug
 
-# If you need to debug uncomment the line below (doc: https://www.home-assistant.io/integrations/debugpy/)
 debugpy:
 
