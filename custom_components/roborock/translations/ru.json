@@ -2,16 +2,16 @@
   "config": {
     "step": {
       "user": {
-        "description": "Select an authentication method",
+        "description": "Выберите метод аутентификации",
         "menu_options": {
-          "code": "Login with email authentication code",
-          "password": "Login with password"
+          "code": "Войти с помощаю кода на почту",
+          "password": "Войти с помощью пароля"
         }
       },
       "email": {
         "description": "Ваши данные из приложения",
         "data": {
-          "username": "Email"
+          "username": "Почта"
         }
       },
       "code": {
@@ -21,9 +21,9 @@
         }
       },
       "password": {
-        "description": "Type your password",
+        "description": "Введите свой пароль",
         "data": {
-          "password": "Password"
+          "password": "Пароль"
         }
       }
     },
@@ -32,21 +32,21 @@
       "auth": "Не удалось войти. Проверьте данные."
     },
     "abort": {
-      "already_configured": "Account is already configured",
-      "already_in_progress": "Account is already being configured"
+      "already_configured": "Аккаунт уже настроен",
+      "already_in_progress": "Аккаунт уже настраивается"
     }
   },
   "options": {
     "step": {
       "user": {
-        "description": "Select a platform to configure",
+        "description": "Выберите платформу для настройки",
         "menu_options": {
-          "vacuum": "Vacuum",
-          "camera": "Camera"
+          "vacuum": "Пылесос",
+          "camera": "Камера"
         }
       },
       "camera": {
-        "description": "Camera Options",
+        "description": "Параметры камеры",
         "data": {
           "map_transformation.scale": "Масштаб карты",
           "map_transformation.rotate": "Вращение карты",
@@ -57,9 +57,9 @@
         }
       },
       "vacuum": {
-        "description": "Vacuum options",
+        "description": "Параметры пылесоса",
         "data": {
-          "include_shared": "Include shared devices"
+          "include_shared": "Добавить общие устройства"
         }
       }
     }
