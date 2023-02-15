@@ -2,10 +2,10 @@
   "config": {
     "step": {
       "user": {
-        "description": "Select an authentication method",
+        "description": "Vælg en godkendelsesmetode",
         "menu_options": {
-          "code": "Login with email authentication code",
-          "password": "Login with password"
+          "code": "Login men godkendelseskode fra email",
+          "password": "Login med password"
         }
       },
       "email": {
@@ -21,7 +21,7 @@
         }
       },
       "password": {
-        "description": "Type your password",
+        "description": "Indtast password",
         "data": {
           "password": "Password"
         }
@@ -33,7 +33,7 @@
     },
     "abort": {
       "already_configured": "Enhed er allerede konfigureret",
-      "already_in_progress": "Account is already being configured"
+      "already_in_progress": "Konfiguration af enhed er allerede igangsat"
     }
   },
   "options": {
@@ -41,8 +41,8 @@
       "user": {
         "description": "Vælg platform der skal konfigures",
         "menu_options": {
-          "vacuum": "Vacuum",
-          "camera": "Camera"
+          "vacuum": "Støvsuger",
+          "camera": "Kamera"
         }
       },
       "camera": {
