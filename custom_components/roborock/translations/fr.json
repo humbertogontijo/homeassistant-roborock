@@ -2,10 +2,10 @@
   "config": {
     "step": {
       "user": {
-        "description": "Select an authentication method",
+        "description": "Sélectionnez une méthode d'authentification",
         "menu_options": {
-          "code": "Login with email authentication code",
-          "password": "Login with password"
+          "code": "Se connecter avec un code envoyé par email",
+          "password": "Se connecter avec le mot de passe"
         }
       },
       "email": {
@@ -21,9 +21,9 @@
         }
       },
       "password": {
-        "description": "Type your password",
+        "description": "Entrer votre mot de passe",
         "data": {
-          "password": "Password"
+          "password": "Mot de passe"
         }
       }
     },
@@ -32,34 +32,34 @@
       "auth": "Echec de la connexion. Vérifiez vos identifiants"
     },
     "abort": {
-      "already_configured": "Account is already configured",
-      "already_in_progress": "Account is already being configured"
+      "already_configured": "Votre compte est déjà configuré",
+      "already_in_progress": "Votre compte est déjà en cours de configuration"
     }
   },
   "options": {
     "step": {
       "user": {
-        "description": "Select a platform to configure",
+        "description": "Sélectionnez une plateforme à configurer",
         "menu_options": {
-          "vacuum": "Vacuum",
-          "camera": "Camera"
+          "vacuum": "Aspirateur",
+          "camera": "Caméra"
         }
       },
       "camera": {
-        "description": "Camera Options",
+        "description": "Options de la caméra",
         "data": {
-          "map_transformation.scale": "Échelle de la carte",
+          "map_transformation.scale": "Echelle de la carte",
           "map_transformation.rotate": "Rotation de la carte",
-          "map_transformation.trim.left": "Trim gauche de la carte",
-          "map_transformation.trim.right": "Trim droite de la carte",
-          "map_transformation.trim.top": "Trim haut de la carte",
-          "map_transformation.trim.bottom": "Trim bas de la carte"
+          "map_transformation.trim.left": "Rogner la carte à gauche",
+          "map_transformation.trim.right": "Rogner la carte à droite",
+          "map_transformation.trim.top": "Rogner la carte en haut",
+          "map_transformation.trim.bottom": "Rogner la carte en bas"
         }
       },
       "vacuum": {
-        "description": "Vacuum options",
+        "description": "Options de l'aspirateur",
         "data": {
-          "include_shared": "Include shared devices"
+          "include_shared": "Inclure les appareils partagés"
         }
       }
     }
@@ -68,7 +68,7 @@
     "sensor": {
       "roborock_vacuum": {
         "state": {
-          "0": "ok",
+          "0": "Aucun",
           "1": "LiDAR ou laser bloqué. Vérifier l'obstruction et réessayer.",
           "2": "Pare-chocs coincé. Nettoyez-le et tapez légèrement pour le dégager.",
           "3": "Roues suspendues. Déplacez le robot et recommencez.",
