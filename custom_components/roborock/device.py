@@ -2,21 +2,20 @@
 import datetime
 import logging
 
+from roborock.containers import Status
+from roborock.typing import RoborockCommand, RoborockDeviceInfo
+
 from homeassistant.helpers.entity import DeviceInfo
-from homeassistant.helpers.update_coordinator import (
-    CoordinatorEntity,
-)
+from homeassistant.helpers.update_coordinator import CoordinatorEntity
 
 from . import RoborockDataUpdateCoordinator
-from roborock.containers import Status
-from roborock.typing import RoborockDeviceInfo, RoborockCommand
 from .const import DOMAIN
 
 _LOGGER = logging.getLogger(__name__)
 
 
-def parse_datetime_time(initial_time: datetime.time):
-    """Helper to handle time data."""
+def parse_datetime_time(initial_time: datetime.time) -> float:
+    """Help to handle time data."""
     time = datetime.datetime.now().replace(
         hour=initial_time.hour, minute=initial_time.minute, second=0, microsecond=0
     )
@@ -33,11 +32,11 @@ class RoborockCoordinatedEntity(CoordinatorEntity[RoborockDataUpdateCoordinator]
     _attr_has_entity_name = True
 
     def __init__(
-            self,
-            device_info: RoborockDeviceInfo,
-            coordinator: RoborockDataUpdateCoordinator,
-            unique_id: str = None,
-    ):
+        self,
+        device_info: RoborockDeviceInfo,
+        coordinator: RoborockDataUpdateCoordinator,
+        unique_id: str | None = None,
+    ) -> None:
         """Initialize the coordinated Roborock Device."""
         super().__init__(coordinator)
         self._device_name = device_info.device.name
@@ -70,7 +69,8 @@ class RoborockCoordinatedEntity(CoordinatorEntity[RoborockDataUpdateCoordinator]
             sw_version=self._fw_version,
         )
 
-    def translate(self, attr: str, value):
+    def translate(self, attr: str, value) -> str:
+        """Translate value into new language."""
         translation = self.coordinator.translation
         if not translation:
             return value
@@ -87,6 +87,4 @@ class RoborockCoordinatedEntity(CoordinatorEntity[RoborockDataUpdateCoordinator]
 
     async def send(self, command: RoborockCommand, params=None):
         """Send a command to a vacuum cleaner."""
-        return await self.coordinator.api.send_command(
-            self._device_id, command, params
-        )
+        return await self.coordinator.api.send_command(self._device_id, command, params)

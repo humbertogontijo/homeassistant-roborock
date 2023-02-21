@@ -1,3 +1,6 @@
+"""Utilities for roborock."""
+
+
 def set_nested_dict(data: dict, key_string: str, value):
     """Set nested dict."""
     here = data
@@ -7,7 +10,7 @@ def set_nested_dict(data: dict, key_string: str, value):
     here[keys[-1]] = value
 
 
-def get_nested_dict(data: dict, key_string: str, default=None):
+def get_nested_dict(data: dict, key_string: str, default=None) -> dict:
     """Get nested dict."""
     here = data
     keys = key_string.split(".")
