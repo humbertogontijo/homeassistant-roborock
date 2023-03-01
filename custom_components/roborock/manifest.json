@@ -1,20 +1,20 @@
 {
   "domain": "roborock",
   "name": "Roborock",
-  "version": "0.1.1",
-  "integration_type": "hub",
+    "codeowners": [
+    "@humbertogontijo"
+  ],
   "config_flow": true,
   "documentation": "https://github.com/humbertogontijo/homeassistant-roborock",
+  "integration_type": "hub",
+  "iot_class": "cloud_polling",
   "issue_tracker": "https://github.com/humbertogontijo/homeassistant-roborock/issues",
-  "requirements": [
-    "python-roborock==0.1.5"
-  ],
-  "loggers": [
+    "loggers": [
     "custom_components.roborock",
     "roborock"
   ],
-  "iot_class": "cloud_polling",
-  "codeowners": [
-    "@humbertogontijo"
-  ]
+  "requirements": [
+    "python-roborock==0.1.5"
+  ],
+  "version": "0.1.1"
 }
