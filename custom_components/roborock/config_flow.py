@@ -1,33 +1,36 @@
 """Config flow for Roborock."""
 from __future__ import annotations
 
+from collections.abc import Mapping
 import logging
 from typing import Any
 
-import voluptuous as vol
-from homeassistant import config_entries
-from homeassistant.core import callback
-
 from roborock.api import RoborockClient
 from roborock.containers import UserData
+import voluptuous as vol
+
+from homeassistant import config_entries
+from homeassistant.core import callback
+from homeassistant.data_entry_flow import FlowResult
+
 from .const import (
+    CAMERA,
     CONF_BASE_URL,
+    CONF_BOTTOM,
     CONF_ENTRY_CODE,
+    CONF_ENTRY_PASSWORD,
     CONF_ENTRY_USERNAME,
+    CONF_INCLUDE_SHARED,
+    CONF_LEFT,
+    CONF_MAP_TRANSFORM,
+    CONF_RIGHT,
+    CONF_ROTATE,
+    CONF_SCALE,
+    CONF_TOP,
+    CONF_TRIM,
     CONF_USER_DATA,
     DOMAIN,
-    CONF_SCALE,
-    CONF_ROTATE,
-    CONF_TRIM,
-    CONF_MAP_TRANSFORM,
-    CONF_LEFT,
-    CONF_RIGHT,
-    CONF_TOP,
-    CONF_BOTTOM,
-    CAMERA,
     VACUUM,
-    CONF_INCLUDE_SHARED,
-    CONF_ENTRY_PASSWORD,
 )
 from .utils import get_nested_dict, set_nested_dict
 
@@ -40,26 +43,30 @@ class RoborockFlowHandler(config_entries.ConfigFlow, domain=DOMAIN):
     VERSION = 1
     CONNECTION_CLASS = config_entries.CONN_CLASS_CLOUD_POLL
 
-    def __init__(self):
+    def __init__(self) -> None:
         """Initialize the config flow."""
         self._username = None
-        self._errors = {}
+        self._errors: dict[str, str] = {}
         self._username = None
-        self._client = None
-        self._auth_method = None
+        self._client: RoborockClient = None
+        self._auth_method: str | None = None
 
-    async def async_step_reauth(self, _user_input=None):
+    async def async_step_reauth(self, _user_input: Mapping[str, Any]) -> FlowResult:
         """Handle a reauth flow."""
         await self.hass.config_entries.async_remove(self.context["entry_id"])
         return self._show_user_form()
 
-    async def async_step_user(self, _user_input=None):
+    async def async_step_user(
+        self, _user_input: dict[str, Any] | None = None
+    ) -> FlowResult:
         """Handle a flow initialized by the user."""
         return self._show_user_form()
 
-    async def async_step_email(self, user_input=None):
+    async def async_step_email(
+        self, user_input: dict[str, Any] | None = None
+    ) -> FlowResult:
         """Handle a flow initialized by the user."""
-        self._errors = {}
+        self._errors.clear()
 
         if user_input and user_input[CONF_ENTRY_USERNAME]:
             username = user_input[CONF_ENTRY_USERNAME]
@@ -71,22 +78,22 @@ class RoborockFlowHandler(config_entries.ConfigFlow, domain=DOMAIN):
                 if client:
                     self._client = client
                     return self._show_code_form(user_input)
-                else:
-                    self._errors["base"] = "auth"
+                self._errors["base"] = "auth"
             elif self._auth_method == CONF_ENTRY_PASSWORD:
                 client = RoborockClient(username)
                 if client:
                     self._client = client
                     return self._show_password_form(user_input)
-                else:
-                    self._errors["base"] = "auth"
+                self._errors["base"] = "auth"
             return self._show_email_form(user_input)
 
         return self._show_email_form(user_input)
 
-    async def async_step_code(self, user_input=None):
+    async def async_step_code(
+        self, user_input: dict[str, Any] | None = None
+    ) -> FlowResult:
         """Handle a flow initialized by the user."""
-        self._errors = {}
+        self._errors.clear()
 
         if not user_input:
             self._auth_method = CONF_ENTRY_CODE
@@ -95,16 +102,17 @@ class RoborockFlowHandler(config_entries.ConfigFlow, domain=DOMAIN):
         username = self._username
         code = user_input[CONF_ENTRY_CODE]
         user_data = await self._code_login(code)
-        if user_data:
+        if user_data and username:
             return self._create_entry(username, user_data)
-        else:
-            self._errors["base"] = "no_device"
+        self._errors["base"] = "no_device"
 
         return self._show_code_form(user_input)
 
-    async def async_step_password(self, user_input=None):
+    async def async_step_password(
+        self, user_input: dict[str, Any] | None = None
+    ) -> FlowResult:
         """Handle a flow initialized by the user."""
-        self._errors = {}
+        self._errors.clear()
 
         if not user_input:
             self._auth_method = CONF_ENTRY_PASSWORD
@@ -113,26 +121,27 @@ class RoborockFlowHandler(config_entries.ConfigFlow, domain=DOMAIN):
         username = self._username
         code = user_input[CONF_ENTRY_PASSWORD]
         user_data = await self._pass_login(code)
-        if user_data:
+        if user_data and username:
             return self._create_entry(username, user_data)
-        else:
-            self._errors["base"] = "no_device"
+        self._errors["base"] = "no_device"
 
         return self._show_password_form(user_input)
 
     @staticmethod
     @callback
-    def async_get_options_flow(config_entry):
+    def async_get_options_flow(
+        config_entry: config_entries.ConfigEntry,
+    ) -> RoborockOptionsFlowHandler:
+        """Get the options flow for this handler."""
         return RoborockOptionsFlowHandler(config_entry)
 
-    def _show_user_form(self):
+    def _show_user_form(self) -> FlowResult:
         """Show the configuration form to choose authentication method."""
         return self.async_show_menu(
-            step_id="user",
-            menu_options=[CONF_ENTRY_CODE, CONF_ENTRY_PASSWORD]
+            step_id="user", menu_options=[CONF_ENTRY_CODE, CONF_ENTRY_PASSWORD]
         )
 
-    def _show_email_form(self, user_input=None):
+    def _show_email_form(self, user_input: dict[str, Any] | None = None) -> FlowResult:
         """Show the configuration form to provide user email."""
         if user_input is None:
             user_input = {}
@@ -149,7 +158,7 @@ class RoborockFlowHandler(config_entries.ConfigFlow, domain=DOMAIN):
             last_step=False,
         )
 
-    def _show_code_form(self, user_input):
+    def _show_code_form(self, user_input: dict[str, Any]) -> FlowResult:
         """Show the configuration form to provide authentication code."""
         return self.async_show_form(
             step_id="code",
@@ -163,7 +172,9 @@ class RoborockFlowHandler(config_entries.ConfigFlow, domain=DOMAIN):
             errors=self._errors,
         )
 
-    def _show_password_form(self, user_input):  # pylint: disable=unused-argument
+    def _show_password_form(
+        self, user_input: dict[str, Any]
+    ) -> FlowResult:  # pylint: disable=unused-argument
         """Show the configuration form to provide authentication code."""
         return self.async_show_form(
             step_id="password",
@@ -177,7 +188,8 @@ class RoborockFlowHandler(config_entries.ConfigFlow, domain=DOMAIN):
             errors=self._errors,
         )
 
-    def _create_entry(self, username: str, user_data: UserData):
+    def _create_entry(self, username: str, user_data: UserData) -> FlowResult:
+        """Finished config flow and create entry."""
         return self.async_create_entry(
             title=username,
             data={
@@ -187,48 +199,53 @@ class RoborockFlowHandler(config_entries.ConfigFlow, domain=DOMAIN):
             },
         )
 
-    async def _request_code(self, username: str):
+    async def _request_code(self, username: str) -> RoborockClient:
         """Return true if credentials is valid."""
         try:
             _LOGGER.debug("Requesting code for Roborock account")
             client = RoborockClient(username)
             await client.request_code()
             return client
-        except Exception as ex:
+        except Exception as ex:  # pylint: disable=broad-except
             _LOGGER.exception(ex)
             self._errors["base"] = "auth"
             return None
 
-    async def _code_login(self, code) -> UserData | None:
+    async def _code_login(self, code: str) -> UserData | None:
         """Return UserData if login code is valid."""
         try:
             _LOGGER.debug("Logging into Roborock account using email provided code")
             login_data = await self._client.code_login(code)
             return login_data
-        except Exception as ex:
+        except Exception as ex:  # pylint: disable=broad-except
             _LOGGER.exception(ex)
             self._errors["base"] = "auth"
-            return
+            return None
 
-    async def _pass_login(self, password) -> UserData | None:
+    async def _pass_login(self, password: str) -> UserData | None:
         """Return UserData if login code is valid."""
         try:
             _LOGGER.debug("Logging into Roborock account using email provided code")
             login_data = await self._client.pass_login(password)
             return login_data
-        except Exception as ex:
+        except Exception as ex:  # pylint: disable=broad-except
             _LOGGER.exception(ex)
             self._errors["base"] = "auth"
-            return
+            return None
 
 
-def discriminant(_, validators):
-    return list(validators).__reversed__()
+def discriminant(_: Any, validators: tuple):
+    """Handle discriminant function fo rotation schema."""
+    return reversed(list(validators))
 
 
 POSITIVE_FLOAT_SCHEMA = vol.All(vol.Coerce(float), vol.Range(min=0))
-ROTATION_SCHEMA = vol.All(vol.Coerce(int), vol.Coerce(str), vol.In(["0", "90", "180", "270"]),
-                          discriminant=discriminant)
+ROTATION_SCHEMA = vol.All(
+    vol.Coerce(int),
+    vol.Coerce(str),
+    vol.In(["0", "90", "180", "270"]),
+    discriminant=discriminant,
+)
 PERCENT_SCHEMA = vol.All(vol.Coerce(float), vol.Range(min=0, max=100))
 
 CAMERA_VALUES = {
@@ -249,13 +266,9 @@ CAMERA_SCHEMA = {
     f"{CONF_MAP_TRANSFORM}.{CONF_TRIM}.{CONF_BOTTOM}": PERCENT_SCHEMA,
 }
 
-VACUUM_VALUES = {
-    CONF_INCLUDE_SHARED: True
-}
+VACUUM_VALUES = {CONF_INCLUDE_SHARED: True}
 
-VACUUM_SCHEMA = {
-    CONF_INCLUDE_SHARED: vol.Coerce(bool)
-}
+VACUUM_SCHEMA = {CONF_INCLUDE_SHARED: vol.Coerce(bool)}
 
 OPTION_VALUES = {
     VACUUM: VACUUM_VALUES,
@@ -271,32 +284,52 @@ OPTION_SCHEMA = {
 class RoborockOptionsFlowHandler(config_entries.OptionsFlow):
     """Roborock config flow options handler."""
 
-    def __init__(self, config_entry):
+    def __init__(self, config_entry: config_entries.ConfigEntry) -> None:
         """Initialize HACS options flow."""
         self.config_entry = config_entry
         self.options = dict(config_entry.options)
 
-    async def async_step_init(self, _=None):  # pylint: disable=unused-argument
+    async def async_step_init(
+        self, _user_input: dict[str, Any] | None = None
+    ) -> FlowResult:  # pylint: disable=unused-argument
         """Manage the options."""
         return await self.async_step_user()
 
-    async def async_step_user(self, _user_input=None):
+    async def async_step_user(
+        self, _user_input: dict[str, Any] | None = None
+    ) -> FlowResult:
         """Handle a flow initialized by the user."""
         return self.async_show_menu(
             step_id="user",
             menu_options=[CAMERA, VACUUM],
         )
 
-    async def async_step_camera(self, user_input=None):
-        return await self._async_step_platform(CAMERA, CAMERA_SCHEMA, CAMERA_VALUES, user_input)
+    async def async_step_camera(
+        self, user_input: dict[str, Any] | None = None
+    ) -> FlowResult:
+        """Handle setup of camera."""
+        return await self._async_step_platform(
+            CAMERA, CAMERA_SCHEMA, CAMERA_VALUES, user_input
+        )
 
-    async def async_step_vacuum(self, user_input=None):
-        return await self._async_step_platform(VACUUM, VACUUM_SCHEMA, VACUUM_VALUES, user_input)
+    async def async_step_vacuum(
+        self, user_input: dict[str, Any] | None = None
+    ) -> FlowResult:
+        """Handle setup of vacuum."""
+        return await self._async_step_platform(
+            VACUUM, VACUUM_SCHEMA, VACUUM_VALUES, user_input
+        )
 
-    async def _async_step_platform(self, platform: str, schema: dict[str, Any], values: dict[str, Any],
-                                   user_input=None):
+    async def _async_step_platform(
+        self,
+        platform: str,
+        schema: dict[str, Any],
+        values: dict[str, Any],
+        user_input: dict[str, Any] | None = None,
+    ) -> FlowResult:
+        """Handle setup of various platforms."""
         if user_input:
-            data = {}
+            data: dict = {}
             for key, value in user_input.items():
                 set_nested_dict(data, key, value)
             if self.options:
@@ -310,13 +343,16 @@ class RoborockOptionsFlowHandler(config_entries.OptionsFlow):
             data_schema=vol.Schema(
                 {
                     vol.Optional(
-                        key, default=schema.get(key)(get_nested_dict(options or {}, key, value))
+                        key,
+                        default=schema.get(key)(
+                            get_nested_dict(options or {}, key, value)
+                        ),
                     ): schema.get(key)
                     for key, value in values.items()
                 }
             ),
         )
 
-    async def _update_options(self):
+    async def _update_options(self) -> FlowResult:
         """Update config entry options."""
         return self.async_create_entry(title="", data=self.options)
