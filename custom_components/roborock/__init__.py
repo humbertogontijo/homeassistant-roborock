@@ -7,7 +7,7 @@ import logging
 from typing import Any
 
 from roborock.api import RoborockClient, RoborockMqttClient
-from roborock.containers import MultiMapsList, UserData
+from roborock.containers import MultiMapsList, UserData, HomeDataProduct
 from roborock.exceptions import RoborockException, RoborockTimeout
 from roborock.typing import RoborockDeviceInfo, RoborockDeviceProp
 
@@ -88,9 +88,9 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
         else home_data.devices
     )
     for device in devices:
-        product: dict[str, Any] = next(
+        product = next(
             (
-                product
+                HomeDataProduct(product)
                 for product in home_data.products
                 if product.id == device.product_id
             ),

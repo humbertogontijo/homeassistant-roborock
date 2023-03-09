@@ -1,11 +1,14 @@
 """Support for Roborock vacuum class."""
+from __future__ import annotations
+
 from abc import ABC
 import logging
 import math
 import time
 from typing import Any
 
-from roborock.typing import RoborockCommand, RoborockDeviceInfo, Status
+from roborock import MOP_MODE_CODES, MOP_INTENSITY_CODES, FAN_SPEED_CODES
+from roborock.typing import RoborockCommand, RoborockDeviceInfo
 import voluptuous as vol
 
 from homeassistant.components.vacuum import (
@@ -34,32 +37,6 @@ from .device import RoborockCoordinatedEntity
 
 _LOGGER = logging.getLogger(__name__)
 
-STATE_CODES_TO_STATUS = {
-    1: "starting",
-    2: "charger_disconnected",
-    3: "idle",
-    4: "remote_control_active",
-    5: "cleaning",
-    6: "returning_home",
-    7: "manual_mode",
-    8: "charging",
-    9: "charging_problem",
-    10: "paused",
-    11: "spot_cleaning",
-    12: "error",
-    13: "shutting_down",
-    14: "updating",
-    15: "docking",
-    16: "going_to_target",
-    17: "zoned_cleaning",
-    18: "segment_cleaning",
-    22: "emptying_the_bin",  # on s7+, see #1189
-    23: "washing_the_mop",  # on a46, #1435
-    26: "going_to_wash_the_mop",  # on a46, #1435
-    100: "charging_complete",
-    101: "device_offline",
-}
-
 STATE_CODE_TO_STATE = {
     1: STATE_IDLE,  # "Starting"
     2: STATE_IDLE,  # "Charger disconnected"
@@ -86,32 +63,7 @@ STATE_CODE_TO_STATE = {
     101: STATE_ERROR,  # "Device offline"
 }
 
-FAN_SPEED_CODES = {
-    105: "off",
-    101: "silent",
-    102: "balanced",
-    103: "turbo",
-    104: "max",
-    108: "max_plus",
-    106: "custom",
-}
-
-MOP_MODE_CODES = {
-    300: "standard",
-    301: "deep",
-    303: "deep_plus",
-    302: "custom",
-}
-
-MOP_INTENSITY_CODES = {
-    200: "off",
-    201: "mild",
-    202: "moderate",
-    203: "intense",
-    204: "custom",
-}
-
-ATTR_STATUS = "vacuum_status"
+ATTR_STATUS = "status"
 ATTR_MOP_MODE = "mop_mode"
 ATTR_MOP_INTENSITY = "mop_intensity"
 ATTR_MOP_MODE_LIST = f"{ATTR_MOP_MODE}_list"
@@ -311,19 +263,18 @@ class RoborockVacuum(RoborockCoordinatedEntity, StateVacuumEntity, ABC):
         return STATE_CODE_TO_STATE.get(state)
 
     @property
-    def status(self) -> Status:
+    def status(self) -> str | None:
         """Return the status of the vacuum cleaner."""
         if not self._device_status:
             return
-        status = self._device_status.state
-        return STATE_CODES_TO_STATUS.get(status)
+        return self._device_status.status
 
     @property
-    def state_attributes(self) -> dict[str, Any]:
+    def extra_state_attributes(self) -> dict[str, Any]:
         """Return the state attributes of the vacuum cleaner."""
         if not self._device_status:
             return {}
-        data = dict(self._device_status)
+        data: dict[str, Any] = dict(self._device_status)
 
         if self.supported_features & VacuumEntityFeature.BATTERY:
             data[ATTR_BATTERY_LEVEL] = self.battery_level
@@ -353,8 +304,7 @@ class RoborockVacuum(RoborockCoordinatedEntity, StateVacuumEntity, ABC):
         """Return the fan speed of the vacuum cleaner."""
         if not self._device_status:
             return None
-        fan_speed = self._device_status.fan_power
-        return FAN_SPEED_CODES.get(fan_speed)
+        return self._device_status.fan_power
 
     @property
     def fan_speed_list(self) -> list[str]:
@@ -366,8 +316,7 @@ class RoborockVacuum(RoborockCoordinatedEntity, StateVacuumEntity, ABC):
         """Return the mop mode of the vacuum cleaner."""
         if not self._device_status:
             return None
-        mop_mode = self._device_status.mop_mode
-        return MOP_MODE_CODES.get(mop_mode)
+        return self._device_status.mop_mode
 
     @property
     def mop_mode_list(self) -> list[str]:
@@ -379,8 +328,7 @@ class RoborockVacuum(RoborockCoordinatedEntity, StateVacuumEntity, ABC):
         """Return the mop intensity of the vacuum cleaner."""
         if not self._device_status:
             return None
-        mop_intensity = self._device_status.water_box_mode
-        return MOP_INTENSITY_CODES.get(mop_intensity)
+        return self._device_status.mop_intensity
 
     @property
     def mop_intensity_list(self) -> list[str]:
@@ -505,7 +453,7 @@ class RoborockVacuum(RoborockCoordinatedEntity, StateVacuumEntity, ABC):
         number_of_tries = 3
         await self.async_manual_start()
         while number_of_tries > 0:
-            if self.status.state_code == 7:
+            if self.state == STATE_CODE_TO_STATE[7]:
                 time.sleep(5)
                 await self.async_manual_control(rotation, velocity, duration)
                 time.sleep(5)

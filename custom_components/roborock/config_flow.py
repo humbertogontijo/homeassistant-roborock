@@ -48,7 +48,7 @@ class RoborockFlowHandler(config_entries.ConfigFlow, domain=DOMAIN):
         self._username = None
         self._errors: dict[str, str] = {}
         self._username = None
-        self._client: RoborockClient = None
+        self._client: RoborockClient | None = None
         self._auth_method: str | None = None
 
     async def async_step_reauth(self, _user_input: Mapping[str, Any]) -> FlowResult:
@@ -199,7 +199,7 @@ class RoborockFlowHandler(config_entries.ConfigFlow, domain=DOMAIN):
             },
         )
 
-    async def _request_code(self, username: str) -> RoborockClient:
+    async def _request_code(self, username: str) -> RoborockClient | None:
         """Return true if credentials is valid."""
         try:
             _LOGGER.debug("Requesting code for Roborock account")

@@ -1,4 +1,6 @@
 """Support for Roborock device base class."""
+from __future__ import annotations
+
 import datetime
 import logging
 
