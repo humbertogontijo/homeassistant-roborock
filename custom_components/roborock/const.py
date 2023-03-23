@@ -62,6 +62,8 @@ MINIMAL_IMAGE_WIDTH = 20
 MINIMAL_IMAGE_HEIGHT = 20
 
 CONF_INCLUDE_SHARED = "include_shared"
+CONF_INCLUDE_NOGO = "include_nogo"
+CONF_INCLUDE_IGNORED_OBSTACLES = "include_ignored_obstacles"
 CONF_BOTTOM = "bottom"
 CONF_COLOR = "color"
 CONF_COLORS = "colors"

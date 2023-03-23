@@ -131,13 +131,13 @@ class MapDataParserRoborock:
                 map_data.is_valid = True
             elif block_type == MapDataParserRoborock.VIRTUAL_WALLS:
                 map_data.walls = MapDataParserRoborock.parse_walls(data, header)
-            elif block_type == MapDataParserRoborock.NO_GO_AREAS:
+            elif block_type == MapDataParserRoborock.NO_GO_AREAS and image_config[CONF_INCLUDE_NOGO]:
                 map_data.no_go_areas = MapDataParserRoborock.parse_area(header, data)
             elif block_type == MapDataParserRoborock.NO_MOPPING_AREAS:
                 map_data.no_mopping_areas = MapDataParserRoborock.parse_area(header, data)
             elif block_type == MapDataParserRoborock.OBSTACLES:
                 map_data.obstacles = MapDataParserRoborock.parse_obstacles(data, header)
-            elif block_type == MapDataParserRoborock.IGNORED_OBSTACLES:
+            elif block_type == MapDataParserRoborock.IGNORED_OBSTACLES and image_config[CONF_INCLUDE_IGNORED_OBSTACLES]:
                 map_data.ignored_obstacles = MapDataParserRoborock.parse_obstacles(data, header)
             elif block_type == MapDataParserRoborock.OBSTACLES_WITH_PHOTO:
                 map_data.obstacles_with_photo = MapDataParserRoborock.parse_obstacles(data, header)
