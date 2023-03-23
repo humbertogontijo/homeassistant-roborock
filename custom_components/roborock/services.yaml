@@ -141,6 +141,14 @@ vacuum_clean_segment:
             example: "[1,2]"
             selector:
                 object:
+        repeats:
+            name: Repeats
+            description: Number of cleaning repeats for each segment.
+            selector:
+                number:
+                    min: 1
+                    max: 3
+
 
 vacuum_set_mop_mode:
     name: Vacuum set mop mode
