@@ -76,11 +76,15 @@ There is a map built in to the integration that shows you your most recent/curre
 - side brush left
 - filter left
 - sensor dirty left
+
 ### Binary Sensors
 - Mop attached
 - Water box attached
 - Water shortage
 
+## Camera
+
+If your vacuum has a builtin camera, you can use [go2rtc](https://github.com/AlexxIT/go2rtc) made by @AlexxIT. Steps [here](https://github.com/AlexxIT/go2rtc#source-roborock)
 
 ---
 ## Special thanks
