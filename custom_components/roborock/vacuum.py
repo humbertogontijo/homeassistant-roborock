@@ -157,7 +157,12 @@ def add_services() -> None:
     platform.async_register_entity_service(
         "vacuum_clean_segment",
         cv.make_entity_service_schema(
-            {vol.Required("segments"): vol.Any(vol.Coerce(int), [vol.Coerce(int)])}
+            {
+                vol.Required("segments"): vol.Any(vol.Coerce(int), [vol.Coerce(int)]),
+                vol.Optional("repeats"): vol.All(
+                    vol.Coerce(int), vol.Clamp(min=1, max=3)
+                ),
+            }
         ),
         RoborockVacuum.async_clean_segment.__name__,
     )
@@ -489,12 +494,15 @@ class RoborockVacuum(RoborockCoordinatedEntity, StateVacuumEntity, ABC):
         """Send vacuum to x,y location."""
         await self.send(RoborockCommand.APP_GOTO_TARGET, [x_coord, y_coord])
 
-    async def async_clean_segment(self, segments):
+    async def async_clean_segment(self, segments, repeats: int = 1):
         """Clean the specified segments(s)."""
         if isinstance(segments, int):
             segments = [segments]
 
-        await self.send(RoborockCommand.APP_SEGMENT_CLEAN, segments)
+        await self.send(
+            RoborockCommand.APP_SEGMENT_CLEAN,
+            [{"segments": segments, "repeat": repeats}],
+        )
 
     async def async_clean_zone(self, zone: list, repeats: int = 1):
         """Clean selected area for the number of repeats indicated."""
