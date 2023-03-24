@@ -78,11 +78,15 @@ async def async_setup_entry(
     image_config = None
     if camera_options:
         image_config = camera_options.get(CONF_MAP_TRANSFORM)
+        image_config[CONF_INCLUDE_NOGO] = camera_options.get(CONF_INCLUDE_NOGO)
+        image_config[CONF_INCLUDE_IGNORED_OBSTACLES] = camera_options.get(CONF_INCLUDE_IGNORED_OBSTACLES)
     if not image_config:
         data = {}
         for key, value in CAMERA_VALUES.items():
             set_nested_dict(data, key, value)
         image_config = data.get(CONF_MAP_TRANSFORM)
+        image_config[CONF_INCLUDE_NOGO] = data.get(CONF_INCLUDE_NOGO)
+        image_config[CONF_INCLUDE_IGNORED_OBSTACLES] = data.get(CONF_INCLUDE_IGNORED_OBSTACLES)
     entities = []
     for device_id, device_info in coordinator.api.device_map.items():
         unique_id = slugify(device_id)
