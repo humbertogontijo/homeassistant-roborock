@@ -142,6 +142,13 @@ class RoborockDataUpdateCoordinator(
         self.translation = translation
         self.devices_maps: dict[str, MultiMapsList] = {}
         self._timeout_countdown = int(self.ACCEPTABLE_NUMBER_OF_TIMEOUTS)
+        self.api.add_status_listener(self.refresh)
+
+    def refresh(self, device_id: str, status: str):
+        _LOGGER.debug(f"Device {device_id} updated to status {status}")
+        asyncio.run_coroutine_threadsafe(
+            self.async_refresh(), self.hass.loop
+        )
 
     async def release(self) -> None:
         """Disconnect from API."""
