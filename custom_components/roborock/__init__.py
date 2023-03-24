@@ -16,6 +16,7 @@ from homeassistant.core import HomeAssistant
 from homeassistant.exceptions import ConfigEntryNotReady
 from homeassistant.helpers.translation import async_get_translations
 from homeassistant.helpers.update_coordinator import DataUpdateCoordinator, UpdateFailed
+from homeassistant.helpers.integration_platform import async_process_integration_platform_for_component
 
 from .const import (
     CONF_BASE_URL,
@@ -67,6 +68,7 @@ async def get_translation(hass: HomeAssistant) -> dict[str, Any]:
 async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
     """Set up roborock from a config entry."""
     _LOGGER.debug("Integration async setup entry: %s", entry.as_dict())
+    await async_process_integration_platform_for_component(hass, DOMAIN)
     hass.data.setdefault(DOMAIN, {})
 
     user_data = UserData(entry.data.get(CONF_USER_DATA))
