@@ -19,7 +19,7 @@ from homeassistant.core import HomeAssistant, callback
 from homeassistant.helpers.entity_platform import AddEntitiesCallback
 from homeassistant.util import slugify
 
-from . import RoborockDataUpdateCoordinator
+from .coordinator import RoborockDataUpdateCoordinator
 from .const import DOMAIN, MODELS_VACUUM_WITH_MOP, MODELS_VACUUM_WITH_SEPARATE_MOP
 from .device import RoborockCoordinatedEntity
 

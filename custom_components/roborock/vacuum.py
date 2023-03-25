@@ -31,7 +31,7 @@ from homeassistant.helpers import config_validation as cv, entity_platform
 from homeassistant.helpers.entity_platform import AddEntitiesCallback
 from homeassistant.util import slugify
 
-from . import RoborockDataUpdateCoordinator
+from .coordinator import RoborockDataUpdateCoordinator
 from .const import DOMAIN
 from .device import RoborockCoordinatedEntity
 

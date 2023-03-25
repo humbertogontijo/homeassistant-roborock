@@ -10,7 +10,7 @@ from roborock.typing import RoborockCommand, RoborockDeviceInfo
 from homeassistant.helpers.entity import DeviceInfo
 from homeassistant.helpers.update_coordinator import CoordinatorEntity
 
-from . import RoborockDataUpdateCoordinator
+from .coordinator import RoborockDataUpdateCoordinator
 from .const import DOMAIN
 
 _LOGGER = logging.getLogger(__name__)
