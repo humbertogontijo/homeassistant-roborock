@@ -14,4 +14,4 @@ jobs:
             - name: HACS Action
               uses: "hacs/action@main"
               with:
-                  category: "CHANGE_ME!"
+                  category: integration
