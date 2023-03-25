@@ -53,7 +53,9 @@
           "map_transformation.trim.left": "Ritaglio mappa da sinistra",
           "map_transformation.trim.right": "Ritaglio mappa da destra",
           "map_transformation.trim.top": "Ritaglio mappa dall'alto",
-          "map_transformation.trim.bottom": "Ritaglio mappa dal basso"
+          "map_transformation.trim.bottom": "Ritaglio mappa dal basso",
+          "include_ignored_obstacles": "Mostra ostacoli ignorati",
+          "include_nogo": "Mostra zone vietate"
         }
       },
       "vacuum": {
