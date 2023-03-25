@@ -362,25 +362,38 @@ class RoborockVacuum(RoborockCoordinatedEntity, StateVacuumEntity, ABC):
         """Return map token."""
         return await self.coordinator.api.get_map_v1(self._device_id)
 
+    def is_paused(self):
+        return self.state == STATE_PAUSED or self.state == STATE_ERROR
+
     async def async_start(self) -> None:
         """Start the vacuum."""
-        await self.send(RoborockCommand.APP_START)
+        if self.is_paused() and self._device_status.in_cleaning == 2:
+            await self.send(RoborockCommand.RESUME_ZONED_CLEAN)
+        elif self.is_paused and self._device_status.in_cleaning == 3:
+            await self.send(RoborockCommand.RESUME_SEGMENT_CLEAN)
+        else:
+            await self.send(RoborockCommand.APP_START)
+        await self.coordinator.async_refresh()
 
     async def async_pause(self) -> None:
         """Pause the vacuum."""
         await self.send(RoborockCommand.APP_PAUSE)
+        await self.coordinator.async_refresh()
 
     async def async_stop(self, **kwargs: Any) -> None:
         """Stop the vacuum."""
         await self.send(RoborockCommand.APP_STOP)
+        await self.coordinator.async_refresh()
 
     async def async_return_to_base(self, **kwargs: Any) -> None:
         """Send vacuum back to base."""
         await self.send(RoborockCommand.APP_CHARGE)
+        await self.coordinator.async_refresh()
 
     async def async_clean_spot(self, **kwargs: Any) -> None:
         """Spot clean."""
         await self.send(RoborockCommand.APP_SPOT)
+        await self.coordinator.async_refresh()
 
     async def async_locate(self, **kwargs: Any) -> None:
         """Locate vacuum."""
@@ -413,12 +426,14 @@ class RoborockVacuum(RoborockCoordinatedEntity, StateVacuumEntity, ABC):
     async def async_manual_start(self):
         """Start manual control mode."""
         self.manual_seqnum = 0
-        return await self.send(RoborockCommand.APP_RC_START)
+        await self.send(RoborockCommand.APP_RC_START)
+        await self.coordinator.async_refresh()
 
     async def async_manual_stop(self):
         """Stop manual control mode."""
         self.manual_seqnum = 0
-        return await self.send(RoborockCommand.APP_RC_END)
+        await self.send(RoborockCommand.APP_RC_END)
+        await self.coordinator.async_refresh()
 
     MANUAL_ROTATION_MAX = 180
     MANUAL_ROTATION_MIN = -MANUAL_ROTATION_MAX
@@ -507,6 +522,7 @@ class RoborockVacuum(RoborockCoordinatedEntity, StateVacuumEntity, ABC):
             RoborockCommand.APP_SEGMENT_CLEAN,
             params,
         )
+        await self.coordinator.async_refresh()
 
     async def async_clean_zone(self, zone: list, repeats: int = 1):
         """Clean selected area for the number of repeats indicated."""
@@ -514,13 +530,13 @@ class RoborockVacuum(RoborockCoordinatedEntity, StateVacuumEntity, ABC):
             _zone.append(repeats)
         _LOGGER.debug("Zone with repeats: %s", zone)
         await self.send(RoborockCommand.APP_ZONED_CLEAN, zone)
+        await self.coordinator.async_refresh()
 
     async def async_start_pause(self):
-        """Pause cleaning if running."""
+        """Start or pause cleaning if running."""
         if self.state == STATE_CLEANING:
             await self.async_pause()
         else:
-            # Start/resume cleaning.
             await self.async_start()
 
     async def async_reset_consumable(self):
