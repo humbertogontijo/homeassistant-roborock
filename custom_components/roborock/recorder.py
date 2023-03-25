@@ -1,8 +1,9 @@
 """Integration platform for recorder."""
 from __future__ import annotations
-from homeassistant.components.vacuum import ATTR_BATTERY_ICON, ATTR_FAN_SPEED_LIST
 
+from homeassistant.components.vacuum import ATTR_BATTERY_ICON
 from homeassistant.core import HomeAssistant, callback
+
 from .const import (
     ATTRIBUTE_CALIBRATION,
     ATTRIBUTE_CARPET_MAP,
@@ -17,6 +18,7 @@ from .const import (
     ATTRIBUTE_IS_EMPTY,
     ATTRIBUTE_MAP_NAME,
     ATTRIBUTE_MOP_PATH,
+    ATTRIBUTE_NO_CARPET_AREAS,
     ATTRIBUTE_NO_GO_AREAS,
     ATTRIBUTE_NO_MOPPING_AREAS,
     ATTRIBUTE_OBSTACLES,
@@ -29,7 +31,6 @@ from .const import (
     ATTRIBUTE_VACUUM_ROOM_NAME,
     ATTRIBUTE_WALLS,
     ATTRIBUTE_ZONES,
-    ATTRIBUTE_NO_CARPET_AREAS,
 )
 
 
@@ -63,6 +64,5 @@ def exclude_attributes(hass: HomeAssistant) -> set[str]:
         ATTRIBUTE_VACUUM_ROOM_NAME,
         ATTRIBUTE_WALLS,
         ATTRIBUTE_ZONES,
-        ATTR_FAN_SPEED_LIST,
         ATTR_BATTERY_ICON,
     }

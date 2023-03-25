@@ -1,9 +1,12 @@
 """Support for Roborock binary sensors."""
 from __future__ import annotations
 
-import logging
 from collections.abc import Callable
 from dataclasses import dataclass
+import logging
+
+from roborock.containers import StatusField
+from roborock.typing import RoborockDeviceInfo, RoborockDevicePropField
 
 from homeassistant.components.binary_sensor import (
     BinarySensorDeviceClass,
@@ -11,19 +14,13 @@ from homeassistant.components.binary_sensor import (
     BinarySensorEntityDescription,
 )
 from homeassistant.config_entries import ConfigEntry
+from homeassistant.const import EntityCategory
 from homeassistant.core import HomeAssistant, callback
-from homeassistant.helpers.entity import EntityCategory
 from homeassistant.helpers.entity_platform import AddEntitiesCallback
 from homeassistant.util import slugify
 
 from . import RoborockDataUpdateCoordinator
-from roborock.containers import StatusField
-from roborock.typing import RoborockDeviceInfo, RoborockDevicePropField
-from .const import (
-    DOMAIN,
-    MODELS_VACUUM_WITH_MOP,
-    MODELS_VACUUM_WITH_SEPARATE_MOP,
-)
+from .const import DOMAIN, MODELS_VACUUM_WITH_MOP, MODELS_VACUUM_WITH_SEPARATE_MOP
 from .device import RoborockCoordinatedEntity
 
 _LOGGER = logging.getLogger(__name__)
@@ -36,6 +33,7 @@ ATTR_WATER_SHORTAGE = "is_water_shortage"
 @dataclass
 class RoborockBinarySensorDescription(BinarySensorEntityDescription):
     """A class that describes binary sensor entities."""
+
     value: Callable = None
     parent_key: str = None
 
@@ -49,7 +47,7 @@ VACUUM_SENSORS = {
         parent_key=RoborockDevicePropField.STATUS,
         entity_registry_enabled_default=True,
         device_class=BinarySensorDeviceClass.CONNECTIVITY,
-        entity_category=EntityCategory.DIAGNOSTIC
+        entity_category=EntityCategory.DIAGNOSTIC,
     ),
     ATTR_WATER_BOX_ATTACHED: RoborockBinarySensorDescription(
         key=StatusField.WATER_BOX_STATUS,
@@ -58,7 +56,7 @@ VACUUM_SENSORS = {
         parent_key=RoborockDevicePropField.STATUS,
         entity_registry_enabled_default=True,
         device_class=BinarySensorDeviceClass.CONNECTIVITY,
-        entity_category=EntityCategory.DIAGNOSTIC
+        entity_category=EntityCategory.DIAGNOSTIC,
     ),
     ATTR_WATER_SHORTAGE: RoborockBinarySensorDescription(
         key=StatusField.WATER_SHORTAGE_STATUS,
@@ -67,7 +65,7 @@ VACUUM_SENSORS = {
         parent_key=RoborockDevicePropField.STATUS,
         entity_registry_enabled_default=True,
         device_class=BinarySensorDeviceClass.PROBLEM,
-        entity_category=EntityCategory.DIAGNOSTIC
+        entity_category=EntityCategory.DIAGNOSTIC,
     ),
 }
 
@@ -80,19 +78,21 @@ VACUUM_SENSORS_SEPARATE_MOP = {
         parent_key=RoborockDevicePropField.STATUS,
         entity_registry_enabled_default=True,
         device_class=BinarySensorDeviceClass.CONNECTIVITY,
-        entity_category=EntityCategory.DIAGNOSTIC
+        entity_category=EntityCategory.DIAGNOSTIC,
     ),
 }
 
 
 async def async_setup_entry(
-        hass: HomeAssistant,
-        config_entry: ConfigEntry,
-        async_add_entities: AddEntitiesCallback,
+    hass: HomeAssistant,
+    config_entry: ConfigEntry,
+    async_add_entities: AddEntitiesCallback,
 ) -> None:
     """Only vacuums with mop should have binary sensor registered."""
     entities = []
-    coordinator: RoborockDataUpdateCoordinator = hass.data[DOMAIN][config_entry.entry_id]
+    coordinator: RoborockDataUpdateCoordinator = hass.data[DOMAIN][
+        config_entry.entry_id
+    ]
 
     for device_id, device_info in coordinator.api.device_map.items():
         model = device_info.product.model
@@ -134,8 +134,13 @@ class RoborockBinarySensor(RoborockCoordinatedEntity, BinarySensorEntity):
 
     entity_description: RoborockBinarySensorDescription
 
-    def __init__(self, unique_id: str, device_info: RoborockDeviceInfo, coordinator: RoborockDataUpdateCoordinator,
-                 description: RoborockBinarySensorDescription):
+    def __init__(
+        self,
+        unique_id: str,
+        device_info: RoborockDeviceInfo,
+        coordinator: RoborockDataUpdateCoordinator,
+        description: RoborockBinarySensorDescription,
+    ) -> None:
         """Initialize the entity."""
         BinarySensorEntity.__init__(self)
         RoborockCoordinatedEntity.__init__(self, device_info, coordinator, unique_id)
