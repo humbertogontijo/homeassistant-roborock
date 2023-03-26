@@ -552,6 +552,4 @@ class RoborockVacuum(RoborockCoordinatedEntity, StateVacuumEntity, ABC):
         **kwargs: Any,
     ):
         """Send a command to a vacuum cleaner."""
-        result = await self.send(command, params)
-        _LOGGER.debug("Sent %s with params %s and got %s", command, params, result)
-        return result
+        return await self.send(command, params)
