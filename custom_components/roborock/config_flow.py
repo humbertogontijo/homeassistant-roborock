@@ -20,6 +20,8 @@ from .const import (
     CONF_ENTRY_CODE,
     CONF_ENTRY_PASSWORD,
     CONF_ENTRY_USERNAME,
+    CONF_INCLUDE_IGNORED_OBSTACLES,
+    CONF_INCLUDE_NOGO,
     CONF_INCLUDE_SHARED,
     CONF_LEFT,
     CONF_MAP_TRANSFORM,
@@ -31,8 +33,6 @@ from .const import (
     CONF_USER_DATA,
     DOMAIN,
     VACUUM,
-    CONF_INCLUDE_IGNORED_OBSTACLES,
-    CONF_INCLUDE_NOGO
 )
 from .utils import get_nested_dict, set_nested_dict
 

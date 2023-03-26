@@ -1,33 +1,40 @@
 """Support for Roborock sensors."""
 from __future__ import annotations
 
-import logging
+from collections.abc import Callable
 from dataclasses import dataclass
 from datetime import datetime, time
-from typing import Callable
+import logging
+
+from roborock.containers import (
+    CleanRecordField,
+    CleanSummaryField,
+    ConsumableField,
+    DNDTimerField,
+    StatusField,
+)
+from roborock.typing import RoborockDeviceInfo, RoborockDevicePropField
 
 from homeassistant.components.sensor import (
+    SensorDeviceClass,
     SensorEntity,
-    SensorEntityDescription, SensorDeviceClass, SensorStateClass,
+    SensorEntityDescription,
+    SensorStateClass,
 )
 from homeassistant.config_entries import ConfigEntry
-from homeassistant.const import (
-    AREA_SQUARE_METERS, TIME_SECONDS
-)
+from homeassistant.const import AREA_SQUARE_METERS, TIME_SECONDS, EntityCategory
 from homeassistant.core import HomeAssistant, callback
-from homeassistant.helpers.entity import EntityCategory
 from homeassistant.helpers.entity_platform import AddEntitiesCallback
 from homeassistant.util import dt as dt_util, slugify
 
-from . import DOMAIN, RoborockDataUpdateCoordinator
-from roborock.containers import CleanRecordField, StatusField, CleanSummaryField, ConsumableField, DNDTimerField
-from roborock.typing import RoborockDeviceInfo, RoborockDevicePropField
 from .const import (
-    MAIN_BRUSH_REPLACE_TIME,
-    SIDE_BRUSH_REPLACE_TIME,
+    DOMAIN,
     FILTER_REPLACE_TIME,
-    SENSOR_DIRTY_REPLACE_TIME
+    MAIN_BRUSH_REPLACE_TIME,
+    SENSOR_DIRTY_REPLACE_TIME,
+    SIDE_BRUSH_REPLACE_TIME,
 )
+from .coordinator import RoborockDataUpdateCoordinator
 from .device import RoborockCoordinatedEntity, parse_datetime_time
 
 _LOGGER = logging.getLogger(__name__)
@@ -55,6 +62,7 @@ ATTR_CONSUMABLE_STATUS_SENSOR_DIRTY_LEFT = "sensor_dirty_left"
 @dataclass
 class RoborockSensorDescription(SensorEntityDescription):
     """A class that describes sensor entities."""
+
     attributes: tuple = ()
     parent_key: str = None
     keys: list[str] = None
@@ -67,7 +75,9 @@ VACUUM_SENSORS = {
     f"dnd_{ATTR_DND_START}": RoborockSensorDescription(
         key=ATTR_DND_START,
         keys=[DNDTimerField.START_HOUR, DNDTimerField.START_MINUTE],
-        value=lambda values: parse_datetime_time(time(hour=values[0], minute=values[1])),
+        value=lambda values: parse_datetime_time(
+            time(hour=values[0], minute=values[1])
+        ),
         icon="mdi:minus-circle-off",
         name="DnD start",
         device_class=SensorDeviceClass.TIMESTAMP,
@@ -77,7 +87,9 @@ VACUUM_SENSORS = {
     f"dnd_{ATTR_DND_END}": RoborockSensorDescription(
         key=ATTR_DND_END,
         keys=[DNDTimerField.END_HOUR, DNDTimerField.END_MINUTE],
-        value=lambda values: parse_datetime_time(time(hour=values[0], minute=values[1])),
+        value=lambda values: parse_datetime_time(
+            time(hour=values[0], minute=values[1])
+        ),
         icon="mdi:minus-circle-off",
         name="DnD end",
         device_class=SensorDeviceClass.TIMESTAMP,
@@ -123,7 +135,7 @@ VACUUM_SENSORS = {
         icon="mdi:alert",
         translation_key="roborock_vacuum",
         translation_attr="state",
-        attributes=tuple([StatusField.ERROR_CODE]),
+        attributes=(StatusField.ERROR_CODE,),
         parent_key=RoborockDevicePropField.STATUS,
         name="Current error",
         entity_category=EntityCategory.DIAGNOSTIC,
@@ -226,13 +238,15 @@ VACUUM_SENSORS = {
 
 
 async def async_setup_entry(
-        hass: HomeAssistant,
-        config_entry: ConfigEntry,
-        async_add_entities: AddEntitiesCallback,
+    hass: HomeAssistant,
+    config_entry: ConfigEntry,
+    async_add_entities: AddEntitiesCallback,
 ) -> None:
     """Set up the Roborock vacuum sensors."""
     entities = []
-    coordinator: RoborockDataUpdateCoordinator = hass.data[DOMAIN][config_entry.entry_id]
+    coordinator: RoborockDataUpdateCoordinator = hass.data[DOMAIN][
+        config_entry.entry_id
+    ]
 
     for device_id, device_info in coordinator.api.device_map.items():
         unique_id = slugify(device_id)
@@ -267,17 +281,25 @@ class RoborockSensor(RoborockCoordinatedEntity, SensorEntity):
 
     entity_description: RoborockSensorDescription
 
-    def __init__(self, unique_id: str, device_info: RoborockDeviceInfo, coordinator: RoborockDataUpdateCoordinator,
-                 description: RoborockSensorDescription):
+    def __init__(
+        self,
+        unique_id: str,
+        device_info: RoborockDeviceInfo,
+        coordinator: RoborockDataUpdateCoordinator,
+        description: RoborockSensorDescription,
+    ) -> None:
         """Initialize the entity."""
         SensorEntity.__init__(self)
         RoborockCoordinatedEntity.__init__(self, device_info, coordinator, unique_id)
         self.entity_description = description
         self._attr_native_value = self._determine_native_value()
-        self._attr_extra_state_attributes = self._extract_attributes(coordinator.data.get(self._device_id))
+        self._attr_extra_state_attributes = self._extract_attributes(
+            coordinator.data.get(self._device_id)
+        )
 
     @property
     def translation_key(self):
+        """Get the translation key for the entity."""
         return self.entity_description.translation_key
 
     @callback
@@ -316,9 +338,7 @@ class RoborockSensor(RoborockCoordinatedEntity, SensorEntity):
                 return
 
         if self.entity_description.keys:
-            native_value = [
-                getattr(data, key) for key in self.entity_description.keys
-            ]
+            native_value = [getattr(data, key) for key in self.entity_description.keys]
             if not any(native_value):
                 native_value = None
         else:
@@ -327,17 +347,15 @@ class RoborockSensor(RoborockCoordinatedEntity, SensorEntity):
         if native_value is not None:
             if self.entity_description.value:
                 native_value = self.entity_description.value(native_value)
-            if (
-                    self.device_class == SensorDeviceClass.TIMESTAMP
-                    and (native_datetime := datetime.fromtimestamp(native_value))
+            if self.device_class == SensorDeviceClass.TIMESTAMP and (
+                native_datetime := datetime.fromtimestamp(native_value)
             ):
                 native_value = native_datetime.astimezone(dt_util.UTC)
 
         # This is a work around while https://github.com/home-assistant/core/pull/65743 is not merged
         if self.entity_description.translation_key:
             native_value = self.translate(
-                self.entity_description.translation_attr,
-                native_value
+                self.entity_description.translation_attr, native_value
             )
 
         return native_value

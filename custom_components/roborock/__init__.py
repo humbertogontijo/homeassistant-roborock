@@ -7,16 +7,15 @@ import logging
 from typing import Any
 
 from roborock.api import RoborockClient, RoborockMqttClient
-from roborock.containers import MultiMapsList, UserData, HomeDataProduct
-from roborock.exceptions import RoborockException, RoborockTimeout
-from roborock.typing import RoborockDeviceInfo, RoborockDeviceProp
+from roborock.containers import HomeDataProduct, UserData
+from roborock.typing import RoborockDeviceInfo
 
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.core import HomeAssistant
-from homeassistant.exceptions import ConfigEntryNotReady
+from homeassistant.helpers.integration_platform import (
+    async_process_integration_platform_for_component,
+)
 from homeassistant.helpers.translation import async_get_translations
-from homeassistant.helpers.update_coordinator import DataUpdateCoordinator, UpdateFailed
-from homeassistant.helpers.integration_platform import async_process_integration_platform_for_component
 
 from .const import (
     CONF_BASE_URL,
@@ -28,6 +27,7 @@ from .const import (
     SENSOR,
     VACUUM,
 )
+from .coordinator import RoborockDataUpdateCoordinator
 from .utils import get_nested_dict, set_nested_dict
 
 SCAN_INTERVAL = timedelta(seconds=30)
@@ -90,7 +90,7 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
         else home_data.devices
     )
     for device in devices:
-        product = next(
+        product: HomeDataProduct = next(
             (
                 HomeDataProduct(product)
                 for product in home_data.products
@@ -106,12 +106,9 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
     client = RoborockMqttClient(user_data, device_map)
     coordinator = RoborockDataUpdateCoordinator(hass, client, translation)
 
-    await coordinator.async_refresh()
+    await coordinator.async_config_entry_first_refresh()
 
-    if not coordinator.last_update_success:
-        raise ConfigEntryNotReady
-
-    hass.data[DOMAIN][entry.entry_id] = coordinator
+    hass.data.setdefault(DOMAIN, {})[entry.entry_id] = coordinator
 
     for platform in PLATFORMS:
         if entry.options.get(platform, True):
@@ -122,75 +119,6 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
 
     entry.async_on_unload(entry.add_update_listener(async_reload_entry))
     return True
-
-
-class RoborockDataUpdateCoordinator(
-    DataUpdateCoordinator[dict[str, RoborockDeviceProp]]
-):
-    """Class to manage fetching data from the API."""
-
-    ACCEPTABLE_NUMBER_OF_TIMEOUTS = 3
-
-    def __init__(
-        self, hass: HomeAssistant, client: RoborockMqttClient, translation: dict
-    ) -> None:
-        """Initialize."""
-        super().__init__(hass, _LOGGER, name=DOMAIN, update_interval=SCAN_INTERVAL)
-        self.api = client
-        self.platforms: list[str] = []
-        self._devices_prop: dict[str, RoborockDeviceProp] = {}
-        self.translation = translation
-        self.devices_maps: dict[str, MultiMapsList] = {}
-        self._timeout_countdown = int(self.ACCEPTABLE_NUMBER_OF_TIMEOUTS)
-        self.api.add_status_listener(self.refresh)
-
-    def refresh(self, device_id: str, status: str):
-        _LOGGER.debug(f"Device {device_id} updated to status {status}")
-        asyncio.run_coroutine_threadsafe(
-            self.async_refresh(), self.hass.loop
-        )
-
-    async def release(self) -> None:
-        """Disconnect from API."""
-        await self.api.async_disconnect()
-
-    async def _get_device_multi_maps_list(self, device_id: str) -> None:
-        """Get multi maps list."""
-        multi_maps_list = await self.api.get_multi_maps_list(device_id)
-        if multi_maps_list:
-            self.devices_maps[device_id] = multi_maps_list
-
-    async def _get_device_prop(self, device_id: str) -> None:
-        """Get device properties."""
-        device_prop = await self.api.get_prop(device_id)
-        if device_prop:
-            if device_id in self._devices_prop:
-                self._devices_prop[device_id].update(device_prop)
-            else:
-                self._devices_prop[device_id] = device_prop
-
-    async def _async_update_data(self) -> dict[str, RoborockDeviceProp]:
-        """Update data via library."""
-        self._timeout_countdown = int(self.ACCEPTABLE_NUMBER_OF_TIMEOUTS)
-        try:
-            for device_id, _ in self.api.device_map.items():
-                if not self.devices_maps.get(device_id):
-                    await self._get_device_multi_maps_list(device_id)
-                await self._get_device_prop(device_id)
-        except RoborockTimeout as ex:
-            if self._devices_prop and self._timeout_countdown > 0:
-                _LOGGER.debug(
-                    "Timeout updating coordinator. Acceptable timeouts countdown = %s",
-                    self._timeout_countdown,
-                )
-                self._timeout_countdown -= 1
-            else:
-                raise UpdateFailed(ex) from ex
-        except RoborockException as ex:
-            raise UpdateFailed(ex) from ex
-        if self._devices_prop:
-            return self._devices_prop
-        raise UpdateFailed("No device props found")
 
 
 async def async_unload_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:

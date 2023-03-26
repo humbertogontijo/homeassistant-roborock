@@ -7,7 +7,7 @@ import math
 import time
 from typing import Any
 
-from roborock import MOP_MODE_CODES, MOP_INTENSITY_CODES, FAN_SPEED_CODES
+from roborock import FAN_SPEED_CODES, MOP_INTENSITY_CODES, MOP_MODE_CODES
 from roborock.typing import RoborockCommand, RoborockDeviceInfo
 import voluptuous as vol
 
@@ -31,7 +31,7 @@ from homeassistant.helpers import config_validation as cv, entity_platform
 from homeassistant.helpers.entity_platform import AddEntitiesCallback
 from homeassistant.util import slugify
 
-from . import RoborockDataUpdateCoordinator
+from .coordinator import RoborockDataUpdateCoordinator
 from .const import DOMAIN
 from .device import RoborockCoordinatedEntity
 
@@ -213,7 +213,7 @@ async def async_setup_entry(
 
 
 class RoborockVacuum(RoborockCoordinatedEntity, StateVacuumEntity, ABC):
-    """General Representation of a Roborock sensor."""
+    """General Representation of a Roborock vacuum."""
 
     def __init__(
         self,
@@ -221,7 +221,7 @@ class RoborockVacuum(RoborockCoordinatedEntity, StateVacuumEntity, ABC):
         device: RoborockDeviceInfo,
         coordinator: RoborockDataUpdateCoordinator,
     ) -> None:
-        """Initialize a sensor."""
+        """Initialize a vacuum."""
         StateVacuumEntity.__init__(self)
         RoborockCoordinatedEntity.__init__(self, device, coordinator, unique_id)
         self.manual_seqnum = 0
@@ -271,7 +271,7 @@ class RoborockVacuum(RoborockCoordinatedEntity, StateVacuumEntity, ABC):
     def status(self) -> str | None:
         """Return the status of the vacuum cleaner."""
         if not self._device_status:
-            return
+            return None
         return self._device_status.status
 
     @property
@@ -362,7 +362,8 @@ class RoborockVacuum(RoborockCoordinatedEntity, StateVacuumEntity, ABC):
         """Return map token."""
         return await self.coordinator.api.get_map_v1(self._device_id)
 
-    def is_paused(self):
+    def is_paused(self) -> bool:
+        """Returns if the vacuum is paused."""
         return self.state == STATE_PAUSED or self.state == STATE_ERROR
 
     async def async_start(self) -> None:

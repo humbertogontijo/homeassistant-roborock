@@ -1,12 +1,16 @@
 """Support for Roborock cameras."""
-import io
-import logging
 from datetime import timedelta
 from enum import Enum
+import io
+import logging
 from typing import Any, Dict, List, Optional
 
+from roborock.containers import MultiMapsList
+from roborock.exceptions import RoborockBackoffException, RoborockTimeout
+from roborock.typing import RoborockCommand, RoborockDeviceInfo
 import voluptuous as vol
-from homeassistant.components.camera import Camera, SUPPORT_ON_OFF
+
+from homeassistant.components.camera import Camera, CameraEntityFeature
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.core import HomeAssistant
 from homeassistant.exceptions import HomeAssistantError
@@ -14,19 +18,11 @@ from homeassistant.helpers import config_validation as cv, entity_platform
 from homeassistant.helpers.entity_platform import AddEntitiesCallback
 from homeassistant.util import slugify
 
-from . import RoborockDataUpdateCoordinator, set_nested_dict
-from roborock.exceptions import RoborockTimeout, RoborockBackoffException
-from roborock.typing import RoborockDeviceInfo, RoborockCommand
+from .coordinator import RoborockDataUpdateCoordinator, set_nested_dict
 from .common.image_handler import ImageHandlerRoborock
 from .common.map_data import MapData
 from .common.map_data_parser import MapDataParserRoborock
-from .common.types import (
-    Colors,
-    Drawables,
-    ImageConfig,
-    Sizes,
-    Texts,
-)
+from .common.types import Colors, Drawables, ImageConfig, Sizes, Texts
 from .config_flow import CAMERA_VALUES
 from .const import *
 from .device import RoborockCoordinatedEntity
@@ -51,46 +47,57 @@ DEFAULT_SIZES = {
 NON_REFRESHING_STATES = [8]
 
 
-def add_services():
+def add_services() -> None:
+    """Add map related services."""
     platform = entity_platform.async_get_current_platform()
 
     platform.async_register_entity_service(
         "camera_load_multi_map",
-        cv.make_entity_service_schema({
-            vol.Required("map_flag"): vol.All(
-                vol.Coerce(int), vol.Clamp(min=0, max=4)
-            ),
-        }),
+        cv.make_entity_service_schema(
+            {
+                vol.Required("map_flag"): vol.All(
+                    vol.Coerce(int), vol.Clamp(min=0, max=4)
+                ),
+            }
+        ),
         VacuumCameraMap.async_load_multi_map.__name__,
     )
 
 
 async def async_setup_entry(
-        hass: HomeAssistant,
-        config_entry: ConfigEntry,
-        async_add_entities: AddEntitiesCallback,
+    hass: HomeAssistant,
+    config_entry: ConfigEntry,
+    async_add_entities: AddEntitiesCallback,
 ) -> None:
     """Setup Roborock camera."""
     add_services()
 
-    coordinator: RoborockDataUpdateCoordinator = hass.data[DOMAIN][config_entry.entry_id]
+    coordinator: RoborockDataUpdateCoordinator = hass.data[DOMAIN][
+        config_entry.entry_id
+    ]
     camera_options = config_entry.options.get(CAMERA)
     image_config = None
     if camera_options:
         image_config = camera_options.get(CONF_MAP_TRANSFORM)
         image_config[CONF_INCLUDE_NOGO] = camera_options.get(CONF_INCLUDE_NOGO)
-        image_config[CONF_INCLUDE_IGNORED_OBSTACLES] = camera_options.get(CONF_INCLUDE_IGNORED_OBSTACLES)
+        image_config[CONF_INCLUDE_IGNORED_OBSTACLES] = camera_options.get(
+            CONF_INCLUDE_IGNORED_OBSTACLES
+        )
     if not image_config:
         data = {}
         for key, value in CAMERA_VALUES.items():
             set_nested_dict(data, key, value)
         image_config = data.get(CONF_MAP_TRANSFORM)
         image_config[CONF_INCLUDE_NOGO] = data.get(CONF_INCLUDE_NOGO)
-        image_config[CONF_INCLUDE_IGNORED_OBSTACLES] = data.get(CONF_INCLUDE_IGNORED_OBSTACLES)
+        image_config[CONF_INCLUDE_IGNORED_OBSTACLES] = data.get(
+            CONF_INCLUDE_IGNORED_OBSTACLES
+        )
     entities = []
     for device_id, device_info in coordinator.api.device_map.items():
         unique_id = slugify(device_id)
-        entities.append(VacuumCameraMap(unique_id, image_config, device_info, coordinator))
+        entities.append(
+            VacuumCameraMap(unique_id, image_config, device_info, coordinator)
+        )
     async_add_entities(entities, True)
 
 
@@ -99,8 +106,14 @@ class VacuumCameraMap(RoborockCoordinatedEntity, Camera):
 
     _is_map_valid_by_device = {}
 
-    def __init__(self, unique_id: str, image_config: dict, device_info: RoborockDeviceInfo,
-                 coordinator: RoborockDataUpdateCoordinator):
+    def __init__(
+        self,
+        unique_id: str,
+        image_config: dict,
+        device_info: RoborockDeviceInfo,
+        coordinator: RoborockDataUpdateCoordinator,
+    ) -> None:
+        """Create Roborock map."""
         Camera.__init__(self)
         RoborockCoordinatedEntity.__init__(self, device_info, coordinator, unique_id)
         self._store_map_image = False
@@ -119,36 +132,37 @@ class VacuumCameraMap(RoborockCoordinatedEntity, Camera):
         self._attr_name = "Map"
         self.set_invalid_map()
 
-    def is_valid_map(self):
+    def is_valid_map(self) -> bool:
         return self._is_map_valid_by_device[self._device_id]
 
-    def set_valid_map(self):
+    def set_valid_map(self) -> None:
         self._is_map_valid_by_device[self._device_id] = True
 
-    def set_invalid_map(self):
+    def set_invalid_map(self) -> None:
         self._is_map_valid_by_device[self._device_id] = False
 
     def camera_image(
-            self, width: Optional[int] = None, height: Optional[int] = None
+        self, width: Optional[int] = None, height: Optional[int] = None
     ) -> Optional[bytes]:
+        """Returns the image comprised of bytes."""
         return self._image
 
-    def turn_on(self):
-        """"Enable polling for map image."""
+    def turn_on(self) -> None:
+        """Enable polling for map image."""
         self._should_poll = True
 
-    def turn_off(self):
-        """"Disable polling for map image."""
+    def turn_off(self) -> None:
+        """Disable polling for map image."""
         self._should_poll = False
 
     @property
-    def supported_features(self) -> int:
-        """"Specify supported features."""
-        return SUPPORT_ON_OFF
+    def supported_features(self) -> CameraEntityFeature:
+        """Specify supported features."""
+        return CameraEntityFeature.ON_OFF
 
     @property
     def extra_state_attributes(self) -> Dict[str, Any]:
-        """"Return camera attributes."""
+        """Return camera attributes."""
         attributes = {}
         if self._map_data:
             attributes.update(self.extract_attributes(self._map_data, self._attributes))
@@ -158,10 +172,7 @@ class VacuumCameraMap(RoborockCoordinatedEntity, Camera):
     def is_streaming(self) -> bool:
         """Return true if the device is streaming."""
         updated_status = self._device_status
-        if (
-                updated_status
-                and updated_status.state not in NON_REFRESHING_STATES
-        ):
+        if updated_status and updated_status.state not in NON_REFRESHING_STATES:
             return True
         return False
 
@@ -172,7 +183,7 @@ class VacuumCameraMap(RoborockCoordinatedEntity, Camera):
 
     @staticmethod
     def extract_attributes(
-            map_data: MapData, attributes_to_return: List[str]
+        map_data: MapData, attributes_to_return: List[str]
     ) -> Dict[str, Any]:
         """Extract camera attributes."""
         attributes = {}
@@ -227,12 +238,6 @@ class VacuumCameraMap(RoborockCoordinatedEntity, Camera):
             _LOGGER.exception(err)
             raise err
 
-    def enable_motion_detection(self) -> None:
-        pass
-
-    def disable_motion_detection(self) -> None:
-        pass
-
     async def async_map(self):
         """Return map token."""
         try:
@@ -244,13 +249,16 @@ class VacuumCameraMap(RoborockCoordinatedEntity, Camera):
         except (RoborockTimeout, RoborockBackoffException):
             self.set_invalid_map()
 
-    def maps(self):
+    def maps(self) -> MultiMapsList:
         return self.coordinator.devices_maps.get(self._device_id)
 
     async def async_load_multi_map(self, map_flag: int):
         """Load another map."""
         maps = self.maps()
-        map_flags = {map_info.name or str(map_info.mapflag): map_info.mapflag for map_info in maps.map_info}
+        map_flags = {
+            map_info.name or str(map_info.mapflag): map_info.mapflag
+            for map_info in maps.map_info
+        }
         if any(mapflag == map_flag for name, mapflag in map_flags.items()):
             await self.send(RoborockCommand.LOAD_MULTI_MAP, [map_flag])
             self.set_invalid_map()
@@ -260,19 +268,21 @@ class VacuumCameraMap(RoborockCoordinatedEntity, Camera):
             )
 
     async def get_map(
-            self,
-            colors: Colors,
-            drawables: Drawables,
-            texts: Texts,
-            sizes: Sizes,
-            image_config: ImageConfig,
+        self,
+        colors: Colors,
+        drawables: Drawables,
+        texts: Texts,
+        sizes: Sizes,
+        image_config: ImageConfig,
     ) -> Optional[MapData]:
         """Get map image."""
         response = await self.async_map()
         if not response:
             return
         elif not isinstance(response, bytes):
-            _LOGGER.debug(f"Received non-bytes value for get_map_v1 function: {response}")
+            _LOGGER.debug(
+                f"Received non-bytes value for get_map_v1 function: {response}"
+            )
             return
         map_data = self.decode_map(
             response, colors, drawables, texts, sizes, image_config
@@ -280,13 +290,13 @@ class VacuumCameraMap(RoborockCoordinatedEntity, Camera):
         return map_data
 
     def decode_map(
-            self,
-            raw_map: bytes,
-            colors: Colors,
-            drawables: Drawables,
-            texts: Texts,
-            sizes: Sizes,
-            image_config: ImageConfig,
+        self,
+        raw_map: bytes,
+        colors: Colors,
+        drawables: Drawables,
+        texts: Texts,
+        sizes: Sizes,
+        image_config: ImageConfig,
     ) -> Optional[MapData]:
         """Decode map image."""
         return MapDataParserRoborock.parse(
@@ -331,6 +341,7 @@ class VacuumCameraMap(RoborockCoordinatedEntity, Camera):
 
 class CameraStatus(Enum):
     """Camera status enum."""
+
     EMPTY_MAP = "Empty map"
     FAILED_LOGIN = "Failed to login"
     FAILED_TO_RETRIEVE_DEVICE = "Failed to retrieve device"
