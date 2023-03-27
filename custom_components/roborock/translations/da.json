@@ -54,6 +54,8 @@
           "map_transformation.trim.right": "Kort højre trim",
           "map_transformation.trim.top": "Kort top trim",
           "map_transformation.trim.bottom": "Kort bund trim"
+          "include_ignored_obstacles": "Vis ignorerede forhindringer",
+          "include_nogo": "Vis no-go zoner"
         }
       },
       "vacuum": {
