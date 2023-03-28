@@ -18,7 +18,8 @@ from homeassistant.helpers import config_validation as cv, entity_platform
 from homeassistant.helpers.entity_platform import AddEntitiesCallback
 from homeassistant.util import slugify
 
-from .coordinator import RoborockDataUpdateCoordinator, set_nested_dict
+from .coordinator import RoborockDataUpdateCoordinator
+from .utils import set_nested_dict
 from .common.image_handler import ImageHandlerRoborock
 from .common.map_data import MapData
 from .common.map_data_parser import MapDataParserRoborock

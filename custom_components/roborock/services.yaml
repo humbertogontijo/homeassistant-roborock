@@ -149,7 +149,6 @@ vacuum_clean_segment:
                     min: 1
                     max: 3
 
-
 vacuum_set_mop_mode:
     name: Vacuum set mop mode
     description: Change vacuum mop mode.
@@ -242,3 +241,96 @@ camera_load_multi_map:
                 number:
                     min: 0
                     max: 4
+
+dock_set_washing_mode:
+    name: Vacuum Dock set washing mode
+    description: Set the dock washing mode
+    target:
+        entity:
+            integration: roborock
+            domain: vacuum
+    fields:
+        wash_mode:
+            name: Wash mode
+            description: The mode of the dock washing
+            required: true
+            example: "balanced"
+            selector:
+                select:
+                    options:
+                        - "light"
+                        - "balanced"
+                        - "deep"
+
+dock_set_dust_collection_mode:
+    name: Vacuum Dock set dust collection mode
+    description: Set the 'empty mode' of the dock
+    target:
+        entity:
+            integration: roborock
+            domain: vacuum
+    fields:
+        mode:
+            name: "Empty mode"
+            description: "Determines the strength of emptying the bin"
+            required: True
+            example: "balanced"
+            selector:
+                select:
+                    options:
+                        - "smart"
+                        - "light"
+                        - "balanced"
+                        - "max"
+
+dock_set_wash_towel_mode:
+    name: Vacuum Dock set mop wash
+    description: Set the 'Mop Wash' settings of the dock
+    target:
+        entity:
+            integration: roborock
+            domain: vacuum
+    fields:
+        frequency_determinate:
+            name: "frequency determinate"
+            description: "What determines how frequently your mop will be washed"
+            required: True
+            example: "by room"
+            selector:
+                select:
+                    options:
+                        - "by room"
+                        - "by time"
+        wash_interval:
+            name: "Wash interval"
+            description: "How frequently the robot will wash the mop in the dock in seconds"
+            required: False
+            example: 1200
+            default: 1200
+            number:
+                min: 0
+                max: 3000
+
+dock_start_wash_then_charge:
+    name: "Start mop wash then charge"
+    description: "Wash the mop and then charge"
+    target:
+        entity:
+            integration: roborock
+            domain: vacuum
+
+dock_start_wash:
+    name: "Start mop wash"
+    description: "Wash the mop"
+    target:
+        entity:
+            integration: roborock
+            domain: vacuum
+
+dock_stop_wash:
+    name: "Stop mop wash"
+    description: "Stop washing the mop"
+    target:
+        entity:
+            integration: roborock
+            domain: vacuum

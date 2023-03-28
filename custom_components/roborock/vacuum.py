@@ -7,8 +7,19 @@ import math
 import time
 from typing import Any
 
-from roborock import FAN_SPEED_CODES, MOP_INTENSITY_CODES, MOP_MODE_CODES
-from roborock.typing import RoborockCommand, RoborockDeviceInfo
+from roborock.code_mappings import (
+    FAN_SPEED_CODES,
+    MOP_INTENSITY_CODES,
+    MOP_MODE_CODES,
+    WASH_MODE_MAP,
+    DUST_COLLECTION_MAP,
+)
+from roborock.typing import (
+    RoborockCommand,
+    RoborockDeviceInfo,
+    RoborockDockWashingModeType,
+    RoborockDockDustCollectionType,
+)
 import voluptuous as vol
 
 from homeassistant.components.vacuum import (
@@ -191,6 +202,48 @@ def add_services() -> None:
         "vacuum_reset_consumables",
         cv.make_entity_service_schema({}),
         RoborockVacuum.async_reset_consumable.__name__,
+    )
+    # TODO: Make these only add based on dock type
+    platform.async_register_entity_service(
+        "dock_set_washing_mode",
+        cv.make_entity_service_schema(
+            {vol.Required("wash_mode"): vol.In(list(WASH_MODE_MAP.values()))}
+        ),
+        RoborockVacuum.async_set_dock_mop_washing_mode.__name__,
+    )
+    platform.async_register_entity_service(
+        "dock_set_dust_collection_mode",
+        cv.make_entity_service_schema(
+            {vol.Required("mode"): vol.In(list(DUST_COLLECTION_MAP.values()))}
+        ),
+        RoborockVacuum.async_set_dust_collection_mode.__name__,
+    )
+    platform.async_register_entity_service(
+        "dock_set_wash_towel_mode",
+        cv.make_entity_service_schema(
+            {
+                vol.Required("frequency_determinate"): vol.In(["by room", "by time"]),
+                vol.Required("time"): vol.All(
+                    vol.Coerce(int), vol.Clamp(min=0, max=3000)
+                ),
+            }
+        ),
+        RoborockVacuum.async_set_mop_wash_frequency.__name__,
+    )
+    platform.async_register_entity_service(
+        "dock_start_wash_then_charge",
+        cv.make_entity_service_schema({}),
+        RoborockVacuum.async_dock_start_mop_wash_then_charge.__name__,
+    )
+    platform.async_register_entity_service(
+        "dock_start_wash",
+        cv.make_entity_service_schema({}),
+        RoborockVacuum.async_dock_start_mop_wash.__name__,
+    )
+    platform.async_register_entity_service(
+        "dock_stop_wash",
+        cv.make_entity_service_schema({}),
+        RoborockVacuum.async_dock_stop_mop_wash.__name__,
     )
 
 
@@ -525,7 +578,7 @@ class RoborockVacuum(RoborockCoordinatedEntity, StateVacuumEntity, ABC):
         )
         await self.coordinator.async_refresh()
 
-    async def async_clean_zone(self, zone: list, repeats: int = 1):
+    async def async_clean_zone(self, zone: list, repeats: int = 1) -> None:
         """Clean selected area for the number of repeats indicated."""
         for _zone in zone:
             _zone.append(repeats)
@@ -533,17 +586,56 @@ class RoborockVacuum(RoborockCoordinatedEntity, StateVacuumEntity, ABC):
         await self.send(RoborockCommand.APP_ZONED_CLEAN, zone)
         await self.coordinator.async_refresh()
 
-    async def async_start_pause(self):
+    async def async_start_pause(self) -> None:
         """Start or pause cleaning if running."""
         if self.state == STATE_CLEANING:
             await self.async_pause()
         else:
             await self.async_start()
 
-    async def async_reset_consumable(self):
+    async def async_reset_consumable(self) -> None:
         """Reset the consumable data(ex. brush work time)."""
         await self.send(RoborockCommand.RESET_CONSUMABLE)
         await self.coordinator.async_refresh()
+
+    async def async_set_dock_mop_washing_mode(
+        self, wash_mode: RoborockDockWashingModeType
+    ) -> None:
+        """Set the mop washing mode of the dock"""
+        await self.send(RoborockCommand.SET_WASH_TOWEL_MODE, wash_mode.value)
+        await self.coordinator.async_refresh()
+
+    async def async_set_dust_collection_mode(
+        self, mode: RoborockDockDustCollectionType
+    ) -> None:
+        """Set the dust collection mode of the dock"""
+        await self.send(RoborockCommand.SET_DUST_COLLECTION_MODE, mode.value)
+        await self.coordinator.async_refresh()
+
+    async def async_set_mop_wash_frequency(
+        self, frequency_determinate: str, time: int
+    ) -> None:
+        """Set how frequently the dock will wash the mop"""
+        await self.send(
+            RoborockCommand.SET_SMART_WASH_PARAMS,
+            {
+                "smart_wash": 1 if frequency_determinate == "by room" else 0,
+                "wash_interval": time,
+            },
+        )
+        await self.coordinator.async_refresh()
+
+    async def async_dock_start_mop_wash(self) -> None:
+        """Start the mop wash on the dock"""
+        await self.send(RoborockCommand.APP_START_WASH)
+
+    async def async_dock_stop_mop_wash(self) -> None:
+        """Stop the mop wash on the dock"""
+        await self.send(RoborockCommand.APP_STOP_WASH)
+
+    async def async_dock_start_mop_wash_then_charge(self) -> None:
+        """Start the mop wash then charge"""
+        await self.send(RoborockCommand.START_WASH_THEN_CHARGE)
 
     async def async_send_command(
         self,
