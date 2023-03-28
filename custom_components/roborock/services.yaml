@@ -307,9 +307,10 @@ dock_set_wash_towel_mode:
             required: False
             example: 1200
             default: 1200
-            number:
-                min: 0
-                max: 3000
+            selector:
+                number:
+                    min: 0
+                    max: 3000
 
 dock_start_wash_then_charge:
     name: "Start mop wash then charge"
