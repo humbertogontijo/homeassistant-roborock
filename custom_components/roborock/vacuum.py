@@ -224,7 +224,7 @@ def add_services() -> None:
             {
                 vol.Required("frequency_determinate"): vol.In(["by room", "by time"]),
                 vol.Required("time"): vol.All(
-                    vol.Coerce(int), vol.Clamp(min=0, max=3000)
+                    vol.Coerce(int), vol.Clamp(min=600, max=3000)
                 ),
             }
         ),

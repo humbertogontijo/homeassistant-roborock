@@ -309,7 +309,7 @@ dock_set_wash_towel_mode:
             default: 1200
             selector:
                 number:
-                    min: 0
+                    min: 600
                     max: 3000
 
 dock_start_wash_then_charge:
