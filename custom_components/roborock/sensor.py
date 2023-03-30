@@ -251,6 +251,7 @@ VACUUM_SENSORS = {
     ),
     f"current_{ATTR_DOCK_WASHING_MODE}": RoborockSensorDescription(
         key=RoborockDockSummaryField.WASHING_MODE_TYPE,
+        value=lambda value: value.value,
         icon="mdi:water",
         parent_key=RoborockDevicePropField.DOCK_SUMMARY,
         name="Dock washing mode",
@@ -258,6 +259,7 @@ VACUUM_SENSORS = {
     ),
     f"current_{ATTR_DOCK_DUST_COLLECTION_MODE}": RoborockSensorDescription(
         key=RoborockDockSummaryField.DUST_COLLECTION_MODE,
+        value=lambda value: value.value,
         parent_key=RoborockDevicePropField.DOCK_SUMMARY,
         name="Dock dust collection mode",
         entity_category=EntityCategory.DIAGNOSTIC,
@@ -266,7 +268,7 @@ VACUUM_SENSORS = {
         key=RoborockDockSummaryField.MOP_WASH,
         icon="mdi:water",
         parent_key=RoborockDevicePropField.DOCK_SUMMARY,
-        name="Dock mop wash mode",
+        name="Dock mop wash mode interval",
         entity_category=EntityCategory.DIAGNOSTIC,
     ),
 }
