@@ -602,14 +602,14 @@ class RoborockVacuum(RoborockCoordinatedEntity, StateVacuumEntity, ABC):
         self, wash_mode: RoborockDockWashingModeType
     ) -> None:
         """Set the mop washing mode of the dock"""
-        await self.send(RoborockCommand.SET_WASH_TOWEL_MODE, wash_mode)
+        await self.send(RoborockCommand.SET_WASH_TOWEL_MODE, [wash_mode])
         await self.coordinator.async_refresh()
 
     async def async_set_dust_collection_mode(
         self, mode: RoborockDockDustCollectionType
     ) -> None:
         """Set the dust collection mode of the dock"""
-        await self.send(RoborockCommand.SET_DUST_COLLECTION_MODE, mode)
+        await self.send(RoborockCommand.SET_DUST_COLLECTION_MODE, [mode])
         await self.coordinator.async_refresh()
 
     async def async_set_mop_wash_frequency(

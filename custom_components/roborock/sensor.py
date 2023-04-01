@@ -266,6 +266,7 @@ VACUUM_SENSORS = {
     ),
     f"current_{ATTR_DOCK_MOP_WASH_MODE}": RoborockSensorDescription(
         key=RoborockDockSummaryField.MOP_WASH,
+        value=lambda value: value["wash_interval"],
         icon="mdi:water",
         parent_key=RoborockDevicePropField.DOCK_SUMMARY,
         name="Dock mop wash mode interval",
