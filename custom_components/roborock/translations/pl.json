@@ -42,7 +42,8 @@
         "description": "Wybierz platformę do skonfigurowania",
         "menu_options": {
           "vacuum": "Odkurzacz",
-          "camera": "Kamera"
+          "camera": "Kamera",
+          "roborock": "Roborock"
         }
       },
       "camera": {
@@ -60,6 +61,12 @@
         "description": "IOpcje odkurzacza",
         "data": {
           "include_shared": "Uwzględnij urządzenia współdzielone"
+        }
+      },
+      "roborock": {
+        "description": "General settings",
+        "data": {
+          "local": "Beta: use local integration"
         }
       }
     }

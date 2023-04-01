@@ -42,7 +42,8 @@
         "description": "Seleziona una piattaforma da configurare",
         "menu_options": {
           "vacuum": "Aspirapolvere",
-          "camera": "Camera"
+          "camera": "Camera",
+          "roborock": "Roborock"
         }
       },
       "camera": {
@@ -62,6 +63,12 @@
         "description": "Opzioni aspirapolvere",
         "data": {
           "include_shared": "Includi i dispositivi condivisi"
+        }
+      },
+      "roborock": {
+        "description": "General settings",
+        "data": {
+          "local": "Beta: use local integration"
         }
       }
     }

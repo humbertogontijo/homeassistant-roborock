@@ -13,7 +13,7 @@ from homeassistant.exceptions import HomeAssistantError
 from homeassistant.helpers import config_validation as cv, entity_platform
 from homeassistant.helpers.entity_platform import AddEntitiesCallback
 from homeassistant.util import slugify
-from roborock.containers import MultiMapsList
+from roborock.containers import MultiMapsList, RoborockDeviceInfo
 from roborock.exceptions import RoborockTimeout, RoborockBackoffException
 from roborock.typing import RoborockCommand
 
@@ -25,7 +25,6 @@ from .config_flow import CAMERA_VALUES
 from .const import *
 from .coordinator import RoborockDataUpdateCoordinator
 from .device import RoborockCoordinatedEntity
-from .typing import RoborockDeviceInfo
 from .utils import set_nested_dict
 
 _LOGGER = logging.getLogger(__name__)

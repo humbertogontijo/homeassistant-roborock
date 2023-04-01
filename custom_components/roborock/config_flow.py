@@ -1,17 +1,16 @@
 """Config flow for Roborock."""
 from __future__ import annotations
 
-from collections.abc import Mapping
 import logging
+from collections.abc import Mapping
 from typing import Any
 
-from roborock.api import RoborockApiClient
-from roborock.containers import UserData
 import voluptuous as vol
-
 from homeassistant import config_entries
 from homeassistant.core import callback
 from homeassistant.data_entry_flow import FlowResult
+from roborock.api import RoborockApiClient
+from roborock.containers import UserData
 
 from .const import (
     CAMERA,
@@ -33,6 +32,7 @@ from .const import (
     CONF_USER_DATA,
     DOMAIN,
     VACUUM,
+    CONF_LOCAL_INTEGRATION,
 )
 from .utils import get_nested_dict, set_nested_dict
 
@@ -59,13 +59,13 @@ class RoborockFlowHandler(config_entries.ConfigFlow, domain=DOMAIN):
         return self._show_user_form()
 
     async def async_step_user(
-        self, _user_input: dict[str, Any] | None = None
+            self, _user_input: dict[str, Any] | None = None
     ) -> FlowResult:
         """Handle a flow initialized by the user."""
         return self._show_user_form()
 
     async def async_step_email(
-        self, user_input: dict[str, Any] | None = None
+            self, user_input: dict[str, Any] | None = None
     ) -> FlowResult:
         """Handle a flow initialized by the user."""
         self._errors.clear()
@@ -92,7 +92,7 @@ class RoborockFlowHandler(config_entries.ConfigFlow, domain=DOMAIN):
         return self._show_email_form(user_input)
 
     async def async_step_code(
-        self, user_input: dict[str, Any] | None = None
+            self, user_input: dict[str, Any] | None = None
     ) -> FlowResult:
         """Handle a flow initialized by the user."""
         self._errors.clear()
@@ -111,7 +111,7 @@ class RoborockFlowHandler(config_entries.ConfigFlow, domain=DOMAIN):
         return self._show_code_form(user_input)
 
     async def async_step_password(
-        self, user_input: dict[str, Any] | None = None
+            self, user_input: dict[str, Any] | None = None
     ) -> FlowResult:
         """Handle a flow initialized by the user."""
         self._errors.clear()
@@ -132,7 +132,7 @@ class RoborockFlowHandler(config_entries.ConfigFlow, domain=DOMAIN):
     @staticmethod
     @callback
     def async_get_options_flow(
-        config_entry: config_entries.ConfigEntry,
+            config_entry: config_entries.ConfigEntry,
     ) -> RoborockOptionsFlowHandler:
         """Get the options flow for this handler."""
         return RoborockOptionsFlowHandler(config_entry)
@@ -175,7 +175,7 @@ class RoborockFlowHandler(config_entries.ConfigFlow, domain=DOMAIN):
         )
 
     def _show_password_form(
-        self, user_input: dict[str, Any]
+            self, user_input: dict[str, Any]
     ) -> FlowResult:  # pylint: disable=unused-argument
         """Show the configuration form to provide authentication code."""
         return self.async_show_form(
@@ -286,6 +286,10 @@ OPTION_SCHEMA = {
     **{f"{CAMERA}.{cs_key}": cs_value for cs_key, cs_value in CAMERA_SCHEMA.items()},
 }
 
+ROBOROCK_VALUES = {CONF_LOCAL_INTEGRATION: False}
+
+ROBOROCK_SCHEMA = {CONF_LOCAL_INTEGRATION: vol.Coerce(bool)}
+
 
 class RoborockOptionsFlowHandler(config_entries.OptionsFlow):
     """Roborock config flow options handler."""
@@ -296,22 +300,22 @@ class RoborockOptionsFlowHandler(config_entries.OptionsFlow):
         self.options = dict(config_entry.options)
 
     async def async_step_init(
-        self, _user_input: dict[str, Any] | None = None
+            self, _user_input: dict[str, Any] | None = None
     ) -> FlowResult:  # pylint: disable=unused-argument
         """Manage the options."""
         return await self.async_step_user()
 
     async def async_step_user(
-        self, _user_input: dict[str, Any] | None = None
+            self, _user_input: dict[str, Any] | None = None
     ) -> FlowResult:
         """Handle a flow initialized by the user."""
         return self.async_show_menu(
             step_id="user",
-            menu_options=[CAMERA, VACUUM],
+            menu_options=[CAMERA, VACUUM, DOMAIN],
         )
 
     async def async_step_camera(
-        self, user_input: dict[str, Any] | None = None
+            self, user_input: dict[str, Any] | None = None
     ) -> FlowResult:
         """Handle setup of camera."""
         return await self._async_step_platform(
@@ -319,19 +323,48 @@ class RoborockOptionsFlowHandler(config_entries.OptionsFlow):
         )
 
     async def async_step_vacuum(
-        self, user_input: dict[str, Any] | None = None
+            self, user_input: dict[str, Any] | None = None
     ) -> FlowResult:
         """Handle setup of vacuum."""
         return await self._async_step_platform(
             VACUUM, VACUUM_SCHEMA, VACUUM_VALUES, user_input
         )
 
+    async def async_step_roborock(
+            self, user_input: dict[str, Any] | None = None
+    ) -> FlowResult:
+        """Handle setup of vacuum."""
+        if user_input:
+            data: dict = {}
+            for key, value in user_input.items():
+                set_nested_dict(data, key, value)
+            if self.options:
+                self.options[DOMAIN] = data
+            else:
+                self.options = {DOMAIN: data}
+            return await self._update_options()
+        options = self.options.get(DOMAIN) if self.options else None
+        return self.async_show_form(
+            step_id=DOMAIN,
+            data_schema=vol.Schema(
+                {
+                    vol.Optional(
+                        key,
+                        default=ROBOROCK_SCHEMA.get(key)(
+                            get_nested_dict(options or {}, key, value)
+                        ),
+                    ): ROBOROCK_SCHEMA.get(key)
+                    for key, value in ROBOROCK_VALUES.items()
+                }
+            ),
+        )
+
     async def _async_step_platform(
-        self,
-        platform: str,
-        schema: dict[str, Any],
-        values: dict[str, Any],
-        user_input: dict[str, Any] | None = None,
+            self,
+            platform: str,
+            schema: dict[str, Any],
+            values: dict[str, Any],
+            user_input: dict[str, Any] | None = None,
     ) -> FlowResult:
         """Handle setup of various platforms."""
         if user_input:

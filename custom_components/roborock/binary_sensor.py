@@ -15,7 +15,7 @@ from homeassistant.core import HomeAssistant, callback
 from homeassistant.helpers.entity import EntityCategory
 from homeassistant.helpers.entity_platform import AddEntitiesCallback
 from homeassistant.util import slugify
-from roborock.containers import StatusField
+from roborock.containers import StatusField, RoborockDeviceInfo
 from roborock.typing import RoborockDevicePropField
 
 from .const import (
@@ -25,7 +25,6 @@ from .const import (
 )
 from .coordinator import RoborockDataUpdateCoordinator
 from .device import RoborockCoordinatedEntity
-from .typing import RoborockDeviceInfo
 
 _LOGGER = logging.getLogger(__name__)
 

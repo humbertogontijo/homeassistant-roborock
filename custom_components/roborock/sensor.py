@@ -18,7 +18,8 @@ from homeassistant.core import HomeAssistant, callback
 from homeassistant.helpers.entity import EntityCategory
 from homeassistant.helpers.entity_platform import AddEntitiesCallback
 from homeassistant.util import dt as dt_util, slugify
-from roborock.containers import CleanRecordField, StatusField, CleanSummaryField, ConsumableField, DNDTimerField
+from roborock.containers import CleanRecordField, StatusField, RoborockDeviceInfo, CleanSummaryField, ConsumableField, \
+    DNDTimerField
 from roborock.typing import RoborockDevicePropField
 
 from .const import (
@@ -30,7 +31,6 @@ from .const import (
 )
 from .coordinator import RoborockDataUpdateCoordinator
 from .device import RoborockCoordinatedEntity, parse_datetime_time
-from .typing import RoborockDeviceInfo
 
 _LOGGER = logging.getLogger(__name__)
 

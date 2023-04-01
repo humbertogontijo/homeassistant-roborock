@@ -6,12 +6,12 @@ import logging
 
 from homeassistant.helpers.entity import DeviceInfo
 from homeassistant.helpers.update_coordinator import CoordinatorEntity
+from roborock.containers import RoborockDeviceInfo
 from roborock.containers import Status
 from roborock.typing import RoborockCommand
 
 from .const import DOMAIN
 from .coordinator import RoborockDataUpdateCoordinator
-from .typing import RoborockDeviceInfo
 
 _LOGGER = logging.getLogger(__name__)
 

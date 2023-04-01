@@ -28,12 +28,12 @@ from homeassistant.helpers import config_validation as cv, entity_platform
 from homeassistant.helpers.entity_platform import AddEntitiesCallback
 from homeassistant.util import slugify
 from roborock import FAN_SPEED_CODES, MOP_INTENSITY_CODES, MOP_MODE_CODES
+from roborock.containers import RoborockDeviceInfo
 from roborock.typing import RoborockCommand
 
 from .const import DOMAIN
 from .coordinator import RoborockDataUpdateCoordinator
 from .device import RoborockCoordinatedEntity
-from .typing import RoborockDeviceInfo
 
 _LOGGER = logging.getLogger(__name__)
 

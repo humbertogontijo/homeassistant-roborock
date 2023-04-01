@@ -8,12 +8,11 @@ from datetime import timedelta
 from homeassistant.core import HomeAssistant
 from homeassistant.helpers.update_coordinator import DataUpdateCoordinator, UpdateFailed
 from roborock.api import RoborockClient
-from roborock.containers import MultiMapsList
+from roborock.containers import MultiMapsList, RoborockDeviceInfo
 from roborock.exceptions import RoborockException, RoborockTimeout
 from roborock.typing import RoborockDeviceProp
 
 from .const import DOMAIN
-from .typing import RoborockDeviceInfo
 
 SCAN_INTERVAL = timedelta(seconds=30)
 
