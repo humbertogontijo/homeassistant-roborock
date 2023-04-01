@@ -12,12 +12,9 @@ from homeassistant.helpers.integration_platform import (
     async_process_integration_platform_for_component,
 )
 from homeassistant.helpers.translation import async_get_translations
-from homeassistant.helpers.update_coordinator import DataUpdateCoordinator, UpdateFailed
 from roborock import RoborockMqttClient
-from roborock.api import RoborockClient, RoborockApiClient
-from roborock.containers import MultiMapsList, UserData, HomeDataProduct, HomeDataDevice
-from roborock.exceptions import RoborockException, RoborockTimeout
-from roborock.typing import RoborockDeviceProp
+from roborock.api import RoborockApiClient
+from roborock.containers import UserData, HomeDataProduct
 
 from .const import (
     CONF_BASE_URL,
@@ -31,17 +28,12 @@ from .const import (
     CONF_HOME_DATA,
 )
 from .coordinator import RoborockDataUpdateCoordinator
+from .typing import RoborockDeviceInfo
 from .utils import get_nested_dict, set_nested_dict
 
 SCAN_INTERVAL = timedelta(seconds=30)
 
 _LOGGER = logging.getLogger(__name__)
-
-
-class RoborockDeviceInfo:
-    def __init__(self, device: HomeDataDevice, product: HomeDataProduct):
-        self.device = device
-        self.product = product
 
 
 async def get_translation_from_hass(
@@ -109,17 +101,17 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
         if include_shared
         else home_data.devices
     )
-    for device in devices:
+    for _device in devices:
         product: HomeDataProduct = next(
             (
                 HomeDataProduct(product)
                 for product in home_data.products
-                if product.id == device.product_id
+                if product.id == _device.product_id
             ),
             {},
         )
-        device_map[device.duid] = RoborockDeviceInfo(device, product)
-        device_localkey[device.duid] = device.local_key
+        device_map[_device.duid] = RoborockDeviceInfo(_device, product)
+        device_localkey[_device.duid] = _device.local_key
 
     translation = await get_translation(hass)
     _LOGGER.debug("Using translation %s", translation)
@@ -128,15 +120,15 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
     #     "192.168.1.232", device_localkey
     # )
     client = RoborockMqttClient(user_data, device_localkey)
-    coordinator = RoborockDataUpdateCoordinator(hass, client, device_map, translation)
+    data_coordinator = RoborockDataUpdateCoordinator(hass, client, device_map, translation)
 
-    await coordinator.async_config_entry_first_refresh()
+    await data_coordinator.async_config_entry_first_refresh()
 
-    hass.data.setdefault(DOMAIN, {})[entry.entry_id] = coordinator
+    hass.data.setdefault(DOMAIN, {})[entry.entry_id] = data_coordinator
 
     for platform in PLATFORMS:
         if entry.options.get(platform, True):
-            coordinator.platforms.append(platform)
+            data_coordinator.platforms.append(platform)
             hass.async_create_task(
                 hass.config_entries.async_forward_entry_setup(entry, platform)
             )
@@ -147,19 +139,19 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
 
 async def async_unload_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
     """Handle removal of an entry."""
-    coordinator: RoborockDataUpdateCoordinator = hass.data[DOMAIN][entry.entry_id]
+    data_coordinator: RoborockDataUpdateCoordinator = hass.data[DOMAIN][entry.entry_id]
     unloaded = all(
         await asyncio.gather(
             *[
                 hass.config_entries.async_forward_entry_unload(entry, platform)
                 for platform in PLATFORMS
-                if platform in coordinator.platforms
+                if platform in data_coordinator.platforms
             ]
         )
     )
     if unloaded:
         hass.data[DOMAIN].pop(entry.entry_id)
-        await coordinator.release()
+        await data_coordinator.release()
 
     return unloaded
 

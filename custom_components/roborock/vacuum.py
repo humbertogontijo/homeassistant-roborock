@@ -1,16 +1,13 @@
 """Support for Roborock vacuum class."""
 from __future__ import annotations
 
-from abc import ABC
 import logging
 import math
 import time
+from abc import ABC
 from typing import Any
 
-from roborock import FAN_SPEED_CODES, MOP_INTENSITY_CODES, MOP_MODE_CODES
-from roborock.typing import RoborockCommand
 import voluptuous as vol
-
 from homeassistant.components.vacuum import (
     ATTR_BATTERY_ICON,
     ATTR_FAN_SPEED,
@@ -30,10 +27,13 @@ from homeassistant.core import HomeAssistant
 from homeassistant.helpers import config_validation as cv, entity_platform
 from homeassistant.helpers.entity_platform import AddEntitiesCallback
 from homeassistant.util import slugify
+from roborock import FAN_SPEED_CODES, MOP_INTENSITY_CODES, MOP_MODE_CODES
+from roborock.typing import RoborockCommand
 
-from .coordinator import RoborockDataUpdateCoordinator
 from .const import DOMAIN
+from .coordinator import RoborockDataUpdateCoordinator
 from .device import RoborockCoordinatedEntity
+from .typing import RoborockDeviceInfo
 
 _LOGGER = logging.getLogger(__name__)
 

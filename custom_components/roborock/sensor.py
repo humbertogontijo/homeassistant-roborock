@@ -1,19 +1,10 @@
 """Support for Roborock sensors."""
 from __future__ import annotations
 
+import logging
 from collections.abc import Callable
 from dataclasses import dataclass
 from datetime import datetime, time
-import logging
-
-from roborock.containers import (
-    CleanRecordField,
-    CleanSummaryField,
-    ConsumableField,
-    DNDTimerField,
-    StatusField,
-)
-from roborock.typing import RoborockDeviceInfo, RoborockDevicePropField
 
 from homeassistant.components.sensor import (
     SensorDeviceClass,
@@ -22,14 +13,14 @@ from homeassistant.components.sensor import (
     SensorStateClass,
 )
 from homeassistant.config_entries import ConfigEntry
-from homeassistant.const import AREA_SQUARE_METERS, TIME_SECONDS, EntityCategory
+from homeassistant.const import AREA_SQUARE_METERS, TIME_SECONDS
 from homeassistant.core import HomeAssistant, callback
+from homeassistant.helpers.entity import EntityCategory
 from homeassistant.helpers.entity_platform import AddEntitiesCallback
 from homeassistant.util import dt as dt_util, slugify
-
-from . import DOMAIN, RoborockDeviceInfo
 from roborock.containers import CleanRecordField, StatusField, CleanSummaryField, ConsumableField, DNDTimerField
 from roborock.typing import RoborockDevicePropField
+
 from .const import (
     DOMAIN,
     FILTER_REPLACE_TIME,
@@ -39,6 +30,7 @@ from .const import (
 )
 from .coordinator import RoborockDataUpdateCoordinator
 from .device import RoborockCoordinatedEntity, parse_datetime_time
+from .typing import RoborockDeviceInfo
 
 _LOGGER = logging.getLogger(__name__)
 

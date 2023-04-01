@@ -1,15 +1,11 @@
 """Support for Roborock cameras."""
-from datetime import timedelta
-from enum import Enum
 import io
 import logging
+from datetime import timedelta
+from enum import Enum
 from typing import Any, Dict, List, Optional
 
-from roborock.containers import MultiMapsList
-from roborock.exceptions import RoborockBackoffException, RoborockTimeout
-from roborock.typing import RoborockCommand, RoborockDeviceInfo
 import voluptuous as vol
-
 from homeassistant.components.camera import Camera, CameraEntityFeature
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.core import HomeAssistant
@@ -17,18 +13,20 @@ from homeassistant.exceptions import HomeAssistantError
 from homeassistant.helpers import config_validation as cv, entity_platform
 from homeassistant.helpers.entity_platform import AddEntitiesCallback
 from homeassistant.util import slugify
-
-from . import RoborockDataUpdateCoordinator, set_nested_dict, RoborockDeviceInfo
-from .coordinator import RoborockDataUpdateCoordinator, set_nested_dict
+from roborock.containers import MultiMapsList
 from roborock.exceptions import RoborockTimeout, RoborockBackoffException
 from roborock.typing import RoborockCommand
+
 from .common.image_handler import ImageHandlerRoborock
 from .common.map_data import MapData
 from .common.map_data_parser import MapDataParserRoborock
 from .common.types import Colors, Drawables, ImageConfig, Sizes, Texts
 from .config_flow import CAMERA_VALUES
 from .const import *
+from .coordinator import RoborockDataUpdateCoordinator
 from .device import RoborockCoordinatedEntity
+from .typing import RoborockDeviceInfo
+from .utils import set_nested_dict
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -157,6 +155,12 @@ class VacuumCameraMap(RoborockCoordinatedEntity, Camera):
     def turn_off(self) -> None:
         """Disable polling for map image."""
         self._should_poll = False
+
+    def enable_motion_detection(self) -> None:
+        pass
+
+    def disable_motion_detection(self) -> None:
+        pass
 
     @property
     def supported_features(self) -> CameraEntityFeature:
