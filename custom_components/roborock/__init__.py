@@ -2,13 +2,9 @@
 from __future__ import annotations
 
 import asyncio
-from datetime import timedelta
 import logging
+from datetime import timedelta
 from typing import Any
-
-from roborock.api import RoborockClient, RoborockMqttClient
-from roborock.containers import HomeDataProduct, UserData
-from roborock.typing import RoborockDeviceInfo
 
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.core import HomeAssistant
@@ -16,6 +12,12 @@ from homeassistant.helpers.integration_platform import (
     async_process_integration_platform_for_component,
 )
 from homeassistant.helpers.translation import async_get_translations
+from homeassistant.helpers.update_coordinator import DataUpdateCoordinator, UpdateFailed
+from roborock import RoborockMqttClient
+from roborock.api import RoborockClient, RoborockApiClient
+from roborock.containers import MultiMapsList, UserData, HomeDataProduct, HomeDataDevice
+from roborock.exceptions import RoborockException, RoborockTimeout
+from roborock.typing import RoborockDeviceProp
 
 from .const import (
     CONF_BASE_URL,
@@ -26,6 +28,7 @@ from .const import (
     PLATFORMS,
     SENSOR,
     VACUUM,
+    CONF_HOME_DATA,
 )
 from .coordinator import RoborockDataUpdateCoordinator
 from .utils import get_nested_dict, set_nested_dict
@@ -35,11 +38,19 @@ SCAN_INTERVAL = timedelta(seconds=30)
 _LOGGER = logging.getLogger(__name__)
 
 
+class RoborockDeviceInfo:
+    def __init__(self, device: HomeDataDevice, product: HomeDataProduct):
+        self.device = device
+        self.product = product
+
+
 async def get_translation_from_hass(
-    hass: HomeAssistant, language: str
+        hass: HomeAssistant, language: str
 ) -> dict[str, Any]:
     """Get translation from hass."""
-    entity_translations = await async_get_translations(hass, language, "entity", tuple([DOMAIN]))
+    entity_translations = await async_get_translations(
+        hass, language, "entity", tuple([DOMAIN])
+    )
     if not entity_translations:
         return {}
     data: dict[str, Any] = {}
@@ -78,12 +89,21 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
     include_shared = (
         vacuum_options.get(CONF_INCLUDE_SHARED) if vacuum_options else False
     )
-    api_client = RoborockClient(username, base_url)
+    api_client = RoborockApiClient(username, base_url)
     _LOGGER.debug("Getting home data")
-    home_data = await api_client.get_home_data(user_data)
-    _LOGGER.debug("Got home data %s", home_data)
+    try:
+        home_data = await api_client.get_home_data(user_data)
+        if home_data:
+            hass.config_entries.async_update_entry(entry, data={CONF_HOME_DATA: home_data, **entry.data})
+            _LOGGER.debug("Got home data %s", home_data)
+    except Exception as e:
+        home_data = entry.data.get(CONF_HOME_DATA)
+        if not home_data:
+            raise e
+        _LOGGER.debug("Got home data backup %s", home_data)
 
     device_map: dict[str, RoborockDeviceInfo] = {}
+    device_localkey: dict[str, str] = {}
     devices = (
         home_data.devices + home_data.received_devices
         if include_shared
@@ -99,12 +119,16 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
             {},
         )
         device_map[device.duid] = RoborockDeviceInfo(device, product)
+        device_localkey[device.duid] = device.local_key
 
     translation = await get_translation(hass)
     _LOGGER.debug("Using translation %s", translation)
 
-    client = RoborockMqttClient(user_data, device_map)
-    coordinator = RoborockDataUpdateCoordinator(hass, client, translation)
+    # client = RoborockLocalClient(
+    #     "192.168.1.232", device_localkey
+    # )
+    client = RoborockMqttClient(user_data, device_localkey)
+    coordinator = RoborockDataUpdateCoordinator(hass, client, device_map, translation)
 
     await coordinator.async_config_entry_first_refresh()
 

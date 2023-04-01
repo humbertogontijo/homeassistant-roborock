@@ -5,7 +5,7 @@ from collections.abc import Mapping
 import logging
 from typing import Any
 
-from roborock.api import RoborockClient
+from roborock.api import RoborockApiClient
 from roborock.containers import UserData
 import voluptuous as vol
 
@@ -50,7 +50,7 @@ class RoborockFlowHandler(config_entries.ConfigFlow, domain=DOMAIN):
         self._username = None
         self._errors: dict[str, str] = {}
         self._username = None
-        self._client: RoborockClient | None = None
+        self._client: RoborockApiClient | None = None
         self._auth_method: str | None = None
 
     async def async_step_reauth(self, _user_input: Mapping[str, Any]) -> FlowResult:
@@ -82,7 +82,7 @@ class RoborockFlowHandler(config_entries.ConfigFlow, domain=DOMAIN):
                     return self._show_code_form(user_input)
                 self._errors["base"] = "auth"
             elif self._auth_method == CONF_ENTRY_PASSWORD:
-                client = RoborockClient(username)
+                client = RoborockApiClient(username)
                 if client:
                     self._client = client
                     return self._show_password_form(user_input)
@@ -201,11 +201,11 @@ class RoborockFlowHandler(config_entries.ConfigFlow, domain=DOMAIN):
             },
         )
 
-    async def _request_code(self, username: str) -> RoborockClient | None:
+    async def _request_code(self, username: str) -> RoborockApiClient | None:
         """Return true if credentials is valid."""
         try:
             _LOGGER.debug("Requesting code for Roborock account")
-            client = RoborockClient(username)
+            client = RoborockApiClient(username)
             await client.request_code()
             return client
         except Exception as ex:  # pylint: disable=broad-except

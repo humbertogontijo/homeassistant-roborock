@@ -18,7 +18,10 @@ from homeassistant.helpers import config_validation as cv, entity_platform
 from homeassistant.helpers.entity_platform import AddEntitiesCallback
 from homeassistant.util import slugify
 
+from . import RoborockDataUpdateCoordinator, set_nested_dict, RoborockDeviceInfo
 from .coordinator import RoborockDataUpdateCoordinator, set_nested_dict
+from roborock.exceptions import RoborockTimeout, RoborockBackoffException
+from roborock.typing import RoborockCommand
 from .common.image_handler import ImageHandlerRoborock
 from .common.map_data import MapData
 from .common.map_data_parser import MapDataParserRoborock
@@ -78,7 +81,7 @@ async def async_setup_entry(
     camera_options = config_entry.options.get(CAMERA)
     image_config = None
     if camera_options:
-        image_config = camera_options.get(CONF_MAP_TRANSFORM)
+        image_config = camera_options.get(CONF_MAP_TRANSFORM) or {}
         image_config[CONF_INCLUDE_NOGO] = camera_options.get(CONF_INCLUDE_NOGO)
         image_config[CONF_INCLUDE_IGNORED_OBSTACLES] = camera_options.get(
             CONF_INCLUDE_IGNORED_OBSTACLES
@@ -93,7 +96,7 @@ async def async_setup_entry(
             CONF_INCLUDE_IGNORED_OBSTACLES
         )
     entities = []
-    for device_id, device_info in coordinator.api.device_map.items():
+    for device_id, device_info in coordinator.devices_info.items():
         unique_id = slugify(device_id)
         entities.append(
             VacuumCameraMap(unique_id, image_config, device_info, coordinator)

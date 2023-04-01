@@ -5,7 +5,7 @@ import datetime
 import logging
 
 from roborock.containers import Status
-from roborock.typing import RoborockCommand, RoborockDeviceInfo
+from roborock.typing import RoborockCommand
 
 from homeassistant.helpers.entity import DeviceInfo
 from homeassistant.helpers.update_coordinator import CoordinatorEntity

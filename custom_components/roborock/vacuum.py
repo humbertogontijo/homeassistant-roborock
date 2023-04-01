@@ -8,7 +8,7 @@ import time
 from typing import Any
 
 from roborock import FAN_SPEED_CODES, MOP_INTENSITY_CODES, MOP_MODE_CODES
-from roborock.typing import RoborockCommand, RoborockDeviceInfo
+from roborock.typing import RoborockCommand
 import voluptuous as vol
 
 from homeassistant.components.vacuum import (
@@ -206,7 +206,7 @@ async def async_setup_entry(
         config_entry.entry_id
     ]
     entities = []
-    for device_id, device_info in coordinator.api.device_map.items():
+    for device_id, device_info in coordinator.devices_info.items():
         unique_id = slugify(device_id)
         entities.append(RoborockVacuum(unique_id, device_info, coordinator))
     async_add_entities(entities)

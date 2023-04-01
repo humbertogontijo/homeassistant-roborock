@@ -27,6 +27,9 @@ from homeassistant.core import HomeAssistant, callback
 from homeassistant.helpers.entity_platform import AddEntitiesCallback
 from homeassistant.util import dt as dt_util, slugify
 
+from . import DOMAIN, RoborockDeviceInfo
+from roborock.containers import CleanRecordField, StatusField, CleanSummaryField, ConsumableField, DNDTimerField
+from roborock.typing import RoborockDevicePropField
 from .const import (
     DOMAIN,
     FILTER_REPLACE_TIME,
@@ -248,7 +251,7 @@ async def async_setup_entry(
         config_entry.entry_id
     ]
 
-    for device_id, device_info in coordinator.api.device_map.items():
+    for device_id, device_info in coordinator.devices_info.items():
         unique_id = slugify(device_id)
         if coordinator.data:
             device_prop = coordinator.data.get(device_id)
