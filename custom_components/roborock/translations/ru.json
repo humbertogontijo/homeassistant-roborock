@@ -42,7 +42,8 @@
         "description": "Выберите платформу для настройки",
         "menu_options": {
           "vacuum": "Пылесос",
-          "camera": "Камера"
+          "camera": "Камера",
+          "roborock": "Roborock"
         }
       },
       "camera": {
@@ -60,6 +61,12 @@
         "description": "Параметры пылесоса",
         "data": {
           "include_shared": "Добавить общие устройства"
+        }
+      },
+      "roborock": {
+        "description": "General settings",
+        "data": {
+          "local": "Beta: use local integration"
         }
       }
     }

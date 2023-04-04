@@ -9,7 +9,8 @@ from homeassistant.core import HomeAssistant
 from pytest_homeassistant_custom_component.common import MockConfigEntry
 
 from custom_components.roborock.const import DOMAIN, CAMERA, CONF_MAP_TRANSFORM, CONF_SCALE, CONF_ROTATE, CONF_TRIM, \
-    CONF_LEFT, CONF_RIGHT, CONF_TOP, CONF_BOTTOM, VACUUM, CONF_INCLUDE_SHARED, CONF_ENTRY_CODE, CONF_ENTRY_USERNAME
+    CONF_LEFT, CONF_RIGHT, CONF_TOP, CONF_BOTTOM, VACUUM, CONF_INCLUDE_SHARED, CONF_ENTRY_CODE, CONF_ENTRY_USERNAME, \
+    CONF_INCLUDE_IGNORED_OBSTACLES, CONF_INCLUDE_NOGO
 from .mock_data import MOCK_CONFIG, USER_EMAIL
 
 
@@ -32,7 +33,7 @@ async def test_successful_config_flow(hass: HomeAssistant, bypass_api_fixture):
 
     # Provide email address to config flow
     with patch(
-            "custom_components.roborock.config_flow.RoborockClient.request_code",
+            "custom_components.roborock.config_flow.RoborockApiClient.request_code",
             return_value=None,
     ):
         result = await hass.config_entries.flow.async_configure(
@@ -44,7 +45,7 @@ async def test_successful_config_flow(hass: HomeAssistant, bypass_api_fixture):
 
     # Provide code from email to config flow
     with patch(
-            "custom_components.roborock.config_flow.RoborockClient.code_login",
+            "custom_components.roborock.config_flow.RoborockApiClient.code_login",
             return_value=MOCK_CONFIG.get("user_data"),
     ):
         result = await hass.config_entries.flow.async_configure(
@@ -73,7 +74,7 @@ async def test_invalid_code(hass: HomeAssistant, bypass_api_fixture):
     assert result["step_id"] == "email"
 
     with patch(
-            "custom_components.roborock.config_flow.RoborockClient.request_code",
+            "custom_components.roborock.config_flow.RoborockApiClient.request_code",
             return_value=None,
     ):
         result = await hass.config_entries.flow.async_configure(
@@ -84,7 +85,7 @@ async def test_invalid_code(hass: HomeAssistant, bypass_api_fixture):
         assert result["step_id"] == "code"
     # Raise exception for invalid code
     with patch(
-            "custom_components.roborock.config_flow.RoborockClient.code_login",
+            "custom_components.roborock.config_flow.RoborockApiClient.code_login",
             side_effect=Exception("invalid code"),
     ):
         result = await hass.config_entries.flow.async_configure(
@@ -111,7 +112,7 @@ async def test_no_devices(hass: HomeAssistant, bypass_api_fixture):
     assert result["step_id"] == "email"
 
     with patch(
-            "custom_components.roborock.config_flow.RoborockClient.request_code",
+            "custom_components.roborock.config_flow.RoborockApiClient.request_code",
             return_value=None,
     ):
         result = await hass.config_entries.flow.async_configure(
@@ -122,7 +123,7 @@ async def test_no_devices(hass: HomeAssistant, bypass_api_fixture):
         assert result["step_id"] == "code"
     # Return None from code_login (no devices)
     with patch(
-            "custom_components.roborock.config_flow.RoborockClient.code_login",
+            "custom_components.roborock.config_flow.RoborockApiClient.code_login",
             return_value=None,
     ):
         result = await hass.config_entries.flow.async_configure(
@@ -149,7 +150,7 @@ async def test_unknown_user(hass: HomeAssistant, bypass_api_fixture):
     assert result["step_id"] == "email"
 
     with patch(
-            "custom_components.roborock.config_flow.RoborockClient.request_code",
+            "custom_components.roborock.config_flow.RoborockApiClient.request_code",
             side_effect=Exception("unknown user"),
     ):
         result = await hass.config_entries.flow.async_configure(
@@ -194,6 +195,8 @@ async def test_camera_options_flow(hass: HomeAssistant, bypass_api_fixture):
             f"{CONF_MAP_TRANSFORM}.{CONF_TRIM}.{CONF_RIGHT}": 0,
             f"{CONF_MAP_TRANSFORM}.{CONF_TRIM}.{CONF_TOP}": 0,
             f"{CONF_MAP_TRANSFORM}.{CONF_TRIM}.{CONF_BOTTOM}": 0,
+            CONF_INCLUDE_IGNORED_OBSTACLES: True,
+            CONF_INCLUDE_NOGO: True
         }.items()
 
     # Change map transformation options
@@ -218,7 +221,9 @@ async def test_camera_options_flow(hass: HomeAssistant, bypass_api_fixture):
                 CONF_SCALE: 1.2,
                 CONF_ROTATE: 90,
                 CONF_TRIM: {CONF_LEFT: 5, CONF_RIGHT: 5, CONF_TOP: 5, CONF_BOTTOM: 5},
-            }
+            },
+            CONF_INCLUDE_IGNORED_OBSTACLES: True,
+            CONF_INCLUDE_NOGO: True
         }
     }
 

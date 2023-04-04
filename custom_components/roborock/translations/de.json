@@ -42,7 +42,8 @@
         "description": "Wähle die zu konfigurierende Plattform aus",
         "menu_options": {
           "vacuum": "Staubsauger",
-          "camera": "Kamera"
+          "camera": "Kamera",
+          "roborock": "Roborock"
         }
       },
       "camera": {
@@ -60,6 +61,12 @@
         "description": "Staubsauger Optionen",
         "data": {
           "include_shared": "Gemeinsam genutzte Geräte einbeziehen"
+        }
+      },
+      "roborock": {
+        "description": "General settings",
+        "data": {
+          "local": "Beta: use local integration"
         }
       }
     }

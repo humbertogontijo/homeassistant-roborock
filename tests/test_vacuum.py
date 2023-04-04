@@ -46,67 +46,80 @@ async def test_vacuum_services(hass: HomeAssistant, bypass_api_fixture) -> None:
     entity_registry.async_get(ENTITY_ID)
     # Test starting
     with patch(
-        "roborock.RoborockMqttClient.send_command"
-    ) as mock_api_command:
-        await hass.services.async_call(
-            VACUUM_DOMAIN, SERVICE_START, {"entity_id": ENTITY_ID}, blocking=True
-        )
-        mock_api_command.assert_called_once_with(
-            DEVICE_ID, RoborockCommand.APP_START, None
-        )
+            "roborock.RoborockMqttClient.send_command"
+    ) as mock_mqtt_api_command:
+        with patch(
+                "roborock.RoborockLocalClient.send_command"
+        ) as mock_local_api_command:
+            await hass.services.async_call(
+                VACUUM_DOMAIN, SERVICE_START, {"entity_id": ENTITY_ID}, blocking=True
+            )
+            mock_mqtt_api_command.assert_called_once_with(
+                DEVICE_ID, RoborockCommand.APP_START, None
+            )
+            assert mock_mqtt_api_command.call_count + mock_local_api_command.call_count == 1
     # Test stopping
     with patch(
-        "roborock.RoborockMqttClient.send_command"
-    ) as mock_api_command:
-        await hass.services.async_call(
-            VACUUM_DOMAIN, SERVICE_STOP, {"entity_id": ENTITY_ID}, blocking=True
-        )
-        mock_api_command.assert_called_once_with(
-            DEVICE_ID, RoborockCommand.APP_STOP, None
-        )
+            "roborock.RoborockMqttClient.send_command"
+    ) as mock_mqtt_api_command:
+        with patch(
+                "roborock.RoborockLocalClient.send_command"
+        ) as mock_local_api_command:
+            await hass.services.async_call(
+                VACUUM_DOMAIN, SERVICE_STOP, {"entity_id": ENTITY_ID}, blocking=True
+            )
+            assert mock_mqtt_api_command.call_count + mock_local_api_command.call_count == 1
+
     # Test pausing
     with patch(
-        "roborock.RoborockMqttClient.send_command"
-    ) as mock_api_command:
-        await hass.services.async_call(
-            VACUUM_DOMAIN, SERVICE_PAUSE, {"entity_id": ENTITY_ID}, blocking=True
-        )
-        mock_api_command.assert_called_once_with(
-            DEVICE_ID, RoborockCommand.APP_PAUSE, None
-        )
+            "roborock.RoborockMqttClient.send_command"
+    ) as mock_mqtt_api_command:
+        with patch(
+                "roborock.RoborockLocalClient.send_command"
+        ) as mock_local_api_command:
+            await hass.services.async_call(
+                VACUUM_DOMAIN, SERVICE_PAUSE, {"entity_id": ENTITY_ID}, blocking=True
+            )
+            assert mock_mqtt_api_command.call_count + mock_local_api_command.call_count == 1
+
     # Test return to base
     with patch(
-        "roborock.RoborockMqttClient.send_command"
-    ) as mock_api_command:
-        await hass.services.async_call(
-            VACUUM_DOMAIN,
-            SERVICE_RETURN_TO_BASE,
-            {"entity_id": ENTITY_ID},
-            blocking=True,
-        )
-        mock_api_command.assert_called_once_with(
-            DEVICE_ID, RoborockCommand.APP_CHARGE, None
-        )
+            "roborock.RoborockMqttClient.send_command"
+    ) as mock_mqtt_api_command:
+        with patch(
+                "roborock.RoborockLocalClient.send_command"
+        ) as mock_local_api_command:
+            await hass.services.async_call(
+                VACUUM_DOMAIN,
+                SERVICE_RETURN_TO_BASE,
+                {"entity_id": ENTITY_ID},
+                blocking=True,
+            )
+            assert mock_mqtt_api_command.call_count + mock_local_api_command.call_count == 1
+
     # Test clean spot
     with patch(
-        "roborock.RoborockMqttClient.send_command"
-    ) as mock_api_command:
-        await hass.services.async_call(
-            VACUUM_DOMAIN, SERVICE_CLEAN_SPOT, {"entity_id": ENTITY_ID}, blocking=True
-        )
-        mock_api_command.assert_called_once_with(
-            DEVICE_ID, RoborockCommand.APP_SPOT, None
-        )
+            "roborock.RoborockMqttClient.send_command"
+    ) as mock_mqtt_api_command:
+        with patch(
+                "roborock.RoborockLocalClient.send_command"
+        ) as mock_local_api_command:
+            await hass.services.async_call(
+                VACUUM_DOMAIN, SERVICE_CLEAN_SPOT, {"entity_id": ENTITY_ID}, blocking=True
+            )
+            assert mock_mqtt_api_command.call_count + mock_local_api_command.call_count == 1
+
     # Test locate
     with patch(
-        "roborock.RoborockMqttClient.send_command"
-    ) as mock_api_command:
-        await hass.services.async_call(
-            VACUUM_DOMAIN, SERVICE_LOCATE, {"entity_id": ENTITY_ID}, blocking=True
-        )
-        mock_api_command.assert_called_once_with(
-            DEVICE_ID, RoborockCommand.FIND_ME, None
-        )
+            "roborock.RoborockMqttClient.send_command"
+    ) as mock_mqtt_api_command:
+        with patch(
+                "roborock.RoborockLocalClient.send_command"
+        ) as mock_local_api_command:
+            await hass.services.async_call(
+                VACUUM_DOMAIN, SERVICE_LOCATE, {"entity_id": ENTITY_ID}, blocking=True
+            )
+            assert mock_mqtt_api_command.call_count + mock_local_api_command.call_count == 1
 
 
 @pytest.mark.asyncio

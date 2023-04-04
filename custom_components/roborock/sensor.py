@@ -1,6 +1,7 @@
 """Support for Roborock sensors."""
 from __future__ import annotations
 
+import logging
 from collections.abc import Callable
 from dataclasses import dataclass
 from datetime import datetime, time
@@ -28,8 +29,12 @@ from homeassistant.components.sensor import (
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.const import AREA_SQUARE_METERS, EntityCategory, UnitOfTime
 from homeassistant.core import HomeAssistant, callback
+from homeassistant.helpers.entity import EntityCategory
 from homeassistant.helpers.entity_platform import AddEntitiesCallback
 from homeassistant.util import dt as dt_util, slugify
+from roborock.containers import CleanRecordField, StatusField, RoborockDeviceInfo, CleanSummaryField, ConsumableField, \
+    DNDTimerField
+from roborock.typing import RoborockDevicePropField
 
 from .const import (
     DOMAIN,
@@ -286,7 +291,7 @@ async def async_setup_entry(
         config_entry.entry_id
     ]
 
-    for device_id, device_info in coordinator.api.device_map.items():
+    for device_id, device_info in coordinator.devices_info.items():
         unique_id = slugify(device_id)
         if coordinator.data:
             device_prop = coordinator.data.get(device_id)

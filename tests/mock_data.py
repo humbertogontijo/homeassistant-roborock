@@ -1,13 +1,16 @@
 """Mock data for Roborock tests."""
+from __future__ import annotations
+
+from roborock import RoborockDockDustCollectionType, RoborockDockWashingModeType
 from roborock.containers import (
     CleanRecord,
     CleanSummary,
     Consumable,
     DNDTimer,
     HomeData,
-    Status,
+    Status, SmartWashParameters,
 )
-from roborock.typing import RoborockDeviceProp
+from roborock.typing import RoborockDeviceProp, RoborockDockSummary
 
 # All data is based on a U.S. customer with a Roborock S7 MaxV Ultra
 USER_EMAIL = "user@domain.com"
@@ -33,7 +36,7 @@ USER_DATA = {
         "r": {
             "r": "US",
             "a": "https://api-us.roborock.com",
-            "m": "ssl://mqtt-us.roborock.com:8883",
+            "m": "mqtt-us.roborock.com:8883",
             "l": "https://wood-us.roborock.com",
         },
     },
@@ -431,10 +434,17 @@ STATUS = {
     "unsave_map_flag": 0,
 }
 
+DOCK_DUST_COLLECTION_TYPE = RoborockDockDustCollectionType.SMART
+
+DOCK_WASHING_MODE_TYPE = RoborockDockWashingModeType.BALANCED
+
+SMART_WASH_PARAMETERS = SmartWashParameters({})
+
 PROP = RoborockDeviceProp(
     Status(STATUS),
     DNDTimer(DND_TIMER),
     CleanSummary(CLEAN_SUMMARY),
     Consumable(CONSUMABLE),
     CleanRecord(CLEAN_RECORD),
+    RoborockDockSummary(DOCK_DUST_COLLECTION_TYPE, DOCK_WASHING_MODE_TYPE, SMART_WASH_PARAMETERS)
 )

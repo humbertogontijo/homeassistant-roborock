@@ -42,7 +42,8 @@
         "description": "Välj en plattform att konfigurera",
         "menu_options": {
           "vacuum": "Vacuum",
-          "camera": "Camera"
+          "camera": "Camera",
+          "roborock": "Roborock"
         }
       },
       "camera": {
@@ -60,6 +61,12 @@
         "description": "Dammsugaralternativ (Vacuum)",
         "data": {
           "include_shared": "Inkludera delade enheter"
+        }
+      },
+      "roborock": {
+        "description": "General settings",
+        "data": {
+          "local": "Beta: use local integration"
         }
       }
     }

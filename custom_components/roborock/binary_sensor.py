@@ -1,12 +1,9 @@
 """Support for Roborock binary sensors."""
 from __future__ import annotations
 
+import logging
 from collections.abc import Callable
 from dataclasses import dataclass
-import logging
-
-from roborock.containers import StatusField
-from roborock.typing import RoborockDeviceInfo, RoborockDevicePropField
 
 from homeassistant.components.binary_sensor import (
     BinarySensorDeviceClass,
@@ -14,13 +11,19 @@ from homeassistant.components.binary_sensor import (
     BinarySensorEntityDescription,
 )
 from homeassistant.config_entries import ConfigEntry
-from homeassistant.const import EntityCategory
 from homeassistant.core import HomeAssistant, callback
+from homeassistant.helpers.entity import EntityCategory
 from homeassistant.helpers.entity_platform import AddEntitiesCallback
 from homeassistant.util import slugify
+from roborock.containers import StatusField, RoborockDeviceInfo
+from roborock.typing import RoborockDevicePropField
 
+from .const import (
+    DOMAIN,
+    MODELS_VACUUM_WITH_MOP,
+    MODELS_VACUUM_WITH_SEPARATE_MOP,
+)
 from .coordinator import RoborockDataUpdateCoordinator
-from .const import DOMAIN, MODELS_VACUUM_WITH_MOP, MODELS_VACUUM_WITH_SEPARATE_MOP
 from .device import RoborockCoordinatedEntity
 
 _LOGGER = logging.getLogger(__name__)
@@ -94,7 +97,7 @@ async def async_setup_entry(
         config_entry.entry_id
     ]
 
-    for device_id, device_info in coordinator.api.device_map.items():
+    for device_id, device_info in coordinator.devices_info.items():
         model = device_info.product.model
         if model not in MODELS_VACUUM_WITH_MOP:
             return

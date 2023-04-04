@@ -1,15 +1,11 @@
 """Support for Roborock cameras."""
-from datetime import timedelta
-from enum import Enum
 import io
 import logging
+from datetime import timedelta
+from enum import Enum
 from typing import Any, Dict, List, Optional
 
-from roborock.containers import MultiMapsList
-from roborock.exceptions import RoborockBackoffException, RoborockTimeout
-from roborock.typing import RoborockCommand, RoborockDeviceInfo
 import voluptuous as vol
-
 from homeassistant.components.camera import Camera, CameraEntityFeature
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.core import HomeAssistant
@@ -17,16 +13,19 @@ from homeassistant.exceptions import HomeAssistantError
 from homeassistant.helpers import config_validation as cv, entity_platform
 from homeassistant.helpers.entity_platform import AddEntitiesCallback
 from homeassistant.util import slugify
+from roborock.containers import MultiMapsList, RoborockDeviceInfo
+from roborock.exceptions import RoborockTimeout, RoborockBackoffException
+from roborock.typing import RoborockCommand
 
-from .coordinator import RoborockDataUpdateCoordinator
-from .utils import set_nested_dict
 from .common.image_handler import ImageHandlerRoborock
 from .common.map_data import MapData
 from .common.map_data_parser import MapDataParserRoborock
 from .common.types import Colors, Drawables, ImageConfig, Sizes, Texts
 from .config_flow import CAMERA_VALUES
 from .const import *
+from .coordinator import RoborockDataUpdateCoordinator
 from .device import RoborockCoordinatedEntity
+from .utils import set_nested_dict
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -79,7 +78,7 @@ async def async_setup_entry(
     camera_options = config_entry.options.get(CAMERA)
     image_config = None
     if camera_options:
-        image_config = camera_options.get(CONF_MAP_TRANSFORM)
+        image_config = camera_options.get(CONF_MAP_TRANSFORM) or {}
         image_config[CONF_INCLUDE_NOGO] = camera_options.get(CONF_INCLUDE_NOGO)
         image_config[CONF_INCLUDE_IGNORED_OBSTACLES] = camera_options.get(
             CONF_INCLUDE_IGNORED_OBSTACLES
@@ -94,7 +93,7 @@ async def async_setup_entry(
             CONF_INCLUDE_IGNORED_OBSTACLES
         )
     entities = []
-    for device_id, device_info in coordinator.api.device_map.items():
+    for device_id, device_info in coordinator.devices_info.items():
         unique_id = slugify(device_id)
         entities.append(
             VacuumCameraMap(unique_id, image_config, device_info, coordinator)
@@ -155,6 +154,12 @@ class VacuumCameraMap(RoborockCoordinatedEntity, Camera):
     def turn_off(self) -> None:
         """Disable polling for map image."""
         self._should_poll = False
+
+    def enable_motion_detection(self) -> None:
+        pass
+
+    def disable_motion_detection(self) -> None:
+        pass
 
     @property
     def supported_features(self) -> CameraEntityFeature:

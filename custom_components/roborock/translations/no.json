@@ -42,7 +42,8 @@
         "description": "Select a platform to configure",
         "menu_options": {
           "vacuum": "Vacuum",
-          "camera": "Camera"
+          "camera": "Camera",
+          "roborock": "Roborock"
         }
       },
       "camera": {
@@ -60,6 +61,12 @@
         "description": "Vacuum options",
         "data": {
           "include_shared": "Include shared devices"
+        }
+      },
+      "roborock": {
+        "description": "General settings",
+        "data": {
+          "local": "Beta: use local integration"
         }
       }
     }

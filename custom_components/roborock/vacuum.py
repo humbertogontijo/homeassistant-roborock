@@ -1,10 +1,10 @@
 """Support for Roborock vacuum class."""
 from __future__ import annotations
 
-from abc import ABC
 import logging
 import math
 import time
+from abc import ABC
 from typing import Any
 
 from roborock.code_mappings import (
@@ -21,7 +21,6 @@ from roborock.typing import (
     RoborockDockDustCollectionType,
 )
 import voluptuous as vol
-
 from homeassistant.components.vacuum import (
     ATTR_BATTERY_ICON,
     ATTR_FAN_SPEED,
@@ -41,9 +40,12 @@ from homeassistant.core import HomeAssistant
 from homeassistant.helpers import config_validation as cv, entity_platform
 from homeassistant.helpers.entity_platform import AddEntitiesCallback
 from homeassistant.util import slugify
+from roborock import FAN_SPEED_CODES, MOP_INTENSITY_CODES, MOP_MODE_CODES
+from roborock.containers import RoborockDeviceInfo
+from roborock.typing import RoborockCommand
 
-from .coordinator import RoborockDataUpdateCoordinator
 from .const import DOMAIN
+from .coordinator import RoborockDataUpdateCoordinator
 from .device import RoborockCoordinatedEntity
 
 _LOGGER = logging.getLogger(__name__)
@@ -259,7 +261,7 @@ async def async_setup_entry(
         config_entry.entry_id
     ]
     entities = []
-    for device_id, device_info in coordinator.api.device_map.items():
+    for device_id, device_info in coordinator.devices_info.items():
         unique_id = slugify(device_id)
         entities.append(RoborockVacuum(unique_id, device_info, coordinator))
     async_add_entities(entities)

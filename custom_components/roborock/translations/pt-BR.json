@@ -42,7 +42,8 @@
         "description": "Selecione uma plataforma para configurar",
         "menu_options": {
           "vacuum": "Vacuum",
-          "camera": "Camera"
+          "camera": "Camera",
+          "roborock": "Roborock"
         }
       },
       "camera": {
@@ -60,6 +61,12 @@
         "description": "Opções do aspirador",
         "data": {
           "include_shared": "Incluir dispositivos compartilhados"
+        }
+      },
+      "roborock": {
+        "description": "Configurações gerais",
+        "data": {
+          "local": "Beta: usar integração local"
         }
       }
     }

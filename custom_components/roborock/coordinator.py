@@ -2,16 +2,15 @@
 from __future__ import annotations
 
 import asyncio
-from datetime import timedelta
 import logging
-
-from roborock.api import RoborockMqttClient
-from roborock.containers import MultiMapsList
-from roborock.exceptions import RoborockException, RoborockTimeout
-from roborock.typing import RoborockDeviceProp
+from datetime import timedelta
 
 from homeassistant.core import HomeAssistant
 from homeassistant.helpers.update_coordinator import DataUpdateCoordinator, UpdateFailed
+from roborock.api import RoborockClient
+from roborock.containers import MultiMapsList, RoborockDeviceInfo
+from roborock.exceptions import RoborockException, RoborockTimeout
+from roborock.typing import RoborockDeviceProp
 
 from .const import DOMAIN
 
@@ -28,7 +27,11 @@ class RoborockDataUpdateCoordinator(
     ACCEPTABLE_NUMBER_OF_TIMEOUTS = 3
 
     def __init__(
-        self, hass: HomeAssistant, client: RoborockMqttClient, translation: dict
+        self,
+        hass: HomeAssistant,
+        client: RoborockClient,
+        devices_info: dict[str, RoborockDeviceInfo],
+        translation: dict,
     ) -> None:
         """Initialize."""
         super().__init__(hass, _LOGGER, name=DOMAIN, update_interval=SCAN_INTERVAL)
@@ -37,11 +40,12 @@ class RoborockDataUpdateCoordinator(
         self._devices_prop: dict[str, RoborockDeviceProp] = {}
         self.translation = translation
         self.devices_maps: dict[str, MultiMapsList] = {}
+        self.devices_info = devices_info
         self._timeout_countdown = int(self.ACCEPTABLE_NUMBER_OF_TIMEOUTS)
         self.api.add_status_listener(self.refresh)
 
     def refresh(self, device_id: str, status: str):
-        _LOGGER.debug("Device %s updated to status %s", device_id, status)
+        _LOGGER.debug(f"Device {device_id} updated to status {status}")
         asyncio.run_coroutine_threadsafe(self.async_refresh(), self.hass.loop)
 
     async def release(self) -> None:
@@ -63,13 +67,17 @@ class RoborockDataUpdateCoordinator(
             else:
                 self._devices_prop[device_id] = device_prop
 
+    async def async_config_entry_first_refresh(self) -> None:
+        for device_id, _ in self.devices_info.items():
+            if not self.devices_maps.get(device_id):
+                await self._get_device_multi_maps_list(device_id)
+        return await super().async_config_entry_first_refresh()
+
     async def _async_update_data(self) -> dict[str, RoborockDeviceProp]:
         """Update data via library."""
         self._timeout_countdown = int(self.ACCEPTABLE_NUMBER_OF_TIMEOUTS)
         try:
-            for device_id, _ in self.api.device_map.items():
-                if not self.devices_maps.get(device_id):
-                    await self._get_device_multi_maps_list(device_id)
+            for device_id, _ in self.devices_info.items():
                 await self._get_device_prop(device_id)
         except RoborockTimeout as ex:
             if self._devices_prop and self._timeout_countdown > 0:

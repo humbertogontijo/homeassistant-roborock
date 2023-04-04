@@ -42,7 +42,8 @@
         "description": "Vælg platform der skal konfigures",
         "menu_options": {
           "vacuum": "Støvsuger",
-          "camera": "Kamera"
+          "camera": "Kamera",
+          "roborock": "Roborock"
         }
       },
       "camera": {
@@ -62,6 +63,12 @@
         "description": "Støvsuger Indstillinger",
         "data": {
           "include_shared": "Inkluder delte enheder"
+        }
+      },
+      "roborock": {
+        "description": "General settings",
+        "data": {
+          "local": "Beta: use local integration"
         }
       }
     }
