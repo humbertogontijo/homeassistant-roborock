@@ -5,7 +5,6 @@ import logging
 from collections.abc import Callable
 from dataclasses import dataclass
 from datetime import datetime, time
-import logging
 
 from roborock.containers import (
     CleanRecordField,
@@ -13,9 +12,9 @@ from roborock.containers import (
     ConsumableField,
     DNDTimerField,
     StatusField,
+    RoborockDeviceInfo,
 )
 from roborock.typing import (
-    RoborockDeviceInfo,
     RoborockDevicePropField,
     RoborockDockSummaryField,
 )
@@ -29,12 +28,8 @@ from homeassistant.components.sensor import (
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.const import AREA_SQUARE_METERS, EntityCategory, UnitOfTime
 from homeassistant.core import HomeAssistant, callback
-from homeassistant.helpers.entity import EntityCategory
 from homeassistant.helpers.entity_platform import AddEntitiesCallback
 from homeassistant.util import dt as dt_util, slugify
-from roborock.containers import CleanRecordField, StatusField, RoborockDeviceInfo, CleanSummaryField, ConsumableField, \
-    DNDTimerField
-from roborock.typing import RoborockDevicePropField
 
 from .const import (
     DOMAIN,

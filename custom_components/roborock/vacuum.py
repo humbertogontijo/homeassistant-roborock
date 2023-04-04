@@ -16,9 +16,9 @@ from roborock.code_mappings import (
 )
 from roborock.typing import (
     RoborockCommand,
-    RoborockDeviceInfo,
-    RoborockDockWashingModeType,
-    RoborockDockDustCollectionType,
+    WashTowelMode,
+    SmartWashParams,
+    DustCollectionMode,
 )
 import voluptuous as vol
 from homeassistant.components.vacuum import (
@@ -600,16 +600,12 @@ class RoborockVacuum(RoborockCoordinatedEntity, StateVacuumEntity, ABC):
         await self.send(RoborockCommand.RESET_CONSUMABLE)
         await self.coordinator.async_refresh()
 
-    async def async_set_dock_mop_washing_mode(
-        self, wash_mode: RoborockDockWashingModeType
-    ) -> None:
+    async def async_set_dock_mop_washing_mode(self, wash_mode: WashTowelMode) -> None:
         """Set the mop washing mode of the dock"""
         await self.send(RoborockCommand.SET_WASH_TOWEL_MODE, [wash_mode])
         await self.coordinator.async_refresh()
 
-    async def async_set_dust_collection_mode(
-        self, mode: RoborockDockDustCollectionType
-    ) -> None:
+    async def async_set_dust_collection_mode(self, mode: DustCollectionMode) -> None:
         """Set the dust collection mode of the dock"""
         await self.send(RoborockCommand.SET_DUST_COLLECTION_MODE, [mode])
         await self.coordinator.async_refresh()
@@ -620,10 +616,12 @@ class RoborockVacuum(RoborockCoordinatedEntity, StateVacuumEntity, ABC):
         """Set how frequently the dock will wash the mop"""
         await self.send(
             RoborockCommand.SET_SMART_WASH_PARAMS,
-            [{
-                "smart_wash": 1 if frequency_determinate == "by room" else 0,
-                "wash_interval": time,
-            }]
+            [
+                {
+                    "smart_wash": 1 if frequency_determinate == "by room" else 0,
+                    "wash_interval": time,
+                }
+            ],
         )
         await self.coordinator.async_refresh()
 
