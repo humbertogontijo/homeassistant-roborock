@@ -93,7 +93,11 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
     local_backup = entry.data.get(CONF_LOCAL_BACKUP)
     localdevices_info = RoborockLocalDeviceInfo(local_backup) if local_backup else None
     integration_options = entry.options.get(DOMAIN)
-    local_integration = integration_options.get(CONF_LOCAL_INTEGRATION)
+    local_integration = (
+        integration_options.get(CONF_LOCAL_INTEGRATION)
+        if integration_options
+        else False
+    )
 
     translation = await get_translation(hass)
     _LOGGER.debug("Using translation %s", translation)
