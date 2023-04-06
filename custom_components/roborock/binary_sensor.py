@@ -45,7 +45,7 @@ VACUUM_SENSORS = {
 
     ATTR_MOP_ATTACHED: RoborockBinarySensorDescription(
         key=StatusField.WATER_BOX_STATUS,
-        name="Mop attached",
+        translation_key="mop_attached_1",
         icon="mdi:square-rounded",
         parent_key=RoborockDevicePropField.STATUS,
         entity_registry_enabled_default=True,
@@ -54,7 +54,7 @@ VACUUM_SENSORS = {
     ),
     ATTR_WATER_BOX_ATTACHED: RoborockBinarySensorDescription(
         key=StatusField.WATER_BOX_STATUS,
-        name="Water box attached",
+        translation_key="water_box_attached",
         icon="mdi:water",
         parent_key=RoborockDevicePropField.STATUS,
         entity_registry_enabled_default=True,
@@ -63,7 +63,7 @@ VACUUM_SENSORS = {
     ),
     ATTR_WATER_SHORTAGE: RoborockBinarySensorDescription(
         key=StatusField.WATER_SHORTAGE_STATUS,
-        name="Water shortage",
+        translation_key="water_shortage",
         icon="mdi:water",
         parent_key=RoborockDevicePropField.STATUS,
         entity_registry_enabled_default=True,
@@ -76,7 +76,7 @@ VACUUM_SENSORS_SEPARATE_MOP = {
     **VACUUM_SENSORS,
     ATTR_MOP_ATTACHED: RoborockBinarySensorDescription(
         key=StatusField.WATER_BOX_CARRIAGE_STATUS,
-        name="Mop attached",
+        translation_key="mop_attached_2",
         icon="mdi:square-rounded",
         parent_key=RoborockDevicePropField.STATUS,
         entity_registry_enabled_default=True,
