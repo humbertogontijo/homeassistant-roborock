@@ -4,12 +4,11 @@ from datetime import datetime, time
 import pytest
 from homeassistant.components.sensor import DOMAIN as SENSOR_DOMAIN
 from homeassistant.components.sensor import SensorDeviceClass, SensorStateClass
-from homeassistant.const import ATTR_DEVICE_CLASS, STATE_OFF, STATE_ON
+from homeassistant.const import ATTR_DEVICE_CLASS
 from homeassistant.core import HomeAssistant
 from homeassistant.helpers import entity_registry as er
 from homeassistant.util import dt as dt_util
 
-from roborock.containers import CleanRecordField, DNDTimerField
 from custom_components.roborock.const import (
     FILTER_REPLACE_TIME,
     MAIN_BRUSH_REPLACE_TIME,
@@ -124,7 +123,7 @@ async def test_dnd_start(hass: HomeAssistant, bypass_api_fixture) -> None:
     await setup_platform(hass, SENSOR_DOMAIN)
     state = hass.states.get("sensor.roborock_s7_maxv_dnd_start")
     # Convert time from raw response data to what HA outputs for state
-    value = [DND_TIMER[DNDTimerField.START_HOUR], DND_TIMER[DNDTimerField.START_MINUTE]]
+    value = [DND_TIMER.start_hour, DND_TIMER.start_minute]
     value = parse_datetime_time(time(hour=value[0], minute=value[1]))
     value = datetime.fromtimestamp(value)
     value = value.astimezone(dt_util.UTC)
@@ -139,7 +138,7 @@ async def test_dnd_end(hass: HomeAssistant, bypass_api_fixture) -> None:
     await setup_platform(hass, SENSOR_DOMAIN)
     state = hass.states.get("sensor.roborock_s7_maxv_dnd_end")
     # Convert time from raw response data to what HA outputs for state
-    value = [DND_TIMER[DNDTimerField.END_HOUR], DND_TIMER[DNDTimerField.END_MINUTE]]
+    value = [DND_TIMER.end_hour, DND_TIMER.end_minute]
     value = parse_datetime_time(time(hour=value[0], minute=value[1]))
     value = datetime.fromtimestamp(value)
     value = value.astimezone(dt_util.UTC)
@@ -154,7 +153,7 @@ async def test_last_clean_duration(hass: HomeAssistant, bypass_api_fixture) -> N
     await setup_platform(hass, SENSOR_DOMAIN)
     state = hass.states.get("sensor.roborock_s7_maxv_last_clean_duration")
 
-    assert state.state == str(STATUS[ATTR_STATUS_CLEAN_TIME])
+    assert state.state == str(STATUS.clean_time)
     assert state.attributes.get(ATTR_DEVICE_CLASS) == SensorDeviceClass.DURATION
 
 
@@ -164,7 +163,7 @@ async def test_clean_area(hass: HomeAssistant, bypass_api_fixture) -> None:
     await setup_platform(hass, SENSOR_DOMAIN)
     state = hass.states.get("sensor.roborock_s7_maxv_last_clean_area")
 
-    assert state.state == str(round(STATUS[ATTR_STATUS_CLEAN_AREA] / 1000000, 1))
+    assert state.state == str(round(STATUS.clean_area / 1000000, 1))
     assert state.attributes.get(ATTR_DEVICE_CLASS) is None
 
 
@@ -174,7 +173,7 @@ async def test_current_clean_duration(hass: HomeAssistant, bypass_api_fixture) -
     await setup_platform(hass, SENSOR_DOMAIN)
     state = hass.states.get("sensor.roborock_s7_maxv_current_clean_duration")
 
-    assert state.state == str(STATUS[ATTR_STATUS_CLEAN_TIME])
+    assert state.state == str(STATUS.clean_time)
     assert state.attributes.get(ATTR_DEVICE_CLASS) == SensorDeviceClass.DURATION
 
 
@@ -184,7 +183,7 @@ async def test_current_clean_area(hass: HomeAssistant, bypass_api_fixture) -> No
     await setup_platform(hass, SENSOR_DOMAIN)
     state = hass.states.get("sensor.roborock_s7_maxv_current_clean_area")
 
-    assert state.state == str(round(STATUS[ATTR_STATUS_CLEAN_AREA] / 1000000, 1))
+    assert state.state == str(round(STATUS.clean_area / 1000000, 1))
     assert state.attributes.get(ATTR_DEVICE_CLASS) is None
 
 
@@ -194,7 +193,7 @@ async def test_last_clean_start(hass: HomeAssistant, bypass_api_fixture) -> None
     await setup_platform(hass, SENSOR_DOMAIN)
     state = hass.states.get("sensor.roborock_s7_maxv_last_clean_start")
     # Convert time from raw response data to what HA outputs for state
-    value = datetime.fromtimestamp(CLEAN_RECORD[CleanRecordField.BEGIN])
+    value = datetime.fromtimestamp(CLEAN_RECORD.begin)
     value = value.astimezone(dt_util.UTC)
 
     assert state.state == str(value).replace(" ", "T")
@@ -207,7 +206,7 @@ async def test_last_clean_end(hass: HomeAssistant, bypass_api_fixture) -> None:
     await setup_platform(hass, SENSOR_DOMAIN)
     state = hass.states.get("sensor.roborock_s7_maxv_last_clean_end")
     # Convert time from raw response data to what HA outputs for state
-    value = datetime.fromtimestamp(CLEAN_RECORD[CleanRecordField.END])
+    value = datetime.fromtimestamp(CLEAN_RECORD.end)
     value = value.astimezone(dt_util.UTC)
 
     assert state.state == str(value).replace(" ", "T")
@@ -220,7 +219,7 @@ async def test_total_duration(hass: HomeAssistant, bypass_api_fixture) -> None:
     await setup_platform(hass, SENSOR_DOMAIN)
     state = hass.states.get("sensor.roborock_s7_maxv_total_duration")
 
-    assert state.state == str(CLEAN_SUMMARY["clean_time"])
+    assert state.state == str(CLEAN_SUMMARY.clean_time)
     assert state.attributes.get(ATTR_DEVICE_CLASS) == SensorDeviceClass.DURATION
 
 
@@ -230,7 +229,7 @@ async def test_total_clean_area(hass: HomeAssistant, bypass_api_fixture) -> None
     await setup_platform(hass, SENSOR_DOMAIN)
     state = hass.states.get("sensor.roborock_s7_maxv_total_clean_area")
 
-    assert state.state == str(round(CLEAN_SUMMARY["clean_area"] / 1000000, 1))
+    assert state.state == str(round(CLEAN_SUMMARY.clean_area / 1000000, 1))
     assert state.attributes.get(ATTR_DEVICE_CLASS) is None
 
 
@@ -240,7 +239,7 @@ async def test_total_clean_count(hass: HomeAssistant, bypass_api_fixture) -> Non
     await setup_platform(hass, SENSOR_DOMAIN)
     state = hass.states.get("sensor.roborock_s7_maxv_total_clean_count")
 
-    assert state.state == str(CLEAN_SUMMARY["clean_count"])
+    assert state.state == str(CLEAN_SUMMARY.clean_count)
     assert state.attributes.get("state_class") == SensorStateClass.TOTAL_INCREASING
 
 
@@ -252,7 +251,7 @@ async def test_total_dust_collection_count(
     await setup_platform(hass, SENSOR_DOMAIN)
     state = hass.states.get("sensor.roborock_s7_maxv_total_dust_collection_count")
 
-    assert state.state == str(CLEAN_SUMMARY["dust_collection_count"])
+    assert state.state == str(CLEAN_SUMMARY.dust_collection_count)
     assert state.attributes.get("state_class") == SensorStateClass.TOTAL_INCREASING
 
 
@@ -263,7 +262,7 @@ async def test_main_brush_left(hass: HomeAssistant, bypass_api_fixture) -> None:
     state = hass.states.get("sensor.roborock_s7_maxv_main_brush_left")
 
     assert state.state == str(
-        MAIN_BRUSH_REPLACE_TIME - CONSUMABLE["main_brush_work_time"]
+        MAIN_BRUSH_REPLACE_TIME - CONSUMABLE.main_brush_work_time
     )
     assert state.attributes.get(ATTR_DEVICE_CLASS) == SensorDeviceClass.DURATION
 
@@ -275,7 +274,7 @@ async def test_side_brush_left(hass: HomeAssistant, bypass_api_fixture) -> None:
     state = hass.states.get("sensor.roborock_s7_maxv_side_brush_left")
 
     assert state.state == str(
-        SIDE_BRUSH_REPLACE_TIME - CONSUMABLE["side_brush_work_time"]
+        SIDE_BRUSH_REPLACE_TIME - CONSUMABLE.side_brush_work_time
     )
     assert state.attributes.get(ATTR_DEVICE_CLASS) == SensorDeviceClass.DURATION
 
@@ -286,7 +285,7 @@ async def test_filter_left(hass: HomeAssistant, bypass_api_fixture) -> None:
     await setup_platform(hass, SENSOR_DOMAIN)
     state = hass.states.get("sensor.roborock_s7_maxv_filter_left")
 
-    assert state.state == str(FILTER_REPLACE_TIME - CONSUMABLE["filter_work_time"])
+    assert state.state == str(FILTER_REPLACE_TIME - CONSUMABLE.filter_work_time)
     assert state.attributes.get(ATTR_DEVICE_CLASS) == SensorDeviceClass.DURATION
 
 
@@ -297,6 +296,6 @@ async def test_sensor_dirty_left(hass: HomeAssistant, bypass_api_fixture) -> Non
     state = hass.states.get("sensor.roborock_s7_maxv_sensor_dirty_left")
 
     assert state.state == str(
-        SENSOR_DIRTY_REPLACE_TIME - CONSUMABLE["sensor_dirty_time"]
+        SENSOR_DIRTY_REPLACE_TIME - CONSUMABLE.sensor_dirty_time
     )
     assert state.attributes.get(ATTR_DEVICE_CLASS) == SensorDeviceClass.DURATION

@@ -1,14 +1,16 @@
 """Mock data for Roborock tests."""
 from __future__ import annotations
 
-from roborock import RoborockDockDustCollectionType, RoborockDockWashingModeType
 from roborock.containers import (
     CleanRecord,
     CleanSummary,
     Consumable,
     DNDTimer,
     HomeData,
-    Status, SmartWashParameters,
+    Status,
+    SmartWashParams,
+    DustCollectionMode,
+    WashTowelMode
 )
 from roborock.typing import RoborockDeviceProp, RoborockDockSummary
 
@@ -262,7 +264,7 @@ HOME_DATA_RAW = {
     ],
 }
 
-HOME_DATA = HomeData(HOME_DATA_RAW)
+HOME_DATA = HomeData.from_dict(HOME_DATA_RAW)
 
 HOME_DATA_SHARED_RAW = HOME_DATA_RAW.copy()
 
@@ -323,9 +325,9 @@ HOME_DATA_SHARED_RAW["products"].append(
     }
 )
 
-HOME_DATA_SHARED = HomeData(HOME_DATA_SHARED_RAW)
+HOME_DATA_SHARED = HomeData.from_dict(HOME_DATA_SHARED_RAW)
 
-CLEAN_RECORD = {
+CLEAN_RECORD = CleanRecord.from_dict({
     "begin": 1672543330,
     "end": 1672544638,
     "duration": 1176,
@@ -339,9 +341,9 @@ CLEAN_RECORD = {
     "avoid_count": 19,
     "wash_count": 2,
     "map_flag": 0,
-}
+})
 
-CLEAN_SUMMARY = {
+CLEAN_SUMMARY = CleanSummary.from_dict({
     "clean_time": 74382,
     "clean_area": 1159182500,
     "clean_count": 31,
@@ -368,9 +370,9 @@ CLEAN_SUMMARY = {
         1670723771,
         1670711593,
     ],
-}
+})
 
-CONSUMABLE = {
+CONSUMABLE = Consumable.from_dict({
     "main_brush_work_time": 74382,
     "side_brush_work_time": 74382,
     "filter_work_time": 74382,
@@ -379,17 +381,17 @@ CONSUMABLE = {
     "strainer_work_times": 65,
     "dust_collection_work_times": 25,
     "cleaning_brush_work_times": 65,
-}
+})
 
-DND_TIMER = {
+DND_TIMER = DNDTimer.from_dict({
     "start_hour": 22,
     "start_minute": 0,
     "end_hour": 7,
     "end_minute": 0,
     "enabled": 1,
-}
+})
 
-STATUS = {
+STATUS = Status.from_dict({
     "msg_ver": 2,
     "msg_seq": 458,
     "state": 8,
@@ -432,19 +434,21 @@ STATUS = {
     "charge_status": 1,
     "unsave_map_reason": 0,
     "unsave_map_flag": 0,
-}
+})
 
-DOCK_DUST_COLLECTION_TYPE = RoborockDockDustCollectionType.SMART
+DUST_COLLECTION_MODE = DustCollectionMode(mode=0)
 
-DOCK_WASHING_MODE_TYPE = RoborockDockWashingModeType.BALANCED
+WASH_TOWEL_MODE = WashTowelMode(wash_mode=0)
 
-SMART_WASH_PARAMETERS = SmartWashParameters({})
+SMART_WASH_PARAMETERS = SmartWashParams(smart_wash=0, wash_interval=0)
+
+DOCK_SUMMARY = RoborockDockSummary(DUST_COLLECTION_MODE, WASH_TOWEL_MODE, SMART_WASH_PARAMETERS)
 
 PROP = RoborockDeviceProp(
-    Status(STATUS),
-    DNDTimer(DND_TIMER),
-    CleanSummary(CLEAN_SUMMARY),
-    Consumable(CONSUMABLE),
-    CleanRecord(CLEAN_RECORD),
-    RoborockDockSummary(DOCK_DUST_COLLECTION_TYPE, DOCK_WASHING_MODE_TYPE, SMART_WASH_PARAMETERS)
+    STATUS,
+    DND_TIMER,
+    CLEAN_SUMMARY,
+    CONSUMABLE,
+    CLEAN_RECORD,
+    DOCK_SUMMARY
 )

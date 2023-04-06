@@ -4,12 +4,12 @@ from __future__ import annotations
 import datetime
 import logging
 
-from homeassistant.helpers.entity import DeviceInfo
+from homeassistant.helpers.entity import DeviceInfo, Entity
 from homeassistant.helpers.update_coordinator import CoordinatorEntity
-from roborock.containers import RoborockDeviceInfo
 from roborock.containers import Status
 from roborock.typing import RoborockCommand
 
+from .typing import RoborockHassDeviceInfo
 from .const import DOMAIN
 from .coordinator import RoborockDataUpdateCoordinator
 
@@ -28,37 +28,23 @@ def parse_datetime_time(initial_time: datetime.time) -> float:
     return time.timestamp()
 
 
-class RoborockCoordinatedEntity(CoordinatorEntity[RoborockDataUpdateCoordinator]):
+class RoborockEntityBase(Entity):
     """Representation of a base a coordinated Roborock Entity."""
 
     _attr_has_entity_name = True
 
     def __init__(
-        self,
-        device_info: RoborockDeviceInfo,
-        coordinator: RoborockDataUpdateCoordinator,
-        unique_id: str | None = None,
+            self,
+            device_info: RoborockHassDeviceInfo,
+            unique_id: str | None = None,
     ) -> None:
         """Initialize the coordinated Roborock Device."""
-        super().__init__(coordinator)
         self._device_name = device_info.device.name
         self._attr_unique_id = unique_id
         self._device_id = str(device_info.device.duid)
         self._device_model = device_info.product.model
         self._fw_version = device_info.device.fv
-
-    @property
-    def _device_status(self) -> Status:
-        data = self.coordinator.data
-        if not data:
-            return Status({})
-        device_data = data.get(self._device_id)
-        if not device_data:
-            return Status({})
-        status = device_data.status
-        if not status:
-            return Status({})
-        return status
+        self._device_info = device_info
 
     @property
     def device_info(self) -> DeviceInfo:
@@ -70,6 +56,46 @@ class RoborockCoordinatedEntity(CoordinatorEntity[RoborockDataUpdateCoordinator]
             model=self._device_model,
             sw_version=self._fw_version,
         )
+
+    @property
+    def _device_status(self) -> Status:
+        props = self._device_info.props
+        if props is None:
+            return Status()
+        status = props.status
+        if status is None:
+            return Status()
+        return status
+
+    def is_valid_map(self) -> bool:
+        return self._device_info.is_map_valid
+
+    def set_valid_map(self) -> None:
+        self._device_info.is_map_valid = True
+
+    def set_invalid_map(self) -> None:
+        self._device_info.is_map_valid = False
+
+
+class RoborockCoordinatedEntity(RoborockEntityBase, CoordinatorEntity[RoborockDataUpdateCoordinator]):
+    """Representation of a base a coordinated Roborock Entity."""
+
+    _attr_has_entity_name = True
+
+    def __init__(
+            self,
+            device_info: RoborockHassDeviceInfo,
+            coordinator: RoborockDataUpdateCoordinator,
+            unique_id: str | None = None,
+    ) -> None:
+        """Initialize the coordinated Roborock Device."""
+        RoborockEntityBase.__init__(self, device_info, unique_id)
+        CoordinatorEntity.__init__(self, coordinator)
+        self._device_name = device_info.device.name
+        self._attr_unique_id = unique_id
+        self._device_id = str(device_info.device.duid)
+        self._device_model = device_info.product.model
+        self._fw_version = device_info.device.fv
 
     def translate(self, attr: str, value) -> str:
         """Translate value into new language."""

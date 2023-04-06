@@ -12,16 +12,16 @@ from homeassistant.helpers.integration_platform import (
     async_process_integration_platform_for_component,
 )
 from homeassistant.helpers.translation import async_get_translations
+from homeassistant.helpers.update_coordinator import UpdateFailed
 from roborock import (
     RoborockMqttClient,
     RoborockLocalClient,
     RoborockCommand,
-    RoborockDeviceInfo,
     RoborockLocalDeviceInfo,
+    RoborockConnectionException,
 )
 from roborock.api import RoborockApiClient
-from roborock.containers import UserData, HomeDataProduct, NetworkInfo, RoborockLocalDeviceInfoField, \
-    RoborockDeviceInfoField
+from roborock.containers import UserData, HomeDataProduct, NetworkInfo
 
 from .const import (
     CONF_BASE_URL,
@@ -37,6 +37,7 @@ from .const import (
     CONF_CLOUD_BACKUP,
 )
 from .coordinator import RoborockDataUpdateCoordinator
+from .typing import RoborockHassDeviceInfo
 from .utils import get_nested_dict, set_nested_dict
 
 SCAN_INTERVAL = timedelta(seconds=30)
@@ -45,7 +46,7 @@ _LOGGER = logging.getLogger(__name__)
 
 
 async def get_translation_from_hass(
-    hass: HomeAssistant, language: str
+        hass: HomeAssistant, language: str
 ) -> dict[str, Any]:
     """Get translation from hass."""
     entity_translations = await async_get_translations(
@@ -82,7 +83,7 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
     await async_process_integration_platform_for_component(hass, DOMAIN)
     hass.data.setdefault(DOMAIN, {})
 
-    user_data = UserData(entry.data.get(CONF_USER_DATA))
+    user_data = UserData.from_dict(entry.data.get(CONF_USER_DATA))
     base_url = entry.data.get(CONF_BASE_URL)
     username = entry.data.get(CONF_ENTRY_USERNAME)
     vacuum_options = entry.options.get(VACUUM)
@@ -91,7 +92,10 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
     )
 
     local_backup = entry.data.get(CONF_LOCAL_BACKUP)
-    localdevices_info = RoborockLocalDeviceInfo(local_backup) if local_backup else None
+    localdevices_info: dict[str, RoborockLocalDeviceInfo] = {
+        device_id: RoborockLocalDeviceInfo.from_dict(device_info)
+        for device_id, device_info in local_backup.items()
+    } if local_backup else None
     integration_options = entry.options.get(DOMAIN)
     local_integration = (
         integration_options.get(CONF_LOCAL_INTEGRATION)
@@ -102,7 +106,7 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
     translation = await get_translation(hass)
     _LOGGER.debug("Using translation %s", translation)
 
-    devices_info: dict[str, RoborockDeviceInfo] = {}
+    devices_info: dict[str, RoborockHassDeviceInfo] = {}
     try:
         api_client = RoborockApiClient(username, base_url)
         _LOGGER.debug("Getting home data")
@@ -117,42 +121,47 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
         for _device in devices:
             product: HomeDataProduct = next(
                 (
-                    HomeDataProduct(product)
+                    product
                     for product in home_data.products
                     if product.id == _device.product_id
                 ),
                 {},
             )
-            devices_info[_device.duid] = RoborockDeviceInfo({
-                RoborockDeviceInfoField.DEVICE: _device,
-                RoborockDeviceInfoField.PRODUCT: product
-            })
+            devices_info[_device.duid] = RoborockHassDeviceInfo(
+                device=_device,
+                product=product,
+                is_map_valid=False
+            )
 
     except Exception as e:
-        if not localdevices_info and not local_integration:
+        if localdevices_info is None and local_integration is None:
             raise e
 
+    map_client = RoborockMqttClient(user_data, devices_info)
     if local_integration:
-        if not localdevices_info:
-            localdevices_info = await get_local_devices_info(devices_info, user_data)
+        if localdevices_info is None:
+            localdevices_info = await get_local_devices_info(map_client, devices_info)
             hass.config_entries.async_update_entry(
                 entry, data={CONF_LOCAL_BACKUP: localdevices_info, **entry.data}
             )
-        client = RoborockLocalClient(localdevices_info)
+        main_client = RoborockLocalClient(localdevices_info)
     else:
-        client = RoborockMqttClient(user_data, devices_info)
-
-    data_coordinator = RoborockDataUpdateCoordinator(
-        hass, client, devices_info, translation
+        main_client = map_client
+    local_coordinator = RoborockDataUpdateCoordinator(
+        hass, main_client, map_client, devices_info, translation
     )
 
-    hass.data.setdefault(DOMAIN, {})[entry.entry_id] = data_coordinator
+    hass.data.setdefault(DOMAIN, {})[entry.entry_id] = local_coordinator
 
-    await data_coordinator.async_config_entry_first_refresh()
+    try:
+        await local_coordinator.async_config_entry_first_refresh()
+    except RoborockConnectionException as e:
+        await remove_entry_key(entry, hass, CONF_LOCAL_BACKUP)
+        raise UpdateFailed from e
 
     for platform in PLATFORMS:
         if entry.options.get(platform, True):
-            data_coordinator.platforms.append(platform)
+            local_coordinator.platforms.append(platform)
             hass.async_create_task(
                 hass.config_entries.async_forward_entry_setup(entry, platform)
             )
@@ -161,8 +170,15 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
     return True
 
 
-async def get_local_devices_info(devices_info, user_data):
-    cloud_client = RoborockMqttClient(user_data, devices_info)
+async def remove_entry_key(entry, hass, key):
+    entry_data = dict(entry.data)
+    entry_data.pop(key, None)
+    hass.config_entries.async_update_entry(
+        entry, data=entry_data
+    )
+
+
+async def get_local_devices_info(cloud_client: RoborockMqttClient, devices_info: dict[str, RoborockHassDeviceInfo]):
     localdevices_info: dict[str, RoborockLocalDeviceInfo] = {}
     for device_id, device_info in devices_info.items():
         network_info = NetworkInfo(
@@ -170,11 +186,10 @@ async def get_local_devices_info(devices_info, user_data):
                 device_id, RoborockCommand.GET_NETWORK_INFO
             )
         )
-        localdevices_info[device_id] = RoborockLocalDeviceInfo({
-            RoborockDeviceInfoField.DEVICE: device_info.device,
-            RoborockDeviceInfoField.PRODUCT: device_info.product,
-            RoborockLocalDeviceInfoField.NETWORK_INFO: network_info
-        })
+        localdevices_info[device_id] = RoborockLocalDeviceInfo(
+            device=device_info.device,
+            network_info=network_info
+        )
     await cloud_client.async_disconnect()
     return localdevices_info
 

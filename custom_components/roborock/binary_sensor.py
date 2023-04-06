@@ -15,9 +15,9 @@ from homeassistant.core import HomeAssistant, callback
 from homeassistant.helpers.entity import EntityCategory
 from homeassistant.helpers.entity_platform import AddEntitiesCallback
 from homeassistant.util import slugify
-from roborock.containers import StatusField, RoborockDeviceInfo
 from roborock.typing import RoborockDevicePropField
 
+from .typing import RoborockHassDeviceInfo
 from .const import (
     DOMAIN,
     MODELS_VACUUM_WITH_MOP,
@@ -44,7 +44,7 @@ class RoborockBinarySensorDescription(BinarySensorEntityDescription):
 VACUUM_SENSORS = {
 
     ATTR_MOP_ATTACHED: RoborockBinarySensorDescription(
-        key=StatusField.WATER_BOX_STATUS,
+        key="water_box_status",
         name="Mop attached",
         icon="mdi:square-rounded",
         parent_key=RoborockDevicePropField.STATUS,
@@ -53,7 +53,7 @@ VACUUM_SENSORS = {
         entity_category=EntityCategory.DIAGNOSTIC,
     ),
     ATTR_WATER_BOX_ATTACHED: RoborockBinarySensorDescription(
-        key=StatusField.WATER_BOX_STATUS,
+        key="water_box_status",
         name="Water box attached",
         icon="mdi:water",
         parent_key=RoborockDevicePropField.STATUS,
@@ -62,7 +62,7 @@ VACUUM_SENSORS = {
         entity_category=EntityCategory.DIAGNOSTIC,
     ),
     ATTR_WATER_SHORTAGE: RoborockBinarySensorDescription(
-        key=StatusField.WATER_SHORTAGE_STATUS,
+        key="water_shortage_status",
         name="Water shortage",
         icon="mdi:water",
         parent_key=RoborockDevicePropField.STATUS,
@@ -75,7 +75,7 @@ VACUUM_SENSORS = {
 VACUUM_SENSORS_SEPARATE_MOP = {
     **VACUUM_SENSORS,
     ATTR_MOP_ATTACHED: RoborockBinarySensorDescription(
-        key=StatusField.WATER_BOX_CARRIAGE_STATUS,
+        key="water_box_carriage_status",
         name="Mop attached",
         icon="mdi:square-rounded",
         parent_key=RoborockDevicePropField.STATUS,
@@ -87,9 +87,9 @@ VACUUM_SENSORS_SEPARATE_MOP = {
 
 
 async def async_setup_entry(
-    hass: HomeAssistant,
-    config_entry: ConfigEntry,
-    async_add_entities: AddEntitiesCallback,
+        hass: HomeAssistant,
+        config_entry: ConfigEntry,
+        async_add_entities: AddEntitiesCallback,
 ) -> None:
     """Only vacuums with mop should have binary sensor registered."""
     entities = []
@@ -111,7 +111,7 @@ async def async_setup_entry(
             if device_prop:
                 for sensor, description in sensors.items():
                     parent_key_data = getattr(device_prop, description.parent_key)
-                    if not parent_key_data:
+                    if parent_key_data is None:
                         _LOGGER.debug(
                             "It seems the %s does not support the %s as the initial value is None",
                             device_info.product.model,
@@ -138,11 +138,11 @@ class RoborockBinarySensor(RoborockCoordinatedEntity, BinarySensorEntity):
     entity_description: RoborockBinarySensorDescription
 
     def __init__(
-        self,
-        unique_id: str,
-        device_info: RoborockDeviceInfo,
-        coordinator: RoborockDataUpdateCoordinator,
-        description: RoborockBinarySensorDescription,
+            self,
+            unique_id: str,
+            device_info: RoborockHassDeviceInfo,
+            coordinator: RoborockDataUpdateCoordinator,
+            description: RoborockBinarySensorDescription,
     ) -> None:
         """Initialize the entity."""
         BinarySensorEntity.__init__(self)
@@ -163,11 +163,11 @@ class RoborockBinarySensor(RoborockCoordinatedEntity, BinarySensorEntity):
     def _determine_native_value(self):
         """Determine native value."""
         data = self.coordinator.data.get(self._device_id)
-        if not data:
+        if data is None:
             return
         if self.entity_description.parent_key:
             data = getattr(data, self.entity_description.parent_key)
-            if not data:
+            if data is None:
                 return
 
         native_value = getattr(data, self.entity_description.key)

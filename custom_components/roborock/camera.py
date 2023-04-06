@@ -5,17 +5,13 @@ from datetime import timedelta
 from enum import Enum
 from typing import Any, Dict, List, Optional
 
-import voluptuous as vol
 from homeassistant.components.camera import Camera, CameraEntityFeature
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.core import HomeAssistant
-from homeassistant.exceptions import HomeAssistantError
-from homeassistant.helpers import config_validation as cv, entity_platform
 from homeassistant.helpers.entity_platform import AddEntitiesCallback
 from homeassistant.util import slugify
-from roborock.containers import MultiMapsList, RoborockDeviceInfo
+from roborock import RoborockStateCode
 from roborock.exceptions import RoborockTimeout, RoborockBackoffException
-from roborock.typing import RoborockCommand
 
 from .common.image_handler import ImageHandlerRoborock
 from .common.map_data import MapData
@@ -24,7 +20,8 @@ from .common.types import Colors, Drawables, ImageConfig, Sizes, Texts
 from .config_flow import CAMERA_VALUES
 from .const import *
 from .coordinator import RoborockDataUpdateCoordinator
-from .device import RoborockCoordinatedEntity
+from .device import RoborockEntityBase
+from .typing import RoborockHassDeviceInfo
 from .utils import set_nested_dict
 
 _LOGGER = logging.getLogger(__name__)
@@ -44,24 +41,7 @@ DEFAULT_SIZES = {
     CONF_SIZE_CHARGER_RADIUS: 6,
 }
 
-NON_REFRESHING_STATES = [8]
-
-
-def add_services() -> None:
-    """Add map related services."""
-    platform = entity_platform.async_get_current_platform()
-
-    platform.async_register_entity_service(
-        "camera_load_multi_map",
-        cv.make_entity_service_schema(
-            {
-                vol.Required("map_flag"): vol.All(
-                    vol.Coerce(int), vol.Clamp(min=0, max=4)
-                ),
-            }
-        ),
-        VacuumCameraMap.async_load_multi_map.__name__,
-    )
+NON_REFRESHING_STATES = [RoborockStateCode['8']]
 
 
 async def async_setup_entry(
@@ -70,8 +50,6 @@ async def async_setup_entry(
     async_add_entities: AddEntitiesCallback,
 ) -> None:
     """Setup Roborock camera."""
-    add_services()
-
     coordinator: RoborockDataUpdateCoordinator = hass.data[DOMAIN][
         config_entry.entry_id
     ]
@@ -101,7 +79,7 @@ async def async_setup_entry(
     async_add_entities(entities, True)
 
 
-class VacuumCameraMap(RoborockCoordinatedEntity, Camera):
+class VacuumCameraMap(RoborockEntityBase, Camera):
     """Representation of a Roborock camera map."""
 
     _is_map_valid_by_device = {}
@@ -110,12 +88,13 @@ class VacuumCameraMap(RoborockCoordinatedEntity, Camera):
         self,
         unique_id: str,
         image_config: dict,
-        device_info: RoborockDeviceInfo,
+        device_info: RoborockHassDeviceInfo,
         coordinator: RoborockDataUpdateCoordinator,
     ) -> None:
         """Create Roborock map."""
+        RoborockEntityBase.__init__(self, device_info, unique_id)
         Camera.__init__(self)
-        RoborockCoordinatedEntity.__init__(self, device_info, coordinator, unique_id)
+        self.coordinator = coordinator
         self._store_map_image = False
         self._image_config = image_config
         self._sizes = DEFAULT_SIZES
@@ -130,16 +109,6 @@ class VacuumCameraMap(RoborockCoordinatedEntity, Camera):
         self._image = None
         self._attr_icon = "mdi:map"
         self._attr_name = "Map"
-        self.set_invalid_map()
-
-    def is_valid_map(self) -> bool:
-        return self._is_map_valid_by_device[self._device_id]
-
-    def set_valid_map(self) -> None:
-        self._is_map_valid_by_device[self._device_id] = True
-
-    def set_invalid_map(self) -> None:
-        self._is_map_valid_by_device[self._device_id] = False
 
     def camera_image(
         self, width: Optional[int] = None, height: Optional[int] = None
@@ -247,31 +216,13 @@ class VacuumCameraMap(RoborockCoordinatedEntity, Camera):
     async def async_map(self):
         """Return map token."""
         try:
-            map_v1 = await self.coordinator.api.get_map_v1(self._device_id)
-            if not map_v1:
+            map_v1 = await self.coordinator.map_api.get_map_v1(self._device_id)
+            if map_v1 is None:
                 self.set_invalid_map()
             self.set_valid_map()
             return map_v1
         except (RoborockTimeout, RoborockBackoffException):
             self.set_invalid_map()
-
-    def maps(self) -> MultiMapsList:
-        return self.coordinator.devices_maps.get(self._device_id)
-
-    async def async_load_multi_map(self, map_flag: int):
-        """Load another map."""
-        maps = self.maps()
-        map_flags = {
-            map_info.name or str(map_info.mapflag): map_info.mapflag
-            for map_info in maps.map_info
-        }
-        if any(mapflag == map_flag for name, mapflag in map_flags.items()):
-            await self.send(RoborockCommand.LOAD_MULTI_MAP, [map_flag])
-            self.set_invalid_map()
-        else:
-            raise HomeAssistantError(
-                f"Map flag {map_flag} is invalid. Available map flags for device are {map_flags}"
-            )
 
     async def get_map(
         self,
@@ -283,7 +234,7 @@ class VacuumCameraMap(RoborockCoordinatedEntity, Camera):
     ) -> Optional[MapData]:
         """Get map image."""
         response = await self.async_map()
-        if not response:
+        if response is None:
             return
         elif not isinstance(response, bytes):
             _LOGGER.debug(
