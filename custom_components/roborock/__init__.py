@@ -97,7 +97,11 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
         for device_id, device_info in local_backup.items()
     } if local_backup else None
     integration_options = entry.options.get(DOMAIN)
-    local_integration = integration_options.get(CONF_LOCAL_INTEGRATION) if integration_options else False
+    local_integration = (
+        integration_options.get(CONF_LOCAL_INTEGRATION)
+        if integration_options
+        else False
+    )
 
     translation = await get_translation(hass)
     _LOGGER.debug("Using translation %s", translation)
