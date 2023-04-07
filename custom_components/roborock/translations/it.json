@@ -66,9 +66,9 @@
         }
       },
       "roborock": {
-        "description": "General settings",
+        "description": "Impostazioni generali",
         "data": {
-          "local": "Beta: use local integration"
+          "local": "Beta: usa integrazione locale"
         }
       }
     }
