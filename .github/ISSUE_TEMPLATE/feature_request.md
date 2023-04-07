@@ -23,6 +23,10 @@ A clear and concise description of what the problem is. Ex. I'm always frustrate
 
 If you feel as if you are technically able to do this, please do, if not, just say here that you don't feel comfortable doing this.
 
+You can either create the connection manually using: https://medium.com/geekculture/capture-iphone-ios-http-traffic-using-wireshark-4af01a4313e6
+
+Or get it made automatically using Airtools 2
+
 Using a Mac, download wireshark and download Airtools 2. Then using airtools 2, select "Capture iPhone Packet Trace". Once wireshark gets launched by airtools, enter the following: "ip.addr == (Your robots ip here (no parenthesis)) and data.data and tcp" hit enter.
 
 Make sure your phone is on the same network as your vacuum, then open the roborock app, and do the task that you are looking to get added to the integration. Make sure items are appearing in wireshark. If they are, then once you have done all the tasks you want added, hit hte stop button on the top of wireshark, then File-> save as -> pcapng. 
