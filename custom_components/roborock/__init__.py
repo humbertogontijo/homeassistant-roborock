@@ -181,7 +181,7 @@ async def remove_entry_key(entry, hass, key):
 async def get_local_devices_info(cloud_client: RoborockMqttClient, devices_info: dict[str, RoborockHassDeviceInfo]):
     localdevices_info: dict[str, RoborockLocalDeviceInfo] = {}
     for device_id, device_info in devices_info.items():
-        network_info = NetworkInfo(
+        network_info = NetworkInfo.from_dict(
             await cloud_client.send_command(
                 device_id, RoborockCommand.GET_NETWORK_INFO
             )
