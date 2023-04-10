@@ -357,8 +357,7 @@ class RoborockVacuum(RoborockCoordinatedEntity, StateVacuumEntity, ABC):
         """Get the error translated if one exist."""
         if self._device_status is None:
             return None
-        error_code = self._device_status.error_code
-        return self.translate("state", error_code)
+        return self._device_status.error_code
 
     @property
     def capability_attributes(self) -> dict[str, list[str]]:

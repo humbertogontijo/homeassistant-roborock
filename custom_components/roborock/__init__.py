@@ -4,14 +4,12 @@ from __future__ import annotations
 import asyncio
 import logging
 from datetime import timedelta
-from typing import Any
 
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.core import HomeAssistant
 from homeassistant.helpers.integration_platform import (
     async_process_integration_platform_for_component,
 )
-from homeassistant.helpers.translation import async_get_translations
 from homeassistant.helpers.update_coordinator import UpdateFailed
 from roborock import (
     RoborockMqttClient,
@@ -45,38 +43,6 @@ SCAN_INTERVAL = timedelta(seconds=30)
 _LOGGER = logging.getLogger(__name__)
 
 
-async def get_translation_from_hass(
-        hass: HomeAssistant, language: str
-) -> dict[str, Any]:
-    """Get translation from hass."""
-    entity_translations = await async_get_translations(
-        hass, language, "entity", tuple([DOMAIN])
-    )
-    if not entity_translations:
-        return {}
-    data: dict[str, Any] = {}
-    for key, value in entity_translations.items():
-        set_nested_dict(data, key, value)
-    states_translation = get_nested_dict(
-        data, f"component.{DOMAIN}.entity.{SENSOR}", {}
-    )
-    return states_translation
-
-
-async def get_translation(hass: HomeAssistant) -> dict[str, Any]:
-    """Get translation."""
-    if hasattr(hass.config, "language"):
-        language = hass.config.language
-        translation = await get_translation_from_hass(hass, language)
-        if translation:
-            return translation
-        wide_language = language.split("-")[0]
-        wide_translation = await get_translation_from_hass(hass, wide_language)
-        if wide_translation:
-            return wide_translation
-    return await get_translation_from_hass(hass, "en")
-
-
 async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
     """Set up roborock from a config entry."""
     _LOGGER.debug("Integration async setup entry: %s", entry.as_dict())
@@ -102,9 +68,6 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
         if integration_options
         else False
     )
-
-    translation = await get_translation(hass)
-    _LOGGER.debug("Using translation %s", translation)
 
     devices_info: dict[str, RoborockHassDeviceInfo] = {}
     try:
@@ -148,7 +111,7 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
     else:
         main_client = map_client
     local_coordinator = RoborockDataUpdateCoordinator(
-        hass, main_client, map_client, devices_info, translation
+        hass, main_client, map_client, devices_info
     )
 
     hass.data.setdefault(DOMAIN, {})[entry.entry_id] = local_coordinator

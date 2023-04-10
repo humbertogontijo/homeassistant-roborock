@@ -73,101 +73,101 @@
   },
   "entity": {
     "sensor": {
-      "roborock_vacuum": {
+      "roborock_vacuum_error": {
         "state": {
-          "0": "Nenhum",
-          "1": "Torre LiDAR ou laser bloqueado. Verifique se há obstrução e tente novamente.",
-          "2": "Pára-choques preso. Limpe-o e bata levemente para soltá-lo.",
-          "3": "Rodas suspensas. Mova o robô e reinicie.",
-          "4": "Erro do sensor de queda. Limpe os sensores de queda, afaste o robô de quedas e reinicie.",
-          "5": "Escova principal encravada. Limpe a escova principal e os rolamentos.",
-          "6": "Escova lateral encravada. Remova e limpe a escova lateral.",
-          "7": "Rodas emperradas. Mova o robô e reinicie.",
-          "8": "Robô preso. Remova os obstáculos ao redor do robô.",
-          "9": "Sem caixote do lixo. Instale a lixeira e o filtro.",
-          "12": "Bateria Fraca. Recarregue e tente novamente.",
-          "13": "Erro de carregamento. Limpe os contatos de carregamento e tente novamente.",
-          "14": "Erro de bateria.",
-          "15": "Sensor de parede sujo. Limpe o sensor de parede.",
-          "16": "Robô inclinado. Mova-o para o nível do solo e reinicie.",
-          "17": "Erro da escova lateral. Reiniciar robô.",
-          "18": "Erro do ventilador. Reiniciar robô.",
-          "21": "Amortecedor vertical pressionado. Mova o robô e tente novamente.",
-          "22": "Erro no localizador de docas. Limpe e tente novamente.",
-          "23": "Não foi possível retornar a base. Limpe o sinalizador de localização da base e tente novamente.",
-          "24": "Zona interdita ou parede invisivel detectada. Mover o robô.",
-          "27": "Sistema VibraRise emperrado. Verifique se há obstruções.",
-          "28": "Robô no tapete. Mova o robô para o chão e tente novamente.",
-          "29": "Filtro bloqueado ou molhado. Limpe, seque e tente novamente.",
-          "30": "Zona proibida ou parede invisível detectada. Mova o robô desta área.",
-          "31": "Não pode cruzar carpete. Mova o robô pelo carpete e reinicie.",
-          "32": "Erro interno. Reinicialize o robô."
+          "none": "Nenhum",
+          "lidar_blocked": "Torre LiDAR ou laser bloqueado. Verifique se há obstrução e tente novamente.",
+          "bumper_stuck": "Pára-choques preso. Limpe-o e bata levemente para soltá-lo.",
+          "wheels_suspended": "Rodas suspensas. Mova o robô e reinicie.",
+          "cliff_sensor_error": "Erro do sensor de queda. Limpe os sensores de queda, afaste o robô de quedas e reinicie.",
+          "main_brush_jammed": "Escova principal encravada. Limpe a escova principal e os rolamentos.",
+          "side_brush_jammed": "Escova lateral encravada. Remova e limpe a escova lateral.",
+          "wheels_jammed": "Rodas emperradas. Mova o robô e reinicie.",
+          "robot_trapped": "Robô preso. Remova os obstáculos ao redor do robô.",
+          "no_dustbin": "Sem caixote do lixo. Instale a lixeira e o filtro.",
+          "low_battery": "Bateria Fraca. Recarregue e tente novamente.",
+          "charging_error": "Erro de carregamento. Limpe os contatos de carregamento e tente novamente.",
+          "battery_error": "Erro de bateria.",
+          "wall_sensor_dirty": "Sensor de parede sujo. Limpe o sensor de parede.",
+          "robot_tilted": "Robô inclinado. Mova-o para o nível do solo e reinicie.",
+          "side_brush_error": "Erro da escova lateral. Reiniciar robô.",
+          "fan_error": "Erro do ventilador. Reiniciar robô.",
+          "vertical_bumper_pressed": "Amortecedor vertical pressionado. Mova o robô e tente novamente.",
+          "dock_locator_error": "Erro no localizador de docas. Limpe e tente novamente.",
+          "return_to_dock_fail": "Não foi possível retornar a base. Limpe o sinalizador de localização da base e tente novamente.",
+          "nogo_zone_detected": "Zona interdita ou parede invisivel detectada. Mover o robô.",
+          "vibrarise_jammed": "Sistema VibraRise emperrado. Verifique se há obstruções.",
+          "robot_on_carpet": "Robô no tapete. Mova o robô para o chão e tente novamente.",
+          "filter_blocked": "Filtro bloqueado ou molhado. Limpe, seque e tente novamente.",
+          "invisible_wall_detected": "Zona proibida ou parede invisível detectada. Mova o robô desta área.",
+          "cannot_cross_carpet": "Não pode cruzar carpete. Mova o robô pelo carpete e reinicie.",
+          "internal_error": "Erro interno. Reinicialize o robô."
         }
       },
       "dnd_start": {
-        "name": "DnD start"
+        "name": "Inicio não perturbe"
       },
       "dnd_end": {
-        "name": "DnD end"
+        "name": "Fim nãop perturbe"
       },
       "last_clean_start": {
-        "name": "Last clean start"
+        "name": "Inicio última limpeza"
       },
       "last_clean_end": {
-        "name": "Last clean end"
+        "name": "Fim última limpeza"
       },
       "last_clean_duration": {
-        "name": "Last clean duration"
+        "name": "Duração última limpeza"
       },
       "last_clean_area": {
-        "name": "Last clean area"
+        "name": "Are última limpeza"
       },
       "current_error": {
-        "name": "Current error"
+        "name": "Erro atual"
       },
       "current_clean_duration": {
-        "name": "Current clean duration"
+        "name": "Duração limpeza atual"
       },
       "current_clean_area": {
-        "name": "Current clean area"
+        "name": "Area limpeza atual"
       },
       "total_duration": {
-        "name": "Total duration"
+        "name": "Duração total"
       },
       "total_clean_area": {
-        "name": "Total clean area"
+        "name": "Area total limpeza"
       },
       "total_clean_count": {
-        "name": "Total clean count"
+        "name": "Contagem total limpezas"
       },
       "total_dust_collection_count": {
-        "name": "Total dust collection count"
+        "name": "Contatagem total coleta de poeira"
       },
       "main_brush_left": {
-        "name": "Main brush left"
+        "name": "Restante escova principal"
       },
       "side_brush_left": {
-        "name": "Side brush left"
+        "name": "Restante escova lateiral"
       },
       "filter_left": {
-        "name": "Filter left"
+        "name": "Restante filtro"
       },
       "sensor_dirty_left": {
-        "name": "Sensor dirty left"
+        "name": "Restante sensor poeira"
       }
     },
     "binary_sensor": {
       "mop_attached_1": {
-        "name": "Mop attached"
+        "name": "Esfragão conectado"
       },
       "mop_attached_2": {
-        "name": "Mop attached"
+        "name": "Esfragão conectado"
       },
       "water_box_attached": {
-        "name": "Water box attached"
+        "name": "Caixa de água conectada"
       },
       "water_shortage": {
-        "name": "Water shortage"
+        "name": "Falta de água"
       }
     }
   }
