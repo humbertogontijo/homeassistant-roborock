@@ -104,6 +104,71 @@
           "31": "Impossibile attraversare il tappeto. Spostare il robot oltre il tappeto e riprovare.",
           "32": "Errore interno. Effettuare il reset del robot."
         }
+      },
+      "dnd_start": {
+        "name": "DnD start"
+      },
+      "dnd_end": {
+        "name": "DnD end"
+      },
+      "last_clean_start": {
+        "name": "Last clean start"
+      },
+      "last_clean_end": {
+        "name": "Last clean end"
+      },
+      "last_clean_duration": {
+        "name": "Last clean duration"
+      },
+      "last_clean_area": {
+        "name": "Last clean area"
+      },
+      "current_error": {
+        "name": "Current error"
+      },
+      "current_clean_duration": {
+        "name": "Current clean duration"
+      },
+      "current_clean_area": {
+        "name": "Current clean area"
+      },
+      "total_duration": {
+        "name": "Total duration"
+      },
+      "total_clean_area": {
+        "name": "Total clean area"
+      },
+      "total_clean_count": {
+        "name": "Total clean count"
+      },
+      "total_dust_collection_count": {
+        "name": "Total dust collection count"
+      },
+      "main_brush_left": {
+        "name": "Main brush left"
+      },
+      "side_brush_left": {
+        "name": "Side brush left"
+      },
+      "filter_left": {
+        "name": "Filter left"
+      },
+      "sensor_dirty_left": {
+        "name": "Sensor dirty left"
+      }
+    },
+    "binary_sensor": {
+      "mop_attached_1": {
+        "name": "Mop attached"
+      },
+      "mop_attached_2": {
+        "name": "Mop attached"
+      },
+      "water_box_attached": {
+        "name": "Water box attached"
+      },
+      "water_shortage": {
+        "name": "Water shortage"
       }
     }
   }

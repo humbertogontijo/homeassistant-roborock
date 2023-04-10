@@ -61,7 +61,7 @@ class RoborockSensorDescription(SensorEntityDescription):
     parent_key: str = None
     keys: list[str] = None
     value: Callable = None
-    translation_key: str = None
+    custom_translation_key: str = None
     translation_attr: str = None
 
 
@@ -73,7 +73,7 @@ VACUUM_SENSORS = {
             time(hour=values[0], minute=values[1])
         ),
         icon="mdi:minus-circle-off",
-        name="DnD start",
+        translation_key="dnd_start",
         device_class=SensorDeviceClass.TIMESTAMP,
         parent_key=RoborockDevicePropField.DND_TIMER,
         entity_category=EntityCategory.DIAGNOSTIC,
@@ -85,7 +85,7 @@ VACUUM_SENSORS = {
             time(hour=values[0], minute=values[1])
         ),
         icon="mdi:minus-circle-off",
-        name="DnD end",
+        translation_key="dnd_end",
         device_class=SensorDeviceClass.TIMESTAMP,
         parent_key=RoborockDevicePropField.DND_TIMER,
         entity_category=EntityCategory.DIAGNOSTIC,
@@ -93,7 +93,7 @@ VACUUM_SENSORS = {
     f"last_clean_{ATTR_LAST_CLEAN_START}": RoborockSensorDescription(
         key="begin",
         icon="mdi:clock-time-twelve",
-        name="Last clean start",
+        translation_key="last_clean_start",
         device_class=SensorDeviceClass.TIMESTAMP,
         parent_key=RoborockDevicePropField.LAST_CLEAN_RECORD,
         entity_category=EntityCategory.DIAGNOSTIC,
@@ -127,7 +127,7 @@ VACUUM_SENSORS = {
     f"current_{ATTR_STATUS_ERROR}": RoborockSensorDescription(
         key="error_code",
         icon="mdi:alert",
-        translation_key="roborock_vacuum",
+        custom_translation_key="roborock_vacuum",
         translation_attr="state",
         attributes=("error_code",),
         parent_key=RoborockDevicePropField.STATUS,
@@ -292,9 +292,9 @@ class RoborockSensor(RoborockCoordinatedEntity, SensorEntity):
         )
 
     @property
-    def translation_key(self):
-        """Get the translation key for the entity."""
-        return self.entity_description.translation_key
+    def custom_translation_key(self):
+        """Get the custom translation key for the entity."""
+        return self.entity_description.custom_translation_key
 
     @callback
     def _extract_attributes(self, data):
@@ -347,7 +347,7 @@ class RoborockSensor(RoborockCoordinatedEntity, SensorEntity):
                 native_value = native_datetime.astimezone(dt_util.UTC)
 
         # This is a work around while https://github.com/home-assistant/core/pull/65743 is not merged
-        if self.entity_description.translation_key:
+        if self.entity_description.custom_translation_key:
             native_value = self.translate(
                 self.entity_description.translation_attr, native_value
             )
