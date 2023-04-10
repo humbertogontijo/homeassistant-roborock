@@ -62,7 +62,6 @@ VACUUM_SENSORS = {
         entity_category=EntityCategory.DIAGNOSTIC,
     ),
     ATTR_WATER_SHORTAGE: RoborockBinarySensorDescription(
-        key=StatusField.WATER_SHORTAGE_STATUS,
         key="water_shortage_status",
         translation_key="water_shortage",
         icon="mdi:water",

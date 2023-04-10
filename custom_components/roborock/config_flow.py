@@ -196,7 +196,7 @@ class RoborockFlowHandler(config_entries.ConfigFlow, domain=DOMAIN):
             title=username,
             data={
                 CONF_ENTRY_USERNAME: username,
-                CONF_USER_DATA: user_data,
+                CONF_USER_DATA: user_data.as_dict(),
                 CONF_BASE_URL: self._client.base_url,
             },
         )
