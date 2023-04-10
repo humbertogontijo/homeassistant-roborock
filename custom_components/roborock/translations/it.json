@@ -155,6 +155,18 @@
       },
       "sensor_dirty_left": {
         "name": "Sensor dirty left"
+      },
+      "dock_status": {
+        "name": "Dock status"
+      },
+      "dock_washing_mode": {
+        "name": "Dock washing mode"
+      },
+      "dock_dust_collection_mode": {
+        "name": "Dock dust collection mode"
+      },
+      "dock_mop_wash_mode_interval": {
+        "name": "Dock mop wash mode interval"
       }
     },
     "binary_sensor": {
