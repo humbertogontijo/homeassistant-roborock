@@ -52,9 +52,9 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
     user_data = UserData.from_dict(entry.data.get(CONF_USER_DATA))
     base_url = entry.data.get(CONF_BASE_URL)
     username = entry.data.get(CONF_ENTRY_USERNAME)
-    vacuum_options = entry.options.get(VACUUM)
+    vacuum_options = entry.options.get(VACUUM, {})
     include_shared = (
-        vacuum_options.get(CONF_INCLUDE_SHARED) if vacuum_options else False
+        vacuum_options.get(CONF_INCLUDE_SHARED, False)
     )
 
     local_backup = entry.data.get(CONF_LOCAL_BACKUP)
@@ -62,11 +62,9 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
         device_id: RoborockLocalDeviceInfo.from_dict(device_info)
         for device_id, device_info in local_backup.items()
     } if local_backup else None
-    integration_options = entry.options.get(DOMAIN)
+    integration_options = entry.options.get(DOMAIN, {})
     local_integration = (
-        integration_options.get(CONF_LOCAL_INTEGRATION)
-        if integration_options
-        else False
+        integration_options.get(CONF_LOCAL_INTEGRATION, False)
     )
 
     devices_info: dict[str, RoborockHassDeviceInfo] = {}
