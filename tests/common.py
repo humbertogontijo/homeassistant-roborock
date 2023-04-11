@@ -22,7 +22,7 @@ from custom_components.roborock.const import (
     CONF_BOTTOM,
     CONF_INCLUDE_SHARED,
 )
-from .mock_data import BASE_URL, HOME_DATA, HOME_DATA_SHARED, USER_DATA, USER_EMAIL
+from .mock_data import BASE_URL, HOME_DATA, HOME_DATA_SHARED, USER_EMAIL, USER_DATA_RAW
 
 
 async def setup_platform(
@@ -34,7 +34,7 @@ async def setup_platform(
         title=USER_EMAIL,
         data={
             CONF_ENTRY_USERNAME: USER_EMAIL,
-            CONF_USER_DATA: USER_DATA,
+            CONF_USER_DATA: USER_DATA_RAW,
             CONF_BASE_URL: BASE_URL,
         },
         options={

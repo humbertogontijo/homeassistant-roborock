@@ -75,86 +75,86 @@
   },
   "entity": {
     "sensor": {
-      "roborock_vacuum": {
+      "roborock_vacuum_error": {
         "state": {
-          "0": "Nessuno",
-          "1": "Torretta LiDAR o laser bloccati. Controllare eventuali ostruzioni e riprovare.",
-          "2": "Paraurti bloccato. Pulirlo e toccarlo leggermente per sbloccarlo.",
-          "3": "Ruote sospese. Muovere il robot e riprovare.",
-          "4": "Errore sensore anti-caduta. Pulire il sensore, spostare il robot lontano dallo scalino e riprovare.",
-          "5": "Spazzola principale bloccata. Pulire la spazzola e i cuscinetti.",
-          "6": "Spazzola laterale bloccata. Rimuovere e pulire la spazzola.",
-          "7": "Ruote bloccate. Spostare il robot e riprovare.",
-          "8": "Robot intrappolato. Rimuovere gli ostacoli intorno al robot.",
-          "9": "Cassetto polvere mancante. Installare cassetto polvere e filtro.",
-          "12": "Batteria scarica. Ricaricare e riprovare.",
-          "13": "Errore di ricarica. Pulire i contatti di ricarica e riprovare.",
-          "14": "Errore batteria.",
-          "15": "Sensore ostacoli sporco. Pulire il sensore.",
-          "16": "Robot inclinato. Spostare il robot su una superficie piana e riprovare.",
-          "17": "Errore spazzola laterale. Effettuare il reset.",
-          "18": "Errore ventola. Effettuare il reset.",
-          "21": "Ammortizzatore verticale schiacciato. Spostare il robot e riprovare.",
-          "22": "Errore individuazione base. Pulire e riprovare.",
-          "23": "Impossibile ritornare alla base. Sgomberare il raggio di manovra intorno alla base e riprovare.",
-          "27": "Sistema VibraRise inceppato. Controllare ostruzioni.",
-          "28": "Il robot si trova su un tappeto. Spostare il robot sul pavimento e riprovare.",
-          "29": "Filtro intasato o bagnato. Pulire, asciugare e riprovare.",
-          "30": "Zona vietata o muro invisibile rilevato. Spostare il robot in un altra area.",
-          "31": "Impossibile attraversare il tappeto. Spostare il robot oltre il tappeto e riprovare.",
-          "32": "Errore interno. Effettuare il reset del robot."
+          "none": "Nessuno",
+          "lidar_blocked": "Torretta LiDAR o laser bloccati. Controllare eventuali ostruzioni e riprovare.",
+          "bumper_stuck": "Paraurti bloccato. Pulirlo e toccarlo leggermente per sbloccarlo.",
+          "wheels_suspended": "Ruote sospese. Muovere il robot e riprovare.",
+          "cliff_sensor_error": "Errore sensore anti-caduta. Pulire il sensore, spostare il robot lontano dallo scalino e riprovare.",
+          "main_brush_jammed": "Spazzola principale bloccata. Pulire la spazzola e i cuscinetti.",
+          "side_brush_jammed": "Spazzola laterale bloccata. Rimuovere e pulire la spazzola.",
+          "wheels_jammed": "Ruote bloccate. Spostare il robot e riprovare.",
+          "robot_trapped": "Robot intrappolato. Rimuovere gli ostacoli intorno al robot.",
+          "no_dustbin": "Cassetto polvere mancante. Installare cassetto polvere e filtro.",
+          "low_battery": "Batteria scarica. Ricaricare e riprovare.",
+          "charging_error": "Errore di ricarica. Pulire i contatti di ricarica e riprovare.",
+          "battery_error": "Errore batteria.",
+          "wall_sensor_dirty": "Sensore ostacoli sporco. Pulire il sensore.",
+          "robot_tilted": "Robot inclinato. Spostare il robot su una superficie piana e riprovare.",
+          "side_brush_error": "Errore spazzola laterale. Effettuare il reset.",
+          "fan_error": "Errore ventola. Effettuare il reset.",
+          "vertical_bumper_pressed": "Ammortizzatore verticale schiacciato. Spostare il robot e riprovare.",
+          "dock_locator_error": "Errore individuazione base. Pulire e riprovare.",
+          "return_to_dock_fail": "Impossibile ritornare alla base. Sgomberare il raggio di manovra intorno alla base e riprovare.",
+          "nogo_zone_detected": "Sistema VibraRise inceppato. Controllare ostruzioni.",
+          "vibrarise_jammed": "Il robot si trova su un tappeto. Spostare il robot sul pavimento e riprovare.",
+          "robot_on_carpet": "Filtro intasato o bagnato. Pulire, asciugare e riprovare.",
+          "filter_blocked": "Zona vietata o muro invisibile rilevato. Spostare il robot in un altra area.",
+          "invisible_wall_detected": "Impossibile attraversare il tappeto. Spostare il robot oltre il tappeto e riprovare.",
+          "cannot_cross_carpet": "Errore interno. Effettuare il reset del robot."
         }
       },
       "dnd_start": {
-        "name": "DnD start"
+        "name": "Inizio DnD"
       },
       "dnd_end": {
-        "name": "DnD end"
+        "name": "Fine DnD"
       },
       "last_clean_start": {
-        "name": "Last clean start"
+        "name": "Inizio ultima pulizia"
       },
       "last_clean_end": {
-        "name": "Last clean end"
+        "name": "Fine ultima pulizia"
       },
       "last_clean_duration": {
-        "name": "Last clean duration"
+        "name": "Durata ultima pulizia"
       },
       "last_clean_area": {
-        "name": "Last clean area"
+        "name": "Area ultima pulizia"
       },
       "current_error": {
-        "name": "Current error"
+        "name": "Errore corrente"
       },
       "current_clean_duration": {
-        "name": "Current clean duration"
+        "name": "Durata pulizia in corso"
       },
       "current_clean_area": {
-        "name": "Current clean area"
+        "name": "Area pulizia in corso"
       },
       "total_duration": {
-        "name": "Total duration"
+        "name": "Durata totale"
       },
       "total_clean_area": {
-        "name": "Total clean area"
+        "name": "Area pulita totale"
       },
       "total_clean_count": {
-        "name": "Total clean count"
+        "name": "Numero totale di pulizie"
       },
       "total_dust_collection_count": {
-        "name": "Total dust collection count"
+        "name": "Numero totale di aspirazioni"
       },
       "main_brush_left": {
-        "name": "Main brush left"
+        "name": "Tempo residuo spazzola principale"
       },
       "side_brush_left": {
-        "name": "Side brush left"
+        "name": "Tempo residuo spazzola laterale"
       },
       "filter_left": {
-        "name": "Filter left"
+        "name": "Tempo residuo filtro"
       },
       "sensor_dirty_left": {
-        "name": "Sensor dirty left"
+        "name": "Tempo residuo pulizia sensori"
       },
       "dock_status": {
         "name": "Dock status"
@@ -171,16 +171,16 @@
     },
     "binary_sensor": {
       "mop_attached_1": {
-        "name": "Mop attached"
+        "name": "Mop installato"
       },
       "mop_attached_2": {
-        "name": "Mop attached"
+        "name": "Mop installato"
       },
       "water_box_attached": {
-        "name": "Water box attached"
+        "name": "Vaschetta acqua installata"
       },
       "water_shortage": {
-        "name": "Water shortage"
+        "name": "Mancanza acqua"
       }
     }
   }

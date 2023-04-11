@@ -31,16 +31,17 @@ class RoborockDataUpdateCoordinator(
             client: RoborockClient,
             map_client: RoborockMqttClient,
             devices_info: dict[str, RoborockHassDeviceInfo],
-            translation: dict,
     ) -> None:
         """Initialize."""
         super().__init__(hass, _LOGGER, name=DOMAIN, update_interval=SCAN_INTERVAL)
         self.api = client
         self.map_api = map_client
         self.platforms: list[str] = []
-        self.translation = translation
         self.devices_maps: dict[str, MultiMapsList] = {}
         self.devices_info = devices_info
+
+    def schedule_refresh(self):
+        self.hass.loop.call_soon(self.async_refresh)
 
     async def release(self) -> None:
         """Disconnect from API."""

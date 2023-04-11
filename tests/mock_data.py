@@ -10,7 +10,8 @@ from roborock.containers import (
     Status,
     SmartWashParams,
     DustCollectionMode,
-    WashTowelMode
+    WashTowelMode,
+    UserData
 )
 from roborock.typing import RoborockDeviceProp, RoborockDockSummary
 
@@ -19,9 +20,7 @@ USER_EMAIL = "user@domain.com"
 
 BASE_URL = "https://usiot.roborock.com"
 
-USER_DATA = {
-    "tuyaname": "abc123",
-    "tuyapwd": "abc123",
+USER_DATA_RAW = {
     "uid": 123456,
     "tokentype": "",
     "token": "abc123",
@@ -46,9 +45,11 @@ USER_DATA = {
     "avatarurl": "https://files.roborock.com/iottest/default_avatar.png",
 }
 
+USER_DATA = UserData.from_dict(USER_DATA_RAW)
+
 MOCK_CONFIG = {
     "username": USER_EMAIL,
-    "user_data": USER_DATA,
+    "user_data": USER_DATA_RAW,
     "base_url": None,
 }
 

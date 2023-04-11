@@ -56,10 +56,10 @@ async def async_setup_entry(
     camera_options = config_entry.options.get(CAMERA)
     image_config = None
     if camera_options:
-        image_config = camera_options.get(CONF_MAP_TRANSFORM) or {}
-        image_config[CONF_INCLUDE_NOGO] = camera_options.get(CONF_INCLUDE_NOGO)
+        image_config = camera_options.get(CONF_MAP_TRANSFORM, {})
+        image_config[CONF_INCLUDE_NOGO] = camera_options.get(CONF_INCLUDE_NOGO, True)
         image_config[CONF_INCLUDE_IGNORED_OBSTACLES] = camera_options.get(
-            CONF_INCLUDE_IGNORED_OBSTACLES
+            CONF_INCLUDE_IGNORED_OBSTACLES, True
         )
     if not image_config:
         data = {}
