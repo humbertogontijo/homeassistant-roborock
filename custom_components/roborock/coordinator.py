@@ -40,6 +40,9 @@ class RoborockDataUpdateCoordinator(
         self.devices_maps: dict[str, MultiMapsList] = {}
         self.devices_info = devices_info
 
+    def schedule_refresh(self):
+        self.hass.loop.call_soon(self.async_refresh)
+
     async def release(self) -> None:
         """Disconnect from API."""
         await self.api.async_disconnect()

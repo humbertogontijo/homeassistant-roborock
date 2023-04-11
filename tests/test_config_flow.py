@@ -11,7 +11,7 @@ from pytest_homeassistant_custom_component.common import MockConfigEntry
 from custom_components.roborock.const import DOMAIN, CAMERA, CONF_MAP_TRANSFORM, CONF_SCALE, CONF_ROTATE, CONF_TRIM, \
     CONF_LEFT, CONF_RIGHT, CONF_TOP, CONF_BOTTOM, VACUUM, CONF_INCLUDE_SHARED, CONF_ENTRY_CODE, CONF_ENTRY_USERNAME, \
     CONF_INCLUDE_IGNORED_OBSTACLES, CONF_INCLUDE_NOGO
-from .mock_data import MOCK_CONFIG, USER_EMAIL, HOME_DATA
+from .mock_data import MOCK_CONFIG, USER_EMAIL, HOME_DATA, USER_DATA
 
 
 @pytest.mark.asyncio
@@ -46,7 +46,7 @@ async def test_successful_config_flow(hass: HomeAssistant, bypass_api_fixture):
     # Provide code from email to config flow
     with patch(
             "custom_components.roborock.config_flow.RoborockApiClient.code_login",
-            return_value=MOCK_CONFIG.get("user_data"),
+            return_value=USER_DATA,
     ), patch(
             "roborock.RoborockApiClient.get_home_data",
             return_value=HOME_DATA,
