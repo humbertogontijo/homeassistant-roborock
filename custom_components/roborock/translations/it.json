@@ -106,69 +106,69 @@
         }
       },
       "dnd_start": {
-        "name": "DnD start"
+        "name": "Inizio DnD"
       },
       "dnd_end": {
-        "name": "DnD end"
+        "name": "Fine DnD"
       },
       "last_clean_start": {
-        "name": "Last clean start"
+        "name": "Inizio ultima pulizia"
       },
       "last_clean_end": {
-        "name": "Last clean end"
+        "name": "Fine ultima pulizia"
       },
       "last_clean_duration": {
-        "name": "Last clean duration"
+        "name": "Durata ultima pulizia"
       },
       "last_clean_area": {
-        "name": "Last clean area"
+        "name": "Area ultima pulizia"
       },
       "current_error": {
-        "name": "Current error"
+        "name": "Errore corrente"
       },
       "current_clean_duration": {
-        "name": "Current clean duration"
+        "name": "Durata pulizia in corso"
       },
       "current_clean_area": {
-        "name": "Current clean area"
+        "name": "Area pulizia in corso"
       },
       "total_duration": {
-        "name": "Total duration"
+        "name": "Durata totale"
       },
       "total_clean_area": {
-        "name": "Total clean area"
+        "name": "Area pulita totale"
       },
       "total_clean_count": {
-        "name": "Total clean count"
+        "name": "Numero totale di pulizie"
       },
       "total_dust_collection_count": {
-        "name": "Total dust collection count"
+        "name": "Numero totale di aspirazioni"
       },
       "main_brush_left": {
-        "name": "Main brush left"
+        "name": "Tempo residuo spazzola principale"
       },
       "side_brush_left": {
-        "name": "Side brush left"
+        "name": "Tempo residuo spazzola laterale"
       },
       "filter_left": {
-        "name": "Filter left"
+        "name": "Tempo residuo filtro"
       },
       "sensor_dirty_left": {
-        "name": "Sensor dirty left"
+        "name": "Tempo residuo pulizia sensori"
       }
     },
     "binary_sensor": {
       "mop_attached_1": {
-        "name": "Mop attached"
+        "name": "Mop installato"
       },
       "mop_attached_2": {
-        "name": "Mop attached"
+        "name": "Mop installato"
       },
       "water_box_attached": {
-        "name": "Water box attached"
+        "name": "Vaschetta acqua installata"
       },
       "water_shortage": {
-        "name": "Water shortage"
+        "name": "Mancanza acqua"
       }
     }
   }

@@ -52,9 +52,9 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
     user_data = UserData.from_dict(entry.data.get(CONF_USER_DATA))
     base_url = entry.data.get(CONF_BASE_URL)
     username = entry.data.get(CONF_ENTRY_USERNAME)
-    vacuum_options = entry.options.get(VACUUM)
+    vacuum_options = entry.options.get(VACUUM, {})
     include_shared = (
-        vacuum_options.get(CONF_INCLUDE_SHARED) if vacuum_options else False
+        vacuum_options.get(CONF_INCLUDE_SHARED, False)
     )
 
     local_backup = entry.data.get(CONF_LOCAL_BACKUP)
@@ -62,11 +62,9 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
         device_id: RoborockLocalDeviceInfo.from_dict(device_info)
         for device_id, device_info in local_backup.items()
     } if local_backup else None
-    integration_options = entry.options.get(DOMAIN)
+    integration_options = entry.options.get(DOMAIN, {})
     local_integration = (
-        integration_options.get(CONF_LOCAL_INTEGRATION)
-        if integration_options
-        else False
+        integration_options.get(CONF_LOCAL_INTEGRATION, False)
     )
 
     devices_info: dict[str, RoborockHassDeviceInfo] = {}
@@ -141,14 +139,13 @@ async def remove_entry_key(entry, hass, key):
     )
 
 
-async def get_local_devices_info(cloud_client: RoborockMqttClient, devices_info: dict[str, RoborockHassDeviceInfo]):
+async def get_local_devices_info(
+    cloud_client: RoborockMqttClient, devices_info: dict[str, RoborockHassDeviceInfo]
+):
+    """Get local device info."""
     localdevices_info: dict[str, RoborockLocalDeviceInfo] = {}
     for device_id, device_info in devices_info.items():
-        network_info = NetworkInfo.from_dict(
-            await cloud_client.send_command(
-                device_id, RoborockCommand.GET_NETWORK_INFO
-            )
-        )
+        network_info = await cloud_client.get_networking(device_id)
         localdevices_info[device_id] = RoborockLocalDeviceInfo(
             device=device_info.device,
             network_info=network_info
