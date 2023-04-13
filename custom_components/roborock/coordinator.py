@@ -42,10 +42,9 @@ class RoborockDataUpdateCoordinator(
         self.devices_maps: dict[str, MultiMapsList] = {}
         self.devices_info = devices_info
 
-    def schedule_refresh(self) -> Future:
-        return asyncio.run_coroutine_threadsafe(
-            self.async_refresh(), self.hass.loop
-        )
+    def schedule_refresh(self) -> None:
+        """Schedule coordinator refresh after 1 second."""
+        self.hass.loop.call_later(1, lambda: asyncio.create_task(self.async_refresh()))
 
     async def release(self) -> None:
         """Disconnect from API."""
