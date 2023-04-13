@@ -157,16 +157,16 @@
         "name": "Tempo residuo pulizia sensori"
       },
       "dock_status": {
-        "name": "Dock status"
+        "name": "Stazione di ricarica: Stato"
       },
       "dock_washing_mode": {
-        "name": "Dock washing mode"
+        "name": "Stazione di ricarica: Modalità di lavaggio"
       },
       "dock_dust_collection_mode": {
-        "name": "Dock dust collection mode"
+        "name": "Stazione di ricarica: Modalità di svuotamento"
       },
       "dock_mop_wash_mode_interval": {
-        "name": "Dock mop wash mode interval"
+        "name": "Stazione di ricarica: Intervallo di lavaggio del mop"
       }
     },
     "binary_sensor": {
