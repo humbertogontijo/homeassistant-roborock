@@ -68,7 +68,7 @@
       "roborock": {
         "description": "General settings",
         "data": {
-          "local": "Beta: use local integration"
+          "local": "Beta: brug lokal integration"
         }
       }
     }
@@ -110,78 +110,78 @@
         "name": "DnD start"
       },
       "dnd_end": {
-        "name": "DnD end"
+        "name": "DnD slut"
       },
       "last_clean_start": {
-        "name": "Last clean start"
+        "name": "Sidste rengøringsstart"
       },
       "last_clean_end": {
-        "name": "Last clean end"
+        "name": "Sidste rengøringsafslutning"
       },
       "last_clean_duration": {
-        "name": "Last clean duration"
+        "name": "Sidste rengøringsvarighed"
       },
       "last_clean_area": {
-        "name": "Last clean area"
+        "name": "Sidste rengøringsområde"
       },
       "current_error": {
-        "name": "Current error"
+        "name": "Nuværende fejl"
       },
       "current_clean_duration": {
-        "name": "Current clean duration"
+        "name": "Nuværende rengøringsvarighed"
       },
       "current_clean_area": {
-        "name": "Current clean area"
+        "name": "Nuværende rengøringsområde"
       },
       "total_duration": {
-        "name": "Total duration"
+        "name": "Total varighed"
       },
       "total_clean_area": {
-        "name": "Total clean area"
+        "name": "Totalt rengjort område"
       },
       "total_clean_count": {
-        "name": "Total clean count"
+        "name": "Totalt antal rengøringer"
       },
       "total_dust_collection_count": {
-        "name": "Total dust collection count"
+        "name": "Total støve tømningsantal"
       },
       "main_brush_left": {
-        "name": "Main brush left"
+        "name": "Hovedebørste tilbage"
       },
       "side_brush_left": {
-        "name": "Side brush left"
+        "name": "Sidebørste tilbage"
       },
       "filter_left": {
-        "name": "Filter left"
+        "name": "Filter tilbage"
       },
       "sensor_dirty_left": {
-        "name": "Sensor dirty left"
+        "name": "Sensor støv tilbage"
       },
       "dock_status": {
         "name": "Dock status"
       },
       "dock_washing_mode": {
-        "name": "Dock washing mode"
+        "name": "Dock vaske indstilling"
       },
       "dock_dust_collection_mode": {
-        "name": "Dock dust collection mode"
+        "name": "Dock støv tømnings indstilling"
       },
       "dock_mop_wash_mode_interval": {
-        "name": "Dock mop wash mode interval"
+        "name": "Dock moppe vaske interval indstilling"
       }
     },
     "binary_sensor": {
       "mop_attached_1": {
-        "name": "Mop attached"
+        "name": "Moppe monteret"
       },
       "mop_attached_2": {
-        "name": "Mop attached"
+        "name": "Moppe monteret"
       },
       "water_box_attached": {
-        "name": "Water box attached"
+        "name": "Vandbeholder monteret"
       },
       "water_shortage": {
-        "name": "Water shortage"
+        "name": "Lav vandstand"
       }
     }
   }
