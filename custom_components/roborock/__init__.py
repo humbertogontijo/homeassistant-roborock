@@ -14,12 +14,11 @@ from homeassistant.helpers.update_coordinator import UpdateFailed
 from roborock import (
     RoborockMqttClient,
     RoborockLocalClient,
-    RoborockCommand,
     RoborockLocalDeviceInfo,
     RoborockConnectionException,
 )
 from roborock.api import RoborockApiClient
-from roborock.containers import UserData, HomeDataProduct, NetworkInfo
+from roborock.containers import UserData, HomeDataProduct
 
 from .const import (
     CONF_BASE_URL,

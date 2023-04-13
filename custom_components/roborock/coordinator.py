@@ -1,7 +1,9 @@
 """Coordinatory for Roborock devices."""
 from __future__ import annotations
 
+import asyncio
 import logging
+from asyncio import Future
 from datetime import timedelta
 
 from homeassistant.core import HomeAssistant
@@ -40,8 +42,10 @@ class RoborockDataUpdateCoordinator(
         self.devices_maps: dict[str, MultiMapsList] = {}
         self.devices_info = devices_info
 
-    def schedule_refresh(self):
-        self.hass.loop.call_soon(self.async_refresh)
+    def schedule_refresh(self) -> Future:
+        return asyncio.run_coroutine_threadsafe(
+            self.async_refresh(), self.hass.loop
+        )
 
     async def release(self) -> None:
         """Disconnect from API."""
