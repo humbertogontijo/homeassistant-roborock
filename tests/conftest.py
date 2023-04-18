@@ -19,16 +19,16 @@ def bypass_api_fixture():
     with  patch(
         "roborock.cloud_api.mqtt"
     ), patch(
-            "roborock.RoborockMqttClient.async_connect"
+            "roborock.cloud_api.RoborockMqttClient.async_connect"
     ), patch(
-        "roborock.RoborockMqttClient.send_command"
+        "roborock.cloud_api.RoborockMqttClient.send_command"
     ), patch(
-        "roborock.RoborockMqttClient.get_prop", return_value=PROP
+        "roborock.cloud_api.RoborockMqttClient.get_prop", return_value=PROP
     ), patch(
-        "roborock.RoborockLocalClient.async_connect"
+        "roborock.local_api.RoborockLocalClient.async_connect"
     ), patch(
-        "roborock.RoborockLocalClient.send_command"
+        "roborock.local_api.RoborockLocalClient.send_command"
     ), patch(
-        "roborock.RoborockLocalClient.get_prop", return_value=PROP
+        "roborock.local_api.RoborockLocalClient.get_prop", return_value=PROP
     ):
         yield

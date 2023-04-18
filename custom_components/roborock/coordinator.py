@@ -3,13 +3,12 @@ from __future__ import annotations
 
 import asyncio
 import logging
-from asyncio import Future
 from datetime import timedelta
 
 from homeassistant.core import HomeAssistant
 from homeassistant.helpers.update_coordinator import DataUpdateCoordinator, UpdateFailed
-from roborock import RoborockMqttClient
 from roborock.api import RoborockClient
+from roborock.cloud_api import RoborockMqttClient
 from roborock.containers import MultiMapsList
 from roborock.exceptions import RoborockException
 from roborock.typing import RoborockDeviceProp

@@ -1,6 +1,7 @@
 """Mock data for Roborock tests."""
 from __future__ import annotations
 
+from roborock import RoborockDockWashTowelModeCode, RoborockDockDustCollectionModeCode
 from roborock.containers import (
     CleanRecord,
     CleanSummary,
@@ -37,7 +38,7 @@ USER_DATA_RAW = {
         "r": {
             "r": "US",
             "a": "https://api-us.roborock.com",
-            "m": "mqtt-us.roborock.com:8883",
+            "m": "tcp://mqtt-us.roborock.com:8883",
             "l": "https://wood-us.roborock.com",
         },
     },
@@ -437,9 +438,9 @@ STATUS = Status.from_dict({
     "unsave_map_flag": 0,
 })
 
-DUST_COLLECTION_MODE = DustCollectionMode(mode=0)
+DUST_COLLECTION_MODE = DustCollectionMode(mode=RoborockDockDustCollectionModeCode["0"])
 
-WASH_TOWEL_MODE = WashTowelMode(wash_mode=0)
+WASH_TOWEL_MODE = WashTowelMode(wash_mode=RoborockDockWashTowelModeCode["0"])
 
 SMART_WASH_PARAMETERS = SmartWashParams(smart_wash=0, wash_interval=0)
 

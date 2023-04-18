@@ -48,7 +48,7 @@ async def test_successful_config_flow(hass: HomeAssistant, bypass_api_fixture):
             "custom_components.roborock.config_flow.RoborockApiClient.code_login",
             return_value=USER_DATA,
     ), patch(
-            "roborock.RoborockApiClient.get_home_data",
+            "roborock.api.RoborockApiClient.get_home_data",
             return_value=HOME_DATA,
     ):
         result = await hass.config_entries.flow.async_configure(
