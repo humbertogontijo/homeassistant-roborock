@@ -73,7 +73,8 @@
   },
   "entity": {
     "sensor": {
-      "roborock_vacuum_error": {
+      "current_error": {
+        "name": "Erro atual",
         "state": {
           "none": "Nenhum",
           "lidar_blocked": "Torre LiDAR ou laser bloqueado. Verifique se há obstrução e tente novamente.",
@@ -122,9 +123,6 @@
       "last_clean_area": {
         "name": "Are última limpeza"
       },
-      "current_error": {
-        "name": "Erro atual"
-      },
       "current_clean_duration": {
         "name": "Duração limpeza atual"
       },
@@ -156,16 +154,16 @@
         "name": "Restante sensor poeira"
       },
       "dock_status": {
-        "name": "Dock status"
+        "name": "Estado da dock"
       },
       "dock_washing_mode": {
-        "name": "Dock washing mode"
+        "name": "Modo de limpeza da dock"
       },
       "dock_dust_collection_mode": {
-        "name": "Dock dust collection mode"
+        "name": "Modo de coleta de poeira da dock"
       },
       "dock_mop_wash_mode_interval": {
-        "name": "Dock mop wash mode interval"
+        "name": "Intervalo de lavagem do esfregão na dock"
       }
     },
     "binary_sensor": {

@@ -75,7 +75,8 @@
   },
   "entity": {
     "sensor": {
-      "roborock_vacuum_error": {
+      "current_error": {
+        "name": "Nuværende fejl",
         "state": {
           "none": "Ingen",
           "lidar_blocked": "LiDAR tårn eller laser blokeret. Kontroller for fremmedelementer og prøv igen.",
@@ -123,9 +124,6 @@
       },
       "last_clean_area": {
         "name": "Sidste rengøringsområde"
-      },
-      "current_error": {
-        "name": "Nuværende fejl"
       },
       "current_clean_duration": {
         "name": "Nuværende rengøringsvarighed"

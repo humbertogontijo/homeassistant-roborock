@@ -73,7 +73,8 @@
   },
   "entity": {
     "sensor": {
-      "roborock_vacuum_error": {
+      "current_error": {
+        "name": "Current error",
         "state": {
           "none": "zadne",
           "lidar_blocked": "LiDAR lub laser zablokowany. Sprawdź, czy nie ma przeszkód i ponów próbę.",
@@ -120,9 +121,6 @@
       },
       "last_clean_area": {
         "name": "Last clean area"
-      },
-      "current_error": {
-        "name": "Current error"
       },
       "current_clean_duration": {
         "name": "Current clean duration"
