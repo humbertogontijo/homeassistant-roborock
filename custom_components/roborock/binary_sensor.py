@@ -17,7 +17,7 @@ from homeassistant.helpers.entity_platform import AddEntitiesCallback
 from homeassistant.util import slugify
 from roborock.typing import RoborockDevicePropField
 
-from .typing import RoborockHassDeviceInfo
+from .roborock_typing import RoborockHassDeviceInfo
 from .const import (
     DOMAIN,
     MODELS_VACUUM_WITH_MOP,

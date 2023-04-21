@@ -34,7 +34,7 @@ from .const import (
     CONF_CLOUD_BACKUP,
 )
 from .coordinator import RoborockDataUpdateCoordinator
-from .typing import RoborockHassDeviceInfo
+from .roborock_typing import RoborockHassDeviceInfo
 from .utils import get_nested_dict, set_nested_dict
 
 SCAN_INTERVAL = timedelta(seconds=30)

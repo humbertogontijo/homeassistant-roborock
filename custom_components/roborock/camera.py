@@ -21,7 +21,7 @@ from .config_flow import CAMERA_VALUES
 from .const import *
 from .coordinator import RoborockDataUpdateCoordinator
 from .device import RoborockEntityBase
-from .typing import RoborockHassDeviceInfo
+from .roborock_typing import RoborockHassDeviceInfo
 from .utils import set_nested_dict
 
 _LOGGER = logging.getLogger(__name__)

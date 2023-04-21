@@ -14,7 +14,7 @@ from roborock.exceptions import RoborockException
 from roborock.typing import RoborockDeviceProp
 
 from .const import DOMAIN
-from .typing import RoborockHassDeviceInfo
+from .roborock_typing import RoborockHassDeviceInfo
 
 SCAN_INTERVAL = timedelta(seconds=30)
 
