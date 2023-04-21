@@ -556,10 +556,10 @@ class RoborockVacuum(RoborockCoordinatedEntity, StateVacuumEntity, ABC):
         """Load another map."""
         maps = self.coordinator.devices_maps.get(self._device_id)
         map_flags = {
-            map_info.name or str(map_info.mapflag): map_info.mapflag
+            map_info.name or str(map_info.mapFlag): map_info.mapFlag
             for map_info in maps.map_info
         }
-        if any(mapflag == map_flag for name, mapflag in map_flags.items()):
+        if any(map_flag == available_map_flag for name, available_map_flag in map_flags.items()):
             await self.send(RoborockCommand.LOAD_MULTI_MAP, [map_flag])
             self.set_invalid_map()
         else:
