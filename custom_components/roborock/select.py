@@ -1,6 +1,7 @@
 """Support for Roborock select."""
-from dataclasses import dataclass
 from __future__ import annotations
+
+from dataclasses import dataclass
 from roborock.code_mappings import (
     RoborockEnum,
     RoborockMopIntensityCode,
