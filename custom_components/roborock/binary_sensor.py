@@ -42,7 +42,6 @@ class RoborockBinarySensorDescription(BinarySensorEntityDescription):
 
 
 VACUUM_SENSORS = {
-
     ATTR_MOP_ATTACHED: RoborockBinarySensorDescription(
         key="water_box_status",
         name="Mop attached",

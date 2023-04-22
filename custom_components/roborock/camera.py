@@ -219,7 +219,8 @@ class VacuumCameraMap(RoborockEntityBase, Camera):
             map_v1 = await self.coordinator.map_api.get_map_v1(self._device_id)
             if map_v1 is None:
                 self.set_invalid_map()
-            self.set_valid_map()
+            else:
+                self.set_valid_map()
             return map_v1
         except (RoborockTimeout, RoborockBackoffException):
             self.set_invalid_map()
