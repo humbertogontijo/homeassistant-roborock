@@ -179,6 +179,27 @@
       "water_shortage": {
         "name": "Falta de água"
       }
+    },
+    "select": {
+      "mop_mode": {
+        "name": "Mode do esfregão",
+        "state": {
+          "standard": "Padrão",
+          "deep": "Profundo",
+          "deep_plus": "Mais profundo",
+          "custom": "Customizado"
+        }
+      },
+      "mop_intesity": {
+        "name": "Intensidade do esfregão",
+        "state": {
+          "off": "Desligado",
+          "mild": "Leve",
+          "moderate": "Moderado",
+          "intense": "Intenso",
+          "custom": "Customizado"
+        }
+      }
     }
   }
 }
