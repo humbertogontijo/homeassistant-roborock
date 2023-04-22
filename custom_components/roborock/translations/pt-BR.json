@@ -190,7 +190,7 @@
           "custom": "Customizado"
         }
       },
-      "mop_intesity": {
+      "mop_intensity": {
         "name": "Intensidade do esfregão",
         "state": {
           "off": "Desligado",

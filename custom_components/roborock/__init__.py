@@ -73,15 +73,16 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
         hass.config_entries.async_update_entry(
             entry, data={CONF_HOME_DATA: home_data.as_dict(), **entry.data}
         )
+        if home_data is None:
+            raise ConfigEntryError("Missing home data. Could not found it in cache")
     except Exception as e:
         if localdevices_info is None and local_integration is None:
             raise e
-        _LOGGER.debug("No internet connection. Using %s", localdevices_info)
         conf_home_data = entry.data.get(CONF_HOME_DATA)
         home_data = HomeData.from_dict(conf_home_data) if conf_home_data else None
+        if home_data is None:
+            raise e
 
-    if home_data is None:
-        raise ConfigEntryError("Missing home data. Could not found it in cache")
     _LOGGER.debug("Got home data %s", home_data)
 
     devices = (
@@ -141,7 +142,6 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
     return True
 
 
-
 async def get_local_devices_info(
     cloud_client: RoborockMqttClient, devices_info: dict[str, RoborockHassDeviceInfo]
 ):
@@ -149,6 +149,8 @@ async def get_local_devices_info(
     localdevices_info: dict[str, RoborockHassLocalDeviceInfo] = {}
     for device_id, device_info in devices_info.items():
         network_info = await cloud_client.get_networking(device_id)
+        if network_info is None:
+            raise ConfigEntryError("Failed to fetch vacuum networking info")
         localdevices_info[device_id] = RoborockHassLocalDeviceInfo(
             device=device_info.device,
             network_info=network_info
