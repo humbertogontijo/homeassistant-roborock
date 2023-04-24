@@ -55,7 +55,8 @@
           "map_transformation:trim:right": "Guarnição direita do mapa",
           "map_transformation:trim:top": "Guarnição superior do mapa",
           "map_transformation:trim:bottom": "Guarnição inferior do mapa",
-          "include_ignored_obstacles": "Mostrar obstáculos ignorados"
+          "include_ignored_obstacles": "Mostrar obstáculos ignorados",
+          "include_nogo": "Mostrar zonas proibidas"
         }
       },
       "vacuum": {
