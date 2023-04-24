@@ -49,12 +49,12 @@
       "camera": {
         "description": "Kamera Optionen",
         "data": {
-          "map_transformation.scale": "Kartengröße",
-          "map_transformation.rotate": "Kartendrehung",
-          "map_transformation.trim.left": "Karte beschneiden links",
-          "map_transformation.trim.right": "Karte beschneiden rechts",
-          "map_transformation.trim.top": "Karte beschneiden oben",
-          "map_transformation.trim.bottom": "Karte beschneiden unten"
+          "map_transformation:scale": "Kartengröße",
+          "map_transformation:rotate": "Kartendrehung",
+          "map_transformation:trim:left": "Karte beschneiden links",
+          "map_transformation:trim:right": "Karte beschneiden rechts",
+          "map_transformation:trim:top": "Karte beschneiden oben",
+          "map_transformation:trim:bottom": "Karte beschneiden unten"
         }
       },
       "vacuum": {

@@ -49,12 +49,12 @@
       "camera": {
         "description": "Options de la caméra",
         "data": {
-          "map_transformation.scale": "Echelle de la carte",
-          "map_transformation.rotate": "Rotation de la carte",
-          "map_transformation.trim.left": "Rogner la carte à gauche",
-          "map_transformation.trim.right": "Rogner la carte à droite",
-          "map_transformation.trim.top": "Rogner la carte en haut",
-          "map_transformation.trim.bottom": "Rogner la carte en bas"
+          "map_transformation:scale": "Echelle de la carte",
+          "map_transformation:rotate": "Rotation de la carte",
+          "map_transformation:trim:left": "Rogner la carte à gauche",
+          "map_transformation:trim:right": "Rogner la carte à droite",
+          "map_transformation:trim:top": "Rogner la carte en haut",
+          "map_transformation:trim:bottom": "Rogner la carte en bas"
         }
       },
       "vacuum": {

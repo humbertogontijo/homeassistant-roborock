@@ -49,12 +49,12 @@
       "camera": {
         "description": "Opcje kamery",
         "data": {
-          "map_transformation.scale": "Skala mapy",
-          "map_transformation.rotate": "Obrót mapy",
-          "map_transformation.trim.left": "Przycięcie mapy z lewej",
-          "map_transformation.trim.right": "Przycięcie mapy z prawej",
-          "map_transformation.trim.top": "Przycięcie mapy z góry",
-          "map_transformation.trim.bottom": "Przycięcie mapy od dołu"
+          "map_transformation:scale": "Skala mapy",
+          "map_transformation:rotate": "Obrót mapy",
+          "map_transformation:trim:left": "Przycięcie mapy z lewej",
+          "map_transformation:trim:right": "Przycięcie mapy z prawej",
+          "map_transformation:trim:top": "Przycięcie mapy z góry",
+          "map_transformation:trim:bottom": "Przycięcie mapy od dołu"
         }
       },
       "vacuum": {
