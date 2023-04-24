@@ -55,7 +55,8 @@
           "map_transformation:trim:right": "Karte beschneiden rechts",
           "map_transformation:trim:top": "Karte beschneiden oben",
           "map_transformation:trim:bottom": "Karte beschneiden unten",
-          "include_ignored_obstacles": "Ignorierte Hindernisse anzeigen"
+          "include_ignored_obstacles": "Ignorierte Hindernisse anzeigen",
+          "include_nogo": "No-Go-Zonen anzeigen"
         }
       },
       "vacuum": {
