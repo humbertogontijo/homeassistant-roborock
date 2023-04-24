@@ -54,7 +54,8 @@
           "map_transformation:trim:left": "Map left trim",
           "map_transformation:trim:right": "Map right trim",
           "map_transformation:trim:top": "Map top trim",
-          "map_transformation:trim:bottom": "Map bottom trim"
+          "map_transformation:trim:bottom": "Map bottom trim",
+          "include_ignored_obstacles": "Vis ignorerte hindringer"
         }
       },
       "vacuum": {
