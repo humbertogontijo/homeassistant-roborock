@@ -55,7 +55,8 @@
           "map_transformation:trim:right": "Trimma höger kant",
           "map_transformation:trim:top": "Trimma övere kant",
           "map_transformation:trim:bottom": "Trimma undre kant",
-          "include_ignored_obstacles": "Visa ignorerade hinder"
+          "include_ignored_obstacles": "Visa ignorerade hinder",
+          "include_nogo": "Visa no go-zoner"
         }
       },
       "vacuum": {
