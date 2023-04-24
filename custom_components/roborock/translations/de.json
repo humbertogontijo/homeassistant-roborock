@@ -54,7 +54,8 @@
           "map_transformation:trim:left": "Karte beschneiden links",
           "map_transformation:trim:right": "Karte beschneiden rechts",
           "map_transformation:trim:top": "Karte beschneiden oben",
-          "map_transformation:trim:bottom": "Karte beschneiden unten"
+          "map_transformation:trim:bottom": "Karte beschneiden unten",
+          "include_ignored_obstacles": "Ignorierte Hindernisse anzeigen"
         }
       },
       "vacuum": {
