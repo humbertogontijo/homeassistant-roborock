@@ -55,7 +55,8 @@
           "map_transformation:trim:right": "Rogner la carte à droite",
           "map_transformation:trim:top": "Rogner la carte en haut",
           "map_transformation:trim:bottom": "Rogner la carte en bas",
-          "include_ignored_obstacles": "Afficher les obstacles ignorés"
+          "include_ignored_obstacles": "Afficher les obstacles ignorés",
+          "include_nogo": "Afficher les zones interdites"
         }
       },
       "vacuum": {
