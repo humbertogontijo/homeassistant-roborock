@@ -103,7 +103,8 @@
           "robot_on_carpet": "Filter blocked or wet. Clean, dry, and retry.",
           "filter_blocked": "No-go zone or Invisible Wall detected. Move robot from this area.",
           "invisible_wall_detected": "Cannot cross carpet. Move robot across carpet and restart.",
-          "cannot_cross_carpet": "Internal error. Reset the robot."
+          "cannot_cross_carpet": "Internal error. Reset the robot.",
+          "internal_error": "Intern feil. Tilbakestill roboten."
         }
       },
       "dnd_start": {
