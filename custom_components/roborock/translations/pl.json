@@ -54,7 +54,8 @@
           "map_transformation:trim:left": "Przycięcie mapy z lewej",
           "map_transformation:trim:right": "Przycięcie mapy z prawej",
           "map_transformation:trim:top": "Przycięcie mapy z góry",
-          "map_transformation:trim:bottom": "Przycięcie mapy od dołu"
+          "map_transformation:trim:bottom": "Przycięcie mapy od dołu",
+          "include_ignored_obstacles": "Pokaż zignorowane przeszkody"
         }
       },
       "vacuum": {
