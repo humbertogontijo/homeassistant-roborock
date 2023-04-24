@@ -55,7 +55,8 @@
           "map_transformation:trim:right": "Выравнивание карты справа",
           "map_transformation:trim:top": "Выравнивание карты сверху",
           "map_transformation:trim:bottom": "Выравнивание карты снизу",
-          "include_ignored_obstacles": "Показать игнорируемые препятствия"
+          "include_ignored_obstacles": "Показать игнорируемые препятствия",
+          "include_nogo": "Показать запретные зоны"
         }
       },
       "vacuum": {
