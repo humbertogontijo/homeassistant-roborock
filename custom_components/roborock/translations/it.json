@@ -103,7 +103,8 @@
           "robot_on_carpet": "Filtro intasato o bagnato. Pulire, asciugare e riprovare.",
           "filter_blocked": "Zona vietata o muro invisibile rilevato. Spostare il robot in un altra area.",
           "invisible_wall_detected": "Impossibile attraversare il tappeto. Spostare il robot oltre il tappeto e riprovare.",
-          "cannot_cross_carpet": "Errore interno. Effettuare il reset del robot."
+          "cannot_cross_carpet": "Errore interno. Effettuare il reset del robot.",
+          "internal_error": "Errore interno. Ripristina il robot."
         }
       },
       "dnd_start": {
