@@ -103,7 +103,8 @@
           "robot_on_carpet": "Filter verstopft oder nass. Reinigen, trocknen und erneut versuchen.",
           "filter_blocked": "No-Go-Zone oder unsichtbare Wand entdeckt. Roboter aus diesem Bereich entfernen.",
           "invisible_wall_detected": "Kann Teppich nicht überqueren. Bewege den Roboter über den Teppich und starte ihn neu.",
-          "cannot_cross_carpet": "Interner Fehler. Reset des Roboters."
+          "cannot_cross_carpet": "Interner Fehler. Reset des Roboters.",
+          "internal_error": "Interner Fehler. Setzen Sie den Roboter zurück."
         }
       },
       "dnd_start": {
