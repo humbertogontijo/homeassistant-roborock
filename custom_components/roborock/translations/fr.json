@@ -103,7 +103,8 @@
           "robot_on_carpet": "Filtre bloqué ou humide. Nettoyez, séchez et réessayez.",
           "filter_blocked": "Zone interdite ou mur invisible détecté. Éloignez le robot de cette zone.",
           "invisible_wall_detected": "Impossible de traverser le tapis. Faites traverser le robot et redémarrez.",
-          "cannot_cross_carpet": "Erreur interne. Réinitialisez le robot."
+          "cannot_cross_carpet": "Erreur interne. Réinitialisez le robot.",
+          "internal_error": "Erreur interne. Réinitialisez le robot."
         }
       },
       "dnd_start": {
