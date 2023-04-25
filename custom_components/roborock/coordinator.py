@@ -40,6 +40,7 @@ class RoborockDataUpdateCoordinator(
         self.platforms: list[str] = []
         self.devices_maps: dict[str, MultiMapsList] = {}
         self.devices_info = devices_info
+        self.room_mapping = {}
 
     def schedule_refresh(self) -> None:
         """Schedule coordinator refresh after 1 second."""
@@ -48,6 +49,13 @@ class RoborockDataUpdateCoordinator(
     async def release(self) -> None:
         """Disconnect from API."""
         await self.api.async_disconnect()
+
+    async def build_room_mapping(self, iot_room_mapping: dict[str, str]) -> None:
+        """Builds the room mapping - only works for local api."""
+        # TODO: Is there a better way to get room mapping? Should it be done on all devices? Are rooms device specific?
+        rooms = await self.api.get_room_mapping(list(self.devices_info.keys())[0])
+        for room in rooms:
+            self.room_mapping[iot_room_mapping[room.iot_id]] = room.segment_id
 
     async def fill_device_multi_maps_list(self, device_id: str) -> None:
         """Get multi maps list."""

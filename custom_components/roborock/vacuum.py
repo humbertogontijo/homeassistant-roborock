@@ -70,6 +70,7 @@ ATTR_MOP_INTENSITY = "mop_intensity"
 ATTR_MOP_MODE_LIST = f"{ATTR_MOP_MODE}_list"
 ATTR_MOP_INTENSITY_LIST = f"{ATTR_MOP_INTENSITY}_list"
 ATTR_ERROR = "error"
+ATTR_ROOMS = "rooms"
 
 
 def add_services() -> None:
@@ -177,7 +178,8 @@ def add_services() -> None:
     platform.async_register_entity_service(
         "vacuum_set_mop_intensity",
         cv.make_entity_service_schema(
-            {vol.Required("mop_intensity"): vol.In(list(RoborockMopIntensityCode.values()))}
+            {vol.Required("mop_intensity"): vol.In(
+                list(RoborockMopIntensityCode.values()))}
         ),
         RoborockVacuum.async_set_mop_intensity.__name__,
     )
@@ -244,20 +246,20 @@ class RoborockVacuum(RoborockCoordinatedEntity, StateVacuumEntity, ABC):
     def supported_features(self) -> VacuumEntityFeature:
         """Flag vacuum cleaner features that are supported."""
         features = (
-                VacuumEntityFeature.TURN_ON
-                | VacuumEntityFeature.TURN_OFF
-                | VacuumEntityFeature.PAUSE
-                | VacuumEntityFeature.STOP
-                | VacuumEntityFeature.RETURN_HOME
-                | VacuumEntityFeature.FAN_SPEED
-                | VacuumEntityFeature.BATTERY
-                | VacuumEntityFeature.STATUS
-                | VacuumEntityFeature.SEND_COMMAND
-                | VacuumEntityFeature.LOCATE
-                | VacuumEntityFeature.CLEAN_SPOT
-                | VacuumEntityFeature.STATE
-                | VacuumEntityFeature.START
-                | VacuumEntityFeature.MAP
+            VacuumEntityFeature.TURN_ON
+            | VacuumEntityFeature.TURN_OFF
+            | VacuumEntityFeature.PAUSE
+            | VacuumEntityFeature.STOP
+            | VacuumEntityFeature.RETURN_HOME
+            | VacuumEntityFeature.FAN_SPEED
+            | VacuumEntityFeature.BATTERY
+            | VacuumEntityFeature.STATUS
+            | VacuumEntityFeature.SEND_COMMAND
+            | VacuumEntityFeature.LOCATE
+            | VacuumEntityFeature.CLEAN_SPOT
+            | VacuumEntityFeature.STATE
+            | VacuumEntityFeature.START
+            | VacuumEntityFeature.MAP
         )
         return features
 
@@ -305,6 +307,7 @@ class RoborockVacuum(RoborockCoordinatedEntity, StateVacuumEntity, ABC):
         data[ATTR_MOP_MODE] = self.mop_mode
         data[ATTR_MOP_INTENSITY] = self.mop_intensity
         data[ATTR_ERROR] = self.error
+        data[ATTR_ROOMS] = self.coordinator.room_mapping
         data.update(self.capability_attributes)
 
         return data
@@ -382,26 +385,21 @@ class RoborockVacuum(RoborockCoordinatedEntity, StateVacuumEntity, ABC):
         else:
             await self.send(RoborockCommand.APP_START)
 
-
     async def async_pause(self) -> None:
         """Pause the vacuum."""
         await self.send(RoborockCommand.APP_PAUSE)
-
 
     async def async_stop(self, **kwargs: Any) -> None:
         """Stop the vacuum."""
         await self.send(RoborockCommand.APP_STOP)
 
-
     async def async_return_to_base(self, **kwargs: Any) -> None:
         """Send vacuum back to base."""
         await self.send(RoborockCommand.APP_CHARGE)
 
-
     async def async_clean_spot(self, **kwargs: Any) -> None:
         """Spot clean."""
         await self.send(RoborockCommand.APP_SPOT)
-
 
     async def async_locate(self, **kwargs: Any) -> None:
         """Locate vacuum."""
@@ -414,14 +412,12 @@ class RoborockVacuum(RoborockCoordinatedEntity, StateVacuumEntity, ABC):
             [k for k, v in RoborockFanPowerCode.items() if v == fan_speed],
         )
 
-
     async def async_set_mop_mode(self, mop_mode: str, _=None) -> None:
         """Change vacuum mop mode."""
         await self.send(
             RoborockCommand.SET_MOP_MODE,
             [k for k, v in RoborockMopModeCode.items() if v == mop_mode],
         )
-
 
     async def async_set_mop_intensity(self, mop_intensity: str, _=None):
         """Set vacuum mop intensity."""
@@ -430,18 +426,15 @@ class RoborockVacuum(RoborockCoordinatedEntity, StateVacuumEntity, ABC):
             [k for k, v in RoborockMopIntensityCode.items() if v == mop_intensity],
         )
 
-
     async def async_manual_start(self):
         """Start manual control mode."""
         self.manual_seqnum = 0
         await self.send(RoborockCommand.APP_RC_START)
 
-
     async def async_manual_stop(self):
         """Stop manual control mode."""
         self.manual_seqnum = 0
         await self.send(RoborockCommand.APP_RC_END)
-
 
     MANUAL_ROTATION_MAX = 180
     MANUAL_ROTATION_MIN = -MANUAL_ROTATION_MAX
@@ -531,14 +524,12 @@ class RoborockVacuum(RoborockCoordinatedEntity, StateVacuumEntity, ABC):
             params,
         )
 
-
     async def async_clean_zone(self, zone: list, repeats: int = 1):
         """Clean selected area for the number of repeats indicated."""
         for _zone in zone:
             _zone.append(repeats)
         _LOGGER.debug("Zone with repeats: %s", zone)
         await self.send(RoborockCommand.APP_ZONED_CLEAN, zone)
-
 
     async def async_start_pause(self):
         """Start or pause cleaning if running."""
@@ -550,7 +541,6 @@ class RoborockVacuum(RoborockCoordinatedEntity, StateVacuumEntity, ABC):
     async def async_reset_consumable(self):
         """Reset the consumable data(ex. brush work time)."""
         await self.send(RoborockCommand.RESET_CONSUMABLE)
-
 
     async def async_load_multi_map(self, map_flag: int):
         """Load another map."""
