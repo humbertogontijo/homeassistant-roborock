@@ -15,7 +15,6 @@ from homeassistant.core import HomeAssistant, callback
 from homeassistant.helpers.entity import EntityCategory
 from homeassistant.helpers.entity_platform import AddEntitiesCallback
 from homeassistant.util import slugify
-from roborock.typing import RoborockDevicePropField
 
 from .roborock_typing import RoborockHassDeviceInfo
 from .const import (
@@ -47,7 +46,7 @@ VACUUM_SENSORS = {
         name="Mop attached",
         translation_key="mop_attached_1",
         icon="mdi:square-rounded",
-        parent_key=RoborockDevicePropField.STATUS,
+        parent_key="status",
         entity_registry_enabled_default=True,
         device_class=BinarySensorDeviceClass.CONNECTIVITY,
         entity_category=EntityCategory.DIAGNOSTIC,
@@ -57,7 +56,7 @@ VACUUM_SENSORS = {
         name="Water box attached",
         translation_key="water_box_attached",
         icon="mdi:water",
-        parent_key=RoborockDevicePropField.STATUS,
+        parent_key="status",
         entity_registry_enabled_default=True,
         device_class=BinarySensorDeviceClass.CONNECTIVITY,
         entity_category=EntityCategory.DIAGNOSTIC,
@@ -67,7 +66,7 @@ VACUUM_SENSORS = {
         name="Water shortage",
         translation_key="water_shortage",
         icon="mdi:water",
-        parent_key=RoborockDevicePropField.STATUS,
+        parent_key="status",
         entity_registry_enabled_default=True,
         device_class=BinarySensorDeviceClass.PROBLEM,
         entity_category=EntityCategory.DIAGNOSTIC,
@@ -81,7 +80,7 @@ VACUUM_SENSORS_SEPARATE_MOP = {
         name="Mop attached",
         translation_key="mop_attached_2",
         icon="mdi:square-rounded",
-        parent_key=RoborockDevicePropField.STATUS,
+        parent_key="status",
         entity_registry_enabled_default=True,
         device_class=BinarySensorDeviceClass.CONNECTIVITY,
         entity_category=EntityCategory.DIAGNOSTIC,

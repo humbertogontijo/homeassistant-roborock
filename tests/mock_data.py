@@ -14,7 +14,7 @@ from roborock.containers import (
     WashTowelMode,
     UserData
 )
-from roborock.typing import RoborockDeviceProp, RoborockDockSummary
+from roborock.typing import DeviceProp, DockSummary
 
 # All data is based on a U.S. customer with a Roborock S7 MaxV Ultra
 USER_EMAIL = "user@domain.com"
@@ -444,9 +444,9 @@ WASH_TOWEL_MODE = WashTowelMode(wash_mode=RoborockDockWashTowelModeCode["0"])
 
 SMART_WASH_PARAMETERS = SmartWashParams(smart_wash=0, wash_interval=0)
 
-DOCK_SUMMARY = RoborockDockSummary(DUST_COLLECTION_MODE, WASH_TOWEL_MODE, SMART_WASH_PARAMETERS)
+DOCK_SUMMARY = DockSummary(DUST_COLLECTION_MODE, WASH_TOWEL_MODE, SMART_WASH_PARAMETERS)
 
-PROP = RoborockDeviceProp(
+PROP = DeviceProp(
     STATUS,
     DND_TIMER,
     CLEAN_SUMMARY,

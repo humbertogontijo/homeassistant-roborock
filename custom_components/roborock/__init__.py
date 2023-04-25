@@ -115,10 +115,8 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
     else:
         main_client = map_client
     local_coordinator = RoborockDataUpdateCoordinator(
-        hass, main_client, map_client, devices_info
+        hass, main_client, map_client, devices_info, home_data.rooms
     )
-    await local_coordinator.build_room_mapping(
-        {str(room.id): room.name for room in home_data.rooms})
 
     hass.data.setdefault(DOMAIN, {})[entry.entry_id] = local_coordinator
 

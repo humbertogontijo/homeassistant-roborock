@@ -18,7 +18,6 @@ from homeassistant.core import HomeAssistant, callback
 from homeassistant.helpers.entity import EntityCategory
 from homeassistant.helpers.entity_platform import AddEntitiesCallback
 from homeassistant.util import dt as dt_util, slugify
-from roborock.typing import RoborockDevicePropField
 
 from .const import (
     DOMAIN,
@@ -55,7 +54,8 @@ ATTR_DOCK_STATUS = "dock_status"
 ATTR_DOCK_WASHING_MODE = "dock_washing_mode"
 ATTR_DOCK_DUST_COLLECTION_MODE = "dock_dust_collection_mode"
 ATTR_DOCK_MOP_WASH_MODE = "dock_mop_wash_mode"
-ATTR_MAP_SELECTED = "map_selected"
+ATTR_SELECTED_MAP = "map_selected"
+ATTR_CURRENT_ROOM = "room"
 
 
 @dataclass
@@ -72,27 +72,27 @@ VACUUM_SENSORS = {
     f"dnd_{ATTR_DND_START}": RoborockSensorDescription(
         key=ATTR_DND_START,
         keys=["start_hour", "start_minute"],
-        value=lambda values: parse_datetime_time(
+        value=lambda values, _: parse_datetime_time(
             time(hour=values[0], minute=values[1])
         ),
         icon="mdi:minus-circle-off",
         name="DnD start",
         translation_key="dnd_start",
         device_class=SensorDeviceClass.TIMESTAMP,
-        parent_key=RoborockDevicePropField.DND_TIMER,
+        parent_key="dnd_timer",
         entity_category=EntityCategory.DIAGNOSTIC,
     ),
     f"dnd_{ATTR_DND_END}": RoborockSensorDescription(
         key=ATTR_DND_END,
         keys=["end_hour", "end_minute"],
-        value=lambda values: parse_datetime_time(
+        value=lambda values, _: parse_datetime_time(
             time(hour=values[0], minute=values[1])
         ),
         icon="mdi:minus-circle-off",
         name="DnD end",
         translation_key="dnd_end",
         device_class=SensorDeviceClass.TIMESTAMP,
-        parent_key=RoborockDevicePropField.DND_TIMER,
+        parent_key="dnd_timer",
         entity_category=EntityCategory.DIAGNOSTIC,
     ),
     f"last_clean_{ATTR_LAST_CLEAN_START}": RoborockSensorDescription(
@@ -101,14 +101,14 @@ VACUUM_SENSORS = {
         name="Last clean start",
         translation_key="last_clean_start",
         device_class=SensorDeviceClass.TIMESTAMP,
-        parent_key=RoborockDevicePropField.LAST_CLEAN_RECORD,
+        parent_key="last_clean_record",
         entity_category=EntityCategory.DIAGNOSTIC,
     ),
     f"last_clean_{ATTR_LAST_CLEAN_END}": RoborockSensorDescription(
         key="end",
         icon="mdi:clock-time-twelve",
         device_class=SensorDeviceClass.TIMESTAMP,
-        parent_key=RoborockDevicePropField.LAST_CLEAN_RECORD,
+        parent_key="last_clean_record",
         name="Last clean end",
         translation_key="last_clean_end",
         entity_category=EntityCategory.DIAGNOSTIC,
@@ -118,7 +118,7 @@ VACUUM_SENSORS = {
         key="duration",
         icon="mdi:timer-sand",
         device_class=SensorDeviceClass.DURATION,
-        parent_key=RoborockDevicePropField.LAST_CLEAN_RECORD,
+        parent_key="last_clean_record",
         name="Last clean duration",
         translation_key="last_clean_duration",
         entity_category=EntityCategory.DIAGNOSTIC,
@@ -126,9 +126,9 @@ VACUUM_SENSORS = {
     f"last_clean_{ATTR_LAST_CLEAN_AREA}": RoborockSensorDescription(
         native_unit_of_measurement=AREA_SQUARE_METERS,
         key="area",
-        value=lambda value: round(value / 1000000, 1),
+        value=lambda value, _: round(value / 1000000, 1),
         icon="mdi:texture-box",
-        parent_key=RoborockDevicePropField.LAST_CLEAN_RECORD,
+        parent_key="last_clean_record",
         name="Last clean area",
         translation_key="last_clean_area",
         entity_category=EntityCategory.DIAGNOSTIC,
@@ -139,7 +139,7 @@ VACUUM_SENSORS = {
         name="Current error",
         translation_key="current_error",
         attributes=("error_code",),
-        parent_key=RoborockDevicePropField.STATUS,
+        parent_key="status",
         entity_category=EntityCategory.DIAGNOSTIC,
     ),
     f"current_{ATTR_STATUS_CLEAN_TIME}": RoborockSensorDescription(
@@ -147,7 +147,7 @@ VACUUM_SENSORS = {
         key="clean_time",
         icon="mdi:timer-sand",
         device_class=SensorDeviceClass.DURATION,
-        parent_key=RoborockDevicePropField.STATUS,
+        parent_key="status",
         name="Current clean duration",
         translation_key="current_clean_duration",
         entity_category=EntityCategory.DIAGNOSTIC,
@@ -156,18 +156,41 @@ VACUUM_SENSORS = {
         native_unit_of_measurement=AREA_SQUARE_METERS,
         icon="mdi:texture-box",
         key="clean_area",
-        value=lambda value: round(value / 1000000, 1),
-        parent_key=RoborockDevicePropField.STATUS,
+        value=lambda value, _: round(value / 1000000, 1),
+        parent_key="status",
         entity_category=EntityCategory.DIAGNOSTIC,
         name="Current clean area",
         translation_key="current_clean_area",
+    ),
+    f"current_{ATTR_SELECTED_MAP}": RoborockSensorDescription(
+        key="map_status",
+        value=lambda value, device_info:
+        slugify(device_info.map_mapping.get((value - 3) / 2))
+        if device_info and device_info.map_mapping else None,
+        icon="mdi:floor-plan",
+        parent_key="status",
+        name="Current selected map",
+        translation_key="current_map_selected",
+        entity_category=EntityCategory.DIAGNOSTIC,
+    ),
+    f"current_{ATTR_CURRENT_ROOM}": RoborockSensorDescription(
+        # TODO: Find a better way of doing this
+        key="state",
+        value=lambda _, device_info:
+        slugify(device_info.room_mapping.get(device_info.current_room))
+        if device_info.room_mapping and device_info.current_room else None,
+        icon="mdi:floor-plan",
+        parent_key="status",
+        name="Current room",
+        translation_key="current_room",
+        entity_category=EntityCategory.DIAGNOSTIC,
     ),
     f"clean_history_{ATTR_CLEAN_SUMMARY_TOTAL_DURATION}": RoborockSensorDescription(
         native_unit_of_measurement=UnitOfTime.SECONDS,
         device_class=SensorDeviceClass.DURATION,
         key="clean_time",
         icon="mdi:timer-sand",
-        parent_key=RoborockDevicePropField.CLEAN_SUMMARY,
+        parent_key="clean_summary",
         name="Total duration",
         translation_key="total_duration",
         entity_category=EntityCategory.DIAGNOSTIC,
@@ -175,9 +198,9 @@ VACUUM_SENSORS = {
     f"clean_history_{ATTR_CLEAN_SUMMARY_TOTAL_AREA}": RoborockSensorDescription(
         native_unit_of_measurement=AREA_SQUARE_METERS,
         key="clean_area",
-        value=lambda value: round(value / 1000000, 1),
+        value=lambda value, _: round(value / 1000000, 1),
         icon="mdi:texture-box",
-        parent_key=RoborockDevicePropField.CLEAN_SUMMARY,
+        parent_key="clean_summary",
         name="Total clean area",
         translation_key="total_clean_area",
         entity_category=EntityCategory.DIAGNOSTIC,
@@ -187,7 +210,7 @@ VACUUM_SENSORS = {
         key="clean_count",
         icon="mdi:counter",
         state_class=SensorStateClass.TOTAL_INCREASING,
-        parent_key=RoborockDevicePropField.CLEAN_SUMMARY,
+        parent_key="clean_summary",
         name="Total clean count",
         translation_key="total_clean_count",
         entity_category=EntityCategory.DIAGNOSTIC,
@@ -197,7 +220,7 @@ VACUUM_SENSORS = {
         key="dust_collection_count",
         icon="mdi:counter",
         state_class=SensorStateClass.TOTAL_INCREASING,
-        parent_key=RoborockDevicePropField.CLEAN_SUMMARY,
+        parent_key="clean_summary",
         name="Total dust collection count",
         translation_key="total_dust_collection_count",
         entity_category=EntityCategory.DIAGNOSTIC,
@@ -205,10 +228,10 @@ VACUUM_SENSORS = {
     f"consumable_{ATTR_CONSUMABLE_STATUS_MAIN_BRUSH_LEFT}": RoborockSensorDescription(
         native_unit_of_measurement=UnitOfTime.SECONDS,
         key="main_brush_work_time",
-        value=lambda value: MAIN_BRUSH_REPLACE_TIME - value,
+        value=lambda value, _: MAIN_BRUSH_REPLACE_TIME - value,
         icon="mdi:brush",
         device_class=SensorDeviceClass.DURATION,
-        parent_key=RoborockDevicePropField.CONSUMABLE,
+        parent_key="consumable",
         name="Main brush left",
         translation_key="main_brush_left",
         entity_category=EntityCategory.DIAGNOSTIC,
@@ -216,10 +239,10 @@ VACUUM_SENSORS = {
     f"consumable_{ATTR_CONSUMABLE_STATUS_SIDE_BRUSH_LEFT}": RoborockSensorDescription(
         native_unit_of_measurement=UnitOfTime.SECONDS,
         key="side_brush_work_time",
-        value=lambda value: SIDE_BRUSH_REPLACE_TIME - value,
+        value=lambda value, _: SIDE_BRUSH_REPLACE_TIME - value,
         icon="mdi:brush",
         device_class=SensorDeviceClass.DURATION,
-        parent_key=RoborockDevicePropField.CONSUMABLE,
+        parent_key="consumable",
         name="Side brush left",
         translation_key="side_brush_left",
         entity_category=EntityCategory.DIAGNOSTIC,
@@ -227,10 +250,10 @@ VACUUM_SENSORS = {
     f"consumable_{ATTR_CONSUMABLE_STATUS_FILTER_LEFT}": RoborockSensorDescription(
         native_unit_of_measurement=UnitOfTime.SECONDS,
         key="filter_work_time",
-        value=lambda value: FILTER_REPLACE_TIME - value,
+        value=lambda value, _: FILTER_REPLACE_TIME - value,
         icon="mdi:air-filter",
         device_class=SensorDeviceClass.DURATION,
-        parent_key=RoborockDevicePropField.CONSUMABLE,
+        parent_key="consumable",
         name="Filter left",
         translation_key="filter_left",
         entity_category=EntityCategory.DIAGNOSTIC,
@@ -238,10 +261,10 @@ VACUUM_SENSORS = {
     f"consumable_{ATTR_CONSUMABLE_STATUS_SENSOR_DIRTY_LEFT}": RoborockSensorDescription(
         native_unit_of_measurement=UnitOfTime.SECONDS,
         key="sensor_dirty_time",
-        value=lambda value: SENSOR_DIRTY_REPLACE_TIME - value,
+        value=lambda value, _: SENSOR_DIRTY_REPLACE_TIME - value,
         icon="mdi:eye-outline",
         device_class=SensorDeviceClass.DURATION,
-        parent_key=RoborockDevicePropField.CONSUMABLE,
+        parent_key="consumable",
         name="Sensor dirty left",
         translation_key="sensor_dirty_left",
         entity_category=EntityCategory.DIAGNOSTIC,
@@ -249,7 +272,7 @@ VACUUM_SENSORS = {
     f"current_{ATTR_DOCK_STATUS}": RoborockSensorDescription(
         key="dock_error_status",
         icon="mdi:garage-open",
-        parent_key=RoborockDevicePropField.STATUS,
+        parent_key="status",
         name="Dock status",
         translation_key="dock_status",
         entity_category=EntityCategory.DIAGNOSTIC,
@@ -260,26 +283,26 @@ VACUUM_WITH_DOCK_SENSORS = {
     **VACUUM_SENSORS,
     f"current_{ATTR_DOCK_WASHING_MODE}": RoborockSensorDescription(
         key="wash_towel_mode",
-        value=lambda value: value.wash_mode.value,
+        value=lambda value, _: value.wash_mode.value,
         icon="mdi:water",
-        parent_key=RoborockDevicePropField.DOCK_SUMMARY,
+        parent_key="dock_summary",
         name="Dock washing mode",
         translation_key="dock_washing_mode",
         entity_category=EntityCategory.DIAGNOSTIC,
     ),
     f"current_{ATTR_DOCK_DUST_COLLECTION_MODE}": RoborockSensorDescription(
         key="dust_collection_mode",
-        value=lambda value: value.mode.value,
-        parent_key=RoborockDevicePropField.DOCK_SUMMARY,
+        value=lambda value, _: value.mode.value,
+        parent_key="dock_summary",
         name="Dock dust collection mode",
         translation_key="dock_dust_collection_mode",
         entity_category=EntityCategory.DIAGNOSTIC,
     ),
     f"current_{ATTR_DOCK_MOP_WASH_MODE}": RoborockSensorDescription(
         key="smart_wash_params",
-        value=lambda value: value.wash_interval,
+        value=lambda value, _: value.wash_interval,
         icon="mdi:water",
-        parent_key=RoborockDevicePropField.DOCK_SUMMARY,
+        parent_key="dock_summary",
         name="Dock mop wash mode interval",
         translation_key="dock_mop_wash_mode_interval",
         entity_category=EntityCategory.DIAGNOSTIC,
@@ -394,7 +417,8 @@ class RoborockSensor(RoborockCoordinatedEntity, SensorEntity):
 
         if native_value is not None:
             if self.entity_description.value:
-                native_value = self.entity_description.value(native_value)
+                device_info = self.coordinator.devices_info.get(self._device_id)
+                native_value = self.entity_description.value(native_value, device_info)
             if self.device_class == SensorDeviceClass.TIMESTAMP and (
                 native_datetime := datetime.fromtimestamp(native_value)
             ):

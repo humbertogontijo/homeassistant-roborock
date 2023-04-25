@@ -295,6 +295,9 @@ class VacuumCameraMap(RoborockEntityBase, Camera):
         map_data.image.data.save(img_byte_arr, format="PNG")
         self._image = img_byte_arr.getvalue()
         self._map_data = map_data
+        devices_info = self.coordinator.devices_info.get(self._device_id)
+        if devices_info is not None:
+            devices_info.current_room = map_data.vacuum_room
 
 
 class CameraStatus(Enum):

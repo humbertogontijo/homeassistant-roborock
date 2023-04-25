@@ -307,7 +307,6 @@ class RoborockVacuum(RoborockCoordinatedEntity, StateVacuumEntity, ABC):
         data[ATTR_MOP_MODE] = self.mop_mode
         data[ATTR_MOP_INTENSITY] = self.mop_intensity
         data[ATTR_ERROR] = self.error
-        data[ATTR_ROOMS] = self.coordinator.room_mapping
         data.update(self.capability_attributes)
 
         return data
@@ -544,17 +543,17 @@ class RoborockVacuum(RoborockCoordinatedEntity, StateVacuumEntity, ABC):
 
     async def async_load_multi_map(self, map_flag: int):
         """Load another map."""
-        maps = self.coordinator.devices_maps.get(self._device_id)
-        map_flags = {
-            map_info.name or str(map_info.mapFlag): map_info.mapFlag
-            for map_info in maps.map_info
-        }
-        if any(map_flag == available_map_flag for name, available_map_flag in map_flags.items()):
+        device_info = self.coordinator.devices_info.get(self._device_id)
+        is_valid_flag = True
+        if device_info.map_mapping:
+            is_valid_flag = device_info.map_mapping.get(map_flag)
+
+        if is_valid_flag:
             await self.send(RoborockCommand.LOAD_MULTI_MAP, [map_flag])
             self.set_invalid_map()
         else:
             raise HomeAssistantError(
-                f"Map flag {map_flag} is invalid. Available map flags for device are {map_flags}"
+                f"Map flag {map_flag} is invalid"
             )
 
     async def async_send_command(
