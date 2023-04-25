@@ -254,6 +254,10 @@ VACUUM_SENSORS = {
         translation_key="dock_status",
         entity_category=EntityCategory.DIAGNOSTIC,
     ),
+}
+
+VACUUM_WITH_DOCK_SENSORS = {
+    **VACUUM_SENSORS,
     f"current_{ATTR_DOCK_WASHING_MODE}": RoborockSensorDescription(
         key="wash_towel_mode",
         value=lambda value: value.wash_mode.value,
@@ -299,7 +303,10 @@ async def async_setup_entry(
         if coordinator.data:
             device_prop = coordinator.data.get(device_id)
             if device_prop:
-                for sensor, description in VACUUM_SENSORS.items():
+                sensors = VACUUM_SENSORS
+                if device_prop.dock_summary:
+                    sensors = VACUUM_WITH_DOCK_SENSORS
+                for sensor, description in sensors.items():
                     parent_key_data = getattr(device_prop, description.parent_key)
                     if not parent_key_data:
                         _LOGGER.debug(

@@ -1,11 +1,15 @@
 from dataclasses import dataclass
 from typing import Optional
 
-from roborock import RoborockDeviceInfo, HomeDataProduct, RoborockDeviceProp
+from roborock import RoborockDeviceInfo, HomeDataProduct, RoborockDeviceProp, RoborockLocalDeviceInfo
 
 
 @dataclass
 class RoborockHassDeviceInfo(RoborockDeviceInfo):
-    product: HomeDataProduct
-    is_map_valid: bool
+    product: Optional[HomeDataProduct] = None
+    is_map_valid: Optional[bool] = False
     props: Optional[RoborockDeviceProp] = None
+
+@dataclass
+class RoborockHassLocalDeviceInfo(RoborockHassDeviceInfo, RoborockLocalDeviceInfo):
+    is_durty: Optional[bool] = False
