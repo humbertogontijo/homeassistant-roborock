@@ -72,7 +72,7 @@ class RoborockDataUpdateCoordinator(
         if device_prop:
             if device_info.props:
                 for f in dataclasses.fields(device_info.props):
-                    setattr(f, f.name, getattr(device_prop, f.name))
+                    setattr(device_info.props, f.name, getattr(device_prop, f.name))
             else:
                 device_info.props = device_prop
 
