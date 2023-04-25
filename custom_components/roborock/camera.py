@@ -283,7 +283,7 @@ class VacuumCameraMap(RoborockEntityBase, Camera):
                     _LOGGER.debug("Map is ok")
                     self._set_map_data(map_data)
                     self._status = CameraStatus.OK
-            except:
+            except Exception:
                 _LOGGER.warning("Unable to parse map data")
                 self._status = CameraStatus.UNABLE_TO_PARSE_MAP
         else:
@@ -297,7 +297,9 @@ class VacuumCameraMap(RoborockEntityBase, Camera):
         self._map_data = map_data
         devices_info = self.coordinator.devices_info.get(self._device_id)
         if devices_info is not None:
+            devices_info.room_mapping = None
             devices_info.current_room = map_data.vacuum_room
+            self.coordinator.schedule_refresh()
 
 
 class CameraStatus(Enum):

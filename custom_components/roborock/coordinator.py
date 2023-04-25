@@ -54,17 +54,19 @@ class RoborockDataUpdateCoordinator(
 
     async def fill_room_mapping(self, device_info: RoborockHassDeviceInfo) -> None:
         """Builds the room mapping - only works for local api."""
-        room_mapping = await self.api.get_room_mapping(device_info.device.duid)
-        if room_mapping:
-            room_iot_name = {room.id: room.name for room in self.rooms}
-            device_info.room_mapping = {rm.segment_id: room_iot_name.get(int(rm.iot_id)) for rm in room_mapping}
+        if device_info.room_mapping is None:
+            room_mapping = await self.api.get_room_mapping(device_info.device.duid)
+            if room_mapping:
+                room_iot_name = {room.id: room.name for room in self.rooms}
+                device_info.room_mapping = {rm.segment_id: room_iot_name.get(int(rm.iot_id)) for rm in room_mapping}
 
     async def fill_device_multi_maps_list(self, device_info: RoborockHassDeviceInfo) -> None:
         """Get multi maps list."""
-        multi_maps_list = await self.api.get_multi_maps_list(device_info.device.duid)
-        if multi_maps_list:
-            map_mapping = {map_info.mapFlag: map_info.name for map_info in multi_maps_list.map_info}
-            device_info.map_mapping = map_mapping
+        if device_info.map_mapping is None:
+            multi_maps_list = await self.api.get_multi_maps_list(device_info.device.duid)
+            if multi_maps_list:
+                map_mapping = {map_info.mapFlag: map_info.name for map_info in multi_maps_list.map_info}
+                device_info.map_mapping = map_mapping
 
     async def fill_device_prop(self, device_info: RoborockHassDeviceInfo) -> None:
         """Get device properties."""
@@ -76,22 +78,20 @@ class RoborockDataUpdateCoordinator(
             else:
                 device_info.props = device_prop
 
-    async def async_config_entry_first_refresh(self) -> None:
-        await asyncio.gather(*([
-                                   self.fill_device_multi_maps_list(device_info)
-                                   for device_info in self.devices_info.values()
-                               ] + [
-                                   self.fill_room_mapping(device_info)
-                                   for device_info in self.devices_info.values()
-                               ])
-                             )
-        return await super().async_config_entry_first_refresh()
+    async def fill_device_info(self, device_info: RoborockHassDeviceInfo):
+        await asyncio.gather(
+            *([
+                self.fill_device_prop(device_info),
+                self.fill_device_multi_maps_list(device_info),
+                self.fill_room_mapping(device_info)
+            ])
+        )
 
     async def _async_update_data(self) -> dict[str, DeviceProp]:
         """Update data via library."""
         try:
             await asyncio.gather(*[
-                self.fill_device_prop(device_info)
+                self.fill_device_info(device_info)
                 for device_info in self.devices_info.values()
             ])
         except RoborockException as ex:
