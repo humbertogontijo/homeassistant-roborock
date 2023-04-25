@@ -165,7 +165,7 @@ VACUUM_SENSORS = {
     f"current_{ATTR_SELECTED_MAP}": RoborockSensorDescription(
         key="map_status",
         value=lambda value, device_info:
-        slugify(device_info.map_mapping.get((value - 3) / 2))
+        slugify(device_info.map_mapping.get((value - 3) // 4))
         if device_info and device_info.map_mapping else None,
         icon="mdi:floor-plan",
         parent_key="status",
