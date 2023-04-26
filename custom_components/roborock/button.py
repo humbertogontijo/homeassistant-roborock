@@ -100,4 +100,4 @@ class RoborockButtonEntity(RoborockCoordinatedEntity, ButtonEntity):
         self.entity_description = entity_description
 
     async def async_press(self) -> None:
-        await self.send(RoborockCommand.RESET_CONSUMABLE, self.entity_description.param)
+        await self.send(self.entity_description.command, self.entity_description.param)
