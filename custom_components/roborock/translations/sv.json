@@ -49,12 +49,14 @@
       "camera": {
         "description": "Kartalternativ (Camera)",
         "data": {
-          "map_transformation.scale": "Kartskala",
-          "map_transformation.rotate": "Rotera kartan",
-          "map_transformation.trim.left": "Trimma vänster kant",
-          "map_transformation.trim.right": "Trimma höger kant",
-          "map_transformation.trim.top": "Trimma övere kant",
-          "map_transformation.trim.bottom": "Trimma undre kant"
+          "map_transformation:scale": "Kartskala",
+          "map_transformation:rotate": "Rotera kartan",
+          "map_transformation:trim:left": "Trimma vänster kant",
+          "map_transformation:trim:right": "Trimma höger kant",
+          "map_transformation:trim:top": "Trimma övere kant",
+          "map_transformation:trim:bottom": "Trimma undre kant",
+          "include_ignored_obstacles": "Visa ignorerade hinder",
+          "include_nogo": "Visa no go-zoner"
         }
       },
       "vacuum": {

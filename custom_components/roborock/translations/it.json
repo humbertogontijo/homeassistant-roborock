@@ -49,12 +49,12 @@
       "camera": {
         "description": "Opzioni camera",
         "data": {
-          "map_transformation.scale": "Scala della mappa",
-          "map_transformation.rotate": "Rotazione della mappa",
-          "map_transformation.trim.left": "Ritaglio mappa da sinistra",
-          "map_transformation.trim.right": "Ritaglio mappa da destra",
-          "map_transformation.trim.top": "Ritaglio mappa dall'alto",
-          "map_transformation.trim.bottom": "Ritaglio mappa dal basso",
+          "map_transformation:scale": "Scala della mappa",
+          "map_transformation:rotate": "Rotazione della mappa",
+          "map_transformation:trim:left": "Ritaglio mappa da sinistra",
+          "map_transformation:trim:right": "Ritaglio mappa da destra",
+          "map_transformation:trim:top": "Ritaglio mappa dall'alto",
+          "map_transformation:trim:bottom": "Ritaglio mappa dal basso",
           "include_ignored_obstacles": "Mostra ostacoli ignorati",
           "include_nogo": "Mostra zone vietate"
         }
@@ -117,7 +117,8 @@
           "robot_on_carpet": "Filtro intasato o bagnato. Pulire, asciugare e riprovare.",
           "filter_blocked": "Zona vietata o muro invisibile rilevato. Spostare il robot in un altra area.",
           "invisible_wall_detected": "Impossibile attraversare il tappeto. Spostare il robot oltre il tappeto e riprovare.",
-          "cannot_cross_carpet": "Errore interno. Effettuare il reset del robot."
+          "cannot_cross_carpet": "Errore interno. Effettuare il reset del robot.",
+          "internal_error": "Errore interno. Ripristina il robot."
         }
       },
       "dnd_start": {

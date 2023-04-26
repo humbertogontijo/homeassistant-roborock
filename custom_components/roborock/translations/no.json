@@ -49,12 +49,14 @@
       "camera": {
         "description": "Camera Options",
         "data": {
-          "map_transformation.scale": "Map scale",
-          "map_transformation.rotate": "Map rotation",
-          "map_transformation.trim.left": "Map left trim",
-          "map_transformation.trim.right": "Map right trim",
-          "map_transformation.trim.top": "Map top trim",
-          "map_transformation.trim.bottom": "Map bottom trim"
+          "map_transformation:scale": "Map scale",
+          "map_transformation:rotate": "Map rotation",
+          "map_transformation:trim:left": "Map left trim",
+          "map_transformation:trim:right": "Map right trim",
+          "map_transformation:trim:top": "Map top trim",
+          "map_transformation:trim:bottom": "Map bottom trim",
+          "include_ignored_obstacles": "Vis ignorerte hindringer",
+          "include_nogo": "Vis forbudssoner"
         }
       },
       "vacuum": {
@@ -115,7 +117,8 @@
           "robot_on_carpet": "Filter blocked or wet. Clean, dry, and retry.",
           "filter_blocked": "No-go zone or Invisible Wall detected. Move robot from this area.",
           "invisible_wall_detected": "Cannot cross carpet. Move robot across carpet and restart.",
-          "cannot_cross_carpet": "Internal error. Reset the robot."
+          "cannot_cross_carpet": "Internal error. Reset the robot.",
+          "internal_error": "Intern feil. Tilbakestill roboten."
         }
       },
       "dnd_start": {

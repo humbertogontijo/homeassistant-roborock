@@ -49,12 +49,14 @@
       "camera": {
         "description": "Параметры камеры",
         "data": {
-          "map_transformation.scale": "Масштаб карты",
-          "map_transformation.rotate": "Вращение карты",
-          "map_transformation.trim.left": "Выравнивание карты слева",
-          "map_transformation.trim.right": "Выравнивание карты справа",
-          "map_transformation.trim.top": "Выравнивание карты сверху",
-          "map_transformation.trim.bottom": "Выравнивание карты снизу"
+          "map_transformation:scale": "Масштаб карты",
+          "map_transformation:rotate": "Вращение карты",
+          "map_transformation:trim:left": "Выравнивание карты слева",
+          "map_transformation:trim:right": "Выравнивание карты справа",
+          "map_transformation:trim:top": "Выравнивание карты сверху",
+          "map_transformation:trim:bottom": "Выравнивание карты снизу",
+          "include_ignored_obstacles": "Показать игнорируемые препятствия",
+          "include_nogo": "Показать запретные зоны"
         }
       },
       "vacuum": {
@@ -115,7 +117,8 @@
           "robot_on_carpet": "Фильтр забит или намок. Очистите, высушите и повторите попытку.",
           "filter_blocked": "Обнаружена запретная зона или невидимая стена. Переместите робота из этой области.",
           "invisible_wall_detected": "Не удалось пересечь ковер. Переместите робота с ковра и перезапустите.",
-          "cannot_cross_carpet": "Внутренняя ошибка. Сбросьте робота."
+          "cannot_cross_carpet": "Внутренняя ошибка. Сбросьте робота.",
+          "internal_error": "Внутренняя ошибка. Переустановите робота."
         }
       },
       "dnd_start": {

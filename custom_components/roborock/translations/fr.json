@@ -49,12 +49,14 @@
       "camera": {
         "description": "Options de la caméra",
         "data": {
-          "map_transformation.scale": "Echelle de la carte",
-          "map_transformation.rotate": "Rotation de la carte",
-          "map_transformation.trim.left": "Rogner la carte à gauche",
-          "map_transformation.trim.right": "Rogner la carte à droite",
-          "map_transformation.trim.top": "Rogner la carte en haut",
-          "map_transformation.trim.bottom": "Rogner la carte en bas"
+          "map_transformation:scale": "Echelle de la carte",
+          "map_transformation:rotate": "Rotation de la carte",
+          "map_transformation:trim:left": "Rogner la carte à gauche",
+          "map_transformation:trim:right": "Rogner la carte à droite",
+          "map_transformation:trim:top": "Rogner la carte en haut",
+          "map_transformation:trim:bottom": "Rogner la carte en bas",
+          "include_ignored_obstacles": "Afficher les obstacles ignorés",
+          "include_nogo": "Afficher les zones interdites"
         }
       },
       "vacuum": {
@@ -115,7 +117,8 @@
           "robot_on_carpet": "Filtre bloqué ou humide. Nettoyez, séchez et réessayez.",
           "filter_blocked": "Zone interdite ou mur invisible détecté. Éloignez le robot de cette zone.",
           "invisible_wall_detected": "Impossible de traverser le tapis. Faites traverser le robot et redémarrez.",
-          "cannot_cross_carpet": "Erreur interne. Réinitialisez le robot."
+          "cannot_cross_carpet": "Erreur interne. Réinitialisez le robot.",
+          "internal_error": "Erreur interne. Réinitialisez le robot."
         }
       },
       "dnd_start": {
