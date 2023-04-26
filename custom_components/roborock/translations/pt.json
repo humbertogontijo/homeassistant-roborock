@@ -49,12 +49,14 @@
       "camera": {
         "description": "Opções de camera",
         "data": {
-          "map_transformation.scale": "Escala do mapa",
-          "map_transformation.rotate": "Rotação do mapa",
-          "map_transformation.trim.left": "Guarnição esquerda do mapa",
-          "map_transformation.trim.right": "Guarnição direita do mapa",
-          "map_transformation.trim.top": "Guarnição superior do mapa",
-          "map_transformation.trim.bottom": "Guarnição inferior do mapa"
+          "map_transformation:scale": "Escala do mapa",
+          "map_transformation:rotate": "Rotação do mapa",
+          "map_transformation:trim:left": "Guarnição esquerda do mapa",
+          "map_transformation:trim:right": "Guarnição direita do mapa",
+          "map_transformation:trim:top": "Guarnição superior do mapa",
+          "map_transformation:trim:bottom": "Guarnição inferior do mapa",
+          "include_ignored_obstacles": "Mostrar obstáculos ignorados",
+          "include_nogo": "Mostrar zonas proibidas"
         }
       },
       "vacuum": {
@@ -72,6 +74,20 @@
     }
   },
   "entity": {
+    "button": {
+      "reset_sensor_consumable": {
+        "name": "Reset sensor consumable"
+      },
+      "reset_filter_consumable": {
+        "name": "Reset filter consumable"
+      },
+      "reset_side_brush_consumable": {
+        "name": "Reset side brush consumable"
+      },
+      "reset_main_brush_consumable": {
+        "name": "Reset main brush consumable"
+      }
+    },
     "sensor": {
       "current_error": {
         "name": "Erro atual",
@@ -164,6 +180,12 @@
       },
       "dock_mop_wash_mode_interval": {
         "name": "Intervalo de lavagem do esfregão na dock"
+      },
+      "current_map_selected": {
+        "name": "Mapa selecionado atual"
+      },
+      "current_room": {
+        "name": "Quarto atual"
       }
     },
     "binary_sensor": {

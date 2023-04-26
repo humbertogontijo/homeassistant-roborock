@@ -49,12 +49,12 @@
       "camera": {
         "description": "Kamera Indstillinger",
         "data": {
-          "map_transformation.scale": "Kort skala",
-          "map_transformation.rotate": "Kort rotation",
-          "map_transformation.trim.left": "Kort venstre trim",
-          "map_transformation.trim.right": "Kort højre trim",
-          "map_transformation.trim.top": "Kort top trim",
-          "map_transformation.trim.bottom": "Kort bund trim",
+          "map_transformation:scale": "Kort skala",
+          "map_transformation:rotate": "Kort rotation",
+          "map_transformation:trim:left": "Kort venstre trim",
+          "map_transformation:trim:right": "Kort højre trim",
+          "map_transformation:trim:top": "Kort top trim",
+          "map_transformation:trim:bottom": "Kort bund trim",
           "include_ignored_obstacles": "Vis ignorerede forhindringer",
           "include_nogo": "Vis no-go zoner"
         }
@@ -74,6 +74,20 @@
     }
   },
   "entity": {
+    "button": {
+      "reset_sensor_consumable": {
+        "name": "Reset sensor consumable"
+      },
+      "reset_filter_consumable": {
+        "name": "Reset filter consumable"
+      },
+      "reset_side_brush_consumable": {
+        "name": "Reset side brush consumable"
+      },
+      "reset_main_brush_consumable": {
+        "name": "Reset main brush consumable"
+      }
+    },
     "sensor": {
       "current_error": {
         "name": "Nuværende fejl",
@@ -166,6 +180,12 @@
       },
       "dock_mop_wash_mode_interval": {
         "name": "Dock moppe vaske interval indstilling"
+      },
+      "current_map_selected": {
+        "name": "Current map selected"
+      },
+      "current_room": {
+        "name": "Current room"
       }
     },
     "binary_sensor": {

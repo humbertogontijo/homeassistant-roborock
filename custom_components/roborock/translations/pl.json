@@ -49,12 +49,14 @@
       "camera": {
         "description": "Opcje kamery",
         "data": {
-          "map_transformation.scale": "Skala mapy",
-          "map_transformation.rotate": "Obrót mapy",
-          "map_transformation.trim.left": "Przycięcie mapy z lewej",
-          "map_transformation.trim.right": "Przycięcie mapy z prawej",
-          "map_transformation.trim.top": "Przycięcie mapy z góry",
-          "map_transformation.trim.bottom": "Przycięcie mapy od dołu"
+          "map_transformation:scale": "Skala mapy",
+          "map_transformation:rotate": "Obrót mapy",
+          "map_transformation:trim:left": "Przycięcie mapy z lewej",
+          "map_transformation:trim:right": "Przycięcie mapy z prawej",
+          "map_transformation:trim:top": "Przycięcie mapy z góry",
+          "map_transformation:trim:bottom": "Przycięcie mapy od dołu",
+          "include_ignored_obstacles": "Pokaż zignorowane przeszkody",
+          "include_nogo": "Pokaż strefy zakazu ruchu"
         }
       },
       "vacuum": {
@@ -72,6 +74,20 @@
     }
   },
   "entity": {
+    "button": {
+      "reset_sensor_consumable": {
+        "name": "Reset sensor consumable"
+      },
+      "reset_filter_consumable": {
+        "name": "Reset filter consumable"
+      },
+      "reset_side_brush_consumable": {
+        "name": "Reset side brush consumable"
+      },
+      "reset_main_brush_consumable": {
+        "name": "Reset main brush consumable"
+      }
+    },
     "sensor": {
       "current_error": {
         "name": "Current error",
@@ -101,7 +117,8 @@
           "robot_on_carpet": "Filtr zablokowany lub mokry. Wyczyść, wysusz i spróbuj ponownie.",
           "filter_blocked": "Wykryto strefę No-go lub niewidzialną ścianę. Przenieś robota z tego obszaru.",
           "invisible_wall_detected": "Nie można przejść przez dywan. Przenieś robota przez dywan i uruchom ponownie.",
-          "cannot_cross_carpet": "Błąd wewnętrzny. Zresetuj robota."
+          "cannot_cross_carpet": "Błąd wewnętrzny. Zresetuj robota.",
+          "internal_error": "Błąd wewnętrzny. Zresetuj robota."
         }
       },
       "dnd_start": {
@@ -163,6 +180,12 @@
       },
       "dock_mop_wash_mode_interval": {
         "name": "Dock mop wash mode interval"
+      },
+      "current_map_selected": {
+        "name": "Current map selected"
+      },
+      "current_room": {
+        "name": "Current room"
       }
     },
     "binary_sensor": {

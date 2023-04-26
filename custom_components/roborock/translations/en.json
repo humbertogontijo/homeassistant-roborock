@@ -49,12 +49,12 @@
       "camera": {
         "description": "Camera Options",
         "data": {
-          "map_transformation.scale": "Map scale",
-          "map_transformation.rotate": "Map rotation",
-          "map_transformation.trim.left": "Map left trim",
-          "map_transformation.trim.right": "Map right trim",
-          "map_transformation.trim.top": "Map top trim",
-          "map_transformation.trim.bottom": "Map bottom trim",
+          "map_transformation:scale": "Map scale",
+          "map_transformation:rotate": "Map rotation",
+          "map_transformation:trim:left": "Map left trim",
+          "map_transformation:trim:right": "Map right trim",
+          "map_transformation:trim:top": "Map top trim",
+          "map_transformation:trim:bottom": "Map bottom trim",
           "include_ignored_obstacles": "Show ignored obstacles",
           "include_nogo": "Show no-go zones"
         }
@@ -74,6 +74,20 @@
     }
   },
   "entity": {
+    "button": {
+      "reset_sensor_consumable": {
+        "name": "Reset sensor consumable"
+      },
+      "reset_filter_consumable": {
+        "name": "Reset filter consumable"
+      },
+      "reset_side_brush_consumable": {
+        "name": "Reset side brush consumable"
+      },
+      "reset_main_brush_consumable": {
+        "name": "Reset main brush consumable"
+      }
+    },
     "sensor": {
       "current_error": {
         "name": "Current error",
@@ -166,6 +180,12 @@
       },
       "dock_mop_wash_mode_interval": {
         "name": "Dock mop wash mode interval"
+      },
+      "current_map_selected": {
+        "name": "Current map selected"
+      },
+      "current_room": {
+        "name": "Current room"
       }
     },
     "binary_sensor": {

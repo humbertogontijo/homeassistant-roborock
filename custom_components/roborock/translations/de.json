@@ -49,12 +49,14 @@
       "camera": {
         "description": "Kamera Optionen",
         "data": {
-          "map_transformation.scale": "Kartengröße",
-          "map_transformation.rotate": "Kartendrehung",
-          "map_transformation.trim.left": "Karte beschneiden links",
-          "map_transformation.trim.right": "Karte beschneiden rechts",
-          "map_transformation.trim.top": "Karte beschneiden oben",
-          "map_transformation.trim.bottom": "Karte beschneiden unten"
+          "map_transformation:scale": "Kartengröße",
+          "map_transformation:rotate": "Kartendrehung",
+          "map_transformation:trim:left": "Karte beschneiden links",
+          "map_transformation:trim:right": "Karte beschneiden rechts",
+          "map_transformation:trim:top": "Karte beschneiden oben",
+          "map_transformation:trim:bottom": "Karte beschneiden unten",
+          "include_ignored_obstacles": "Ignorierte Hindernisse anzeigen",
+          "include_nogo": "No-Go-Zonen anzeigen"
         }
       },
       "vacuum": {
@@ -72,6 +74,20 @@
     }
   },
   "entity": {
+    "button": {
+      "reset_sensor_consumable": {
+        "name": "Reset sensor consumable"
+      },
+      "reset_filter_consumable": {
+        "name": "Reset filter consumable"
+      },
+      "reset_side_brush_consumable": {
+        "name": "Reset side brush consumable"
+      },
+      "reset_main_brush_consumable": {
+        "name": "Reset main brush consumable"
+      }
+    },
     "sensor": {
       "current_error": {
         "name": "Current error",
@@ -101,7 +117,8 @@
           "robot_on_carpet": "Filter verstopft oder nass. Reinigen, trocknen und erneut versuchen.",
           "filter_blocked": "No-Go-Zone oder unsichtbare Wand entdeckt. Roboter aus diesem Bereich entfernen.",
           "invisible_wall_detected": "Kann Teppich nicht überqueren. Bewege den Roboter über den Teppich und starte ihn neu.",
-          "cannot_cross_carpet": "Interner Fehler. Reset des Roboters."
+          "cannot_cross_carpet": "Interner Fehler. Reset des Roboters.",
+          "internal_error": "Interner Fehler. Setzen Sie den Roboter zurück."
         }
       },
       "dnd_start": {
@@ -163,6 +180,12 @@
       },
       "dock_mop_wash_mode_interval": {
         "name": "Dock mop wash mode interval"
+      },
+      "current_map_selected": {
+        "name": "Current map selected"
+      },
+      "current_room": {
+        "name": "Current room"
       }
     },
     "binary_sensor": {
