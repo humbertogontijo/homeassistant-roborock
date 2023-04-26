@@ -51,6 +51,7 @@ class RoborockDataUpdateCoordinator(
     async def release(self) -> None:
         """Disconnect from API."""
         await self.api.async_disconnect()
+        await self.map_api.async_disconnect()
 
     async def fill_room_mapping(self, device_info: RoborockHassDeviceInfo) -> None:
         """Builds the room mapping - only works for local api."""
