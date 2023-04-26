@@ -204,21 +204,21 @@
     },
     "select": {
       "mop_mode": {
-        "name": "Mop mode",
+        "name": "Modalità di lavaggio",
         "state": {
           "standard": "Standard",
-          "deep": "Deep",
-          "deep_plus": "Deep+",
-          "custom": "Custom"
+          "deep": "Profondo",
+          "deep_plus": "Profondo+",
+          "custom": "Personalizzata"
         }
       },
       "mop_intensity": {
-        "name": "Mop intensity",
+        "name": "Intensità di lavaggio",
         "state": {
           "off": "Off",
-          "mild": "Mild",
-          "moderate": "Moderate",
-          "intense": "Intense",
+          "mild": "Debole",
+          "moderate": "Moderata",
+          "intense": "Forte",
           "custom": "Custom"
         }
       }
