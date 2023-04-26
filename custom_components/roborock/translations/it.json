@@ -98,12 +98,13 @@
           "vertical_bumper_pressed": "Ammortizzatore verticale schiacciato. Spostare il robot e riprovare.",
           "dock_locator_error": "Errore individuazione base. Pulire e riprovare.",
           "return_to_dock_fail": "Impossibile ritornare alla base. Sgomberare il raggio di manovra intorno alla base e riprovare.",
-          "nogo_zone_detected": "Sistema VibraRise inceppato. Controllare ostruzioni.",
-          "vibrarise_jammed": "Il robot si trova su un tappeto. Spostare il robot sul pavimento e riprovare.",
-          "robot_on_carpet": "Filtro intasato o bagnato. Pulire, asciugare e riprovare.",
-          "filter_blocked": "Zona vietata o muro invisibile rilevato. Spostare il robot in un altra area.",
-          "invisible_wall_detected": "Impossibile attraversare il tappeto. Spostare il robot oltre il tappeto e riprovare.",
-          "cannot_cross_carpet": "Errore interno. Effettuare il reset del robot."
+          "nogo_zone_detected": "Rilevata zona viatata o muro invisibile. Spostare il robot",
+          "vibrarise_jammed": "Sistema VibraRise inceppato. Controllare ostruzioni.",
+          "robot_on_carpet": "Il robot si trova su un tappeto. Spostare il robot sul pavimento e riprovare.",
+          "filter_blocked": "Filtro intasato o bagnato. Pulire, asciugare e riprovare.",
+          "invisible_wall_detected": "Zona vietata o muro invisibile rilevato. Spostare il robot in un altra area.",
+          "cannot_cross_carpet": "Impossibile attraversare il tappeto. Spostare il robot oltre il tappeto e riprovare.",
+          "internal_error": "Errore interno. Effettuare il reset del robot."
         }
       },
       "dnd_start": {
