@@ -180,6 +180,12 @@
       },
       "dock_mop_wash_mode_interval": {
         "name": "Intervalo de lavagem do esfregão na dock"
+      },
+      "current_map_selected": {
+        "name": "Mapa selecionado atual"
+      },
+      "current_room": {
+        "name": "Quarto atual"
       }
     },
     "binary_sensor": {
