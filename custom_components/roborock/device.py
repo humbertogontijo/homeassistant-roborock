@@ -9,9 +9,9 @@ from homeassistant.helpers.update_coordinator import CoordinatorEntity
 from roborock.containers import Status
 from roborock.typing import RoborockCommand
 
-from .roborock_typing import RoborockHassDeviceInfo
 from .const import DOMAIN
 from .coordinator import RoborockDataUpdateCoordinator
+from .roborock_typing import RoborockHassDeviceInfo
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -34,9 +34,9 @@ class RoborockEntityBase(Entity):
     _attr_has_entity_name = True
 
     def __init__(
-            self,
-            device_info: RoborockHassDeviceInfo,
-            unique_id: str | None = None,
+        self,
+        device_info: RoborockHassDeviceInfo,
+        unique_id: str | None = None,
     ) -> None:
         """Initialize the coordinated Roborock Device."""
         self._device_name = device_info.device.name
@@ -83,10 +83,10 @@ class RoborockCoordinatedEntity(RoborockEntityBase, CoordinatorEntity[RoborockDa
     _attr_has_entity_name = True
 
     def __init__(
-            self,
-            device_info: RoborockHassDeviceInfo,
-            coordinator: RoborockDataUpdateCoordinator,
-            unique_id: str | None = None,
+        self,
+        device_info: RoborockHassDeviceInfo,
+        coordinator: RoborockDataUpdateCoordinator,
+        unique_id: str | None = None,
     ) -> None:
         """Initialize the coordinated Roborock Device."""
         RoborockEntityBase.__init__(self, device_info, unique_id)
@@ -99,6 +99,6 @@ class RoborockCoordinatedEntity(RoborockEntityBase, CoordinatorEntity[RoborockDa
 
     async def send(self, command: RoborockCommand, params=None):
         """Send a command to a vacuum cleaner."""
-        response = await self.coordinator.api.send_command(self._device_id, command, params)
+        response = await self.coordinator.api.send_command(command, params)
         self.coordinator.schedule_refresh()
         return response

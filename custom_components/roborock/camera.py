@@ -13,6 +13,7 @@ from homeassistant.util import slugify
 from roborock import RoborockStateCode
 from roborock.exceptions import RoborockTimeout, RoborockBackoffException
 
+from . import DomainData
 from .common.image_handler import ImageHandlerRoborock
 from .common.map_data import MapData
 from .common.map_data_parser import MapDataParserRoborock
@@ -50,9 +51,6 @@ async def async_setup_entry(
     async_add_entities: AddEntitiesCallback,
 ) -> None:
     """Setup Roborock camera."""
-    coordinator: RoborockDataUpdateCoordinator = hass.data[DOMAIN][
-        config_entry.entry_id
-    ]
     camera_options = config_entry.options.get(CAMERA)
     image_config = None
     if camera_options:
@@ -70,12 +68,15 @@ async def async_setup_entry(
         image_config[CONF_INCLUDE_IGNORED_OBSTACLES] = data.get(
             CONF_INCLUDE_IGNORED_OBSTACLES
         )
-    entities = []
-    for device_id, device_info in coordinator.devices_info.items():
-        unique_id = slugify(device_id)
-        entities.append(
-            VacuumCameraMap(unique_id, image_config, device_info, coordinator)
-        )
+    domain_data: DomainData = hass.data[DOMAIN][
+        config_entry.entry_id
+    ]
+
+    entities: list[VacuumCameraMap] = []
+    for coordinator in domain_data.get("coordinators"):
+        device_info = coordinator.data
+        unique_id = slugify(device_info.device.duid)
+        entities.append(VacuumCameraMap(unique_id, image_config, device_info, coordinator))
     async_add_entities(entities, True)
 
 
@@ -216,7 +217,7 @@ class VacuumCameraMap(RoborockEntityBase, Camera):
     async def async_map(self):
         """Return map token."""
         try:
-            map_v1 = await self.coordinator.map_api.get_map_v1(self._device_id)
+            map_v1 = await self.coordinator.map_api.get_map_v1()
             if map_v1 is None:
                 self.set_invalid_map()
             else:
@@ -295,10 +296,10 @@ class VacuumCameraMap(RoborockEntityBase, Camera):
         map_data.image.data.save(img_byte_arr, format="PNG")
         self._image = img_byte_arr.getvalue()
         self._map_data = map_data
-        devices_info = self.coordinator.devices_info.get(self._device_id)
-        if devices_info is not None:
-            devices_info.room_mapping = None
-            devices_info.current_room = map_data.vacuum_room
+        device_info = self.coordinator.device_info
+        if device_info is not None:
+            device_info.room_mapping = None
+            device_info.current_room = map_data.vacuum_room
             self.coordinator.schedule_refresh()
 
 

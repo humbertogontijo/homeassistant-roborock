@@ -1,10 +1,11 @@
 """Constants for Roborock."""
 from homeassistant.components.binary_sensor import DOMAIN as BINARY_SENSOR_DOMAIN
+from homeassistant.components.button import DOMAIN as BUTTON_DOMAIN
 from homeassistant.components.camera import DOMAIN as CAMERA_DOMAIN
+from homeassistant.components.select import DOMAIN as SELECT_DOMAIN
 from homeassistant.components.sensor import DOMAIN as SENSOR_DOMAIN
 from homeassistant.components.vacuum import DOMAIN as VACUUM_DOMAIN
-from homeassistant.components.select import DOMAIN as SELECT_DOMAIN
-from homeassistant.components.button import DOMAIN as BUTTON_DOMAIN
+
 DOMAIN = "roborock"
 CONF_ENTRY_USERNAME = "username"
 CONF_ENTRY_CODE = "code"
@@ -339,8 +340,3 @@ ATTR_Y2 = "y2"
 ATTR_Y3 = "y3"
 
 MM = 50
-# Total time in seconds consumables have before Roborock recommends replacing
-MAIN_BRUSH_REPLACE_TIME = 1080000
-SIDE_BRUSH_REPLACE_TIME = 720000
-FILTER_REPLACE_TIME = 540000
-SENSOR_DIRTY_REPLACE_TIME = 108000

@@ -18,14 +18,10 @@ from homeassistant.core import HomeAssistant, callback
 from homeassistant.helpers.entity import EntityCategory
 from homeassistant.helpers.entity_platform import AddEntitiesCallback
 from homeassistant.util import dt as dt_util, slugify
+from roborock import DeviceProp
 
-from .const import (
-    DOMAIN,
-    FILTER_REPLACE_TIME,
-    MAIN_BRUSH_REPLACE_TIME,
-    SENSOR_DIRTY_REPLACE_TIME,
-    SIDE_BRUSH_REPLACE_TIME,
-)
+from . import DomainData
+from .const import DOMAIN
 from .coordinator import RoborockDataUpdateCoordinator
 from .device import RoborockCoordinatedEntity, parse_datetime_time
 from .roborock_typing import RoborockHassDeviceInfo
@@ -228,7 +224,6 @@ VACUUM_SENSORS = {
     f"consumable_{ATTR_CONSUMABLE_STATUS_MAIN_BRUSH_LEFT}": RoborockSensorDescription(
         native_unit_of_measurement=UnitOfTime.SECONDS,
         key="main_brush_work_time",
-        value=lambda value, _: MAIN_BRUSH_REPLACE_TIME - value,
         icon="mdi:brush",
         device_class=SensorDeviceClass.DURATION,
         parent_key="consumable",
@@ -239,7 +234,6 @@ VACUUM_SENSORS = {
     f"consumable_{ATTR_CONSUMABLE_STATUS_SIDE_BRUSH_LEFT}": RoborockSensorDescription(
         native_unit_of_measurement=UnitOfTime.SECONDS,
         key="side_brush_work_time",
-        value=lambda value, _: SIDE_BRUSH_REPLACE_TIME - value,
         icon="mdi:brush",
         device_class=SensorDeviceClass.DURATION,
         parent_key="consumable",
@@ -250,7 +244,6 @@ VACUUM_SENSORS = {
     f"consumable_{ATTR_CONSUMABLE_STATUS_FILTER_LEFT}": RoborockSensorDescription(
         native_unit_of_measurement=UnitOfTime.SECONDS,
         key="filter_work_time",
-        value=lambda value, _: FILTER_REPLACE_TIME - value,
         icon="mdi:air-filter",
         device_class=SensorDeviceClass.DURATION,
         parent_key="consumable",
@@ -261,7 +254,6 @@ VACUUM_SENSORS = {
     f"consumable_{ATTR_CONSUMABLE_STATUS_SENSOR_DIRTY_LEFT}": RoborockSensorDescription(
         native_unit_of_measurement=UnitOfTime.SECONDS,
         key="sensor_dirty_time",
-        value=lambda value, _: SENSOR_DIRTY_REPLACE_TIME - value,
         icon="mdi:eye-outline",
         device_class=SensorDeviceClass.DURATION,
         parent_key="consumable",
@@ -316,22 +308,23 @@ async def async_setup_entry(
     async_add_entities: AddEntitiesCallback,
 ) -> None:
     """Set up the Roborock vacuum sensors."""
-    entities = []
-    coordinator: RoborockDataUpdateCoordinator = hass.data[DOMAIN][
+    domain_data: DomainData = hass.data[DOMAIN][
         config_entry.entry_id
     ]
 
-    for device_id, device_info in coordinator.devices_info.items():
-        unique_id = slugify(device_id)
-        if coordinator.data:
-            device_prop = coordinator.data.get(device_id)
+    entities: list[RoborockSensor] = []
+    for coordinator in domain_data.get("coordinators"):
+        device_info = coordinator.data
+        unique_id = slugify(device_info.device.duid)
+        if device_info:
+            device_prop = device_info.props
             if device_prop:
                 sensors = VACUUM_SENSORS
                 if device_prop.dock_summary:
                     sensors = VACUUM_WITH_DOCK_SENSORS
                 for sensor, description in sensors.items():
                     parent_key_data = getattr(device_prop, description.parent_key)
-                    if not parent_key_data:
+                    if parent_key_data is None:
                         _LOGGER.debug(
                             "It seems the %s does not support the %s as the initial value is None",
                             device_info.product.model,
@@ -370,11 +363,11 @@ class RoborockSensor(RoborockCoordinatedEntity, SensorEntity):
         self.entity_description = description
         self._attr_native_value = self._determine_native_value()
         self._attr_extra_state_attributes = self._extract_attributes(
-            coordinator.data.get(self._device_id)
+            coordinator.data.props
         )
 
     @callback
-    def _extract_attributes(self, data):
+    def _extract_attributes(self, data: DeviceProp):
         """Return state attributes with valid values."""
         if self.entity_description.parent_key:
             data = getattr(data, self.entity_description.parent_key)
@@ -393,14 +386,14 @@ class RoborockSensor(RoborockCoordinatedEntity, SensorEntity):
         # Sometimes (quite rarely) the device returns None as the sensor value so we
         # check that the value: before updating the state.
         if native_value is not None:
-            data = self.coordinator.data.get(self._device_id)
+            data = self.coordinator.data.props
             self._attr_native_value = native_value
             self._attr_extra_state_attributes = self._extract_attributes(data)
             super()._handle_coordinator_update()
 
     def _determine_native_value(self):
         """Determine native value."""
-        data = self.coordinator.data.get(self._device_id)
+        data = self.coordinator.data.props
         if data is None:
             return
         if self.entity_description.parent_key:
@@ -417,7 +410,7 @@ class RoborockSensor(RoborockCoordinatedEntity, SensorEntity):
 
         if native_value is not None:
             if self.entity_description.value:
-                device_info = self.coordinator.devices_info.get(self._device_id)
+                device_info = self.coordinator.data
                 native_value = self.entity_description.value(native_value, device_info)
             if self.device_class == SensorDeviceClass.TIMESTAMP and (
                 native_datetime := datetime.fromtimestamp(native_value)

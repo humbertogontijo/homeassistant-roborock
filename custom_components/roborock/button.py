@@ -1,18 +1,23 @@
+from __future__ import annotations
+
 from dataclasses import dataclass
-from .coordinator import RoborockDataUpdateCoordinator
-from .roborock_typing import RoborockHassDeviceInfo
-from homeassistant.config_entries import ConfigEntry
-from homeassistant.core import HomeAssistant
-from homeassistant.helpers.entity_platform import AddEntitiesCallback
-from homeassistant.util import slugify
-from .device import RoborockCoordinatedEntity
+
 from homeassistant.components.button import (
     ButtonDeviceClass,
     ButtonEntity,
     ButtonEntityDescription,
 )
+from homeassistant.config_entries import ConfigEntry
+from homeassistant.core import HomeAssistant
+from homeassistant.helpers.entity_platform import AddEntitiesCallback
+from homeassistant.util import slugify
 from roborock.typing import RoborockCommand
+
+from . import DomainData
 from .const import DOMAIN
+from .coordinator import RoborockDataUpdateCoordinator
+from .device import RoborockCoordinatedEntity
+from .roborock_typing import RoborockHassDeviceInfo
 
 
 @dataclass
@@ -70,20 +75,23 @@ async def async_setup_entry(
     async_add_entities: AddEntitiesCallback,
 ) -> None:
     """Set up Roborock button platform."""
-
-    coordinator: RoborockDataUpdateCoordinator = hass.data[DOMAIN][
+    domain_data: DomainData = hass.data[DOMAIN][
         config_entry.entry_id
     ]
-    async_add_entities(
-        RoborockButtonEntity(
-            f"{description.key}_{slugify(device_id)}",
-            device_info,
-            coordinator,
-            description,
-        )
-        for device_id, device_info in coordinator.devices_info.items()
-        for description in CONSUMABLE_BUTTON_DESCRIPTIONS
-    )
+
+    entities: list[RoborockButtonEntity] = []
+    for coordinator in domain_data.get("coordinators"):
+        device_info = coordinator.data
+        for description in CONSUMABLE_BUTTON_DESCRIPTIONS:
+            entities.append(
+                RoborockButtonEntity(
+                    f"{description.key}_{slugify(device_info.device.duid)}",
+                    device_info,
+                    coordinator,
+                    description,
+                )
+            )
+    async_add_entities(entities)
 
 
 class RoborockButtonEntity(RoborockCoordinatedEntity, ButtonEntity):

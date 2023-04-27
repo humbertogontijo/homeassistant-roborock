@@ -16,7 +16,7 @@ from homeassistant.helpers.entity import EntityCategory
 from homeassistant.helpers.entity_platform import AddEntitiesCallback
 from homeassistant.util import slugify
 
-from .roborock_typing import RoborockHassDeviceInfo
+from . import DomainData
 from .const import (
     DOMAIN,
     MODELS_VACUUM_WITH_MOP,
@@ -24,6 +24,7 @@ from .const import (
 )
 from .coordinator import RoborockDataUpdateCoordinator
 from .device import RoborockCoordinatedEntity
+from .roborock_typing import RoborockHassDeviceInfo
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -89,17 +90,18 @@ VACUUM_SENSORS_SEPARATE_MOP = {
 
 
 async def async_setup_entry(
-        hass: HomeAssistant,
-        config_entry: ConfigEntry,
-        async_add_entities: AddEntitiesCallback,
+    hass: HomeAssistant,
+    config_entry: ConfigEntry,
+    async_add_entities: AddEntitiesCallback,
 ) -> None:
     """Only vacuums with mop should have binary sensor registered."""
-    entities = []
-    coordinator: RoborockDataUpdateCoordinator = hass.data[DOMAIN][
+    domain_data: DomainData = hass.data[DOMAIN][
         config_entry.entry_id
     ]
 
-    for device_id, device_info in coordinator.devices_info.items():
+    entities: list[RoborockBinarySensor] = []
+    for coordinator in domain_data.get("coordinators"):
+        device_info = coordinator.data
         model = device_info.product.model
         if model not in MODELS_VACUUM_WITH_MOP:
             return
@@ -107,9 +109,9 @@ async def async_setup_entry(
         sensors = VACUUM_SENSORS
         if model in MODELS_VACUUM_WITH_SEPARATE_MOP:
             sensors = VACUUM_SENSORS_SEPARATE_MOP
-        unique_id = slugify(device_id)
+        unique_id = slugify(device_info.device.duid)
         if coordinator.data:
-            device_prop = coordinator.data.get(device_id)
+            device_prop = device_info.props
             if device_prop:
                 for sensor, description in sensors.items():
                     parent_key_data = getattr(device_prop, description.parent_key)
@@ -140,11 +142,11 @@ class RoborockBinarySensor(RoborockCoordinatedEntity, BinarySensorEntity):
     entity_description: RoborockBinarySensorDescription
 
     def __init__(
-            self,
-            unique_id: str,
-            device_info: RoborockHassDeviceInfo,
-            coordinator: RoborockDataUpdateCoordinator,
-            description: RoborockBinarySensorDescription,
+        self,
+        unique_id: str,
+        device_info: RoborockHassDeviceInfo,
+        coordinator: RoborockDataUpdateCoordinator,
+        description: RoborockBinarySensorDescription,
     ) -> None:
         """Initialize the entity."""
         BinarySensorEntity.__init__(self)
@@ -164,7 +166,7 @@ class RoborockBinarySensor(RoborockCoordinatedEntity, BinarySensorEntity):
 
     def _determine_native_value(self):
         """Determine native value."""
-        data = self.coordinator.data.get(self._device_id)
+        data = self.coordinator.data.props
         if data is None:
             return
         if self.entity_description.parent_key:

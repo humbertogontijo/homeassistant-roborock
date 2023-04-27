@@ -31,6 +31,7 @@ from homeassistant.util import slugify
 from roborock import RoborockMopModeCode, RoborockMopIntensityCode, RoborockFanPowerCode, RoborockStateCode
 from roborock.typing import RoborockCommand
 
+from . import DomainData
 from .const import DOMAIN
 from .coordinator import RoborockDataUpdateCoordinator
 from .device import RoborockCoordinatedEntity
@@ -209,20 +210,21 @@ def add_services() -> None:
 
 
 async def async_setup_entry(
-        hass: HomeAssistant,
-        config_entry: ConfigEntry,
-        async_add_entities: AddEntitiesCallback,
+    hass: HomeAssistant,
+    config_entry: ConfigEntry,
+    async_add_entities: AddEntitiesCallback,
 ) -> None:
     """Set up the Roborock sensor."""
     add_services()
 
-    coordinator: RoborockDataUpdateCoordinator = hass.data[DOMAIN][
+    domain_data: DomainData = hass.data[DOMAIN][
         config_entry.entry_id
     ]
-    entities = []
-    for device_id, device_info in coordinator.devices_info.items():
-        unique_id = slugify(device_id)
-        entities.append(RoborockVacuum(unique_id, device_info, coordinator))
+
+    entities: list[RoborockVacuum] = []
+    for coordinator in domain_data.get("coordinators"):
+        unique_id = slugify(coordinator.data.device.duid)
+        entities.append(RoborockVacuum(unique_id, coordinator.data, coordinator))
     async_add_entities(entities)
 
 
@@ -230,10 +232,10 @@ class RoborockVacuum(RoborockCoordinatedEntity, StateVacuumEntity, ABC):
     """General Representation of a Roborock vacuum."""
 
     def __init__(
-            self,
-            unique_id: str,
-            device: RoborockHassDeviceInfo,
-            coordinator: RoborockDataUpdateCoordinator,
+        self,
+        unique_id: str,
+        device: RoborockHassDeviceInfo,
+        coordinator: RoborockDataUpdateCoordinator,
     ) -> None:
         """Initialize a vacuum."""
         StateVacuumEntity.__init__(self)
@@ -442,7 +444,7 @@ class RoborockVacuum(RoborockCoordinatedEntity, StateVacuumEntity, ABC):
     MANUAL_DURATION_DEFAULT = 1500
 
     async def async_manual_control(
-            self, rotation: int, velocity: float, duration: int = MANUAL_DURATION_DEFAULT
+        self, rotation: int, velocity: float, duration: int = MANUAL_DURATION_DEFAULT
     ):
         """Give a command over manual control interface."""
         if rotation < self.MANUAL_ROTATION_MIN or rotation > self.MANUAL_ROTATION_MAX:
@@ -467,7 +469,7 @@ class RoborockVacuum(RoborockCoordinatedEntity, StateVacuumEntity, ABC):
         await self.send(RoborockCommand.APP_RC_MOVE, [params])
 
     async def async_manual_control_once(
-            self, rotation: int, velocity: float, duration: int = MANUAL_DURATION_DEFAULT
+        self, rotation: int, velocity: float, duration: int = MANUAL_DURATION_DEFAULT
     ):
         """Start the remote control mode and executes the action once before deactivating the mode."""
         number_of_tries = 3
@@ -491,16 +493,16 @@ class RoborockVacuum(RoborockCoordinatedEntity, StateVacuumEntity, ABC):
         await self.async_manual_stop()
 
     async def async_remote_control_move(
-            self, rotation: int = 0, velocity: float = 0.3, duration: int = 1500
+        self, rotation: int = 0, velocity: float = 0.3, duration: int = 1500
     ):
         """Move vacuum with remote control mode."""
         await self.async_manual_control(rotation, velocity, duration)
 
     async def async_remote_control_move_step(
-            self,
-            rotation: int = 0,
-            velocity: float = 0.2,
-            duration: int = MANUAL_DURATION_DEFAULT,
+        self,
+        rotation: int = 0,
+        velocity: float = 0.2,
+        duration: int = MANUAL_DURATION_DEFAULT,
     ):
         """Move vacuum one step with remote control mode."""
         await self.async_manual_control_once(rotation, velocity, duration)
@@ -543,7 +545,7 @@ class RoborockVacuum(RoborockCoordinatedEntity, StateVacuumEntity, ABC):
 
     async def async_load_multi_map(self, map_flag: int):
         """Load another map."""
-        device_info = self.coordinator.devices_info.get(self._device_id)
+        device_info = self.coordinator.data
         is_valid_flag = True
         if device_info.map_mapping:
             is_valid_flag = device_info.map_mapping.get(map_flag)
@@ -557,10 +559,10 @@ class RoborockVacuum(RoborockCoordinatedEntity, StateVacuumEntity, ABC):
             )
 
     async def async_send_command(
-            self,
-            command: RoborockCommand,
-            params: dict[str, Any] | list[Any] | None = None,
-            **kwargs: Any,
+        self,
+        command: RoborockCommand,
+        params: dict[str, Any] | list[Any] | None = None,
+        **kwargs: Any,
     ):
         """Send a command to a vacuum cleaner."""
         return await self.send(command, params)

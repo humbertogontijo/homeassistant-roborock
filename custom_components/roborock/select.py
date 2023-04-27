@@ -16,6 +16,7 @@ from roborock.code_mappings import (
 )
 from roborock.typing import RoborockCommand
 
+from . import DomainData
 from .const import DOMAIN
 from .coordinator import RoborockDataUpdateCoordinator
 from .device import RoborockCoordinatedEntity
@@ -63,16 +64,18 @@ async def async_setup_entry(
     async_add_entities: AddEntitiesCallback,
 ) -> None:
     """Set up Roborock select platform."""
-
-    coordinator: RoborockDataUpdateCoordinator = hass.data[DOMAIN][
+    domain_data: DomainData = hass.data[DOMAIN][
         config_entry.entry_id
     ]
+
     entities: list[RoborockSelectEntity] = []
-    for device_id, device_info in coordinator.devices_info.items():
+    for coordinator in domain_data.get("coordinators"):
+        device_info = coordinator.data
+        unique_id = slugify(device_info.device.duid)
         for description in SELECT_DESCRIPTIONS:
             entities.append(
                 RoborockSelectEntity(
-                    f"{description.key}_{slugify(device_id)}",
+                    f"{description.key}_{unique_id}",
                     device_info,
                     coordinator,
                     description,

@@ -9,12 +9,6 @@ from homeassistant.core import HomeAssistant
 from homeassistant.helpers import entity_registry as er
 from homeassistant.util import dt as dt_util
 
-from custom_components.roborock.const import (
-    FILTER_REPLACE_TIME,
-    MAIN_BRUSH_REPLACE_TIME,
-    SENSOR_DIRTY_REPLACE_TIME,
-    SIDE_BRUSH_REPLACE_TIME,
-)
 from custom_components.roborock.device import parse_datetime_time
 from custom_components.roborock.sensor import (
     ATTR_CLEAN_SUMMARY_COUNT,
@@ -261,9 +255,7 @@ async def test_main_brush_left(hass: HomeAssistant, bypass_api_fixture) -> None:
     await setup_platform(hass, SENSOR_DOMAIN)
     state = hass.states.get("sensor.roborock_s7_maxv_main_brush_left")
 
-    assert state.state == str(
-        MAIN_BRUSH_REPLACE_TIME - CONSUMABLE.main_brush_work_time
-    )
+    assert state.state == str(CONSUMABLE.main_brush_work_time)
     assert state.attributes.get(ATTR_DEVICE_CLASS) == SensorDeviceClass.DURATION
 
 
@@ -273,9 +265,7 @@ async def test_side_brush_left(hass: HomeAssistant, bypass_api_fixture) -> None:
     await setup_platform(hass, SENSOR_DOMAIN)
     state = hass.states.get("sensor.roborock_s7_maxv_side_brush_left")
 
-    assert state.state == str(
-        SIDE_BRUSH_REPLACE_TIME - CONSUMABLE.side_brush_work_time
-    )
+    assert state.state == str(CONSUMABLE.side_brush_work_time)
     assert state.attributes.get(ATTR_DEVICE_CLASS) == SensorDeviceClass.DURATION
 
 
@@ -285,7 +275,7 @@ async def test_filter_left(hass: HomeAssistant, bypass_api_fixture) -> None:
     await setup_platform(hass, SENSOR_DOMAIN)
     state = hass.states.get("sensor.roborock_s7_maxv_filter_left")
 
-    assert state.state == str(FILTER_REPLACE_TIME - CONSUMABLE.filter_work_time)
+    assert state.state == str(CONSUMABLE.filter_work_time)
     assert state.attributes.get(ATTR_DEVICE_CLASS) == SensorDeviceClass.DURATION
 
 
@@ -295,7 +285,5 @@ async def test_sensor_dirty_left(hass: HomeAssistant, bypass_api_fixture) -> Non
     await setup_platform(hass, SENSOR_DOMAIN)
     state = hass.states.get("sensor.roborock_s7_maxv_sensor_dirty_left")
 
-    assert state.state == str(
-        SENSOR_DIRTY_REPLACE_TIME - CONSUMABLE.sensor_dirty_time
-    )
+    assert state.state == str(CONSUMABLE.sensor_dirty_time)
     assert state.attributes.get(ATTR_DEVICE_CLASS) == SensorDeviceClass.DURATION

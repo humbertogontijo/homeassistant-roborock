@@ -192,12 +192,12 @@ async def test_camera_options_flow(hass: HomeAssistant, bypass_api_fixture):
     )
     for serialized_schema in serialized_schemas:
         assert (serialized_schema["name"], serialized_schema["default"]) in {
-            f"{CONF_MAP_TRANSFORM}.{CONF_SCALE}": 1,
-            f"{CONF_MAP_TRANSFORM}.{CONF_ROTATE}": "0",
-            f"{CONF_MAP_TRANSFORM}.{CONF_TRIM}.{CONF_LEFT}": 0,
-            f"{CONF_MAP_TRANSFORM}.{CONF_TRIM}.{CONF_RIGHT}": 0,
-            f"{CONF_MAP_TRANSFORM}.{CONF_TRIM}.{CONF_TOP}": 0,
-            f"{CONF_MAP_TRANSFORM}.{CONF_TRIM}.{CONF_BOTTOM}": 0,
+            f"{CONF_MAP_TRANSFORM}:{CONF_SCALE}": 1,
+            f"{CONF_MAP_TRANSFORM}:{CONF_ROTATE}": "0",
+            f"{CONF_MAP_TRANSFORM}:{CONF_TRIM}:{CONF_LEFT}": 0,
+            f"{CONF_MAP_TRANSFORM}:{CONF_TRIM}:{CONF_RIGHT}": 0,
+            f"{CONF_MAP_TRANSFORM}:{CONF_TRIM}:{CONF_TOP}": 0,
+            f"{CONF_MAP_TRANSFORM}:{CONF_TRIM}:{CONF_BOTTOM}": 0,
             CONF_INCLUDE_IGNORED_OBSTACLES: True,
             CONF_INCLUDE_NOGO: True
         }.items()
@@ -206,12 +206,12 @@ async def test_camera_options_flow(hass: HomeAssistant, bypass_api_fixture):
     result = await hass.config_entries.options.async_configure(
         result["flow_id"],
         user_input={
-            f"{CONF_MAP_TRANSFORM}.{CONF_SCALE}": 1.2,
-            f"{CONF_MAP_TRANSFORM}.{CONF_ROTATE}": "90",
-            f"{CONF_MAP_TRANSFORM}.{CONF_TRIM}.{CONF_LEFT}": 5.0,
-            f"{CONF_MAP_TRANSFORM}.{CONF_TRIM}.{CONF_RIGHT}": 5.0,
-            f"{CONF_MAP_TRANSFORM}.{CONF_TRIM}.{CONF_TOP}": 5.0,
-            f"{CONF_MAP_TRANSFORM}.{CONF_TRIM}.{CONF_BOTTOM}": 5.0,
+            f"{CONF_MAP_TRANSFORM}:{CONF_SCALE}": 1.2,
+            f"{CONF_MAP_TRANSFORM}:{CONF_ROTATE}": "90",
+            f"{CONF_MAP_TRANSFORM}:{CONF_TRIM}:{CONF_LEFT}": 5.0,
+            f"{CONF_MAP_TRANSFORM}:{CONF_TRIM}:{CONF_RIGHT}": 5.0,
+            f"{CONF_MAP_TRANSFORM}:{CONF_TRIM}:{CONF_TOP}": 5.0,
+            f"{CONF_MAP_TRANSFORM}:{CONF_TRIM}:{CONF_BOTTOM}": 5.0,
         },
     )
 
