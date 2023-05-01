@@ -49,7 +49,7 @@
       "camera": {
         "description": "Options de la caméra",
         "data": {
-          "map_transformation:scale": "Echelle de la carte",
+          "map_transformation:scale": "Échelle de la carte",
           "map_transformation:rotate": "Rotation de la carte",
           "map_transformation:trim:left": "Rogner la carte à gauche",
           "map_transformation:trim:right": "Rogner la carte à droite",
@@ -66,9 +66,9 @@
         }
       },
       "roborock": {
-        "description": "General settings",
+        "description": "Réglages généraux",
         "data": {
-          "local": "Beta: use local integration"
+          "local": "Bêta: utiliser l'intégration locale"
         }
       }
     }
@@ -76,23 +76,23 @@
   "entity": {
     "button": {
       "reset_sensor_consumable": {
-        "name": "Reset sensor consumable"
+        "name": "Réinitialiser les capteurs"
       },
       "reset_filter_consumable": {
-        "name": "Reset filter consumable"
+        "name": "Réinitialiser le filtre"
       },
       "reset_side_brush_consumable": {
-        "name": "Reset side brush consumable"
+        "name": "Réinitialiser la brosse latérale"
       },
       "reset_main_brush_consumable": {
-        "name": "Reset main brush consumable"
+        "name": "Réinitialiser la brosse principale"
       }
     },
     "sensor": {
       "current_error": {
-        "name": "Current error",
+        "name": "Erreur",
         "state": {
-          "none": "Aucun",
+          "none": "Aucune",
           "lidar_blocked": "LiDAR ou laser bloqué. Vérifier l'obstruction et réessayer.",
           "bumper_stuck": "Pare-chocs coincé. Nettoyez-le et tapez légèrement pour le dégager.",
           "wheels_suspended": "Roues suspendues. Déplacez le robot et recommencez.",
@@ -122,104 +122,104 @@
         }
       },
       "dnd_start": {
-        "name": "DnD start"
+        "name": "Début NPD"
       },
       "dnd_end": {
-        "name": "DnD end"
+        "name": "Fin NPD"
       },
       "last_clean_start": {
-        "name": "Last clean start"
+        "name": "Début du dernier nettoyage"
       },
       "last_clean_end": {
-        "name": "Last clean end"
+        "name": "Fin du dernier nettoyage"
       },
       "last_clean_duration": {
-        "name": "Last clean duration"
+        "name": "Durée du dernier nettoyage"
       },
       "last_clean_area": {
-        "name": "Last clean area"
+        "name": "Surface du dernier nettoyage"
       },
       "current_clean_duration": {
-        "name": "Current clean duration"
+        "name": "Durée du nettoyage courant"
       },
       "current_clean_area": {
-        "name": "Current clean area"
+        "name": "Surface du nettoyage courant"
       },
       "total_duration": {
-        "name": "Total duration"
+        "name": "Durée totale"
       },
       "total_clean_area": {
-        "name": "Total clean area"
+        "name": "Surface totale"
       },
       "total_clean_count": {
-        "name": "Total clean count"
+        "name": "Nombre total de nettoyage"
       },
       "total_dust_collection_count": {
-        "name": "Total dust collection count"
+        "name": "Nombre total de recueil de la poussière"
       },
       "main_brush_left": {
-        "name": "Main brush left"
+        "name": "Brosse principale"
       },
       "side_brush_left": {
-        "name": "Side brush left"
+        "name": "Brosse latérale"
       },
       "filter_left": {
-        "name": "Filter left"
+        "name": "Filtre"
       },
       "sensor_dirty_left": {
-        "name": "Sensor dirty left"
+        "name": "Capteurs"
       },
       "dock_status": {
-        "name": "Dock status"
+        "name": "État de la station"
       },
       "dock_washing_mode": {
-        "name": "Dock washing mode"
+        "name": "Mode de lavage de la station"
       },
       "dock_dust_collection_mode": {
-        "name": "Dock dust collection mode"
+        "name": "Mode de recueil de la poussière de la station"
       },
       "dock_mop_wash_mode_interval": {
-        "name": "Dock mop wash mode interval"
+        "name": "Intervalle deDock mop wash mode interval"
       },
       "current_map_selected": {
-        "name": "Current map selected"
+        "name": "Carte actuelle"
       },
       "current_room": {
-        "name": "Current room"
+        "name": "Pièce actuelle"
       }
     },
     "binary_sensor": {
       "mop_attached_1": {
-        "name": "Mop attached"
+        "name": "Serpillière installée"
       },
       "mop_attached_2": {
-        "name": "Mop attached"
+        "name": "Serpillière installée"
       },
       "water_box_attached": {
-        "name": "Water box attached"
+        "name": "Réservoir à eau installée"
       },
       "water_shortage": {
-        "name": "Water shortage"
+        "name": "Réservoir à eau vide"
       }
     },
     "select": {
       "mop_mode": {
-        "name": "Mop mode",
+        "name": "Parcours de lavage de sol",
         "state": {
           "standard": "Standard",
-          "deep": "Deep",
-          "deep_plus": "Deep+",
-          "custom": "Custom"
+          "deep": "Approfondi",
+          "deep_plus": "Approfondi+",
+          "custom": "Personnalisé"
         }
       },
       "mop_intensity": {
-        "name": "Mop intensity",
+        "name": "Intensité de frottement",
         "state": {
-          "off": "Off",
-          "mild": "Mild",
-          "moderate": "Moderate",
+          "off": "Aucun",
+          "mild": "Doux",
+          "moderate": "Moyen",
           "intense": "Intense",
-          "custom": "Custom"
+          "custom": "Personnalisé"
         }
       }
     }
