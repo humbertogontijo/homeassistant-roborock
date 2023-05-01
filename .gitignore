@@ -8,3 +8,4 @@ custom_components/roborock/__pycache__
 custom_components/roborock/api/__pycache__
 custom_components/roborock/common/__pycache__
 tests/__pycache__
+poetry.lock

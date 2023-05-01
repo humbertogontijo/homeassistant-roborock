@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 from dataclasses import dataclass
+from typing import Optional
 
 from homeassistant.components.button import (
     ButtonDeviceClass,
@@ -11,7 +12,7 @@ from homeassistant.config_entries import ConfigEntry
 from homeassistant.core import HomeAssistant
 from homeassistant.helpers.entity_platform import AddEntitiesCallback
 from homeassistant.util import slugify
-from roborock.typing import RoborockCommand
+from roborock.roborock_typing import RoborockCommand
 
 from . import DomainData
 from .const import DOMAIN
@@ -23,7 +24,7 @@ from .roborock_typing import RoborockHassDeviceInfo
 @dataclass
 class RoborockButtonDescriptionMixin:
     command: RoborockCommand
-    param: list | dict | None
+    param: Optional[list | dict] = None
 
 
 @dataclass
@@ -65,6 +66,14 @@ CONSUMABLE_BUTTON_DESCRIPTIONS = [
         name="Reset main brush consumable",
         command=RoborockCommand.RESET_CONSUMABLE,
         param=["main_brush_work_time"],
+    ),
+    RoborockButtonDescription(
+        key="locate",
+        device_class=ButtonDeviceClass.UPDATE,
+        translation_key="locate",
+        name="Locate robot vacuum",
+        command=RoborockCommand.FIND_ME,
+        param=None,
     ),
 ]
 

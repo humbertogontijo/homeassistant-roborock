@@ -56,8 +56,8 @@ class RoborockDataUpdateCoordinator(
         if device_info.room_mapping is None:
             room_mapping = await self.api.get_room_mapping()
             if room_mapping:
-                room_iot_name = {room.id: room.name for room in self.rooms}
-                device_info.room_mapping = {rm.segment_id: room_iot_name.get(int(rm.iot_id)) for rm in room_mapping}
+                room_iot_name = {str(room.id): room.name for room in self.rooms}
+                device_info.room_mapping = {rm.segment_id: room_iot_name.get(str(rm.iot_id)) for rm in room_mapping}
 
     async def fill_device_multi_maps_list(self, device_info: RoborockHassDeviceInfo) -> None:
         """Get multi maps list."""

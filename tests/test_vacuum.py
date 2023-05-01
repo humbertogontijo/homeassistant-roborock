@@ -15,7 +15,7 @@ from homeassistant.components.vacuum import (
 )
 from homeassistant.core import HomeAssistant
 from homeassistant.helpers import entity_registry as er
-from roborock.typing import RoborockCommand
+from roborock.roborock_typing import RoborockCommand
 
 from custom_components.roborock.vacuum import (
     ATTR_MOP_INTENSITY_LIST,

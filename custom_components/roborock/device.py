@@ -7,7 +7,7 @@ import logging
 from homeassistant.helpers.entity import DeviceInfo, Entity
 from homeassistant.helpers.update_coordinator import CoordinatorEntity
 from roborock.containers import Status
-from roborock.typing import RoborockCommand
+from roborock.roborock_typing import RoborockCommand
 
 from .const import DOMAIN
 from .coordinator import RoborockDataUpdateCoordinator

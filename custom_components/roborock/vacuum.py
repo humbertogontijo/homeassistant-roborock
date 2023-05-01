@@ -29,7 +29,7 @@ from homeassistant.helpers import config_validation as cv, entity_platform
 from homeassistant.helpers.entity_platform import AddEntitiesCallback
 from homeassistant.util import slugify
 from roborock import RoborockMopModeCode, RoborockMopIntensityCode, RoborockFanPowerCode, RoborockStateCode
-from roborock.typing import RoborockCommand
+from roborock.roborock_typing import RoborockCommand
 
 from . import DomainData
 from .const import DOMAIN

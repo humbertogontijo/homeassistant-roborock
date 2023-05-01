@@ -14,7 +14,7 @@ from roborock.containers import (
     WashTowelMode,
     UserData
 )
-from roborock.typing import DeviceProp, DockSummary
+from roborock.roborock_typing import DeviceProp, DockSummary
 
 # All data is based on a U.S. customer with a Roborock S7 MaxV Ultra
 USER_EMAIL = "user@domain.com"

@@ -14,7 +14,7 @@ from roborock.code_mappings import (
     RoborockMopIntensityCode,
     RoborockMopModeCode,
 )
-from roborock.typing import RoborockCommand
+from roborock.roborock_typing import RoborockCommand
 
 from . import DomainData
 from .const import DOMAIN
