@@ -76,16 +76,16 @@
   "entity": {
     "button": {
       "reset_sensor_consumable": {
-        "name": "Reset sensor consumable"
+        "name": "Nulstil sensor forbrug"
       },
       "reset_filter_consumable": {
-        "name": "Reset filter consumable"
+        "name": "Nulstil filter forbrug"
       },
       "reset_side_brush_consumable": {
-        "name": "Reset side brush consumable"
+        "name": "Nulstil sidebørste forbrug"
       },
       "reset_main_brush_consumable": {
-        "name": "Reset main brush consumable"
+        "name": "Nulstil hovedebørste forbrug"
       }
     },
     "sensor": {
@@ -209,7 +209,7 @@
           "standard": "Standard",
           "deep": "Deep",
           "deep_plus": "Deep+",
-          "custom": "Custom"
+          "custom": "Brugerdefinerede"
         }
       },
       "mop_intensity": {
@@ -217,9 +217,9 @@
         "state": {
           "off": "Off",
           "mild": "Mild",
-          "moderate": "Moderate",
-          "intense": "Intense",
-          "custom": "Custom"
+          "moderate": "Moderat",
+          "intense": "Intens",
+          "custom": "Brugerdefinerede"
         }
       }
     }
