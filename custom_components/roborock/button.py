@@ -24,7 +24,7 @@ from .roborock_typing import RoborockHassDeviceInfo
 @dataclass
 class RoborockButtonDescriptionMixin:
     command: RoborockCommand
-    param: Optional[list | dict] = None
+    param: list | dict | None
 
 
 @dataclass
