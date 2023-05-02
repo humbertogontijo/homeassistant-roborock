@@ -17,6 +17,8 @@ pytest = "^7.2.1"
 Pillow = "~9.4.0"
 pytest_homeassistant_custom_component = "~0.12.46"
 aiohttp_cors = "~0.7.0"
+aiodiscover = "*"
+scapy = "*"
 
 [build-system]
 requires = ["poetry-core"]

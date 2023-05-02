@@ -67,7 +67,6 @@ MINIMAL_IMAGE_HEIGHT = 20
 
 CONF_LOCAL_BACKUP = "local_backup"
 CONF_CLOUD_BACKUP = "cloud_backup"
-CONF_LOCAL_INTEGRATION = "local"
 CONF_INCLUDE_SHARED = "include_shared"
 CONF_INCLUDE_NOGO = "include_nogo"
 CONF_INCLUDE_IGNORED_OBSTACLES = "include_ignored_obstacles"

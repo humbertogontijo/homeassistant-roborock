@@ -5,9 +5,17 @@
     "@humbertogontijo"
   ],
   "config_flow": true,
+  "dhcp": [
+    {
+      "macaddress": "B04A39*"
+    },
+    {
+    "registered_devices": true
+    }
+  ],
   "documentation": "https://github.com/humbertogontijo/homeassistant-roborock",
   "integration_type": "hub",
-  "iot_class": "cloud_polling",
+  "iot_class": "local_polling",
   "issue_tracker": "https://github.com/humbertogontijo/homeassistant-roborock/issues",
   "loggers": [
     "custom_components.roborock",

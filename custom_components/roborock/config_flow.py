@@ -7,6 +7,7 @@ from typing import Any
 
 import voluptuous as vol
 from homeassistant import config_entries
+from homeassistant.components import dhcp
 from homeassistant.core import callback
 from homeassistant.data_entry_flow import FlowResult
 from roborock.api import RoborockApiClient
@@ -31,8 +32,7 @@ from .const import (
     CONF_TRIM,
     CONF_USER_DATA,
     DOMAIN,
-    VACUUM,
-    CONF_LOCAL_INTEGRATION,
+    VACUUM
 )
 from .utils import get_nested_dict, set_nested_dict
 
@@ -52,6 +52,10 @@ class RoborockFlowHandler(config_entries.ConfigFlow, domain=DOMAIN):
         self._username = None
         self._client: RoborockApiClient | None = None
         self._auth_method: str | None = None
+
+    async def async_step_dhcp(self, discovery_info: dhcp.DhcpServiceInfo) -> FlowResult:
+        """Handle a reauth flow."""
+        return await self.async_step_user()
 
     async def async_step_reauth(self, _user_input: Mapping[str, Any]) -> FlowResult:
         """Handle a reauth flow."""
@@ -286,10 +290,6 @@ OPTION_SCHEMA = {
     **{f"{CAMERA}.{cs_key}": cs_value for cs_key, cs_value in CAMERA_SCHEMA.items()},
 }
 
-ROBOROCK_VALUES = {CONF_LOCAL_INTEGRATION: False}
-
-ROBOROCK_SCHEMA = {CONF_LOCAL_INTEGRATION: vol.Coerce(bool)}
-
 
 class RoborockOptionsFlowHandler(config_entries.OptionsFlow):
     """Roborock config flow options handler."""
@@ -311,7 +311,7 @@ class RoborockOptionsFlowHandler(config_entries.OptionsFlow):
         """Handle a flow initialized by the user."""
         return self.async_show_menu(
             step_id="user",
-            menu_options=[CAMERA, VACUUM, DOMAIN],
+            menu_options=[CAMERA, VACUUM],
         )
 
     async def async_step_camera(
@@ -328,35 +328,6 @@ class RoborockOptionsFlowHandler(config_entries.OptionsFlow):
         """Handle setup of vacuum."""
         return await self._async_step_platform(
             VACUUM, VACUUM_SCHEMA, VACUUM_VALUES, user_input
-        )
-
-    async def async_step_roborock(
-            self, user_input: dict[str, Any] | None = None
-    ) -> FlowResult:
-        """Handle setup of vacuum."""
-        if user_input:
-            data: dict = {}
-            for key, value in user_input.items():
-                set_nested_dict(data, key, value)
-            if self.options:
-                self.options[DOMAIN] = data
-            else:
-                self.options = {DOMAIN: data}
-            return await self._update_options()
-        options = self.options.get(DOMAIN) if self.options else None
-        return self.async_show_form(
-            step_id=DOMAIN,
-            data_schema=vol.Schema(
-                {
-                    vol.Optional(
-                        key,
-                        default=ROBOROCK_SCHEMA.get(key)(
-                            get_nested_dict(options or {}, key, value)
-                        ),
-                    ): ROBOROCK_SCHEMA.get(key)
-                    for key, value in ROBOROCK_VALUES.items()
-                }
-            ),
         )
 
     async def _async_step_platform(

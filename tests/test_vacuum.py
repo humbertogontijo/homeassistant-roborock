@@ -54,7 +54,7 @@ async def test_vacuum_services(hass: HomeAssistant, bypass_api_fixture) -> None:
             VACUUM_DOMAIN, SERVICE_START, {"entity_id": ENTITY_ID}, blocking=True
         )
         calls += 1
-        mock_mqtt_api_command.assert_called_once_with(
+        mock_local_api_command.assert_called_once_with(
             RoborockCommand.APP_START, None
         )
         assert mock_mqtt_api_command.call_count + mock_local_api_command.call_count == calls

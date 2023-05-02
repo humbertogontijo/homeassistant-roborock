@@ -67,14 +67,6 @@ CONSUMABLE_BUTTON_DESCRIPTIONS = [
         command=RoborockCommand.RESET_CONSUMABLE,
         param=["main_brush_work_time"],
     ),
-    RoborockButtonDescription(
-        key="locate",
-        device_class=ButtonDeviceClass.UPDATE,
-        translation_key="locate",
-        name="Locate robot vacuum",
-        command=RoborockCommand.FIND_ME,
-        param=None,
-    ),
 ]
 
 

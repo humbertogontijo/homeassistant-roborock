@@ -7,7 +7,9 @@ import voluptuous_serialize
 from homeassistant import config_entries, data_entry_flow
 from homeassistant.core import HomeAssistant
 from pytest_homeassistant_custom_component.common import MockConfigEntry
+from roborock import NetworkInfo
 
+from custom_components.roborock import RoborockHassLocalDeviceInfo
 from custom_components.roborock.const import DOMAIN, CAMERA, CONF_MAP_TRANSFORM, CONF_SCALE, CONF_ROTATE, CONF_TRIM, \
     CONF_LEFT, CONF_RIGHT, CONF_TOP, CONF_BOTTOM, VACUUM, CONF_INCLUDE_SHARED, CONF_ENTRY_CODE, CONF_ENTRY_USERNAME, \
     CONF_INCLUDE_IGNORED_OBSTACLES, CONF_INCLUDE_NOGO
@@ -50,6 +52,13 @@ async def test_successful_config_flow(hass: HomeAssistant, bypass_api_fixture):
     ), patch(
             "roborock.api.RoborockApiClient.get_home_data",
             return_value=HOME_DATA,
+    ), patch(
+        "custom_components.roborock.get_local_devices_info",
+        side_effect=lambda device_info: RoborockHassLocalDeviceInfo(
+            device=device_info.device,
+            product=device_info.product,
+            network_info=NetworkInfo(ip='127.0.0.1')
+        )
     ):
         result = await hass.config_entries.flow.async_configure(
             result["flow_id"], user_input={CONF_ENTRY_CODE: "123456"}
