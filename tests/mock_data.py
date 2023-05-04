@@ -1,7 +1,10 @@
 """Mock data for Roborock tests."""
 from __future__ import annotations
 
-from roborock import RoborockDockWashTowelModeCode, RoborockDockDustCollectionModeCode
+from roborock import ROBOROCK_S7_MAXV, \
+    RoborockDockWashTowelModeCode, \
+    RoborockDockDustCollectionModeCode, \
+    model_specifications
 from roborock.containers import (
     CleanRecord,
     CleanSummary,
@@ -437,10 +440,11 @@ STATUS = Status.from_dict({
     "unsave_map_reason": 0,
     "unsave_map_flag": 0,
 })
+STATUS.update_status(model_specifications[ROBOROCK_S7_MAXV])
 
-DUST_COLLECTION_MODE = DustCollectionMode(mode=RoborockDockDustCollectionModeCode["0"])
+DUST_COLLECTION_MODE = DustCollectionMode(mode=RoborockDockDustCollectionModeCode.smart)
 
-WASH_TOWEL_MODE = WashTowelMode(wash_mode=RoborockDockWashTowelModeCode["0"])
+WASH_TOWEL_MODE = WashTowelMode(wash_mode=RoborockDockWashTowelModeCode.light)
 
 SMART_WASH_PARAMETERS = SmartWashParams(smart_wash=0, wash_interval=0)
 

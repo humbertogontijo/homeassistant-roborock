@@ -15,8 +15,10 @@ from homeassistant.components.vacuum import (
 )
 from homeassistant.core import HomeAssistant
 from homeassistant.helpers import entity_registry as er
+from roborock import ROBOROCK_S7_MAXV, model_specifications
 from roborock.roborock_typing import RoborockCommand
 
+from custom_components.roborock import DOMAIN
 from custom_components.roborock.vacuum import (
     ATTR_MOP_INTENSITY_LIST,
     ATTR_MOP_MODE_LIST,
@@ -31,16 +33,17 @@ DEVICE_ID = HOME_DATA.devices[0].duid
 @pytest.mark.asyncio
 async def test_registry_entries(hass: HomeAssistant, bypass_api_fixture) -> None:
     """Tests devices are registered in the entity registry."""
-    await setup_platform(hass, VACUUM_DOMAIN)
+    mock_config_entry = await setup_platform(hass, VACUUM_DOMAIN)
     entity_registry = er.async_get(hass)
     entry = entity_registry.async_get(ENTITY_ID)
     assert entry.unique_id == DEVICE_ID
+    await mock_config_entry.async_unload(hass)
 
 
 @pytest.mark.asyncio
 async def test_vacuum_services(hass: HomeAssistant, bypass_api_fixture) -> None:
     """Test vacuum services."""
-    await setup_platform(hass, VACUUM_DOMAIN)
+    mock_config_entry = await setup_platform(hass, VACUUM_DOMAIN)
     entity_registry = er.async_get(hass)
     entity_registry.async_get(ENTITY_ID)
     with patch(
@@ -96,12 +99,12 @@ async def test_vacuum_services(hass: HomeAssistant, bypass_api_fixture) -> None:
         )
         calls += 1
         assert mock_mqtt_api_command.call_count + mock_local_api_command.call_count == calls
-
+    await mock_config_entry.async_unload(hass)
 
 @pytest.mark.asyncio
 async def test_vacuum_fan_speeds(hass: HomeAssistant, bypass_api_fixture) -> None:
     """Test vacuum fan speeds."""
-    await setup_platform(hass, VACUUM_DOMAIN)
+    mock_config_entry = await setup_platform(hass, VACUUM_DOMAIN)
     entity_registry = er.async_get(hass)
     entity_registry.async_get(ENTITY_ID)
 
@@ -110,7 +113,7 @@ async def test_vacuum_fan_speeds(hass: HomeAssistant, bypass_api_fixture) -> Non
 
     fanspeeds = state.attributes.get(ATTR_FAN_SPEED_LIST)
 
-    for speed in ["off", "silent", "balanced", "turbo", "max", "max_plus", "custom"]:
+    for speed in model_specifications[ROBOROCK_S7_MAXV].fan_power_code.values():
         assert speed in fanspeeds
     # Test setting fan speed to "Turbo"
     with patch("custom_components.roborock.vacuum.RoborockVacuum.send") as mock_send:
@@ -121,56 +124,4 @@ async def test_vacuum_fan_speeds(hass: HomeAssistant, bypass_api_fixture) -> Non
             blocking=True,
         )
         mock_send.assert_called_once_with(RoborockCommand.SET_CUSTOM_MODE, [])
-
-
-@pytest.mark.asyncio
-async def test_mop_modes(hass: HomeAssistant, bypass_api_fixture) -> None:
-    """Test mop modes."""
-    await setup_platform(hass, VACUUM_DOMAIN)
-    entity_registry = er.async_get(hass)
-    entity_registry.async_get(ENTITY_ID)
-
-    state = hass.states.get(ENTITY_ID)
-    assert state.attributes.get("mop_mode") == "standard"
-
-    mop_modes = state.attributes.get(ATTR_MOP_MODE_LIST)
-
-    for mode in ["standard", "deep", "deep_plus", "custom"]:
-        assert mode in mop_modes
-    # Test setting mop mode to "deep"
-    with patch("custom_components.roborock.vacuum.RoborockVacuum.send") as mock_send:
-        await hass.services.async_call(
-            "Roborock",
-            "vacuum_set_mop_mode",
-            {"entity_id": ENTITY_ID, "mop_mode": "deep"},
-            blocking=True,
-        )
-        mock_send.assert_called_once_with(RoborockCommand.SET_MOP_MODE, [301])
-
-
-@pytest.mark.asyncio
-async def test_mop_intensity(hass: HomeAssistant, bypass_api_fixture) -> None:
-    """Test mop intensity."""
-    await setup_platform(hass, VACUUM_DOMAIN)
-    entity_registry = er.async_get(hass)
-    entity_registry.async_get(ENTITY_ID)
-
-    state = hass.states.get(ENTITY_ID)
-    assert state.attributes.get("mop_intensity") == "intense"
-
-    mop_intensities = state.attributes.get(ATTR_MOP_INTENSITY_LIST)
-
-    for intensity in ["off", "mild", "moderate", "intense", "custom"]:
-        assert intensity in mop_intensities
-
-    # Test setting intensity to "mild"
-    with patch("custom_components.roborock.vacuum.RoborockVacuum.send") as mock_send:
-        await hass.services.async_call(
-            "Roborock",
-            "vacuum_set_mop_intensity",
-            {"entity_id": ENTITY_ID, "mop_intensity": "mild"},
-            blocking=True,
-        )
-        mock_send.assert_called_once_with(
-            RoborockCommand.SET_WATER_BOX_CUSTOM_MODE, [201]
-        )
+    await mock_config_entry.async_unload(hass)

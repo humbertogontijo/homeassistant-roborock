@@ -1,3 +1,4 @@
 {
-    "name": "Roborock"
+    "name": "Roborock",
+    "homeassistant": "2023.4.6"
 }

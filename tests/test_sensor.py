@@ -43,7 +43,7 @@ from .mock_data import (
 @pytest.mark.asyncio
 async def test_registry_entries(hass: HomeAssistant, bypass_api_fixture) -> None:
     """Tests devices are registered in the entity registry."""
-    await setup_platform(hass, SENSOR_DOMAIN)
+    mock_config_entry = await setup_platform(hass, SENSOR_DOMAIN)
     entity_registry = er.async_get(hass)
 
     duid = HOME_DATA.devices[0].duid
@@ -109,12 +109,13 @@ async def test_registry_entries(hass: HomeAssistant, bypass_api_fixture) -> None
         entry.unique_id
         == f"consumable_{ATTR_CONSUMABLE_STATUS_SENSOR_DIRTY_LEFT}_{duid}"
     )
+    await mock_config_entry.async_unload(hass)
 
 
 @pytest.mark.asyncio
 async def test_dnd_start(hass: HomeAssistant, bypass_api_fixture) -> None:
     """Tests dnd_start is getting the correct values."""
-    await setup_platform(hass, SENSOR_DOMAIN)
+    mock_config_entry = await setup_platform(hass, SENSOR_DOMAIN)
     state = hass.states.get("sensor.roborock_s7_maxv_dnd_start")
     # Convert time from raw response data to what HA outputs for state
     value = [DND_TIMER.start_hour, DND_TIMER.start_minute]
@@ -124,12 +125,13 @@ async def test_dnd_start(hass: HomeAssistant, bypass_api_fixture) -> None:
 
     assert state.state == str(value).replace(" ", "T")
     assert state.attributes.get(ATTR_DEVICE_CLASS) == SensorDeviceClass.TIMESTAMP
+    await mock_config_entry.async_unload(hass)
 
 
 @pytest.mark.asyncio
 async def test_dnd_end(hass: HomeAssistant, bypass_api_fixture) -> None:
     """Tests dnd_end is getting the correct values."""
-    await setup_platform(hass, SENSOR_DOMAIN)
+    mock_config_entry = await setup_platform(hass, SENSOR_DOMAIN)
     state = hass.states.get("sensor.roborock_s7_maxv_dnd_end")
     # Convert time from raw response data to what HA outputs for state
     value = [DND_TIMER.end_hour, DND_TIMER.end_minute]
@@ -139,52 +141,57 @@ async def test_dnd_end(hass: HomeAssistant, bypass_api_fixture) -> None:
 
     assert state.state == str(value).replace(" ", "T")
     assert state.attributes.get(ATTR_DEVICE_CLASS) == SensorDeviceClass.TIMESTAMP
+    await mock_config_entry.async_unload(hass)
 
 
 @pytest.mark.asyncio
 async def test_last_clean_duration(hass: HomeAssistant, bypass_api_fixture) -> None:
     """Tests last_clean_duration is getting the correct values."""
-    await setup_platform(hass, SENSOR_DOMAIN)
+    mock_config_entry = await setup_platform(hass, SENSOR_DOMAIN)
     state = hass.states.get("sensor.roborock_s7_maxv_last_clean_duration")
 
     assert state.state == str(STATUS.clean_time)
     assert state.attributes.get(ATTR_DEVICE_CLASS) == SensorDeviceClass.DURATION
+    await mock_config_entry.async_unload(hass)
 
 
 @pytest.mark.asyncio
 async def test_clean_area(hass: HomeAssistant, bypass_api_fixture) -> None:
     """Tests last_clean_area is getting the correct values."""
-    await setup_platform(hass, SENSOR_DOMAIN)
+    mock_config_entry = await setup_platform(hass, SENSOR_DOMAIN)
     state = hass.states.get("sensor.roborock_s7_maxv_last_clean_area")
 
     assert state.state == str(round(STATUS.clean_area / 1000000, 1))
     assert state.attributes.get(ATTR_DEVICE_CLASS) is None
+    await mock_config_entry.async_unload(hass)
 
 
 @pytest.mark.asyncio
 async def test_current_clean_duration(hass: HomeAssistant, bypass_api_fixture) -> None:
     """Tests current_clean_duration is getting the correct values."""
-    await setup_platform(hass, SENSOR_DOMAIN)
+    mock_config_entry = await setup_platform(hass, SENSOR_DOMAIN)
     state = hass.states.get("sensor.roborock_s7_maxv_current_clean_duration")
 
     assert state.state == str(STATUS.clean_time)
     assert state.attributes.get(ATTR_DEVICE_CLASS) == SensorDeviceClass.DURATION
+    await mock_config_entry.async_unload(hass)
 
 
 @pytest.mark.asyncio
 async def test_current_clean_area(hass: HomeAssistant, bypass_api_fixture) -> None:
     """Tests current_clean_area is getting the correct values."""
-    await setup_platform(hass, SENSOR_DOMAIN)
+    mock_config_entry = await setup_platform(hass, SENSOR_DOMAIN)
     state = hass.states.get("sensor.roborock_s7_maxv_current_clean_area")
 
     assert state.state == str(round(STATUS.clean_area / 1000000, 1))
     assert state.attributes.get(ATTR_DEVICE_CLASS) is None
+    await mock_config_entry.async_unload(hass)
 
 
 @pytest.mark.asyncio
 async def test_last_clean_start(hass: HomeAssistant, bypass_api_fixture) -> None:
     """Tests last_clean_start is getting the correct values."""
-    await setup_platform(hass, SENSOR_DOMAIN)
+    mock_config_entry = await setup_platform(hass, SENSOR_DOMAIN)
     state = hass.states.get("sensor.roborock_s7_maxv_last_clean_start")
     # Convert time from raw response data to what HA outputs for state
     value = datetime.fromtimestamp(CLEAN_RECORD.begin)
@@ -192,12 +199,13 @@ async def test_last_clean_start(hass: HomeAssistant, bypass_api_fixture) -> None
 
     assert state.state == str(value).replace(" ", "T")
     assert state.attributes.get(ATTR_DEVICE_CLASS) == SensorDeviceClass.TIMESTAMP
+    await mock_config_entry.async_unload(hass)
 
 
 @pytest.mark.asyncio
 async def test_last_clean_end(hass: HomeAssistant, bypass_api_fixture) -> None:
     """Tests last_clean_end is getting the correct values."""
-    await setup_platform(hass, SENSOR_DOMAIN)
+    mock_config_entry = await setup_platform(hass, SENSOR_DOMAIN)
     state = hass.states.get("sensor.roborock_s7_maxv_last_clean_end")
     # Convert time from raw response data to what HA outputs for state
     value = datetime.fromtimestamp(CLEAN_RECORD.end)
@@ -205,36 +213,40 @@ async def test_last_clean_end(hass: HomeAssistant, bypass_api_fixture) -> None:
 
     assert state.state == str(value).replace(" ", "T")
     assert state.attributes.get(ATTR_DEVICE_CLASS) == SensorDeviceClass.TIMESTAMP
+    await mock_config_entry.async_unload(hass)
 
 
 @pytest.mark.asyncio
 async def test_total_duration(hass: HomeAssistant, bypass_api_fixture) -> None:
     """Tests total_duration is getting the correct values."""
-    await setup_platform(hass, SENSOR_DOMAIN)
+    mock_config_entry = await setup_platform(hass, SENSOR_DOMAIN)
     state = hass.states.get("sensor.roborock_s7_maxv_total_duration")
 
     assert state.state == str(CLEAN_SUMMARY.clean_time)
     assert state.attributes.get(ATTR_DEVICE_CLASS) == SensorDeviceClass.DURATION
+    await mock_config_entry.async_unload(hass)
 
 
 @pytest.mark.asyncio
 async def test_total_clean_area(hass: HomeAssistant, bypass_api_fixture) -> None:
     """Tests total_clean_area is getting the correct values."""
-    await setup_platform(hass, SENSOR_DOMAIN)
+    mock_config_entry = await setup_platform(hass, SENSOR_DOMAIN)
     state = hass.states.get("sensor.roborock_s7_maxv_total_clean_area")
 
     assert state.state == str(round(CLEAN_SUMMARY.clean_area / 1000000, 1))
     assert state.attributes.get(ATTR_DEVICE_CLASS) is None
+    await mock_config_entry.async_unload(hass)
 
 
 @pytest.mark.asyncio
 async def test_total_clean_count(hass: HomeAssistant, bypass_api_fixture) -> None:
     """Tests total_clean_count is getting the correct values."""
-    await setup_platform(hass, SENSOR_DOMAIN)
+    mock_config_entry = await setup_platform(hass, SENSOR_DOMAIN)
     state = hass.states.get("sensor.roborock_s7_maxv_total_clean_count")
 
     assert state.state == str(CLEAN_SUMMARY.clean_count)
     assert state.attributes.get("state_class") == SensorStateClass.TOTAL_INCREASING
+    await mock_config_entry.async_unload(hass)
 
 
 @pytest.mark.asyncio
@@ -242,48 +254,53 @@ async def test_total_dust_collection_count(
     hass: HomeAssistant, bypass_api_fixture
 ) -> None:
     """Tests total_dust_collection_count is getting the correct values."""
-    await setup_platform(hass, SENSOR_DOMAIN)
+    mock_config_entry = await setup_platform(hass, SENSOR_DOMAIN)
     state = hass.states.get("sensor.roborock_s7_maxv_total_dust_collection_count")
 
     assert state.state == str(CLEAN_SUMMARY.dust_collection_count)
     assert state.attributes.get("state_class") == SensorStateClass.TOTAL_INCREASING
+    await mock_config_entry.async_unload(hass)
 
 
 @pytest.mark.asyncio
 async def test_main_brush_left(hass: HomeAssistant, bypass_api_fixture) -> None:
     """Tests main_brush_left is getting the correct values."""
-    await setup_platform(hass, SENSOR_DOMAIN)
+    mock_config_entry = await setup_platform(hass, SENSOR_DOMAIN)
     state = hass.states.get("sensor.roborock_s7_maxv_main_brush_left")
 
     assert state.state == str(CONSUMABLE.main_brush_work_time)
     assert state.attributes.get(ATTR_DEVICE_CLASS) == SensorDeviceClass.DURATION
+    await mock_config_entry.async_unload(hass)
 
 
 @pytest.mark.asyncio
 async def test_side_brush_left(hass: HomeAssistant, bypass_api_fixture) -> None:
     """Tests side_brush_left is getting the correct values."""
-    await setup_platform(hass, SENSOR_DOMAIN)
+    mock_config_entry = await setup_platform(hass, SENSOR_DOMAIN)
     state = hass.states.get("sensor.roborock_s7_maxv_side_brush_left")
 
     assert state.state == str(CONSUMABLE.side_brush_work_time)
     assert state.attributes.get(ATTR_DEVICE_CLASS) == SensorDeviceClass.DURATION
+    await mock_config_entry.async_unload(hass)
 
 
 @pytest.mark.asyncio
 async def test_filter_left(hass: HomeAssistant, bypass_api_fixture) -> None:
     """Tests filter_left is getting the correct values."""
-    await setup_platform(hass, SENSOR_DOMAIN)
+    mock_config_entry = await setup_platform(hass, SENSOR_DOMAIN)
     state = hass.states.get("sensor.roborock_s7_maxv_filter_left")
 
     assert state.state == str(CONSUMABLE.filter_work_time)
     assert state.attributes.get(ATTR_DEVICE_CLASS) == SensorDeviceClass.DURATION
+    await mock_config_entry.async_unload(hass)
 
 
 @pytest.mark.asyncio
 async def test_sensor_dirty_left(hass: HomeAssistant, bypass_api_fixture) -> None:
     """Tests sensor_dirty_left is getting the correct values."""
-    await setup_platform(hass, SENSOR_DOMAIN)
+    mock_config_entry = await setup_platform(hass, SENSOR_DOMAIN)
     state = hass.states.get("sensor.roborock_s7_maxv_sensor_dirty_left")
 
     assert state.state == str(CONSUMABLE.sensor_dirty_time)
     assert state.attributes.get(ATTR_DEVICE_CLASS) == SensorDeviceClass.DURATION
+    await mock_config_entry.async_unload(hass)

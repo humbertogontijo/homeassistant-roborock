@@ -4,7 +4,6 @@ from __future__ import annotations
 import asyncio
 import logging
 from datetime import timedelta
-from typing import TypedDict
 
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.core import HomeAssistant
@@ -12,11 +11,9 @@ from homeassistant.exceptions import ConfigEntryError
 from homeassistant.helpers.integration_platform import (
     async_process_integration_platform_for_component,
 )
-from homeassistant.helpers.update_coordinator import UpdateFailed
-from roborock import RoborockConnectionException
 from roborock.api import RoborockApiClient
 from roborock.cloud_api import RoborockMqttClient
-from roborock.containers import HomeData, HomeDataProduct, NetworkInfo, UserData
+from roborock.containers import HomeData, HomeDataProduct, UserData
 from roborock.local_api import RoborockLocalClient
 from roborock.protocol import RoborockProtocol
 
@@ -31,20 +28,15 @@ from .const import (
     DOMAIN,
     PLATFORMS,
     SENSOR,
-    VACUUM
+    VACUUM,
 )
 from .coordinator import RoborockDataUpdateCoordinator
-from .roborock_typing import RoborockHassDeviceInfo, RoborockHassLocalDeviceInfo
+from .roborock_typing import ConfigEntryData, DeviceNetwork, DomainData, RoborockHassDeviceInfo
 from .utils import get_nested_dict, set_nested_dict
 
 SCAN_INTERVAL = timedelta(seconds=30)
 
 _LOGGER = logging.getLogger(__name__)
-
-
-class DomainData(TypedDict):
-    coordinators: list[RoborockDataUpdateCoordinator]
-    platforms: list[str]
 
 
 async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
@@ -53,33 +45,30 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
     await async_process_integration_platform_for_component(hass, DOMAIN)
     hass.data.setdefault(DOMAIN, {})
 
-    user_data = UserData.from_dict(entry.data.get(CONF_USER_DATA))
-    base_url = entry.data.get(CONF_BASE_URL)
-    username = entry.data.get(CONF_ENTRY_USERNAME)
+    data: ConfigEntryData = entry.data
+    user_data = UserData.from_dict(data.get("user_data"))
+    base_url = data.get("base_url")
+    username = data.get("username")
     vacuum_options = entry.options.get(VACUUM, {})
     include_shared = (
         vacuum_options.get(CONF_INCLUDE_SHARED, False)
     )
 
-    local_backup = entry.data.get(CONF_LOCAL_BACKUP)
-    localdevices_info: dict[str, RoborockHassLocalDeviceInfo] = {
-        device_id: RoborockHassLocalDeviceInfo.from_dict(device_info)
-        for device_id, device_info in local_backup.items()
-    } if local_backup else None
+    device_network = data.get("device_network")
+    if device_network is None:
+        device_network = {}
 
     try:
         api_client = RoborockApiClient(username, base_url)
         _LOGGER.debug("Requesting home data")
         home_data = await api_client.get_home_data(user_data)
         hass.config_entries.async_update_entry(
-            entry, data={CONF_HOME_DATA: home_data.as_dict(), **entry.data}
+            entry, data={CONF_HOME_DATA: home_data.as_dict(), **data}
         )
         if home_data is None:
             raise ConfigEntryError("Missing home data. Could not found it in cache")
     except Exception as e:
-        if localdevices_info is None:
-            raise e
-        conf_home_data = entry.data.get(CONF_HOME_DATA)
+        conf_home_data = data.get("home_data")
         home_data = HomeData.from_dict(conf_home_data) if conf_home_data else None
         if home_data is None:
             raise e
@@ -88,12 +77,18 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
 
     platforms = [platform for platform in PLATFORMS if entry.options.get(platform, True)]
 
+    domain_data: DomainData = hass.data.setdefault(DOMAIN, {}).setdefault(
+        entry.entry_id,
+        DomainData(coordinators=[], platforms=platforms)
+    )
+
     devices = (
         home_data.devices + home_data.received_devices
         if include_shared
         else home_data.devices
     )
     for _device in devices:
+        device_id = _device.duid
         product: HomeDataProduct = next(
             (
                 product
@@ -102,42 +97,35 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
             ),
             {},
         )
+
         device_info = RoborockHassDeviceInfo(
             device=_device,
-            product=product
+            product=product,
+            model_specification=product.model_specification
         )
-        if localdevices_info is None or (
-            localdevices_info.get(_device.duid) and localdevices_info.get(_device.duid).is_durty
-        ):
-            local_device_info = await get_local_devices_info(device_info)
+
+        if device_network.get(device_id) is None:
+            devices_network = await get_local_devices_info(device_info)
+            for d_uid, network in devices_network.items():
+                device_network[d_uid] = network
             hass.config_entries.async_update_entry(
-                entry, data={CONF_LOCAL_BACKUP: localdevices_info, **entry.data}
+                entry, data={"device_host": device_network, **data}
             )
-        else:
-            local_device_info = localdevices_info.get(_device.duid)
-        main_client = RoborockLocalClient(local_device_info)
+
+        network = device_network.get(device_id)
+        main_client = RoborockLocalClient(device_info, network.get("ip"))
         map_client = RoborockMqttClient(user_data, device_info)
         data_coordinator = RoborockDataUpdateCoordinator(
             hass, main_client, map_client, device_info, home_data.rooms
         )
 
-        domain_data: DomainData = hass.data.setdefault(DOMAIN, {}).get(entry.entry_id)
-        if not domain_data:
-            domain_data = {"coordinators": [data_coordinator], "platforms": platforms}
-            hass.data.setdefault(DOMAIN, {})[entry.entry_id] = domain_data
-        else:
-            domain_data.get("coordinators").append(data_coordinator)
+        domain_data["coordinators"].append(data_coordinator)
 
-        try:
-            await data_coordinator.async_config_entry_first_refresh()
-        except RoborockConnectionException as e:
-            if localdevices_info:
-                for device_info in localdevices_info.values():
-                    device_info.is_durty = True
-                hass.config_entries.async_update_entry(
-                    entry, data={CONF_LOCAL_BACKUP: localdevices_info, **entry.data}
-                )
-            raise UpdateFailed from e
+    await asyncio.gather(
+        *[
+            _coordinator.async_config_entry_first_refresh() for _coordinator in domain_data["coordinators"]
+        ]
+    )
 
     for platform in platforms:
         hass.async_create_task(
@@ -148,24 +136,21 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
     return True
 
 
-async def get_local_devices_info(
-    device_info: RoborockHassDeviceInfo
-):
+async def get_local_devices_info(device_info: RoborockHassDeviceInfo) -> dict[str, DeviceNetwork]:
     """Get local device info."""
-    discovered = await RoborockProtocol(timeout=10).discover()
-    if discovered is None:
+    discovered_devices = await RoborockProtocol(timeout=10).discover()
+    if discovered_devices is None:
         raise ConfigEntryError("Failed to fetch vacuum networking info")
-    local_ip = discovered.get("ip")
-    device_id = discovered.get("duid")
-    if device_id != device_info.device.duid:
-        raise ConfigEntryError(f"Found invalid device id {device_id}. Expected {device_info.device.duid}")
-    local_device_info = RoborockHassLocalDeviceInfo(
-        device=device_info.device,
-        product=device_info.product,
-        network_info=NetworkInfo(ip=local_ip)
-    )
 
-    return local_device_info
+    devices_network = {
+        device_id: DeviceNetwork(ip=ip, mac="")
+        for device_id, ip in discovered_devices.items()
+    }
+
+    if not any([True for device_id, _ in devices_network.items() if device_id == device_info.device.duid]):
+        raise ConfigEntryError(f"Device {device_info.device.duid} not found among {devices_network}")
+
+    return devices_network
 
 
 async def async_unload_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
@@ -187,6 +172,7 @@ async def async_unload_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
             *[
                 data_coordinator.release()
                 for data_coordinator in data.get("coordinators")
+                if isinstance(data_coordinator, RoborockDataUpdateCoordinator)
             ]
         )
 

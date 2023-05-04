@@ -6,7 +6,6 @@ from homeassistant.setup import async_setup_component
 from pytest_homeassistant_custom_component.common import MockConfigEntry
 from roborock import NetworkInfo
 
-from custom_components.roborock import RoborockHassLocalDeviceInfo
 from custom_components.roborock.const import (
     CAMERA,
     CONF_BASE_URL,
@@ -62,11 +61,7 @@ async def setup_platform(
             return_value=home_data,
     ), patch(
         "custom_components.roborock.get_local_devices_info",
-        side_effect=lambda device_info: RoborockHassLocalDeviceInfo(
-            device=device_info.device,
-            product=device_info.product,
-            network_info=NetworkInfo(ip='127.0.0.1')
-        )
+        side_effect=lambda device_info: {device_info.device.duid: {"ip": "127.0.0.1"}}
     ):
         assert await async_setup_component(hass, DOMAIN, {})
     await hass.async_block_till_done()

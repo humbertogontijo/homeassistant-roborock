@@ -101,37 +101,38 @@ async def async_setup_entry(
 
     entities: list[RoborockBinarySensor] = []
     for coordinator in domain_data.get("coordinators"):
-        device_info = coordinator.data
-        model = device_info.product.model
-        if model not in MODELS_VACUUM_WITH_MOP:
-            return
+        if isinstance(coordinator, RoborockDataUpdateCoordinator):
+            device_info = coordinator.data
+            model = device_info.product.model
+            if model not in MODELS_VACUUM_WITH_MOP:
+                return
 
-        sensors = VACUUM_SENSORS
-        if model in MODELS_VACUUM_WITH_SEPARATE_MOP:
-            sensors = VACUUM_SENSORS_SEPARATE_MOP
-        unique_id = slugify(device_info.device.duid)
-        if coordinator.data:
-            device_prop = device_info.props
-            if device_prop:
-                for sensor, description in sensors.items():
-                    parent_key_data = getattr(device_prop, description.parent_key)
-                    if parent_key_data is None:
-                        _LOGGER.debug(
-                            "It seems the %s does not support the %s as the initial value is None",
-                            device_info.product.model,
-                            sensor,
+            sensors = VACUUM_SENSORS
+            if model in MODELS_VACUUM_WITH_SEPARATE_MOP:
+                sensors = VACUUM_SENSORS_SEPARATE_MOP
+            unique_id = slugify(device_info.device.duid)
+            if coordinator.data:
+                device_prop = device_info.props
+                if device_prop:
+                    for sensor, description in sensors.items():
+                        parent_key_data = getattr(device_prop, description.parent_key)
+                        if parent_key_data is None:
+                            _LOGGER.debug(
+                                "It seems the %s does not support the %s as the initial value is None",
+                                device_info.product.model,
+                                sensor,
+                            )
+                            continue
+                        entities.append(
+                            RoborockBinarySensor(
+                                f"{sensor}_{unique_id}",
+                                device_info,
+                                coordinator,
+                                description,
+                            )
                         )
-                        continue
-                    entities.append(
-                        RoborockBinarySensor(
-                            f"{sensor}_{unique_id}",
-                            device_info,
-                            coordinator,
-                            description,
-                        )
-                    )
-        else:
-            _LOGGER.warning("Failed setting up binary sensors no Roborock data")
+            else:
+                _LOGGER.warning("Failed setting up binary sensors no Roborock data")
 
     async_add_entities(entities)
 

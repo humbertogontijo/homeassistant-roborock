@@ -42,7 +42,7 @@ DEFAULT_SIZES = {
     CONF_SIZE_CHARGER_RADIUS: 6,
 }
 
-NON_REFRESHING_STATES = [RoborockStateCode['8']]
+NON_REFRESHING_STATES = [RoborockStateCode.charging]
 
 
 async def async_setup_entry(
@@ -74,9 +74,10 @@ async def async_setup_entry(
 
     entities: list[VacuumCameraMap] = []
     for coordinator in domain_data.get("coordinators"):
-        device_info = coordinator.data
-        unique_id = slugify(device_info.device.duid)
-        entities.append(VacuumCameraMap(unique_id, image_config, device_info, coordinator))
+        if isinstance(coordinator, RoborockDataUpdateCoordinator):
+            device_info = coordinator.data
+            unique_id = slugify(device_info.device.duid)
+            entities.append(VacuumCameraMap(unique_id, image_config, device_info, coordinator))
     async_add_entities(entities, True)
 
 

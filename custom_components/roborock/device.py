@@ -96,6 +96,7 @@ class RoborockCoordinatedEntity(RoborockEntityBase, CoordinatorEntity[RoborockDa
         self._device_id = str(device_info.device.duid)
         self._device_model = device_info.product.model
         self._fw_version = device_info.device.fv
+        self._model_specification = device_info.model_specification
 
     async def send(self, command: RoborockCommand, params=None):
         """Send a command to a vacuum cleaner."""
