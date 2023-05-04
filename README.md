@@ -15,6 +15,10 @@ Hope everyone can enjoy this integration along side the Roborock App
 
 I recommend installing it through [HACS](https://github.com/hacs/integration)
 
+## IMPORTANT
+Ensure that your HA instance can listen for device broadcasts on port 58866
+Ensure that your HA instance can comunicate to device on port 58867
+
 ### Installing via HACS
 
 1. Go to HACS->Integrations
