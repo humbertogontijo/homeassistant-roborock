@@ -32,7 +32,7 @@ async def test_successful_config_flow(hass: HomeAssistant, bypass_api_fixture):
     """Test a successful config flow."""
     with patch(
             "custom_components.roborock.async_setup_entry", return_value=True
-    ) as mock_setup:
+    ):
         # Initialize a config flow
         result = await hass.config_entries.flow.async_init(
             DOMAIN, context={"source": config_entries.SOURCE_USER}
@@ -82,9 +82,10 @@ async def test_successful_config_flow(hass: HomeAssistant, bypass_api_fixture):
 
 @pytest.mark.asyncio
 async def test_invalid_code(hass: HomeAssistant, bypass_api_fixture):
+    """Test invalid verification code."""
     with patch(
             "custom_components.roborock.async_setup_entry", return_value=True
-    ) as mock_setup:
+    ):
         """Test a failed config flow due to incorrect code."""
         result = await hass.config_entries.flow.async_init(
             DOMAIN, context={"source": config_entries.SOURCE_USER}
@@ -123,9 +124,10 @@ async def test_invalid_code(hass: HomeAssistant, bypass_api_fixture):
 
 @pytest.mark.asyncio
 async def test_no_devices(hass: HomeAssistant, bypass_api_fixture):
+    """Test no device found."""
     with patch(
             "custom_components.roborock.async_setup_entry", return_value=True
-    ) as mock_setup:
+    ):
         """Test a failed config flow due to no devices on Roborock account."""
         result = await hass.config_entries.flow.async_init(
             DOMAIN, context={"source": config_entries.SOURCE_USER}
@@ -167,7 +169,7 @@ async def test_unknown_user(hass: HomeAssistant, bypass_api_fixture):
     """Test a failed config flow due to credential validation failure."""
     with patch(
             "custom_components.roborock.async_setup_entry", return_value=True
-    ) as mock_setup:
+    ):
         result = await hass.config_entries.flow.async_init(
             DOMAIN, context={"source": config_entries.SOURCE_USER}
         )
@@ -197,7 +199,7 @@ async def test_camera_options_flow(hass: HomeAssistant, bypass_api_fixture):
     """Test options flow."""
     with patch(
             "custom_components.roborock.async_setup_entry", return_value=True
-    ) as mock_setup:
+    ):
         # Create a new MockConfigEntry and add to HASS (we're bypassing config
         # flow entirely)
         entry = MockConfigEntry(domain=DOMAIN, data=MOCK_CONFIG, entry_id="test")
@@ -267,7 +269,7 @@ async def test_vacuum_options_flow(hass: HomeAssistant, bypass_api_fixture):
     """Test options flow."""
     with patch(
             "custom_components.roborock.async_setup_entry", return_value=True
-    ) as mock_setup:
+    ):
         # Create a new MockConfigEntry and add to HASS (we're bypassing config
         # flow entirely)
         entry = MockConfigEntry(domain=DOMAIN, data=MOCK_CONFIG, entry_id="test")
@@ -318,7 +320,7 @@ async def test_vacuum_options_flow_persistence(hass: HomeAssistant, bypass_api_f
     """Test options flow."""
     with patch(
             "custom_components.roborock.async_setup_entry", return_value=True
-    ) as mock_setup:
+    ):
         # Create a new MockConfigEntry and add to HASS (we're bypassing config
         # flow entirely)
         entry = MockConfigEntry(domain=DOMAIN, data=MOCK_CONFIG, entry_id="test")

@@ -18,11 +18,6 @@ from homeassistant.helpers import entity_registry as er
 from roborock import ROBOROCK_S7_MAXV, model_specifications
 from roborock.roborock_typing import RoborockCommand
 
-from custom_components.roborock import DOMAIN
-from custom_components.roborock.vacuum import (
-    ATTR_MOP_INTENSITY_LIST,
-    ATTR_MOP_MODE_LIST,
-)
 from .common import setup_platform
 from .mock_data import HOME_DATA
 

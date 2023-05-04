@@ -1,3 +1,4 @@
+"""Typing for Roborock integration."""
 from dataclasses import dataclass
 from typing import Optional, TypedDict
 
@@ -7,16 +8,22 @@ from roborock.code_mappings import ModelSpecification
 
 
 class DomainData(TypedDict):
+    """Define integration domain data."""
+
     coordinators: list[DataUpdateCoordinator]
     platforms: list[str]
 
 
 class DeviceNetwork(TypedDict):
+    """Define any network information needed."""
+
     ip: str
     mac: str
 
 
 class ConfigEntryData(TypedDict):
+    """Define data stored by integration."""
+
     user_data: dict
     home_data: dict
     base_url: str
@@ -26,6 +33,8 @@ class ConfigEntryData(TypedDict):
 
 @dataclass
 class RoborockHassDeviceInfo(RoborockDeviceInfo):
+    """Define a help class to carry device information."""
+
     product: HomeDataProduct
     model_specification: ModelSpecification
     props: Optional[DeviceProp] = None

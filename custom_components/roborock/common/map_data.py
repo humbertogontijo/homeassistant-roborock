@@ -1,6 +1,7 @@
 from __future__ import annotations
 
-from typing import Any, Callable, Dict, List, Optional, Set
+from typing import Any, Dict, List, Optional, Set
+from collections.abc import Callable
 
 from PIL.Image import Image as ImageType
 
@@ -70,7 +71,7 @@ class Obstacle(Point):
         self.details = details
 
     def as_dict(self) -> Dict[str, Any]:
-        return {**super(Obstacle, self).as_dict(), **self.details}
+        return {**super().as_dict(), **self.details}
 
     def __str__(self) -> str:
         return f"({self.x}, {self.y}, details = {self.details})"
@@ -225,7 +226,7 @@ class Room(Zone):
         self.pos_y = pos_y
 
     def as_dict(self) -> Dict[str, Any]:
-        super_dict = {**super(Room, self).as_dict()}
+        super_dict = {**super().as_dict()}
         if self.name is not None:
             super_dict[ATTR_NAME] = self.name
         if self.pos_x is not None:

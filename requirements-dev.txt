@@ -4,3 +4,4 @@ pytest_homeassistant_custom_component~=0.13.23
 aiohttp_cors~=0.7.0
 aiodiscover~=1.4.16
 scapy~=2.5.0
+ruff~=0.0.264

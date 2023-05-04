@@ -58,7 +58,7 @@ class RoborockDataUpdateCoordinator(
             await self.map_api.async_disconnect()
 
     async def fill_room_mapping(self, device_info: RoborockHassDeviceInfo) -> None:
-        """Builds the room mapping - only works for local api."""
+        """Build the room mapping - only works for local api."""
         if device_info.room_mapping is None:
             room_mapping = await self.api.get_room_mapping()
             if room_mapping:
@@ -83,6 +83,7 @@ class RoborockDataUpdateCoordinator(
                 device_info.props = device_prop
 
     async def fill_device_info(self, device_info: RoborockHassDeviceInfo):
+        """Merge device information."""
         await asyncio.gather(
             *([
                 self.fill_device_prop(device_info),

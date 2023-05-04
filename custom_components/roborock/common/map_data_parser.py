@@ -50,41 +50,41 @@ class MapDataParserRoborock:
     def draw_elements(colors: Colors, drawables: Drawables, sizes: Sizes, map_data: MapData, image_config: ImageConfig):
         scale = float(image_config[CONF_SCALE])
         for drawable in drawables:
-            if DRAWABLE_CHARGER == drawable and map_data.charger is not None:
+            if drawable == DRAWABLE_CHARGER and map_data.charger is not None:
                 ImageHandlerRoborock.draw_charger(map_data.image, map_data.charger, sizes, colors)
-            if DRAWABLE_VACUUM_POSITION == drawable and map_data.vacuum_position is not None:
+            if drawable == DRAWABLE_VACUUM_POSITION and map_data.vacuum_position is not None:
                 ImageHandlerRoborock.draw_vacuum_position(map_data.image, map_data.vacuum_position, sizes, colors)
-            if DRAWABLE_OBSTACLES == drawable and map_data.obstacles is not None:
+            if drawable == DRAWABLE_OBSTACLES and map_data.obstacles is not None:
                 ImageHandlerRoborock.draw_obstacles(map_data.image, map_data.obstacles, sizes, colors)
-            if DRAWABLE_IGNORED_OBSTACLES == drawable and map_data.ignored_obstacles is not None:
+            if drawable == DRAWABLE_IGNORED_OBSTACLES and map_data.ignored_obstacles is not None:
                 ImageHandlerRoborock.draw_ignored_obstacles(map_data.image, map_data.ignored_obstacles, sizes, colors)
-            if DRAWABLE_OBSTACLES_WITH_PHOTO == drawable and map_data.obstacles_with_photo is not None:
+            if drawable == DRAWABLE_OBSTACLES_WITH_PHOTO and map_data.obstacles_with_photo is not None:
                 ImageHandlerRoborock.draw_obstacles_with_photo(map_data.image, map_data.obstacles_with_photo, sizes,
                                                                colors)
-            if DRAWABLE_IGNORED_OBSTACLES_WITH_PHOTO == drawable and map_data.ignored_obstacles_with_photo is not None:
+            if drawable == DRAWABLE_IGNORED_OBSTACLES_WITH_PHOTO and map_data.ignored_obstacles_with_photo is not None:
                 ImageHandlerRoborock.draw_ignored_obstacles_with_photo(map_data.image, map_data.ignored_obstacles_with_photo,
                                                                sizes, colors)
-            if DRAWABLE_MOP_PATH == drawable and map_data.mop_path is not None:
+            if drawable == DRAWABLE_MOP_PATH and map_data.mop_path is not None:
                 ImageHandlerRoborock.draw_mop_path(map_data.image, map_data.mop_path, sizes, colors, scale)
-            if DRAWABLE_PATH == drawable and map_data.path is not None:
+            if drawable == DRAWABLE_PATH and map_data.path is not None:
                 ImageHandlerRoborock.draw_path(map_data.image, map_data.path, sizes, colors, scale)
-            if DRAWABLE_GOTO_PATH == drawable and map_data.goto_path is not None:
+            if drawable == DRAWABLE_GOTO_PATH and map_data.goto_path is not None:
                 ImageHandlerRoborock.draw_goto_path(map_data.image, map_data.goto_path, sizes, colors, scale)
-            if DRAWABLE_PREDICTED_PATH == drawable and map_data.predicted_path is not None:
+            if drawable == DRAWABLE_PREDICTED_PATH and map_data.predicted_path is not None:
                 ImageHandlerRoborock.draw_predicted_path(map_data.image, map_data.predicted_path, sizes, colors, scale)
-            if DRAWABLE_NO_CARPET_AREAS == drawable and map_data.no_carpet_areas is not None:
+            if drawable == DRAWABLE_NO_CARPET_AREAS and map_data.no_carpet_areas is not None:
                 ImageHandlerRoborock.draw_no_carpet_areas(map_data.image, map_data.no_carpet_areas, colors)
-            if DRAWABLE_NO_GO_AREAS == drawable and map_data.no_go_areas is not None:
+            if drawable == DRAWABLE_NO_GO_AREAS and map_data.no_go_areas is not None:
                 ImageHandlerRoborock.draw_no_go_areas(map_data.image, map_data.no_go_areas, colors)
-            if DRAWABLE_NO_MOPPING_AREAS == drawable and map_data.no_mopping_areas is not None:
+            if drawable == DRAWABLE_NO_MOPPING_AREAS and map_data.no_mopping_areas is not None:
                 ImageHandlerRoborock.draw_no_mopping_areas(map_data.image, map_data.no_mopping_areas, colors)
-            if DRAWABLE_VIRTUAL_WALLS == drawable and map_data.walls is not None:
+            if drawable == DRAWABLE_VIRTUAL_WALLS and map_data.walls is not None:
                 ImageHandlerRoborock.draw_walls(map_data.image, map_data.walls, colors)
-            if DRAWABLE_ZONES == drawable and map_data.zones is not None:
+            if drawable == DRAWABLE_ZONES and map_data.zones is not None:
                 ImageHandlerRoborock.draw_zones(map_data.image, map_data.zones, colors)
-            if DRAWABLE_CLEANED_AREA == drawable and DRAWABLE_CLEANED_AREA in map_data.image.additional_layers:
+            if drawable == DRAWABLE_CLEANED_AREA and DRAWABLE_CLEANED_AREA in map_data.image.additional_layers:
                 ImageHandlerRoborock.draw_layer(map_data.image, drawable)
-            if DRAWABLE_ROOM_NAMES == drawable and map_data.rooms is not None:
+            if drawable == DRAWABLE_ROOM_NAMES and map_data.rooms is not None:
                 ImageHandlerRoborock.draw_room_names(map_data.image, map_data.rooms, colors)
 
     @staticmethod

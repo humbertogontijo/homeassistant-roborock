@@ -18,21 +18,14 @@ from roborock.local_api import RoborockLocalClient
 from roborock.protocol import RoborockProtocol
 
 from .const import (
-    CONF_BASE_URL,
-    CONF_CLOUD_BACKUP,
-    CONF_ENTRY_USERNAME,
     CONF_HOME_DATA,
     CONF_INCLUDE_SHARED,
-    CONF_LOCAL_BACKUP,
-    CONF_USER_DATA,
     DOMAIN,
     PLATFORMS,
-    SENSOR,
     VACUUM,
 )
 from .coordinator import RoborockDataUpdateCoordinator
 from .roborock_typing import ConfigEntryData, DeviceNetwork, DomainData, RoborockHassDeviceInfo
-from .utils import get_nested_dict, set_nested_dict
 
 SCAN_INTERVAL = timedelta(seconds=30)
 
@@ -147,7 +140,7 @@ async def get_local_devices_info(device_info: RoborockHassDeviceInfo) -> dict[st
         for device_id, ip in discovered_devices.items()
     }
 
-    if not any([True for device_id, _ in devices_network.items() if device_id == device_info.device.duid]):
+    if not any(True for device_id, _ in devices_network.items() if device_id == device_info.device.duid):
         raise ConfigEntryError(f"Device {device_info.device.duid} not found among {devices_network}")
 
     return devices_network

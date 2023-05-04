@@ -1,6 +1,7 @@
 import logging
 import math
-from typing import Tuple, List, Dict, Callable, Set
+from typing import Tuple, List, Dict, Set
+from collections.abc import Callable
 
 from PIL import Image, ImageDraw, ImageFont
 from PIL.Image import Image as ImageType
@@ -420,7 +421,7 @@ class ImageHandlerRoborock:
                                                                           default)
                     else:
                         pixels[x, y] = ImageHandlerRoborock.__get_color__(COLOR_UNKNOWN, colors)
-    
+
                 if idx in carpet_map and (x + y) % 2:
                     def combine_color_component(base: int, overlay: int, alpha: int):
                         return int((base * (255 - alpha) + overlay * alpha) / 255)

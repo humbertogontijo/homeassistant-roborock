@@ -28,7 +28,7 @@ from homeassistant.exceptions import HomeAssistantError
 from homeassistant.helpers import config_validation as cv, entity_platform
 from homeassistant.helpers.entity_platform import AddEntitiesCallback
 from homeassistant.util import slugify
-from roborock import RoborockMopModeCode, RoborockMopIntensityCode, RoborockFanPowerCode, RoborockStateCode
+from roborock import RoborockFanPowerCode, RoborockStateCode
 from roborock.roborock_typing import RoborockCommand
 
 from . import DomainData
@@ -360,7 +360,7 @@ class RoborockVacuum(RoborockCoordinatedEntity, StateVacuumEntity, ABC):
         return capability_attributes
 
     def is_paused(self) -> bool:
-        """Returns if the vacuum is paused."""
+        """Return if the vacuum is paused."""
         return self.state == STATE_PAUSED or self.state == STATE_ERROR
 
     async def async_start(self) -> None:
@@ -435,13 +435,11 @@ class RoborockVacuum(RoborockCoordinatedEntity, StateVacuumEntity, ABC):
         """Give a command over manual control interface."""
         if rotation < self.MANUAL_ROTATION_MIN or rotation > self.MANUAL_ROTATION_MAX:
             raise ValueError(
-                "Given rotation is invalid, should be ]%s, %s[, was %s"
-                % (self.MANUAL_ROTATION_MIN, self.MANUAL_ROTATION_MAX, rotation)
+                f"Given rotation is invalid, should be ]{self.MANUAL_ROTATION_MIN}, {self.MANUAL_ROTATION_MAX}[, was {rotation}"
             )
         if velocity < self.MANUAL_VELOCITY_MIN or velocity > self.MANUAL_VELOCITY_MAX:
             raise ValueError(
-                "Given velocity is invalid, should be ]%s, %s[, was: %s"
-                % (self.MANUAL_VELOCITY_MIN, self.MANUAL_VELOCITY_MAX, velocity)
+                f"Given velocity is invalid, should be ]{self.MANUAL_VELOCITY_MIN}, {self.MANUAL_VELOCITY_MAX}[, was: {velocity}"
             )
 
         self.manual_seqnum += 1

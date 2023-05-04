@@ -68,12 +68,15 @@ class RoborockEntityBase(Entity):
         return status
 
     def is_valid_map(self) -> bool:
+        """Check if map is valid."""
         return self._device_info.is_map_valid
 
     def set_valid_map(self) -> None:
+        """Set map as valid to avoid unnecessary updates."""
         self._device_info.is_map_valid = True
 
     def set_invalid_map(self) -> None:
+        """Set map as invalid so it can be updated."""
         self._device_info.is_map_valid = False
 
 

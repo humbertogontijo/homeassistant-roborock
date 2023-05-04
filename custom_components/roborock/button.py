@@ -1,7 +1,7 @@
+"""Support for Roborock button."""
 from __future__ import annotations
 
 from dataclasses import dataclass
-from typing import Optional
 
 from homeassistant.components.button import (
     ButtonDeviceClass,
@@ -23,6 +23,8 @@ from .roborock_typing import RoborockHassDeviceInfo
 
 @dataclass
 class RoborockButtonDescriptionMixin:
+    """Define an entity description mixin for button entities."""
+
     command: RoborockCommand
     param: list | dict | None
 
@@ -31,7 +33,7 @@ class RoborockButtonDescriptionMixin:
 class RoborockButtonDescription(
     ButtonEntityDescription, RoborockButtonDescriptionMixin
 ):
-    """Describes a Roborock Button"""
+    """Describes a Roborock button entity."""
 
 
 CONSUMABLE_BUTTON_DESCRIPTIONS = [
@@ -96,6 +98,8 @@ async def async_setup_entry(
 
 
 class RoborockButtonEntity(RoborockCoordinatedEntity, ButtonEntity):
+    """A class to define Roborock button entities."""
+
     entity_description: RoborockButtonDescription
 
     def __init__(
@@ -105,8 +109,10 @@ class RoborockButtonEntity(RoborockCoordinatedEntity, ButtonEntity):
         coordinator: RoborockDataUpdateCoordinator,
         entity_description: RoborockButtonDescription,
     ) -> None:
+        """Create a button entity."""
         super().__init__(device_info, coordinator, unique_id)
         self.entity_description = entity_description
 
     async def async_press(self) -> None:
+        """Press the button."""
         await self.send(self.entity_description.command, self.entity_description.param)
