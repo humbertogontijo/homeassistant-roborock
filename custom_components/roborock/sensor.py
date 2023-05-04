@@ -5,6 +5,7 @@ import logging
 from collections.abc import Callable
 from dataclasses import dataclass
 from datetime import datetime, time
+from enum import Enum
 
 from homeassistant.components.sensor import (
     SensorDeviceClass,
@@ -410,6 +411,8 @@ class RoborockSensor(RoborockCoordinatedEntity, SensorEntity):
             native_value = getattr(data, self.entity_description.key)
 
         if native_value is not None:
+            if isinstance(native_value, Enum):
+                native_value = native_value.name
             if self.entity_description.value:
                 device_info = self.coordinator.data
                 native_value = self.entity_description.value(native_value, device_info)
