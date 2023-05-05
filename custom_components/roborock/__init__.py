@@ -93,7 +93,7 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
             for d_uid, network in devices_network.items():
                 device_network[d_uid] = network
             hass.config_entries.async_update_entry(
-                entry, data={"device_host": device_network, **data}
+                entry, data={"device_network": device_network, **data}
             )
         network = device_network.get(device_id)
 
