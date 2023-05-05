@@ -83,11 +83,9 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
     for _device in devices:
         device_id = _device.duid
         product: HomeDataProduct = next(
-            (
                 product
                 for product in home_data.products
                 if product.id == _device.product_id
-            )
         )
 
         if device_network.get(device_id) is None:
