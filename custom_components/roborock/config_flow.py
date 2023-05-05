@@ -219,10 +219,8 @@ class RoborockFlowHandler(config_entries.ConfigFlow, domain=DOMAIN):
         else:
             for device in devices:
                 if not any(
-                        [
-                            discovered_device for discovered_device in self.discovered_devices
-                            if discovered_device.get("duid") == device.duid
-                        ]
+                        discovered_device for discovered_device in self.discovered_devices
+                        if discovered_device.get("duid") == device.duid
                 ):
                     missing_devices.append(device)
 

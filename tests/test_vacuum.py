@@ -110,7 +110,7 @@ async def test_vacuum_fan_speeds(hass: HomeAssistant, bypass_api_fixture) -> Non
 
     fanspeeds = state.attributes.get(ATTR_FAN_SPEED_LIST)
 
-    for speed in RoborockFanSpeedS7MaxV.keys():
+    for speed in RoborockFanSpeedS7MaxV:
         assert speed in fanspeeds
     # Test setting fan speed to "Turbo"
     with patch("custom_components.roborock.vacuum.RoborockVacuum.send") as mock_send:
