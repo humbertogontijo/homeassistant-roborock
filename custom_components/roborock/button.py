@@ -84,16 +84,17 @@ async def async_setup_entry(
 
     entities: list[RoborockButtonEntity] = []
     for coordinator in domain_data.get("coordinators"):
-        device_info = coordinator.data
-        for description in CONSUMABLE_BUTTON_DESCRIPTIONS:
-            entities.append(
-                RoborockButtonEntity(
-                    f"{description.key}_{slugify(device_info.device.duid)}",
-                    device_info,
-                    coordinator,
-                    description,
+        if isinstance(coordinator, RoborockDataUpdateCoordinator):
+            device_info = coordinator.data
+            for description in CONSUMABLE_BUTTON_DESCRIPTIONS:
+                entities.append(
+                    RoborockButtonEntity(
+                        f"{description.key}_{slugify(device_info.device.duid)}",
+                        device_info,
+                        coordinator,
+                        description,
+                    )
                 )
-            )
     async_add_entities(entities)
 
 

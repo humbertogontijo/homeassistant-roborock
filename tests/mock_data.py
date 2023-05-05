@@ -1,21 +1,18 @@
 """Mock data for Roborock tests."""
 from __future__ import annotations
 
-from roborock import ROBOROCK_S7_MAXV, \
-    RoborockDockWashTowelModeCode, \
-    RoborockDockDustCollectionModeCode, \
-    model_specifications
+from roborock import (RoborockDockDustCollectionModeCode, RoborockDockWashTowelModeCode)
 from roborock.containers import (
     CleanRecord,
     CleanSummary,
     Consumable,
     DNDTimer,
-    HomeData,
-    Status,
-    SmartWashParams,
     DustCollectionMode,
+    HomeData,
+    S7MaxVStatus,
+    SmartWashParams,
+    UserData,
     WashTowelMode,
-    UserData
 )
 from roborock.roborock_typing import DeviceProp, DockSummary
 
@@ -332,115 +329,124 @@ HOME_DATA_SHARED_RAW["products"].append(
 
 HOME_DATA_SHARED = HomeData.from_dict(HOME_DATA_SHARED_RAW)
 
-CLEAN_RECORD = CleanRecord.from_dict({
-    "begin": 1672543330,
-    "end": 1672544638,
-    "duration": 1176,
-    "area": 20965000,
-    "error": 0,
-    "complete": 1,
-    "start_type": 2,
-    "clean_type": 3,
-    "finish_reason": 56,
-    "dust_collection_status": 1,
-    "avoid_count": 19,
-    "wash_count": 2,
-    "map_flag": 0,
-})
+CLEAN_RECORD = CleanRecord.from_dict(
+    {
+        "begin": 1672543330,
+        "end": 1672544638,
+        "duration": 1176,
+        "area": 20965000,
+        "error": 0,
+        "complete": 1,
+        "start_type": 2,
+        "clean_type": 3,
+        "finish_reason": 56,
+        "dust_collection_status": 1,
+        "avoid_count": 19,
+        "wash_count": 2,
+        "map_flag": 0,
+    }
+)
 
-CLEAN_SUMMARY = CleanSummary.from_dict({
-    "clean_time": 74382,
-    "clean_area": 1159182500,
-    "clean_count": 31,
-    "dust_collection_count": 25,
-    "records": [
-        1672543330,
-        1672458041,
-        1672284539,
-        1672018069,
-        1671833299,
-        1671762562,
-        1671735384,
-        1671649255,
-        1671636991,
-        1671562835,
-        1671476643,
-        1671399986,
-        1671305160,
-        1671158013,
-        1671142561,
-        1671043136,
-        1670986322,
-        1670957168,
-        1670723771,
-        1670711593,
-    ],
-})
+CLEAN_SUMMARY = CleanSummary.from_dict(
+    {
+        "clean_time": 74382,
+        "clean_area": 1159182500,
+        "clean_count": 31,
+        "dust_collection_count": 25,
+        "records": [
+            1672543330,
+            1672458041,
+            1672284539,
+            1672018069,
+            1671833299,
+            1671762562,
+            1671735384,
+            1671649255,
+            1671636991,
+            1671562835,
+            1671476643,
+            1671399986,
+            1671305160,
+            1671158013,
+            1671142561,
+            1671043136,
+            1670986322,
+            1670957168,
+            1670723771,
+            1670711593,
+        ],
+    }
+)
 
-CONSUMABLE = Consumable.from_dict({
-    "main_brush_work_time": 74382,
-    "side_brush_work_time": 74382,
-    "filter_work_time": 74382,
-    "filter_element_work_time": 0,
-    "sensor_dirty_time": 74382,
-    "strainer_work_times": 65,
-    "dust_collection_work_times": 25,
-    "cleaning_brush_work_times": 65,
-})
+CONSUMABLE = Consumable.from_dict(
+    {
+        "main_brush_work_time": 74382,
+        "side_brush_work_time": 74382,
+        "filter_work_time": 74382,
+        "filter_element_work_time": 0,
+        "sensor_dirty_time": 74382,
+        "strainer_work_times": 65,
+        "dust_collection_work_times": 25,
+        "cleaning_brush_work_times": 65,
+    }
+)
 
-DND_TIMER = DNDTimer.from_dict({
-    "start_hour": 22,
-    "start_minute": 0,
-    "end_hour": 7,
-    "end_minute": 0,
-    "enabled": 1,
-})
+DND_TIMER = DNDTimer.from_dict(
+    {
+        "start_hour": 22,
+        "start_minute": 0,
+        "end_hour": 7,
+        "end_minute": 0,
+        "enabled": 1,
+    }
+)
 
-STATUS = Status.from_dict({
-    "msg_ver": 2,
-    "msg_seq": 458,
-    "state": 8,
-    "battery": 100,
-    "clean_time": 1176,
-    "clean_area": 20965000,
-    "error_code": 0,
-    "map_present": 1,
-    "in_cleaning": 0,
-    "in_returning": 0,
-    "in_fresh_state": 1,
-    "lab_status": 1,
-    "water_box_status": 1,
-    "back_type": -1,
-    "wash_phase": 0,
-    "wash_ready": 0,
-    "fan_power": 102,
-    "dnd_enabled": 0,
-    "map_status": 3,
-    "is_locating": 0,
-    "lock_status": 0,
-    "water_box_mode": 203,
-    "water_box_carriage_status": 1,
-    "mop_forbidden_enable": 1,
-    "camera_status": 3457,
-    "is_exploring": 0,
-    "home_sec_status": 0,
-    "home_sec_enable_password": 0,
-    "adbumper_status": [0, 0, 0],
-    "water_shortage_status": 0,
-    "dock_type": 3,
-    "dust_collection_status": 0,
-    "auto_dust_collection": 1,
-    "avoid_count": 19,
-    "mop_mode": 300,
-    "debug_mode": 0,
-    "collision_avoid_status": 1,
-    "switch_map_mode": 0,
-    "dock_error_status": 0,
-    "charge_status": 1,
-    "unsave_map_reason": 0,
-    "unsave_map_flag": 0,
-})
-STATUS.update_status(model_specifications[ROBOROCK_S7_MAXV])
+STATUS = S7MaxVStatus.from_dict(
+    {
+        "msg_ver": 2,
+        "msg_seq": 458,
+        "state": 8,
+        "battery": 100,
+        "clean_time": 1176,
+        "clean_area": 20965000,
+        "error_code": 0,
+        "map_present": 1,
+        "in_cleaning": 0,
+        "in_returning": 0,
+        "in_fresh_state": 1,
+        "lab_status": 1,
+        "water_box_status": 1,
+        "back_type": -1,
+        "wash_phase": 0,
+        "wash_ready": 0,
+        "fan_power": 102,
+        "dnd_enabled": 0,
+        "map_status": 3,
+        "is_locating": 0,
+        "lock_status": 0,
+        "water_box_mode": 203,
+        "water_box_carriage_status": 1,
+        "mop_forbidden_enable": 1,
+        "camera_status": 3457,
+        "is_exploring": 0,
+        "home_sec_status": 0,
+        "home_sec_enable_password": 0,
+        "adbumper_status": [0, 0, 0],
+        "water_shortage_status": 0,
+        "dock_type": 3,
+        "dust_collection_status": 0,
+        "auto_dust_collection": 1,
+        "avoid_count": 19,
+        "mop_mode": 300,
+        "debug_mode": 0,
+        "collision_avoid_status": 1,
+        "switch_map_mode": 0,
+        "dock_error_status": 0,
+        "charge_status": 1,
+        "unsave_map_reason": 0,
+        "unsave_map_flag": 0,
+    }
+)
 
 DUST_COLLECTION_MODE = DustCollectionMode(mode=RoborockDockDustCollectionModeCode.smart)
 

@@ -1,10 +1,10 @@
 """Support for Roborock select."""
 from __future__ import annotations
 
+import logging
 from collections.abc import Callable
 from dataclasses import dataclass
 
-from roborock.code_mappings import ModelSpecification
 from roborock.containers import Status
 from roborock.roborock_typing import RoborockCommand
 
@@ -19,6 +19,8 @@ from .coordinator import RoborockDataUpdateCoordinator
 from .device import RoborockCoordinatedEntity
 from .roborock_typing import DomainData, RoborockHassDeviceInfo
 
+_LOGGER = logging.getLogger(__name__)
+
 
 @dataclass
 class RoborockSelectDescriptionMixin:
@@ -26,8 +28,8 @@ class RoborockSelectDescriptionMixin:
 
     api_command: RoborockCommand
     value_fn: Callable[[Status], str]
-    options_lambda: Callable[[ModelSpecification], list[str]]
-    option_lambda: Callable[[tuple[str, ModelSpecification]], list[int]]
+    options_lambda: Callable[[Status], list[str]]
+    option_lambda: Callable[[tuple[str, Status]], list[int]]
 
 
 @dataclass
@@ -42,20 +44,20 @@ SELECT_DESCRIPTIONS: list[RoborockSelectDescription] = [
         key="water_box_mode",
         translation_key="mop_intensity",
         api_command=RoborockCommand.SET_WATER_BOX_CUSTOM_MODE,
-        value_fn=lambda data: data.water_box_mode_enum.name if data.water_box_mode_enum else None,
-        options_lambda=lambda data: data.mop_intensity_code.values(),
+        value_fn=lambda data: data.water_box_mode.name if data.water_box_mode else None,
+        options_lambda=lambda data: data.water_box_mode.values() if data.water_box_mode else None,
         option_lambda=lambda data: [
-            k for k, v in data[1].mop_intensity_code.items() if v == data[0]
+            k for k, v in data[1].water_box_mode.items() if v == data[0]
         ],
     ),
     RoborockSelectDescription(
         key="mop_mode",
         translation_key="mop_mode",
         api_command=RoborockCommand.SET_MOP_MODE,
-        value_fn=lambda data: data.mop_mode_enum.name if data.mop_mode_enum else None,
-        options_lambda=lambda data: data.mop_mode_code.values(),
+        value_fn=lambda data: data.mop_mode.name if data.mop_mode else None,
+        options_lambda=lambda data: data.mop_mode.values() if data.mop_mode else None,
         option_lambda=lambda data: [
-            k for k, v in data[1].mop_mode_code.items() if v == data[0]
+            k for k, v in data[1].mop_mode.items() if v == data[0]
         ],
     ),
 ]
@@ -75,16 +77,20 @@ async def async_setup_entry(
         if isinstance(coordinator, RoborockDataUpdateCoordinator):
             device_info = coordinator.data
             unique_id = slugify(device_info.device.duid)
-            for description in SELECT_DESCRIPTIONS:
-                if description.options_lambda(device_info.model_specification) is not None:
-                    entities.append(
-                        RoborockSelectEntity(
-                            f"{description.key}_{unique_id}",
-                            device_info,
-                            coordinator,
-                            description,
+            device_prop = device_info.props
+            if device_prop:
+                for description in SELECT_DESCRIPTIONS:
+                    if description.options_lambda(device_prop.status) is not None:
+                        entities.append(
+                            RoborockSelectEntity(
+                                f"{description.key}_{unique_id}",
+                                device_info,
+                                coordinator,
+                                description,
+                            )
                         )
-                    )
+            else:
+                _LOGGER.warning("Failed setting up selects: No Roborock data")
     async_add_entities(entities)
 
 
@@ -103,7 +109,7 @@ class RoborockSelectEntity(RoborockCoordinatedEntity, SelectEntity):
         """Create a select entity."""
         self.entity_description = entity_description
         self._attr_options = self.entity_description.options_lambda(
-            device_info.model_specification
+            device_info.props.status
         )
         super().__init__(device_info, coordinator, unique_id)
 
@@ -111,7 +117,7 @@ class RoborockSelectEntity(RoborockCoordinatedEntity, SelectEntity):
         """Set the option."""
         await self.send(
             self.entity_description.api_command,
-            self.entity_description.option_lambda((option, self._model_specification)),
+            self.entity_description.option_lambda((option, self._device_status)),
         )
 
     @property

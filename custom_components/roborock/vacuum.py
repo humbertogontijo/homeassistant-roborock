@@ -311,36 +311,36 @@ class RoborockVacuum(RoborockCoordinatedEntity, StateVacuumEntity, ABC):
         """Return the fan speed of the vacuum cleaner."""
         if self._device_status is None:
             return None
-        return self._device_status.fan_power_enum.name
+        return self._device_status.fan_power.name
 
     @property
     def fan_speed_list(self) -> list[str]:
         """Get the list of available fan speed steps of the vacuum cleaner."""
-        return self._model_specification.fan_power_code.values()
+        return self._device_status.fan_power.keys()
 
     @property
     def mop_mode(self) -> str | None:
         """Return the mop mode of the vacuum cleaner."""
         if self._device_status is None:
             return None
-        return self._device_status.mop_mode_enum.name
+        return self._device_status.mop_mode.name
 
     @property
     def mop_mode_list(self) -> list[str]:
         """Get the list of available mop mode steps of the vacuum cleaner."""
-        return self._model_specification.mop_mode_code.values()
+        return self._device_status.mop_mode.keys()
 
     @property
     def mop_intensity(self) -> str | None:
         """Return the mop intensity of the vacuum cleaner."""
         if self._device_status is None:
             return None
-        return self._device_status.water_box_mode_enum.name
+        return self._device_status.water_box_mode.name
 
     @property
     def mop_intensity_list(self) -> list[str]:
         """Get the list of available mop intensity steps of the vacuum cleaner."""
-        return self._model_specification.mop_intensity_code.values()
+        return self._device_status.water_box_mode.keys()
 
     @property
     def error(self) -> str | None:
@@ -396,21 +396,21 @@ class RoborockVacuum(RoborockCoordinatedEntity, StateVacuumEntity, ABC):
         """Set vacuum fan speed."""
         await self.send(
             RoborockCommand.SET_CUSTOM_MODE,
-            [k for k, v in self._model_specification.fan_power_code.items() if v == fan_speed],
+            [k for k, v in self._device_status.fan_power.items() if v == fan_speed],
         )
 
     async def async_set_mop_mode(self, mop_mode: str, _=None) -> None:
         """Change vacuum mop mode."""
         await self.send(
             RoborockCommand.SET_MOP_MODE,
-            [k for k, v in self._model_specification.mop_mode_code.items() if v == mop_mode],
+            [k for k, v in self._device_status.mop_mode.items() if v == mop_mode],
         )
 
     async def async_set_mop_intensity(self, mop_intensity: str, _=None):
         """Set vacuum mop intensity."""
         await self.send(
             RoborockCommand.SET_WATER_BOX_CUSTOM_MODE,
-            [k for k, v in self._model_specification.mop_intensity_code.items() if v == mop_intensity],
+            [k for k, v in self._device_status.water_box_mode.items() if v == mop_intensity],
         )
 
     async def async_manual_start(self):
@@ -435,11 +435,13 @@ class RoborockVacuum(RoborockCoordinatedEntity, StateVacuumEntity, ABC):
         """Give a command over manual control interface."""
         if rotation < self.MANUAL_ROTATION_MIN or rotation > self.MANUAL_ROTATION_MAX:
             raise ValueError(
-                f"Given rotation is invalid, should be ]{self.MANUAL_ROTATION_MIN}, {self.MANUAL_ROTATION_MAX}[, was {rotation}"
+                f"Given rotation is invalid, should be ]{self.MANUAL_ROTATION_MIN}, {self.MANUAL_ROTATION_MAX}[,"
+                f" was {rotation}"
             )
         if velocity < self.MANUAL_VELOCITY_MIN or velocity > self.MANUAL_VELOCITY_MAX:
             raise ValueError(
-                f"Given velocity is invalid, should be ]{self.MANUAL_VELOCITY_MIN}, {self.MANUAL_VELOCITY_MAX}[, was: {velocity}"
+                f"Given velocity is invalid, should be ]{self.MANUAL_VELOCITY_MIN}, {self.MANUAL_VELOCITY_MAX}[,"
+                f" was: {velocity}"
             )
 
         self.manual_seqnum += 1

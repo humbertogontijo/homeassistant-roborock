@@ -103,7 +103,7 @@ async def async_setup_entry(
     for coordinator in domain_data.get("coordinators"):
         if isinstance(coordinator, RoborockDataUpdateCoordinator):
             device_info = coordinator.data
-            model = device_info.product.model
+            model = device_info.model
             if model not in MODELS_VACUUM_WITH_MOP:
                 return
 
@@ -119,7 +119,7 @@ async def async_setup_entry(
                         if parent_key_data is None:
                             _LOGGER.debug(
                                 "It seems the %s does not support the %s as the initial value is None",
-                                device_info.product.model,
+                                device_info.model,
                                 sensor,
                             )
                             continue

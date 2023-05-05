@@ -3,8 +3,7 @@ from dataclasses import dataclass
 from typing import Optional, TypedDict
 
 from homeassistant.helpers.update_coordinator import DataUpdateCoordinator
-from roborock import DeviceProp, HomeDataProduct, RoborockDeviceInfo
-from roborock.code_mappings import ModelSpecification
+from roborock import DeviceProp, RoborockDeviceInfo
 
 
 class DomainData(TypedDict):
@@ -35,8 +34,6 @@ class ConfigEntryData(TypedDict):
 class RoborockHassDeviceInfo(RoborockDeviceInfo):
     """Define a help class to carry device information."""
 
-    product: HomeDataProduct
-    model_specification: ModelSpecification
     props: Optional[DeviceProp] = None
     is_map_valid: Optional[bool] = False
     map_mapping: Optional[dict[int, str]] = None

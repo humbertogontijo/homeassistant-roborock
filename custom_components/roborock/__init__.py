@@ -93,8 +93,7 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
 
         device_info = RoborockHassDeviceInfo(
             device=_device,
-            product=product,
-            model_specification=product.model_specification
+            model=product.model
         )
 
         if device_network.get(device_id) is None:

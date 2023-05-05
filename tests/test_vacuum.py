@@ -2,9 +2,10 @@
 from unittest.mock import patch
 
 import pytest
-from homeassistant.components.vacuum import ATTR_FAN_SPEED, ATTR_FAN_SPEED_LIST
-from homeassistant.components.vacuum import DOMAIN as VACUUM_DOMAIN
 from homeassistant.components.vacuum import (
+    ATTR_FAN_SPEED,
+    ATTR_FAN_SPEED_LIST,
+    DOMAIN as VACUUM_DOMAIN,
     SERVICE_CLEAN_SPOT,
     SERVICE_LOCATE,
     SERVICE_PAUSE,
@@ -15,7 +16,7 @@ from homeassistant.components.vacuum import (
 )
 from homeassistant.core import HomeAssistant
 from homeassistant.helpers import entity_registry as er
-from roborock import ROBOROCK_S7_MAXV, model_specifications
+from roborock import RoborockFanSpeedS7MaxV
 from roborock.roborock_typing import RoborockCommand
 
 from .common import setup_platform
@@ -96,6 +97,7 @@ async def test_vacuum_services(hass: HomeAssistant, bypass_api_fixture) -> None:
         assert mock_mqtt_api_command.call_count + mock_local_api_command.call_count == calls
     await mock_config_entry.async_unload(hass)
 
+
 @pytest.mark.asyncio
 async def test_vacuum_fan_speeds(hass: HomeAssistant, bypass_api_fixture) -> None:
     """Test vacuum fan speeds."""
@@ -108,7 +110,7 @@ async def test_vacuum_fan_speeds(hass: HomeAssistant, bypass_api_fixture) -> Non
 
     fanspeeds = state.attributes.get(ATTR_FAN_SPEED_LIST)
 
-    for speed in model_specifications[ROBOROCK_S7_MAXV].fan_power_code.values():
+    for speed in RoborockFanSpeedS7MaxV.keys():
         assert speed in fanspeeds
     # Test setting fan speed to "Turbo"
     with patch("custom_components.roborock.vacuum.RoborockVacuum.send") as mock_send:
