@@ -3,7 +3,7 @@ from dataclasses import dataclass
 from typing import Optional, TypedDict
 
 from homeassistant.helpers.update_coordinator import DataUpdateCoordinator
-from roborock import DeviceProp, RoborockDeviceInfo
+from roborock import DeviceProp, DeviceData
 
 
 class DomainData(TypedDict):
@@ -31,7 +31,7 @@ class ConfigEntryData(TypedDict):
 
 
 @dataclass
-class RoborockHassDeviceInfo(RoborockDeviceInfo):
+class RoborockHassDeviceInfo(DeviceData):
     """Define a help class to carry device information."""
 
     props: Optional[DeviceProp] = None

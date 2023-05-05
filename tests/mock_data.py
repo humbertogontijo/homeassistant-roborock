@@ -6,7 +6,7 @@ from roborock.containers import (
     CleanRecord,
     CleanSummary,
     Consumable,
-    DNDTimer,
+    DnDTimer,
     DustCollectionMode,
     HomeData,
     S7MaxVStatus,
@@ -391,7 +391,7 @@ CONSUMABLE = Consumable.from_dict(
     }
 )
 
-DND_TIMER = DNDTimer.from_dict(
+DND_TIMER = DnDTimer.from_dict(
     {
         "start_hour": 22,
         "start_minute": 0,

@@ -5,22 +5,20 @@ import logging
 from typing import Any
 
 import voluptuous as vol
+from homeassistant import config_entries
+from homeassistant.components import dhcp
+from homeassistant.const import CONF_DEVICE_ID, CONF_HOST
+from homeassistant.core import callback
+from homeassistant.data_entry_flow import FlowResult
 from roborock.api import RoborockApiClient
 from roborock.containers import UserData
 
-from homeassistant import config_entries
-from homeassistant.components import dhcp
-from homeassistant.core import callback
-from homeassistant.data_entry_flow import FlowResult
-from roborock.protocol import RoborockProtocol
-
-from . import ConfigEntryData
+from . import ConfigEntryData, DeviceNetwork
 from .const import (
     CAMERA,
     CONF_BASE_URL,
     CONF_BOTTOM,
     CONF_ENTRY_CODE,
-    CONF_ENTRY_IP,
     CONF_ENTRY_PASSWORD,
     CONF_ENTRY_USERNAME,
     CONF_INCLUDE_IGNORED_OBSTACLES,
@@ -199,47 +197,6 @@ class RoborockFlowHandler(config_entries.ConfigFlow, domain=DOMAIN):
             last_step=False,
         )
 
-    async def async_step_configure_device(self, user_input: dict[str, Any] | None = None) -> FlowResult:
-        """Finished config flow and create entry."""
-        discovery_failed = None
-        try:
-            self.discovered_devices = await RoborockProtocol().discover()
-        except BaseException as e:
-            discovery_failed = e
-
-        if not len(self.discovered_devices):
-            discovery_failed = True
-
-        home_data = await self._client.get_home_data(self.user_data)
-        devices = home_data.get_all_devices()
-
-        missing_devices = []
-        if discovery_failed:
-            missing_devices = devices
-        else:
-            for device in devices:
-                if not any(
-                        discovered_device for discovered_device in self.discovered_devices
-                        if discovered_device.get("duid") == device.duid
-                ):
-                    missing_devices.append(device)
-
-        if not len(missing_devices):
-            pass
-
-        return self.async_show_form(
-            step_id="type_ip",
-            data_schema=vol.Schema(
-                {
-                    vol.Required(
-                        CONF_ENTRY_IP, default=user_input.get(CONF_ENTRY_IP) if user_input else None
-                    ): str
-                }
-            ),
-            errors=self._errors,
-            last_step=False,
-        )
-
     def _create_entry(self, username: str, user_data: UserData) -> FlowResult:
         """Finished config flow and create entry."""
         return self.async_create_entry(
@@ -299,6 +256,13 @@ def discriminant(_: Any, validators: tuple):
     return reversed(list(validators))
 
 
+DEVICE_SCHEMA = vol.Schema(
+    {
+        vol.Required(CONF_HOST): str,
+        vol.Required(CONF_DEVICE_ID): str,
+    }
+)
+
 POSITIVE_FLOAT_SCHEMA = vol.All(vol.Coerce(float), vol.Range(min=0))
 ROTATION_SCHEMA = vol.All(
     vol.Coerce(int),
@@ -352,6 +316,7 @@ class RoborockOptionsFlowHandler(config_entries.OptionsFlow):
         """Initialize HACS options flow."""
         self.config_entry = config_entry
         self.options = dict(config_entry.options)
+        self.discovered_devices = None
 
     async def async_step_init(
             self, _user_input: dict[str, Any] | None = None
@@ -366,6 +331,38 @@ class RoborockOptionsFlowHandler(config_entries.OptionsFlow):
         return self.async_show_menu(
             step_id="user",
             menu_options=[CAMERA, VACUUM],
+        )
+
+    async def async_step_menu(
+            self, _user_input: dict[str, Any] | None = None
+    ) -> FlowResult:
+        """Handle a flow initialized by the user."""
+        return self.async_show_menu(
+            step_id="user",
+            menu_options=[CAMERA, VACUUM, "configure_device"],
+        )
+
+    async def async_step_configure_device(self, user_input: dict[str, Any] | None = None) -> FlowResult:
+        """Finished config flow and create entry."""
+        errors = {}
+        if user_input:
+            host = user_input.get(CONF_HOST)
+            device_id = user_input.get(CONF_DEVICE_ID)
+            if not host or not device_id:
+                errors["base"] = "host_required"
+            else:
+                data: ConfigEntryData = self.config_entry.data
+                device_network = data.get("device_network")
+                device_network.update({host: DeviceNetwork(ip=host, mac="")})
+                self.hass.config_entries.async_update_entry(
+                    self.config_entry, data=data
+                )
+                return await self._update_options()
+
+        return self.async_show_form(
+            step_id="configure_device",
+            data_schema=vol.Schema(DEVICE_SCHEMA),
+            errors=errors,
         )
 
     async def async_step_camera(

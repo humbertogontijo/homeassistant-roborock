@@ -12,7 +12,6 @@ CONF_ENTRY_CODE = "code"
 CONF_ENTRY_PASSWORD = "password"
 CONF_BASE_URL = "base_url"
 CONF_USER_DATA = "user_data"
-CONF_ENTRY_IP = "ip"
 DEFAULT_NAME = DOMAIN
 
 CONF_HOME_DATA = "home_data"

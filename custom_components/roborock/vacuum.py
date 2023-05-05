@@ -274,7 +274,7 @@ class RoborockVacuum(RoborockCoordinatedEntity, StateVacuumEntity, ABC):
         """Return the status of the vacuum cleaner."""
         if self._device_status is None:
             return None
-        return self._device_status.state
+        return self._device_status.state.name if self._device_status.state else None
 
     @property
     def extra_state_attributes(self) -> dict[str, Any]:
@@ -311,43 +311,41 @@ class RoborockVacuum(RoborockCoordinatedEntity, StateVacuumEntity, ABC):
         """Return the fan speed of the vacuum cleaner."""
         if self._device_status is None:
             return None
-        return self._device_status.fan_power.name
+        return self._device_status.fan_power.name if self._device_status.fan_power else None
 
     @property
     def fan_speed_list(self) -> list[str]:
         """Get the list of available fan speed steps of the vacuum cleaner."""
-        return self._device_status.fan_power.keys()
+        return self._device_status.fan_power.keys() if self._device_status.fan_power else None
 
     @property
     def mop_mode(self) -> str | None:
         """Return the mop mode of the vacuum cleaner."""
         if self._device_status is None:
             return None
-        return self._device_status.mop_mode.name
+        return self._device_status.mop_mode.name if self._device_status.mop_mode else None
 
     @property
     def mop_mode_list(self) -> list[str]:
         """Get the list of available mop mode steps of the vacuum cleaner."""
-        return self._device_status.mop_mode.keys()
+        return self._device_status.mop_mode.keys() if self._device_status.mop_mode else None
 
     @property
     def mop_intensity(self) -> str | None:
         """Return the mop intensity of the vacuum cleaner."""
         if self._device_status is None:
             return None
-        return self._device_status.water_box_mode.name
+        return self._device_status.water_box_mode.name if self._device_status.water_box_mode else None
 
     @property
     def mop_intensity_list(self) -> list[str]:
         """Get the list of available mop intensity steps of the vacuum cleaner."""
-        return self._device_status.water_box_mode.keys()
+        return self._device_status.water_box_mode.keys() if self._device_status.water_box_mode else None
 
     @property
     def error(self) -> str | None:
         """Get the error translated if one exist."""
-        if self._device_status is None:
-            return None
-        return self._device_status.error_code
+        return self._device_status.error_code.name if self._device_status.error_code else None
 
     @property
     def capability_attributes(self) -> dict[str, list[str]]:

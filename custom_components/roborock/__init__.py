@@ -13,7 +13,7 @@ from homeassistant.helpers.integration_platform import (
 )
 from roborock.api import RoborockApiClient
 from roborock.cloud_api import RoborockMqttClient
-from roborock.containers import HomeData, HomeDataProduct, UserData
+from roborock.containers import HomeData, HomeDataDevice, HomeDataProduct, UserData
 from roborock.local_api import RoborockLocalClient
 from roborock.protocol import RoborockProtocol
 
@@ -87,25 +87,25 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
                 product
                 for product in home_data.products
                 if product.id == _device.product_id
-            ),
-            {},
-        )
-
-        device_info = RoborockHassDeviceInfo(
-            device=_device,
-            model=product.model
+            )
         )
 
         if device_network.get(device_id) is None:
-            devices_network = await get_local_devices_info(device_info)
+            devices_network = await get_local_devices_info(_device)
             for d_uid, network in devices_network.items():
                 device_network[d_uid] = network
             hass.config_entries.async_update_entry(
                 entry, data={"device_host": device_network, **data}
             )
-
         network = device_network.get(device_id)
-        main_client = RoborockLocalClient(device_info, network.get("ip"))
+
+        device_info = RoborockHassDeviceInfo(
+            device=_device,
+            model=product.model,
+            host=network.get("ip")
+        )
+
+        main_client = RoborockLocalClient(device_info)
         map_client = RoborockMqttClient(user_data, device_info)
         data_coordinator = RoborockDataUpdateCoordinator(
             hass, main_client, map_client, device_info, home_data.rooms
@@ -128,19 +128,19 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
     return True
 
 
-async def get_local_devices_info(device_info: RoborockHassDeviceInfo) -> dict[str, DeviceNetwork]:
+async def get_local_devices_info(device: HomeDataDevice) -> dict[str, DeviceNetwork]:
     """Get local device info."""
     discovered_devices = await RoborockProtocol(timeout=10).discover()
     if discovered_devices is None:
         raise ConfigEntryError("Failed to fetch vacuum networking info")
 
     devices_network = {
-        device_id: DeviceNetwork(ip=ip, mac="")
-        for device_id, ip in discovered_devices.items()
+        discovered_device.duid: DeviceNetwork(ip=discovered_device.ip, mac="")
+        for discovered_device in discovered_devices
     }
 
-    if not any(True for device_id, _ in devices_network.items() if device_id == device_info.device.duid):
-        raise ConfigEntryError(f"Device {device_info.device.duid} not found among {devices_network}")
+    if not any(True for device_id, _ in devices_network.items() if device_id == device.duid):
+        raise ConfigEntryError(f"Device {device.duid} not found among {devices_network}")
 
     return devices_network
 

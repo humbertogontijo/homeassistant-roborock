@@ -45,9 +45,9 @@ SELECT_DESCRIPTIONS: list[RoborockSelectDescription] = [
         translation_key="mop_intensity",
         api_command=RoborockCommand.SET_WATER_BOX_CUSTOM_MODE,
         value_fn=lambda data: data.water_box_mode.name if data.water_box_mode else None,
-        options_lambda=lambda data: data.water_box_mode.values() if data.water_box_mode else None,
+        options_lambda=lambda data: data.water_box_mode.keys() if data.water_box_mode else None,
         option_lambda=lambda data: [
-            k for k, v in data[1].water_box_mode.items() if v == data[0]
+            v for k, v in data[1].water_box_mode.items() if k == data[0]
         ],
     ),
     RoborockSelectDescription(
@@ -55,9 +55,9 @@ SELECT_DESCRIPTIONS: list[RoborockSelectDescription] = [
         translation_key="mop_mode",
         api_command=RoborockCommand.SET_MOP_MODE,
         value_fn=lambda data: data.mop_mode.name if data.mop_mode else None,
-        options_lambda=lambda data: data.mop_mode.values() if data.mop_mode else None,
+        options_lambda=lambda data: data.mop_mode.keys() if data.mop_mode else None,
         option_lambda=lambda data: [
-            k for k, v in data[1].mop_mode.items() if v == data[0]
+            v for k, v in data[1].mop_mode.items() if k == data[0]
         ],
     ),
 ]
