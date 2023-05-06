@@ -394,21 +394,21 @@ class RoborockVacuum(RoborockCoordinatedEntity, StateVacuumEntity, ABC):
         """Set vacuum fan speed."""
         await self.send(
             RoborockCommand.SET_CUSTOM_MODE,
-            [k for k, v in self._device_status.fan_power.items() if v == fan_speed],
+            [v for k, v in self._device_status.fan_power.items() if k == fan_speed],
         )
 
     async def async_set_mop_mode(self, mop_mode: str, _=None) -> None:
         """Change vacuum mop mode."""
         await self.send(
             RoborockCommand.SET_MOP_MODE,
-            [k for k, v in self._device_status.mop_mode.items() if v == mop_mode],
+            [v for k, v in self._device_status.mop_mode.items() if k == mop_mode],
         )
 
     async def async_set_mop_intensity(self, mop_intensity: str, _=None):
         """Set vacuum mop intensity."""
         await self.send(
             RoborockCommand.SET_WATER_BOX_CUSTOM_MODE,
-            [k for k, v in self._device_status.water_box_mode.items() if v == mop_intensity],
+            [v for k, v in self._device_status.water_box_mode.items() if k == mop_intensity],
         )
 
     async def async_manual_start(self):
