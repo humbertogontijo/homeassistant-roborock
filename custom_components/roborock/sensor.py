@@ -224,7 +224,7 @@ VACUUM_SENSORS = {
     ),
     f"consumable_{ATTR_CONSUMABLE_STATUS_MAIN_BRUSH_LEFT}": RoborockSensorDescription(
         native_unit_of_measurement=UnitOfTime.SECONDS,
-        key="main_brush_work_time",
+        key="main_brush_time_left",
         icon="mdi:brush",
         device_class=SensorDeviceClass.DURATION,
         parent_key="consumable",
@@ -234,7 +234,7 @@ VACUUM_SENSORS = {
     ),
     f"consumable_{ATTR_CONSUMABLE_STATUS_SIDE_BRUSH_LEFT}": RoborockSensorDescription(
         native_unit_of_measurement=UnitOfTime.SECONDS,
-        key="side_brush_work_time",
+        key="side_brush_time_left",
         icon="mdi:brush",
         device_class=SensorDeviceClass.DURATION,
         parent_key="consumable",
@@ -244,7 +244,7 @@ VACUUM_SENSORS = {
     ),
     f"consumable_{ATTR_CONSUMABLE_STATUS_FILTER_LEFT}": RoborockSensorDescription(
         native_unit_of_measurement=UnitOfTime.SECONDS,
-        key="filter_work_time",
+        key="filter_time_left",
         icon="mdi:air-filter",
         device_class=SensorDeviceClass.DURATION,
         parent_key="consumable",
