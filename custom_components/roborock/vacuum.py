@@ -28,7 +28,7 @@ from homeassistant.exceptions import HomeAssistantError
 from homeassistant.helpers import config_validation as cv, entity_platform
 from homeassistant.helpers.entity_platform import AddEntitiesCallback
 from homeassistant.util import slugify
-from roborock import RoborockFanPowerCode, RoborockStateCode
+from roborock import RoborockStateCode
 from roborock.roborock_typing import RoborockCommand
 
 from . import DomainData
