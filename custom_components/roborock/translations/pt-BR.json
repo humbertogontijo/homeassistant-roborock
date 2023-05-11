@@ -76,16 +76,16 @@
   "entity": {
     "button": {
       "reset_sensor_consumable": {
-        "name": "Reset sensor consumable"
+        "name": "Reiniciar manutenção sensores"
       },
       "reset_filter_consumable": {
-        "name": "Reset filter consumable"
+        "name": "Reiniciar manutenção filtro"
       },
       "reset_side_brush_consumable": {
-        "name": "Reset side brush consumable"
+        "name": "Reiniciar manutenção escova lateral"
       },
       "reset_main_brush_consumable": {
-        "name": "Reset main brush consumable"
+        "name": "Reiniciar manutenção escova principal"
       }
     },
     "sensor": {
@@ -125,7 +125,7 @@
         "name": "Inicio não perturbe"
       },
       "dnd_end": {
-        "name": "Fim nãop perturbe"
+        "name": "Fim não perturbe"
       },
       "last_clean_start": {
         "name": "Inicio última limpeza"
@@ -155,7 +155,7 @@
         "name": "Contagem total limpezas"
       },
       "total_dust_collection_count": {
-        "name": "Contatagem total coleta de poeira"
+        "name": "Contagem total coleta de poeira"
       },
       "main_brush_left": {
         "name": "Restante escova principal"
@@ -167,7 +167,7 @@
         "name": "Restante filtro"
       },
       "sensor_dirty_left": {
-        "name": "Restante sensor poeira"
+        "name": "Restante sensores"
       },
       "dock_status": {
         "name": "Estado da dock"

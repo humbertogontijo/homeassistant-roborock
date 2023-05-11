@@ -254,7 +254,7 @@ VACUUM_SENSORS = {
     ),
     f"consumable_{ATTR_CONSUMABLE_STATUS_SENSOR_DIRTY_LEFT}": RoborockSensorDescription(
         native_unit_of_measurement=UnitOfTime.SECONDS,
-        key="sensor_dirty_time",
+        key="sensor_time_left",
         icon="mdi:eye-outline",
         device_class=SensorDeviceClass.DURATION,
         parent_key="consumable",
