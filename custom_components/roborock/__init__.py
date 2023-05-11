@@ -140,7 +140,7 @@ async def get_local_devices_info(device_ids: list[str]) -> dict[str, DeviceNetwo
         for discovered_device in discovered_devices
     }
 
-    not_found_devices = [device_id for device_id in devices_network.keys() if device_id in device_ids]
+    not_found_devices = [device_id for device_id in devices_network if device_id in device_ids]
     if len(not_found_devices) > 0:
         raise ConfigEntryError(f"Devices {not_found_devices} not found among {devices_network}")
 
