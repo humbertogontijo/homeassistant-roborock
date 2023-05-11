@@ -13,7 +13,7 @@ from homeassistant.helpers.integration_platform import (
 )
 from roborock.api import RoborockApiClient
 from roborock.cloud_api import RoborockMqttClient
-from roborock.containers import HomeData, HomeDataDevice, HomeDataProduct, UserData
+from roborock.containers import HomeData, HomeDataProduct, UserData
 from roborock.local_api import RoborockLocalClient
 from roborock.protocol import RoborockProtocol
 
@@ -80,6 +80,10 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
         if include_shared
         else home_data.devices
     )
+    devices_network = {}
+    devices_without_ip = [_device for _device in devices if _device.duid not in device_network.keys()]
+    if len(devices_without_ip) > 0:
+        devices_network = await get_local_devices_info(devices_without_ip)
     for _device in devices:
         device_id = _device.duid
         product: HomeDataProduct = next(
@@ -89,7 +93,6 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
         )
 
         if device_network.get(device_id) is None:
-            devices_network = await get_local_devices_info(_device)
             for d_uid, network in devices_network.items():
                 device_network[d_uid] = network
             hass.config_entries.async_update_entry(
@@ -126,10 +129,10 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
     return True
 
 
-async def get_local_devices_info(device: HomeDataDevice) -> dict[str, DeviceNetwork]:
+async def get_local_devices_info(device_ids: list[str]) -> dict[str, DeviceNetwork]:
     """Get local device info."""
     discovered_devices = await RoborockProtocol(timeout=10).discover()
-    if discovered_devices is None:
+    if not discovered_devices:
         raise ConfigEntryError("Failed to fetch vacuum networking info")
 
     devices_network = {
@@ -137,8 +140,9 @@ async def get_local_devices_info(device: HomeDataDevice) -> dict[str, DeviceNetw
         for discovered_device in discovered_devices
     }
 
-    if not any(True for device_id, _ in devices_network.items() if device_id == device.duid):
-        raise ConfigEntryError(f"Device {device.duid} not found among {devices_network}")
+    not_found_devices = [device_id for device_id in devices_network.keys() if device_id in device_ids]
+    if len(not_found_devices) > 0:
+        raise ConfigEntryError(f"Devices {not_found_devices} not found among {devices_network}")
 
     return devices_network
 
