@@ -170,18 +170,6 @@ def add_services() -> None:
         RoborockVacuum.async_clean_segment.__name__,
     )
     platform.async_register_entity_service(
-        "vacuum_set_fan_speed",
-        cv.make_entity_service_schema(
-            {vol.Required("fan_speed"): vol.In(list(RoborockFanPowerCode.values()))}
-        ),
-        RoborockVacuum.async_set_fan_speed.__name__,
-    )
-    platform.async_register_entity_service(
-        "vacuum_reset_consumables",
-        cv.make_entity_service_schema({}),
-        RoborockVacuum.async_reset_consumable.__name__,
-    )
-    platform.async_register_entity_service(
         "camera_load_multi_map",
         cv.make_entity_service_schema(
             {
