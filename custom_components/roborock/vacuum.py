@@ -170,7 +170,7 @@ def add_services() -> None:
         RoborockVacuum.async_clean_segment.__name__,
     )
     platform.async_register_entity_service(
-        "camera_load_multi_map",
+        "vacuum_load_multi_map",
         cv.make_entity_service_schema(
             {
                 vol.Required("map_flag"): vol.All(
