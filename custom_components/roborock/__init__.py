@@ -79,7 +79,7 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
     )
     devices_without_ip = [_device for _device in devices if _device.duid not in device_network.keys()]
     if len(devices_without_ip) > 0:
-        device_network = device_network.update(await get_local_devices_info(devices_without_ip))
+        device_network.update(await get_local_devices_info(devices_without_ip))
     for _device in devices:
         device_id = _device.duid
         product: HomeDataProduct = next(
