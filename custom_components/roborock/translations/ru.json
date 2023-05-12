@@ -4,7 +4,7 @@
       "user": {
         "description": "Выберите метод аутентификации",
         "menu_options": {
-          "code": "Войти с помощаю кода на почту",
+          "code": "Войти с помощью кода на почту",
           "password": "Войти с помощью пароля"
         }
       },
@@ -66,9 +66,9 @@
         }
       },
       "roborock": {
-        "description": "General settings",
+        "description": "Общие настройки",
         "data": {
-          "local": "Beta: use local integration"
+          "local": "Тестовое: Использовать локальную интеграцию"
         }
       }
     }
@@ -76,23 +76,23 @@
   "entity": {
     "button": {
       "reset_sensor_consumable": {
-        "name": "Reset sensor consumable"
+        "name": "Сброс данных очистки сенсоров"
       },
       "reset_filter_consumable": {
-        "name": "Reset filter consumable"
+        "name": "Сброс данных очистки фильтра"
       },
       "reset_side_brush_consumable": {
-        "name": "Reset side brush consumable"
+        "name": "Сброс данных очистки передней щётки"
       },
       "reset_main_brush_consumable": {
-        "name": "Reset main brush consumable"
+        "name": "Сброс данных очистки основной щётки"
       }
     },
     "sensor": {
       "current_error": {
-        "name": "Current error",
+        "name": "Текущая ошибка",
         "state": {
-          "none": "Отсутствует",
+          "none": "Нет",
           "lidar_blocked": "Башня LiDAR или лазер заблокированы. Проверьте наличие препятствий и повторите попытку.",
           "bumper_stuck": "Бампер застрял. Очистите его и слегка коснитесь, чтобы освободить.",
           "wheels_suspended": "Колеса подвешены. Переместите робота и перезапустите.",
@@ -122,104 +122,104 @@
         }
       },
       "dnd_start": {
-        "name": "DnD start"
+        "name": "Не беспокоить начало"
       },
       "dnd_end": {
-        "name": "DnD end"
+        "name": "Не беспокоить конец"
       },
       "last_clean_start": {
-        "name": "Last clean start"
+        "name": "Время начала последней уборки"
       },
       "last_clean_end": {
-        "name": "Last clean end"
+        "name": "Время окончания последней уборки"
       },
       "last_clean_duration": {
-        "name": "Last clean duration"
+        "name": "Время последней уборки"
       },
       "last_clean_area": {
-        "name": "Last clean area"
+        "name": "Площадь последней уборки"
       },
       "current_clean_duration": {
-        "name": "Current clean duration"
+        "name": "Время текущей уборки"
       },
       "current_clean_area": {
-        "name": "Current clean area"
+        "name": "Площадь текущей уборки"
       },
       "total_duration": {
-        "name": "Total duration"
+        "name": "Общее время уборки"
       },
       "total_clean_area": {
-        "name": "Total clean area"
+        "name": "Площадь уборки за всё время"
       },
       "total_clean_count": {
-        "name": "Total clean count"
+        "name": "Убрано комнат за всё время"
       },
       "total_dust_collection_count": {
-        "name": "Total dust collection count"
+        "name": "Собрано пыли за всё время"
       },
       "main_brush_left": {
-        "name": "Main brush left"
+        "name": "Остаток до очистки основной щетки"
       },
       "side_brush_left": {
-        "name": "Side brush left"
+        "name": "Остаток до очистки передней щетки"
       },
       "filter_left": {
-        "name": "Filter left"
+        "name": "Остаток до очистки фильтра"
       },
       "sensor_dirty_left": {
-        "name": "Sensor dirty left"
+        "name": "Остаток до очистки сенсоров"
       },
       "dock_status": {
-        "name": "Dock status"
+        "name": "Состояние док-станции"
       },
       "dock_washing_mode": {
-        "name": "Dock washing mode"
+        "name": "Режим очистки док-станции"
       },
       "dock_dust_collection_mode": {
-        "name": "Dock dust collection mode"
+        "name": "Режим сбора пыли в док-станции"
       },
       "dock_mop_wash_mode_interval": {
-        "name": "Dock mop wash mode interval"
+        "name": "Интервал очистки тряпки"
       },
       "current_map_selected": {
-        "name": "Current map selected"
+        "name": "Выбрана карта"
       },
       "current_room": {
-        "name": "Current room"
+        "name": "Текущая комната"
       }
     },
     "binary_sensor": {
       "mop_attached_1": {
-        "name": "Mop attached"
+        "name": "Моющая тряпка"
       },
       "mop_attached_2": {
-        "name": "Mop attached"
+        "name": "Моющая тряпка"
       },
       "water_box_attached": {
-        "name": "Water box attached"
+        "name": "Ёмкость для воды"
       },
       "water_shortage": {
-        "name": "Water shortage"
+        "name": "Наличие воды в ёмкости"
       }
     },
     "select": {
       "mop_mode": {
-        "name": "Mop mode",
+        "name": "Интенсивность мытья",
         "state": {
-          "standard": "Standard",
-          "deep": "Deep",
-          "deep_plus": "Deep+",
-          "custom": "Custom"
+          "standard": "Обычная",
+          "deep": "Интенсивная",
+          "deep_plus": "Интенсивная+",
+          "custom": "Настраиваемая"
         }
       },
       "mop_intensity": {
-        "name": "Mop intensity",
+        "name": "Подача воды",
         "state": {
-          "off": "Off",
-          "mild": "Mild",
-          "moderate": "Moderate",
-          "intense": "Intense",
-          "custom": "Custom"
+          "off": "Отключено",
+          "mild": "Минимальная",
+          "moderate": "Средняя",
+          "intense": "Максимальная",
+          "custom": "Настраиваемая"
         }
       }
     }
