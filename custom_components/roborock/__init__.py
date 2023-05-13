@@ -44,7 +44,7 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
     username = data.get("username")
     vacuum_options = entry.options.get(VACUUM, {})
     include_shared = (
-        vacuum_options.get(CONF_INCLUDE_SHARED, False)
+        vacuum_options.get(CONF_INCLUDE_SHARED, True)
     )
 
     device_network = data.get("device_network", {})
