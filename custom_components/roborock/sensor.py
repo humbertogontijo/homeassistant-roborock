@@ -47,7 +47,6 @@ ATTR_CONSUMABLE_STATUS_MAIN_BRUSH_LEFT = "main_brush_left"
 ATTR_CONSUMABLE_STATUS_SIDE_BRUSH_LEFT = "side_brush_left"
 ATTR_CONSUMABLE_STATUS_FILTER_LEFT = "filter_left"
 ATTR_CONSUMABLE_STATUS_SENSOR_DIRTY_LEFT = "sensor_dirty_left"
-ATTR_DOCK_STATUS = "dock_status"
 ATTR_DOCK_WASHING_MODE = "dock_washing_mode"
 ATTR_DOCK_DUST_COLLECTION_MODE = "dock_dust_collection_mode"
 ATTR_DOCK_MOP_WASH_MODE = "dock_mop_wash_mode"
@@ -261,15 +260,7 @@ VACUUM_SENSORS = {
         name="Sensor dirty left",
         translation_key="sensor_dirty_left",
         entity_category=EntityCategory.DIAGNOSTIC,
-    ),
-    f"current_{ATTR_DOCK_STATUS}": RoborockSensorDescription(
-        key="dock_error_status",
-        icon="mdi:garage-open",
-        parent_key="status",
-        name="Dock status",
-        translation_key="dock_status",
-        entity_category=EntityCategory.DIAGNOSTIC,
-    ),
+    )
 }
 
 VACUUM_WITH_DOCK_SENSORS = {

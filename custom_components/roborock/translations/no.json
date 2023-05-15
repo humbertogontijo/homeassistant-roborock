@@ -169,9 +169,6 @@
       "sensor_dirty_left": {
         "name": "Sensor dirty left"
       },
-      "dock_status": {
-        "name": "Dock status"
-      },
       "dock_washing_mode": {
         "name": "Dock washing mode"
       },
@@ -200,6 +197,9 @@
       },
       "water_shortage": {
         "name": "Water shortage"
+      },
+      "dock_status": {
+        "name": "Dock status"
       }
     },
     "select": {

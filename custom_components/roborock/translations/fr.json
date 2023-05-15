@@ -169,9 +169,6 @@
       "sensor_dirty_left": {
         "name": "Capteurs"
       },
-      "dock_status": {
-        "name": "État de la station"
-      },
       "dock_washing_mode": {
         "name": "Mode de lavage de la station"
       },
@@ -200,6 +197,9 @@
       },
       "water_shortage": {
         "name": "Réservoir à eau vide"
+      },
+      "dock_status": {
+        "name": "État de la station"
       }
     },
     "select": {

@@ -169,9 +169,6 @@
       "sensor_dirty_left": {
         "name": "Tempo residuo pulizia sensori"
       },
-      "dock_status": {
-        "name": "Dock Stato"
-      },
       "dock_washing_mode": {
         "name": "Dock Modalità di lavaggio"
       },
@@ -200,6 +197,9 @@
       },
       "water_shortage": {
         "name": "Mancanza acqua"
+      },
+      "dock_status": {
+        "name": "Dock Stato"
       }
     },
     "select": {

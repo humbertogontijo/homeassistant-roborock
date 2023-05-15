@@ -169,9 +169,6 @@
       "sensor_dirty_left": {
         "name": "Sensor støv tilbage"
       },
-      "dock_status": {
-        "name": "Dock status"
-      },
       "dock_washing_mode": {
         "name": "Dock vaske indstilling"
       },
@@ -200,6 +197,9 @@
       },
       "water_shortage": {
         "name": "Lav vandstand"
+      },
+      "dock_status": {
+        "name": "Dock status"
       }
     },
     "select": {

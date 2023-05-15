@@ -31,6 +31,7 @@ _LOGGER = logging.getLogger(__name__)
 ATTR_MOP_ATTACHED = "is_water_box_carriage_attached"
 ATTR_WATER_BOX_ATTACHED = "is_water_box_attached"
 ATTR_WATER_SHORTAGE = "is_water_shortage"
+ATTR_DOCK_STATUS = "dock_status"
 
 
 @dataclass
@@ -69,6 +70,15 @@ VACUUM_SENSORS = {
         icon="mdi:water",
         parent_key="status",
         entity_registry_enabled_default=True,
+        device_class=BinarySensorDeviceClass.PROBLEM,
+        entity_category=EntityCategory.DIAGNOSTIC,
+    ),
+    f"current_{ATTR_DOCK_STATUS}": RoborockBinarySensorDescription(
+        key="dock_error_status",
+        icon="mdi:garage-open",
+        parent_key="status",
+        name="Dock status",
+        translation_key="dock_status",
         device_class=BinarySensorDeviceClass.PROBLEM,
         entity_category=EntityCategory.DIAGNOSTIC,
     ),
