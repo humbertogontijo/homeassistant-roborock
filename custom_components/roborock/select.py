@@ -5,19 +5,18 @@ import logging
 from collections.abc import Callable
 from dataclasses import dataclass
 
-from roborock.containers import Status
-from roborock.roborock_typing import RoborockCommand
-
 from homeassistant.components.select import SelectEntity, SelectEntityDescription
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.core import HomeAssistant
 from homeassistant.helpers.entity_platform import AddEntitiesCallback
 from homeassistant.util import slugify
+from roborock.containers import Status
+from roborock.roborock_typing import RoborockCommand
 
+from . import DomainData, RoborockHassDeviceInfo
 from .const import DOMAIN
 from .coordinator import RoborockDataUpdateCoordinator
 from .device import RoborockCoordinatedEntity
-from .roborock_typing import DomainData, RoborockHassDeviceInfo
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -64,9 +63,9 @@ SELECT_DESCRIPTIONS: list[RoborockSelectDescription] = [
 
 
 async def async_setup_entry(
-    hass: HomeAssistant,
-    config_entry: ConfigEntry,
-    async_add_entities: AddEntitiesCallback,
+        hass: HomeAssistant,
+        config_entry: ConfigEntry,
+        async_add_entities: AddEntitiesCallback,
 ) -> None:
     """Set up Roborock select platform."""
     domain_data: DomainData = hass.data[DOMAIN][
@@ -99,11 +98,11 @@ class RoborockSelectEntity(RoborockCoordinatedEntity, SelectEntity):
     entity_description: RoborockSelectDescription
 
     def __init__(
-        self,
-        unique_id: str,
-        device_info: RoborockHassDeviceInfo,
-        coordinator: RoborockDataUpdateCoordinator,
-        entity_description: RoborockSelectDescription,
+            self,
+            unique_id: str,
+            device_info: RoborockHassDeviceInfo,
+            coordinator: RoborockDataUpdateCoordinator,
+            entity_description: RoborockSelectDescription,
     ) -> None:
         """Create a select entity."""
         self.entity_description = entity_description
