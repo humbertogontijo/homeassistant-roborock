@@ -196,9 +196,8 @@ async def async_setup_entry(
 
     entities: list[RoborockVacuum] = []
     for coordinator in domain_data.get("coordinators"):
-        if isinstance(coordinator, RoborockDataUpdateCoordinator):
-            unique_id = slugify(coordinator.data.device.duid)
-            entities.append(RoborockVacuum(unique_id, coordinator.data, coordinator))
+        unique_id = slugify(coordinator.data.device.duid)
+        entities.append(RoborockVacuum(unique_id, coordinator.data, coordinator))
     async_add_entities(entities)
 
 

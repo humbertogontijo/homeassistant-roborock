@@ -74,23 +74,22 @@ async def async_setup_entry(
     ]
     entities: list[RoborockSelectEntity] = []
     for coordinator in domain_data.get("coordinators"):
-        if isinstance(coordinator, RoborockDataUpdateCoordinator):
-            device_info = coordinator.data
-            unique_id = slugify(device_info.device.duid)
-            device_prop = device_info.props
-            if device_prop:
-                for description in SELECT_DESCRIPTIONS:
-                    if description.options_lambda(device_prop.status) is not None:
-                        entities.append(
-                            RoborockSelectEntity(
-                                f"{description.key}_{unique_id}",
-                                device_info,
-                                coordinator,
-                                description,
-                            )
+        device_info = coordinator.data
+        unique_id = slugify(device_info.device.duid)
+        device_prop = device_info.props
+        if device_prop:
+            for description in SELECT_DESCRIPTIONS:
+                if description.options_lambda(device_prop.status) is not None:
+                    entities.append(
+                        RoborockSelectEntity(
+                            f"{description.key}_{unique_id}",
+                            device_info,
+                            coordinator,
+                            description,
                         )
-            else:
-                _LOGGER.warning("Failed setting up selects: No Roborock data")
+                    )
+        else:
+            _LOGGER.warning("Failed setting up selects: No Roborock data")
     async_add_entities(entities)
 
 

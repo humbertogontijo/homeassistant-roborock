@@ -7,10 +7,11 @@ from datetime import timedelta
 
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.core import HomeAssistant
-from homeassistant.exceptions import ConfigEntryError
+from homeassistant.exceptions import ConfigEntryError, ConfigEntryNotReady
 from homeassistant.helpers.integration_platform import (
     async_process_integration_platform_for_component,
 )
+from roborock import RoborockException
 from roborock.api import RoborockApiClient
 from roborock.cloud_api import RoborockMqttClient
 from roborock.containers import HomeData, HomeDataProduct, UserData
@@ -25,7 +26,8 @@ from .const import (
     VACUUM,
 )
 from .coordinator import RoborockDataUpdateCoordinator
-from .roborock_typing import ConfigEntryData, DeviceNetwork, DomainData, RoborockHassDeviceInfo
+from .domain import DomainData
+from .roborock_typing import ConfigEntryData, DeviceNetwork, RoborockHassDeviceInfo
 
 SCAN_INTERVAL = timedelta(seconds=30)
 
@@ -82,40 +84,50 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
         device_network.update(await get_local_devices_info(devices_without_ip))
     for _device in devices:
         device_id = _device.duid
-        product: HomeDataProduct = next(
+        try:
+            product: HomeDataProduct = next(
                 product
                 for product in home_data.products
                 if product.id == _device.product_id
-        )
-
-        device_info = RoborockHassDeviceInfo(
-            device=_device,
-            model=product.model,
-        )
-
-        map_client = RoborockMqttClient(user_data, device_info)
-
-        network = device_network.get(device_id)
-        if network is None:
-            networking = await map_client.get_networking()
-            network = {"ip": networking.ip}
-            hass.config_entries.async_update_entry(
-                entry, data={"device_network": device_network, **data}
             )
-        device_info.host = network.get("ip")
 
-        main_client = RoborockLocalClient(device_info)
-        data_coordinator = RoborockDataUpdateCoordinator(
-            hass, main_client, map_client, device_info, home_data.rooms
-        )
+            device_info = RoborockHassDeviceInfo(
+                device=_device,
+                model=product.model,
+            )
 
-        domain_data["coordinators"].append(data_coordinator)
+            map_client = RoborockMqttClient(user_data, device_info)
+
+            network = device_network.get(device_id)
+            if network is None:
+                networking = await map_client.get_networking()
+                network = {"ip": networking.ip}
+                hass.config_entries.async_update_entry(
+                    entry, data={"device_network": device_network, **data}
+                )
+            device_info.host = network.get("ip")
+
+            main_client = RoborockLocalClient(device_info)
+            data_coordinator = RoborockDataUpdateCoordinator(
+                hass, main_client, map_client, device_info, home_data.rooms
+            )
+            domain_data["coordinators"].append(data_coordinator)
+        except RoborockException:
+            _LOGGER.warning(f"Failing setting up device {device_id}")
 
     await asyncio.gather(
-        *[
-            _coordinator.async_config_entry_first_refresh() for _coordinator in domain_data["coordinators"]
-        ]
+        *(_coordinator.async_config_entry_first_refresh() for _coordinator in domain_data["coordinators"]),
+        return_exceptions=True
     )
+
+    failed_coordinators = await asyncio.gather(
+        *(_coordinator.release() for _coordinator in domain_data["coordinators"]
+          if not _coordinator.last_update_success)
+    )
+
+    if len(domain_data["coordinators"]) == len(failed_coordinators):
+        # Don't start if no coordinators succeeded.
+        raise ConfigEntryNotReady("There are no devices that can currently be reached.")
 
     for platform in platforms:
         hass.async_create_task(

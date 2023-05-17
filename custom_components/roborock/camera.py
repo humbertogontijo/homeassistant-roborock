@@ -74,10 +74,9 @@ async def async_setup_entry(
 
     entities: list[VacuumCameraMap] = []
     for coordinator in domain_data.get("coordinators"):
-        if isinstance(coordinator, RoborockDataUpdateCoordinator):
-            device_info = coordinator.data
-            unique_id = slugify(device_info.device.duid)
-            entities.append(VacuumCameraMap(unique_id, image_config, device_info, coordinator))
+        device_info = coordinator.data
+        unique_id = slugify(device_info.device.duid)
+        entities.append(VacuumCameraMap(unique_id, image_config, device_info, coordinator))
     async_add_entities(entities, True)
 
 

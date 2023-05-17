@@ -49,13 +49,14 @@ class RoborockDataUpdateCoordinator(
             self.scheduled_refresh.cancel()
         self.scheduled_refresh = self.hass.loop.call_later(1, lambda: asyncio.create_task(self.async_refresh()))
 
-    async def release(self) -> None:
+    async def release(self) -> bool:
         """Disconnect from API."""
         if self.scheduled_refresh:
             self.scheduled_refresh.cancel()
         await self.api.async_disconnect()
         if self.api != self.map_api:
             await self.map_api.async_disconnect()
+        return True
 
     async def fill_room_mapping(self, device_info: RoborockHassDeviceInfo) -> None:
         """Build the room mapping - only works for local api."""

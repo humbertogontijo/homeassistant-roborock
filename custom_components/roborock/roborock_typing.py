@@ -2,15 +2,7 @@
 from dataclasses import dataclass
 from typing import Optional, TypedDict
 
-from homeassistant.helpers.update_coordinator import DataUpdateCoordinator
-from roborock import DeviceProp, DeviceData
-
-
-class DomainData(TypedDict):
-    """Define integration domain data."""
-
-    coordinators: list[DataUpdateCoordinator]
-    platforms: list[str]
+from roborock import DeviceData, DeviceProp
 
 
 class DeviceNetwork(TypedDict):
