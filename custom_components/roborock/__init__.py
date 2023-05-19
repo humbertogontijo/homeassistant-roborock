@@ -73,6 +73,7 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
         entry.entry_id,
         DomainData(coordinators=[], platforms=platforms)
     )
+    coordinators = domain_data["coordinators"]
 
     devices = (
         home_data.devices + home_data.received_devices
@@ -111,23 +112,30 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
             data_coordinator = RoborockDataUpdateCoordinator(
                 hass, main_client, map_client, device_info, home_data.rooms
             )
-            domain_data["coordinators"].append(data_coordinator)
+            coordinators.append(data_coordinator)
         except RoborockException:
             _LOGGER.warning(f"Failing setting up device {device_id}")
 
     await asyncio.gather(
-        *(_coordinator.async_config_entry_first_refresh() for _coordinator in domain_data["coordinators"]),
+        *(_coordinator.async_config_entry_first_refresh() for _coordinator in coordinators),
         return_exceptions=True
     )
 
-    failed_coordinators = await asyncio.gather(
-        *(_coordinator.release() for _coordinator in domain_data["coordinators"]
+    await asyncio.gather(
+        *(_coordinator.release() for _coordinator in coordinators
           if not _coordinator.last_update_success)
     )
 
-    if len(domain_data["coordinators"]) == len(failed_coordinators):
+    success_coordinators = [
+        _coordinator for _coordinator in coordinators
+        if _coordinator.last_update_success
+    ]
+
+    if len(success_coordinators) == 0:
         # Don't start if no coordinators succeeded.
         raise ConfigEntryNotReady("There are no devices that can currently be reached.")
+
+    domain_data["coordinators"] = success_coordinators
 
     for platform in platforms:
         hass.async_create_task(
