@@ -60,7 +60,10 @@ async def setup_platform(
             return_value=home_data,
     ), patch(
         "custom_components.roborock.get_local_devices_info",
-        side_effect=lambda devices: {device.duid: {"ip": "127.0.0.1"} for device in devices}
+        side_effect=lambda: {
+            device.duid: {"ip": "127.0.0.1"}
+            for device in home_data.devices + home_data.received_devices
+        }
     ):
         assert await async_setup_component(hass, DOMAIN, {})
     await hass.async_block_till_done()

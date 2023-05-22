@@ -82,7 +82,7 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
     )
     devices_without_ip = [_device for _device in devices if _device.duid not in device_network.keys()]
     if len(devices_without_ip) > 0:
-        device_network.update(await get_local_devices_info(devices_without_ip))
+        device_network.update(await get_local_devices_info())
     for _device in devices:
         device_id = _device.duid
         try:
@@ -121,15 +121,12 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
         return_exceptions=True
     )
 
-    await asyncio.gather(
-        *(_coordinator.release() for _coordinator in coordinators
-          if not _coordinator.last_update_success)
-    )
-
-    success_coordinators = [
-        _coordinator for _coordinator in coordinators
-        if _coordinator.last_update_success
-    ]
+    success_coordinators = []
+    for _coordinator in coordinators:
+        if not _coordinator.last_update_success:
+            _coordinator.release()
+        else:
+            success_coordinators.append(_coordinator)
 
     if len(success_coordinators) == 0:
         # Don't start if no coordinators succeeded.
@@ -146,7 +143,7 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
     return True
 
 
-async def get_local_devices_info(device_ids: list[str]) -> dict[str, DeviceNetwork]:
+async def get_local_devices_info() -> dict[str, DeviceNetwork]:
     """Get local device info."""
     discovered_devices = await RoborockProtocol(timeout=10).discover()
 
@@ -173,13 +170,8 @@ async def async_unload_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
     )
     if unloaded:
         hass.data[DOMAIN].pop(entry.entry_id)
-        await asyncio.gather(
-            *[
-                data_coordinator.release()
-                for data_coordinator in data.get("coordinators")
-                if isinstance(data_coordinator, RoborockDataUpdateCoordinator)
-            ]
-        )
+        for data_coordinator in data.get("coordinators"):
+            data_coordinator.release()
 
     return unloaded
 

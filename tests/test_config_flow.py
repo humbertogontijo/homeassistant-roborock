@@ -68,7 +68,7 @@ async def test_successful_config_flow(hass: HomeAssistant, bypass_api_fixture):
             return_value=HOME_DATA,
         ), patch(
             "custom_components.roborock.get_local_devices_info",
-            side_effect=lambda devices: {device.duid: {"ip": "127.0.0.1"} for device in devices}
+            side_effect=lambda: {device.duid: {"ip": "127.0.0.1"} for device in HOME_DATA.devices}
         ):
             result = await hass.config_entries.flow.async_configure(
                 result["flow_id"], user_input={CONF_ENTRY_CODE: "123456"}
