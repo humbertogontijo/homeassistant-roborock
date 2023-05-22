@@ -66,7 +66,7 @@
         }
       },
       "roborock": {
-        "description": "General settings",
+        "description": "Grundlæggende indstillinger",
         "data": {
           "local": "Beta: brug lokal integration"
         }
@@ -179,10 +179,10 @@
         "name": "Dock moppe vaske interval indstilling"
       },
       "current_map_selected": {
-        "name": "Current map selected"
+        "name": "Valgt kort"
       },
       "current_room": {
-        "name": "Current room"
+        "name": "Nuværende rum"
       }
     },
     "binary_sensor": {
@@ -207,8 +207,8 @@
         "name": "Mop mode",
         "state": {
           "standard": "Standard",
-          "deep": "Deep",
-          "deep_plus": "Deep+",
+          "deep": "Dyb",
+          "deep_plus": "Dyb+",
           "custom": "Brugerdefinerede"
         }
       },
