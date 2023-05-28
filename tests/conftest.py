@@ -24,6 +24,8 @@ def bypass_api_fixture():
     ), patch(
         "roborock.cloud_api.RoborockMqttClient.async_disconnect", return_value=PROP
     ), patch(
+        "roborock.cloud_api.RoborockMqttClient.sync_disconnect", return_value=PROP
+    ), patch(
         "roborock.cloud_api.RoborockMqttClient.send_command"
     ), patch(
         "roborock.cloud_api.RoborockMqttClient.get_prop", return_value=PROP
@@ -31,6 +33,8 @@ def bypass_api_fixture():
         "roborock.local_api.RoborockLocalClient.async_connect"
     ), patch(
         "roborock.local_api.RoborockLocalClient.async_disconnect"
+    ), patch(
+        "roborock.local_api.RoborockLocalClient.sync_disconnect"
     ), patch(
         "roborock.local_api.RoborockLocalClient.send_command"
     ), patch(
