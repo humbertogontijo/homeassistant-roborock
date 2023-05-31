@@ -10,7 +10,7 @@
       "macaddress": "B04A39*"
     },
     {
-    "registered_devices": true
+      "registered_devices": true
     }
   ],
   "documentation": "https://github.com/humbertogontijo/homeassistant-roborock",
@@ -22,7 +22,7 @@
     "roborock"
   ],
   "requirements": [
-    "python-roborock==0.18.10"
+    "python-roborock==0.20.0"
   ],
   "version": "1.0.5"
 }
