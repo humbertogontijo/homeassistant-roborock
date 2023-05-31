@@ -183,6 +183,9 @@
       },
       "current_room": {
         "name": "Quarto atual"
+      },
+      "dock_status": {
+        "name": "Estado da dock"
       }
     },
     "binary_sensor": {
@@ -197,9 +200,6 @@
       },
       "water_shortage": {
         "name": "Falta de água"
-      },
-      "dock_status": {
-        "name": "Estado da dock"
       }
     },
     "select": {

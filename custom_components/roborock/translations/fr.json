@@ -183,6 +183,9 @@
       },
       "current_room": {
         "name": "Pièce actuelle"
+      },
+      "dock_status": {
+        "name": "État de la station"
       }
     },
     "binary_sensor": {
@@ -197,9 +200,6 @@
       },
       "water_shortage": {
         "name": "Réservoir à eau vide"
-      },
-      "dock_status": {
-        "name": "État de la station"
       }
     },
     "select": {

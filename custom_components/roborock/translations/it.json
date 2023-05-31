@@ -183,6 +183,9 @@
       },
       "current_room": {
         "name": "Current room"
+      },
+      "dock_status": {
+        "name": "Dock Stato"
       }
     },
     "binary_sensor": {
@@ -197,9 +200,6 @@
       },
       "water_shortage": {
         "name": "Mancanza acqua"
-      },
-      "dock_status": {
-        "name": "Dock Stato"
       }
     },
     "select": {

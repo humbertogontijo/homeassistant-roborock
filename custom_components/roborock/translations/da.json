@@ -183,6 +183,9 @@
       },
       "current_room": {
         "name": "Nuværende rum"
+      },
+      "dock_status": {
+        "name": "Dock status"
       }
     },
     "binary_sensor": {
@@ -197,9 +200,6 @@
       },
       "water_shortage": {
         "name": "Lav vandstand"
-      },
-      "dock_status": {
-        "name": "Dock status"
       }
     },
     "select": {

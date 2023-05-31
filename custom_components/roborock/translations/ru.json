@@ -183,6 +183,9 @@
       },
       "current_room": {
         "name": "Текущая комната"
+      },
+      "dock_status": {
+        "name": "Состояние док-станции"
       }
     },
     "binary_sensor": {
@@ -197,9 +200,6 @@
       },
       "water_shortage": {
         "name": "Наличие воды в ёмкости"
-      },
-      "dock_status": {
-        "name": "Состояние док-станции"
       }
     },
     "select": {
