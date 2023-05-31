@@ -242,8 +242,8 @@
               "turbo": "Turbo"
             }
           },
-          "state": {
-            "status": {
+          "status": {
+            "state": {
               "starting": "Starting",
               "charger_disconnected": "Charger disconnected",
               "idle": "Idle",

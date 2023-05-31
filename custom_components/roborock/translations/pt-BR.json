@@ -242,8 +242,8 @@
               "turbo": "Turbo"
             }
           },
-          "state": {
-            "status": {
+          "status": {
+            "state": {
               "starting": "Iniciando",
               "charger_disconnected": "Corregador desconectado",
               "idle": "Ocioso",
