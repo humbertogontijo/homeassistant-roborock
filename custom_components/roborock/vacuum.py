@@ -246,7 +246,7 @@ class RoborockVacuum(RoborockCoordinatedEntity, StateVacuumEntity, ABC):
     @property
     def translation_key(self) -> str:
         """Returns the translation key for vacuum."""
-        return "roborock_vacuum"
+        return DOMAIN
 
     @property
     def state(self) -> str | None:

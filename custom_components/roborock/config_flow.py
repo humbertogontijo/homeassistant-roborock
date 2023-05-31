@@ -55,22 +55,22 @@ class RoborockFlowHandler(config_entries.ConfigFlow, domain=DOMAIN):
         self.user_data: UserData | None = None
         self.discovered_devices: list[dict] | None = None
 
-    async def async_step_dhcp(self, discovery_info: dhcp.DhcpServiceInfo) -> FlowResult:
-        """Handle a reauth flow."""
-        host = discovery_info.ip
-        macaddress = discovery_info.macaddress
-        entries = self.hass.config_entries.async_entries(DOMAIN)
-        for entry in entries:
-            data: ConfigEntryData = entry.data
-            device_network = data.get("device_network")
-            for _, network in device_network.items():
-                if network.get("ip") == host:
-                    network["mac"] = macaddress
-                if network.get("mac") == macaddress:
-                    network["ip"] = host
-                await self.async_set_unique_id(entry.unique_id)
-                self._abort_if_unique_id_configured(updates=data)
-        return await self.async_step_user()
+    # async def async_step_dhcp(self, discovery_info: dhcp.DhcpServiceInfo) -> FlowResult:
+    #     """Handle a reauth flow."""
+    #     host = discovery_info.ip
+    #     macaddress = discovery_info.macaddress
+    #     entries = self.hass.config_entries.async_entries(DOMAIN)
+    #     for entry in entries:
+    #         data: ConfigEntryData = entry.data
+    #         device_network = data.get("device_network")
+    #         for _, network in device_network.items():
+    #             if network.get("ip") == host:
+    #                 network["mac"] = macaddress
+    #             if network.get("mac") == macaddress:
+    #                 network["ip"] = host
+    #             await self.async_set_unique_id(entry.unique_id)
+    #             self._abort_if_unique_id_configured(updates=data)
+    #     return await self.async_step_user()
 
     async def async_step_reauth(self, _user_input: dict[str, Any]) -> FlowResult:
         """Handle a reauth flow."""

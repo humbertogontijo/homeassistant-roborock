@@ -222,6 +222,55 @@
           "custom": "Customizado"
         }
       }
+    },
+    "vacuum": {
+      "roborock": {
+        "state_attributes": {
+          "fan_speed": {
+            "state": {
+              "auto": "Auto",
+              "balanced": "Balanceado",
+              "custom": "Customizado",
+              "gentle": "Gentil",
+              "off": "Desligado",
+              "max": "Max",
+              "max_plus": "Max+",
+              "medium": "Medio",
+              "quiet": "Quieto",
+              "silent": "Silencioso",
+              "standard": "Padrão",
+              "turbo": "Turbo"
+            }
+          },
+          "state": {
+            "status": {
+              "starting": "Iniciando",
+              "charger_disconnected": "Corregador desconectado",
+              "idle": "Ocioso",
+              "remote_control_active": "Controle remoto ativo",
+              "cleaning": "Limpando",
+              "returning_home": "Retornando para base",
+              "manual_mode": "Modo manual",
+              "charging": "Carregando",
+              "charging_problem": "Problema ao carregar",
+              "paused": "Pausado",
+              "spot_cleaning": "Limpeza local",
+              "error": "Erro",
+              "shutting_down": "Desligando",
+              "updating": "Atualizando",
+              "docking": "Conectando a base",
+              "going_to_target": "Indo para alvo",
+              "zoned_cleaning": "Limpeza de zona",
+              "segment_cleaning": "Limpeza de segmento",
+              "emptying_the_bin": "Emptying the bin",
+              "washing_the_mop": "Lavando o esfregão",
+              "going_to_wash_the_mop": "Indo lavar o esfregão",
+              "charging_complete": "Carregamento completo",
+              "device_offline": "Dispositivo offline"
+            }
+          }
+        }
+      }
     }
   }
 }
