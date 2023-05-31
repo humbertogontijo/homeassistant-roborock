@@ -47,7 +47,8 @@ class RoborockDataUpdateCoordinator(
         """Schedule coordinator refresh after 1 second."""
         if self.scheduled_refresh:
             self.scheduled_refresh.cancel()
-        self.scheduled_refresh = self.hass.loop.call_later(1, lambda: asyncio.create_task(self.async_refresh()))
+        self.scheduled_refresh = self.hass.loop.call_later(
+            1, lambda: asyncio.create_task(self.async_refresh()))
 
     def release(self) -> None:
         """Disconnect from API."""
@@ -55,7 +56,10 @@ class RoborockDataUpdateCoordinator(
             self.scheduled_refresh.cancel()
         self.api.sync_disconnect()
         if self.api != self.map_api:
-            self.map_api.sync_disconnect()
+            try:
+                self.map_api.sync_disconnect()
+            except RoborockException:
+                _LOGGER.warning("Failed to disconnect from map api")
 
     async def fill_room_mapping(self, device_info: RoborockHassDeviceInfo) -> None:
         """Build the room mapping - only works for local api."""
@@ -63,14 +67,16 @@ class RoborockDataUpdateCoordinator(
             room_mapping = await self.api.get_room_mapping()
             if room_mapping:
                 room_iot_name = {str(room.id): room.name for room in self.rooms}
-                device_info.room_mapping = {rm.segment_id: room_iot_name.get(str(rm.iot_id)) for rm in room_mapping}
+                device_info.room_mapping = {rm.segment_id: room_iot_name.get(
+                    str(rm.iot_id)) for rm in room_mapping}
 
     async def fill_device_multi_maps_list(self, device_info: RoborockHassDeviceInfo) -> None:
         """Get multi maps list."""
         if device_info.map_mapping is None:
             multi_maps_list = await self.api.get_multi_maps_list()
             if multi_maps_list:
-                map_mapping = {map_info.mapFlag: map_info.name for map_info in multi_maps_list.map_info}
+                map_mapping = {
+                    map_info.mapFlag: map_info.name for map_info in multi_maps_list.map_info}
                 device_info.map_mapping = map_mapping
 
     async def fill_device_prop(self, device_info: RoborockHassDeviceInfo) -> None:

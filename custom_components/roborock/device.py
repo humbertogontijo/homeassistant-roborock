@@ -4,9 +4,11 @@ from __future__ import annotations
 import datetime
 import logging
 
+from homeassistant.exceptions import HomeAssistantError
 from homeassistant.helpers.entity import DeviceInfo, Entity
 from homeassistant.helpers.update_coordinator import CoordinatorEntity
 from roborock.containers import Status
+from roborock.exceptions import RoborockException
 from roborock.roborock_typing import RoborockCommand
 
 from .const import DOMAIN
@@ -102,6 +104,11 @@ class RoborockCoordinatedEntity(RoborockEntityBase, CoordinatorEntity[RoborockDa
 
     async def send(self, command: RoborockCommand, params=None):
         """Send a command to a vacuum cleaner."""
-        response = await self.coordinator.api.send_command(command, params)
+        try:
+            response = await self.coordinator.api.send_command(command, params)
+        except RoborockException as err:
+            raise HomeAssistantError(
+                f"Error while calling {command.name} with {params}"
+            ) from err
         self.coordinator.schedule_refresh()
         return response

@@ -6,7 +6,6 @@ from typing import Any
 
 import voluptuous as vol
 from homeassistant import config_entries
-from homeassistant.components import dhcp
 from homeassistant.const import CONF_DEVICE_ID, CONF_HOST
 from homeassistant.core import callback
 from homeassistant.data_entry_flow import FlowResult
@@ -114,7 +113,8 @@ class RoborockFlowHandler(config_entries.ConfigFlow, domain=DOMAIN):
             data_schema=vol.Schema(
                 {
                     vol.Required(
-                        CONF_ENTRY_USERNAME, default=user_input.get(CONF_ENTRY_USERNAME) if user_input else None
+                        CONF_ENTRY_USERNAME, default=user_input.get(
+                            CONF_ENTRY_USERNAME) if user_input else None
                     ): str
                 }
             ),
