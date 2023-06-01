@@ -76,16 +76,16 @@
   "entity": {
     "button": {
       "reset_sensor_consumable": {
-        "name": "Reset sensor consumable"
+        "name": "Resetta consumabile sensore"
       },
       "reset_filter_consumable": {
-        "name": "Reset filter consumable"
+        "name": "Resetta consumabile filtro"
       },
       "reset_side_brush_consumable": {
-        "name": "Reset side brush consumable"
+        "name": "Resetta consumabile spazzola laterale"
       },
       "reset_main_brush_consumable": {
-        "name": "Reset main brush consumable"
+        "name": "Resetta consumabile spazzola principale"
       }
     },
     "sensor": {
@@ -112,11 +112,11 @@
           "vertical_bumper_pressed": "Ammortizzatore verticale schiacciato. Spostare il robot e riprovare.",
           "dock_locator_error": "Errore individuazione base. Pulire e riprovare.",
           "return_to_dock_fail": "Impossibile ritornare alla base. Sgomberare il raggio di manovra intorno alla base e riprovare.",
-          "nogo_zone_detected": "Rilevata zona viatata o muro invisibile. Spostare il robot",
+          "nogo_zone_detected": "Rilevata zona vietata o muro invisibile. Spostare il robot.",
           "vibrarise_jammed": "Sistema VibraRise inceppato. Controllare ostruzioni.",
           "robot_on_carpet": "Il robot si trova su un tappeto. Spostare il robot sul pavimento e riprovare.",
           "filter_blocked": "Filtro intasato o bagnato. Pulire, asciugare e riprovare.",
-          "invisible_wall_detected": "Zona vietata o muro invisibile rilevato. Spostare il robot in un altra area.",
+          "invisible_wall_detected": "Zona vietata o muro invisibile rilevato. Spostare il robot in un'altra area.",
           "cannot_cross_carpet": "Impossibile attraversare il tappeto. Spostare il robot oltre il tappeto e riprovare.",
           "internal_error": "Errore interno. Effettuare il reset del robot."
         }
@@ -170,22 +170,22 @@
         "name": "Tempo residuo pulizia sensori"
       },
       "dock_washing_mode": {
-        "name": "Dock Modalità di lavaggio"
+        "name": "Modalità di lavaggio Dock"
       },
       "dock_dust_collection_mode": {
-        "name": "Dock Modalità di svuotamento"
+        "name": "Modalità di svuotamento Dock"
       },
       "dock_mop_wash_mode_interval": {
-        "name": "Dock Intervallo di lavaggio del mop"
+        "name": "Intervallo di lavaggio mop Dock"
       },
       "current_map_selected": {
-        "name": "Current map selected"
+        "name": "Mappa corrente selezionata"
       },
       "current_room": {
-        "name": "Current room"
+        "name": "Stanza corrente"
       },
       "dock_status": {
-        "name": "Dock Stato"
+        "name": "Stato Dock"
       }
     },
     "binary_sensor": {
@@ -215,11 +215,11 @@
       "mop_intensity": {
         "name": "Intensità di lavaggio",
         "state": {
-          "off": "Off",
-          "mild": "Debole",
-          "moderate": "Moderata",
-          "intense": "Forte",
-          "custom": "Custom"
+          "off": "Disattivato",
+          "mild": "Leggero",
+          "moderate": "Moderato",
+          "intense": "Intenso",
+          "custom": "Personalizzata"
         }
       }
     },
@@ -228,45 +228,45 @@
         "state_attributes": {
           "fan_speed": {
             "state": {
-              "auto": "Auto",
-              "balanced": "Balanced",
-              "custom": "Custom",
-              "gentle": "Gentle",
-              "off": "Off",
-              "max": "Max",
-              "max_plus": "Max+",
-              "medium": "Medium",
-              "quiet": "Quiet",
-              "silent": "Silent",
+              "auto": "Automatico",
+              "balanced": "Bilanciato",
+              "custom": "Personalizzato",
+              "gentle": "Delicato",
+              "off": "Spento",
+              "max": "Massimo",
+              "max_plus": "Massimo+",
+              "medium": "Medio",
+              "quiet": "Silenzioso",
+              "silent": "Silenzioso",
               "standard": "Standard",
               "turbo": "Turbo"
             }
           },
           "status": {
             "state": {
-              "starting": "Starting",
-              "charger_disconnected": "Charger disconnected",
-              "idle": "Idle",
-              "remote_control_active": "Remote control active",
-              "cleaning": "Cleaning",
-              "returning_home": "Returning home",
-              "manual_mode": "Manual mode",
-              "charging": "Charging",
-              "charging_problem": "Charging problem",
-              "paused": "Paused",
-              "spot_cleaning": "Spot cleaning",
-              "error": "Error",
-              "shutting_down": "Shutting down",
-              "updating": "Updating",
-              "docking": "Docking",
-              "going_to_target": "Going to target",
-              "zoned_cleaning": "Zoned cleaning",
-              "segment_cleaning": "Segment cleaning",
-              "emptying_the_bin": "Emptying the bin",
-              "washing_the_mop": "Washing the mop",
-              "going_to_wash_the_mop": "Going to wash the mop",
-              "charging_complete": "Charging complete",
-              "device_offline": "Device offline"
+              "starting": "Avvio",
+              "charger_disconnected": "Caricabatterie disconnesso",
+              "idle": "Inattivo",
+              "remote_control_active": "Controllo remoto attivo",
+              "cleaning": "Pulizia",
+              "returning_home": "Ritorno alla base",
+              "manual_mode": "Modalità manuale",
+              "charging": "In carica",
+              "charging_problem": "Problema di ricarica",
+              "paused": "In pausa",
+              "spot_cleaning": "Pulizia localizzata",
+              "error": "Errore",
+              "shutting_down": "Spegnimento",
+              "updating": "Aggiornamento",
+              "docking": "Rientro alla base",
+              "going_to_target": "Andando al punto specificato",
+              "zoned_cleaning": "Pulizia zona",
+              "segment_cleaning": "Pulizia segmento",
+              "emptying_the_bin": "Svuotamento cestino",
+              "washing_the_mop": "Lavaggio del panno",
+              "going_to_wash_the_mop": "Andando a lavare il panno",
+              "charging_complete": "Carica completa",
+              "device_offline": "Dispositivo offline"
             }
           }
         }
