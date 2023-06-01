@@ -27,12 +27,12 @@ class RoborockDataUpdateCoordinator(
     """Class to manage fetching data from the API."""
 
     def __init__(
-        self,
-        hass: HomeAssistant,
-        client: RoborockClient,
-        map_client: RoborockMqttClient,
-        device_info: RoborockHassDeviceInfo,
-        rooms: list[HomeDataRoom]
+            self,
+            hass: HomeAssistant,
+            client: RoborockClient,
+            map_client: RoborockMqttClient,
+            device_info: RoborockHassDeviceInfo,
+            rooms: list[HomeDataRoom]
     ) -> None:
         """Initialize."""
         super().__init__(hass, _LOGGER, name=DOMAIN, update_interval=SCAN_INTERVAL)
@@ -48,7 +48,8 @@ class RoborockDataUpdateCoordinator(
         if self.scheduled_refresh:
             self.scheduled_refresh.cancel()
         self.scheduled_refresh = self.hass.loop.call_later(
-            1, lambda: asyncio.create_task(self.async_refresh()))
+            1, lambda: asyncio.create_task(self.async_refresh())
+        )
 
     def release(self) -> None:
         """Disconnect from API."""
@@ -61,14 +62,25 @@ class RoborockDataUpdateCoordinator(
             except RoborockException:
                 _LOGGER.warning("Failed to disconnect from map api")
 
+    async def fill_device_prop(self, device_info: RoborockHassDeviceInfo) -> None:
+        """Get device properties."""
+        device_prop = await self.api.get_prop()
+        if device_prop:
+            if device_info.props:
+                device_info.props.update(device_prop)
+            else:
+                device_info.props = device_prop
+
     async def fill_room_mapping(self, device_info: RoborockHassDeviceInfo) -> None:
         """Build the room mapping - only works for local api."""
         if device_info.room_mapping is None:
             room_mapping = await self.api.get_room_mapping()
             if room_mapping:
                 room_iot_name = {str(room.id): room.name for room in self.rooms}
-                device_info.room_mapping = {rm.segment_id: room_iot_name.get(
-                    str(rm.iot_id)) for rm in room_mapping}
+                device_info.room_mapping = {
+                    rm.segment_id: room_iot_name.get(str(rm.iot_id))
+                    for rm in room_mapping
+                }
 
     async def fill_device_multi_maps_list(self, device_info: RoborockHassDeviceInfo) -> None:
         """Get multi maps list."""
@@ -79,14 +91,10 @@ class RoborockDataUpdateCoordinator(
                     map_info.mapFlag: map_info.name for map_info in multi_maps_list.map_info}
                 device_info.map_mapping = map_mapping
 
-    async def fill_device_prop(self, device_info: RoborockHassDeviceInfo) -> None:
-        """Get device properties."""
-        device_prop = await self.api.get_prop()
-        if device_prop:
-            if device_info.props:
-                device_info.props.update(device_prop)
-            else:
-                device_info.props = device_prop
+    async def fill_sound_volume(self, device_info: RoborockHassDeviceInfo) -> None:
+        """Fetch current sound volume."""
+        sound_volume = await self.api.get_sound_volume()
+        device_info.sound_volume = sound_volume
 
     async def fill_device_info(self, device_info: RoborockHassDeviceInfo):
         """Merge device information."""
@@ -94,7 +102,8 @@ class RoborockDataUpdateCoordinator(
             *([
                 self.fill_device_prop(device_info),
                 self.fill_device_multi_maps_list(device_info),
-                self.fill_room_mapping(device_info)
+                self.fill_room_mapping(device_info),
+                self.fill_sound_volume(device_info)
             ])
         )
 

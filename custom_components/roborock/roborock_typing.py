@@ -31,3 +31,4 @@ class RoborockHassDeviceInfo(DeviceData):
     map_mapping: Optional[dict[int, str]] = None
     room_mapping: Optional[dict[int, str]] = None
     current_room: Optional[int] = None
+    sound_volume: Optional[int] = None
