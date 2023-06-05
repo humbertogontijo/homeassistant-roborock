@@ -1,6 +1,6 @@
 -r ./requirements.txt
 pytest~=7.2.2
-pytest_homeassistant_custom_component~=0.13.23
+pytest_homeassistant_custom_component~=0.13.34
 aiohttp_cors~=0.7.0
 aiodiscover~=1.4.16
 scapy~=2.5.0
