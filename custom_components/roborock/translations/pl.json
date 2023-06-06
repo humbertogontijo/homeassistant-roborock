@@ -68,7 +68,7 @@
       "roborock": {
         "description": "General settings",
         "data": {
-          "local": "Beta: use local integration"
+          "cloud_integration": "Use cloud integration"
         }
       }
     }

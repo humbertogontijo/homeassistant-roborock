@@ -68,7 +68,7 @@
       "roborock": {
         "description": "Общие настройки",
         "data": {
-          "local": "Тестовое: Использовать локальную интеграцию"
+          "cloud_integration": "Use cloud integration"
         }
       }
     }

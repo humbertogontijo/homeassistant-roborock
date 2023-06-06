@@ -11,7 +11,7 @@ from homeassistant.core import HomeAssistant
 from homeassistant.helpers.entity_platform import AddEntitiesCallback
 from homeassistant.util import slugify
 from roborock import RoborockStateCode
-from roborock.exceptions import RoborockTimeout, RoborockBackoffException
+from roborock.exceptions import RoborockException
 
 from . import DomainData
 from .common.image_handler import ImageHandlerRoborock
@@ -46,9 +46,9 @@ NON_REFRESHING_STATES = [RoborockStateCode.charging]
 
 
 async def async_setup_entry(
-    hass: HomeAssistant,
-    config_entry: ConfigEntry,
-    async_add_entities: AddEntitiesCallback,
+        hass: HomeAssistant,
+        config_entry: ConfigEntry,
+        async_add_entities: AddEntitiesCallback,
 ) -> None:
     """Setup Roborock camera."""
     camera_options = config_entry.options.get(CAMERA)
@@ -86,11 +86,11 @@ class VacuumCameraMap(RoborockEntityBase, Camera):
     _is_map_valid_by_device = {}
 
     def __init__(
-        self,
-        unique_id: str,
-        image_config: dict,
-        device_info: RoborockHassDeviceInfo,
-        coordinator: RoborockDataUpdateCoordinator,
+            self,
+            unique_id: str,
+            image_config: dict,
+            device_info: RoborockHassDeviceInfo,
+            coordinator: RoborockDataUpdateCoordinator,
     ) -> None:
         """Create Roborock map."""
         RoborockEntityBase.__init__(self, device_info, unique_id)
@@ -112,7 +112,7 @@ class VacuumCameraMap(RoborockEntityBase, Camera):
         self._attr_name = "Map"
 
     def camera_image(
-        self, width: Optional[int] = None, height: Optional[int] = None
+            self, width: Optional[int] = None, height: Optional[int] = None
     ) -> Optional[bytes]:
         """Returns the image comprised of bytes."""
         return self._image
@@ -159,7 +159,7 @@ class VacuumCameraMap(RoborockEntityBase, Camera):
 
     @staticmethod
     def extract_attributes(
-        map_data: MapData, attributes_to_return: List[str]
+            map_data: MapData, attributes_to_return: List[str]
     ) -> Dict[str, Any]:
         """Extract camera attributes."""
         attributes = {}
@@ -223,16 +223,16 @@ class VacuumCameraMap(RoborockEntityBase, Camera):
             else:
                 self.set_valid_map()
             return map_v1
-        except (RoborockTimeout, RoborockBackoffException):
+        except RoborockException:
             self.set_invalid_map()
 
     async def get_map(
-        self,
-        colors: Colors,
-        drawables: Drawables,
-        texts: Texts,
-        sizes: Sizes,
-        image_config: ImageConfig,
+            self,
+            colors: Colors,
+            drawables: Drawables,
+            texts: Texts,
+            sizes: Sizes,
+            image_config: ImageConfig,
     ) -> Optional[MapData]:
         """Get map image."""
         response = await self.async_map()
@@ -249,13 +249,13 @@ class VacuumCameraMap(RoborockEntityBase, Camera):
         return map_data
 
     def decode_map(
-        self,
-        raw_map: bytes,
-        colors: Colors,
-        drawables: Drawables,
-        texts: Texts,
-        sizes: Sizes,
-        image_config: ImageConfig,
+            self,
+            raw_map: bytes,
+            colors: Colors,
+            drawables: Drawables,
+            texts: Texts,
+            sizes: Sizes,
+            image_config: ImageConfig,
     ) -> Optional[MapData]:
         """Decode map image."""
         return MapDataParserRoborock.parse(

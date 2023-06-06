@@ -17,6 +17,7 @@ from .const import (
     CAMERA,
     CONF_BASE_URL,
     CONF_BOTTOM,
+    CONF_CLOUD_INTEGRATION,
     CONF_ENTRY_CODE,
     CONF_ENTRY_PASSWORD,
     CONF_ENTRY_USERNAME,
@@ -308,6 +309,10 @@ OPTION_SCHEMA = {
     **{f"{CAMERA}.{cs_key}": cs_value for cs_key, cs_value in CAMERA_SCHEMA.items()},
 }
 
+ROBOROCK_VALUES = {CONF_CLOUD_INTEGRATION: False}
+
+ROBOROCK_SCHEMA = {CONF_CLOUD_INTEGRATION: vol.Coerce(bool)}
+
 
 class RoborockOptionsFlowHandler(config_entries.OptionsFlow):
     """Roborock config flow options handler."""
@@ -330,7 +335,7 @@ class RoborockOptionsFlowHandler(config_entries.OptionsFlow):
         """Handle a flow initialized by the user."""
         return self.async_show_menu(
             step_id="user",
-            menu_options=[CAMERA, VACUUM],
+            menu_options=[CAMERA, VACUUM, DOMAIN],
         )
 
     async def async_step_menu(
@@ -379,6 +384,14 @@ class RoborockOptionsFlowHandler(config_entries.OptionsFlow):
         """Handle setup of vacuum."""
         return await self._async_step_platform(
             VACUUM, VACUUM_SCHEMA, VACUUM_VALUES, user_input
+        )
+
+    async def async_step_roborock(
+            self, user_input: dict[str, Any] | None = None
+    ) -> FlowResult:
+        """Handle setup of integration."""
+        return await self._async_step_platform(
+            DOMAIN, ROBOROCK_SCHEMA, ROBOROCK_VALUES, user_input
         )
 
     async def _async_step_platform(

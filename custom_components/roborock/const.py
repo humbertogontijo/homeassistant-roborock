@@ -14,6 +14,7 @@ CONF_ENTRY_CODE = "code"
 CONF_ENTRY_PASSWORD = "password"
 CONF_BASE_URL = "base_url"
 CONF_USER_DATA = "user_data"
+CONF_CLOUD_INTEGRATION = "cloud_integration"
 DEFAULT_NAME = DOMAIN
 
 CONF_HOME_DATA = "home_data"

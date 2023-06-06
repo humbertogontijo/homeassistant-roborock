@@ -19,6 +19,7 @@ from roborock.local_api import RoborockLocalClient
 from roborock.protocol import RoborockProtocol
 
 from .const import (
+    CONF_CLOUD_INTEGRATION,
     CONF_HOME_DATA,
     CONF_INCLUDE_SHARED,
     DOMAIN,
@@ -45,6 +46,8 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
     base_url = data.get("base_url")
     username = data.get("username")
     vacuum_options = entry.options.get(VACUUM, {})
+    integration_options = entry.options.get(DOMAIN, {})
+    cloud_integration = integration_options.get(CONF_CLOUD_INTEGRATION, False)
     include_shared = (
         vacuum_options.get(CONF_INCLUDE_SHARED, True)
     )
@@ -80,9 +83,10 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
         if include_shared
         else home_data.devices
     )
-    devices_without_ip = [_device for _device in devices if _device.duid not in device_network.keys()]
-    if len(devices_without_ip) > 0:
-        device_network.update(await get_local_devices_info())
+    if not cloud_integration:
+        devices_without_ip = [_device for _device in devices if _device.duid not in device_network.keys()]
+        if len(devices_without_ip) > 0:
+            device_network.update(await get_local_devices_info())
     for _device in devices:
         device_id = _device.duid
         try:
@@ -99,16 +103,19 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
 
             map_client = RoborockMqttClient(user_data, device_info)
 
-            network = device_network.get(device_id)
-            if network is None:
-                networking = await map_client.get_networking()
-                network = {"ip": networking.ip}
-                hass.config_entries.async_update_entry(
-                    entry, data={"device_network": device_network, **data}
-                )
-            device_info.host = network.get("ip")
+            if not cloud_integration:
+                network = device_network.get(device_id)
+                if network is None:
+                    networking = await map_client.get_networking()
+                    network = {"ip": networking.ip}
+                    hass.config_entries.async_update_entry(
+                        entry, data={"device_network": device_network, **data}
+                    )
+                device_info.host = network.get("ip")
 
-            main_client = RoborockLocalClient(device_info)
+                main_client = RoborockLocalClient(device_info)
+            else:
+                main_client = map_client
             data_coordinator = RoborockDataUpdateCoordinator(
                 hass, main_client, map_client, device_info, home_data.rooms
             )
