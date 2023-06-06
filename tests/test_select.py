@@ -50,6 +50,7 @@ async def test_disable_include_shared(hass: HomeAssistant, bypass_api_fixture) -
     await mock_config_entry.async_unload(hass)
 
 
+@pytest.mark.asyncio
 async def test_update_failure(
         hass: HomeAssistant,
         bypass_api_fixture,
