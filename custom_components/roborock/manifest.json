@@ -14,7 +14,7 @@
     "roborock"
   ],
   "requirements": [
-    "python-roborock==0.23.3"
+    "python-roborock==0.23.4"
   ],
   "version": "1.0.5"
 }

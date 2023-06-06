@@ -1,23 +1,35 @@
 """Support for Roborock calendar."""
 from __future__ import annotations
 
+import contextlib
 import datetime
 import logging
+from collections.abc import Callable
 from dataclasses import dataclass
 from typing import Any
+
+import voluptuous as vol
+from roborock import DnDTimer, RoborockBaseTimer, RoborockCommand, RoborockException, ValleyElectricityTimer
+from roborock.util import parse_datetime_to_roborock_datetime
 
 from homeassistant.components.calendar import (
     CalendarEntity,
     CalendarEntityFeature,
     CalendarEvent,
+    EVENT_DESCRIPTION,
+    EVENT_END,
+    EVENT_LOCATION,
+    EVENT_RRULE,
+    EVENT_START,
+    EVENT_SUMMARY,
 )
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.core import HomeAssistant
+from homeassistant.helpers import config_validation as cv
+from homeassistant.helpers.config_validation import ENTITY_SERVICE_FIELDS
 from homeassistant.helpers.entity import EntityDescription
 from homeassistant.helpers.entity_platform import AddEntitiesCallback
 from homeassistant.util import slugify
-from roborock import DnDTimer, RoborockBaseTimer, RoborockCommand, RoborockException, ValleyElectricityTimer
-
 from . import DomainData
 from .const import (
     DOMAIN,
@@ -26,7 +38,6 @@ from .const import (
 from .coordinator import RoborockDataUpdateCoordinator
 from .device import RoborockCoordinatedEntity
 from .roborock_typing import RoborockHassDeviceInfo
-import contextlib
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -68,6 +79,39 @@ VACUUM_CALENDARS = {
         delete_command=RoborockCommand.CLOSE_DND_TIMER,
     )
 }
+
+
+def _has_roborock_interval(
+        start_key: str, end_key: str
+) -> Callable[[dict[str, Any]], dict[str, Any]]:
+    """Verify that the time span between start and end has a minimum duration."""
+
+    def validate(obj: dict[str, Any]) -> dict[str, Any]:
+        if (start_time := obj.get(start_key)) and (end_time := obj.get(end_key)):
+            parsed_start_time, parsed_end_time = parse_datetime_to_roborock_datetime(start_time, end_time)
+            if parsed_start_time != start_time:
+                raise vol.Invalid(f"Unexpected start datetime {start_time} use {parsed_start_time} instead")
+            if parsed_end_time != end_time:
+                raise vol.Invalid(f"Unexpected end datetime {end_time} use {parsed_end_time} instead")
+        return obj
+
+    return validate
+
+
+EVENT_SCHEMA = vol.Schema(
+    vol.All(
+        {
+            vol.Required(EVENT_START): cv.datetime,
+            vol.Required(EVENT_END): cv.datetime,
+            vol.Required(EVENT_SUMMARY): cv.string,
+            vol.Optional(EVENT_DESCRIPTION): cv.string,
+            vol.Optional(EVENT_LOCATION): cv.string,
+            vol.Optional(EVENT_RRULE): cv.string,
+            **ENTITY_SERVICE_FIELDS
+        },
+        _has_roborock_interval(EVENT_START, EVENT_END)
+    )
+)
 
 
 async def async_setup_entry(
@@ -208,8 +252,9 @@ class RoborockCalendar(RoborockCoordinatedEntity, CalendarEntity):
             recurrence_range: str | None = None,
     ) -> None:
         """Update an event on the calendar."""
-        start_time: datetime.datetime = event.get("dtstart")
-        end_time: datetime.datetime = event.get("dtend")
+        valid_event = EVENT_SCHEMA(event)
+        start_time: datetime.datetime = valid_event[EVENT_START]
+        end_time: datetime.datetime = valid_event[EVENT_END]
 
         await self.send(
             self.entity_description.update_command,
