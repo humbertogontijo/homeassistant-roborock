@@ -4,7 +4,7 @@ from __future__ import annotations
 import logging
 from collections.abc import Callable
 from dataclasses import dataclass
-from datetime import datetime, time
+from datetime import datetime
 from enum import Enum
 
 from homeassistant.components.sensor import (
@@ -24,7 +24,7 @@ from roborock import DeviceProp
 from . import DomainData
 from .const import DOMAIN
 from .coordinator import RoborockDataUpdateCoordinator
-from .device import RoborockCoordinatedEntity, parse_datetime_time
+from .device import RoborockCoordinatedEntity
 from .roborock_typing import RoborockHassDeviceInfo
 
 _LOGGER = logging.getLogger(__name__)
@@ -66,32 +66,6 @@ class RoborockSensorDescription(SensorEntityDescription):
 
 
 VACUUM_SENSORS = {
-    f"dnd_{ATTR_DND_START}": RoborockSensorDescription(
-        key=ATTR_DND_START,
-        keys=["start_hour", "start_minute"],
-        value=lambda values, _: parse_datetime_time(
-            time(hour=values[0], minute=values[1])
-        ),
-        icon="mdi:minus-circle-off",
-        name="DnD start",
-        translation_key="dnd_start",
-        device_class=SensorDeviceClass.TIMESTAMP,
-        parent_key="dnd_timer",
-        entity_category=EntityCategory.DIAGNOSTIC,
-    ),
-    f"dnd_{ATTR_DND_END}": RoborockSensorDescription(
-        key=ATTR_DND_END,
-        keys=["end_hour", "end_minute"],
-        value=lambda values, _: parse_datetime_time(
-            time(hour=values[0], minute=values[1])
-        ),
-        icon="mdi:minus-circle-off",
-        name="DnD end",
-        translation_key="dnd_end",
-        device_class=SensorDeviceClass.TIMESTAMP,
-        parent_key="dnd_timer",
-        entity_category=EntityCategory.DIAGNOSTIC,
-    ),
     f"last_clean_{ATTR_LAST_CLEAN_START}": RoborockSensorDescription(
         key="begin",
         icon="mdi:clock-time-twelve",
@@ -304,9 +278,9 @@ VACUUM_WITH_DOCK_SENSORS = {
 
 
 async def async_setup_entry(
-    hass: HomeAssistant,
-    config_entry: ConfigEntry,
-    async_add_entities: AddEntitiesCallback,
+        hass: HomeAssistant,
+        config_entry: ConfigEntry,
+        async_add_entities: AddEntitiesCallback,
 ) -> None:
     """Set up the Roborock vacuum sensors."""
     domain_data: DomainData = hass.data[DOMAIN][
@@ -352,11 +326,11 @@ class RoborockSensor(RoborockCoordinatedEntity, SensorEntity):
     entity_description: RoborockSensorDescription
 
     def __init__(
-        self,
-        unique_id: str,
-        device_info: RoborockHassDeviceInfo,
-        coordinator: RoborockDataUpdateCoordinator,
-        description: RoborockSensorDescription,
+            self,
+            unique_id: str,
+            device_info: RoborockHassDeviceInfo,
+            coordinator: RoborockDataUpdateCoordinator,
+            description: RoborockSensorDescription,
     ) -> None:
         """Initialize the entity."""
         SensorEntity.__init__(self)
@@ -416,7 +390,7 @@ class RoborockSensor(RoborockCoordinatedEntity, SensorEntity):
                 device_info = self.coordinator.data
                 native_value = self.entity_description.value(native_value, device_info)
             if self.device_class == SensorDeviceClass.TIMESTAMP and (
-                native_datetime := datetime.fromtimestamp(native_value)
+                    native_datetime := datetime.fromtimestamp(native_value)
             ):
                 native_value = native_datetime.astimezone(dt_util.UTC)
 

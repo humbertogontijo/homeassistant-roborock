@@ -1,5 +1,5 @@
 """Tests for Roborock sensors."""
-from datetime import datetime, time
+from datetime import datetime
 
 import pytest
 from homeassistant.components.sensor import DOMAIN as SENSOR_DOMAIN, SensorDeviceClass, SensorStateClass
@@ -7,9 +7,13 @@ from homeassistant.const import ATTR_DEVICE_CLASS
 from homeassistant.core import HomeAssistant
 from homeassistant.helpers import entity_registry as er
 from homeassistant.util import dt as dt_util
-from roborock import FILTER_REPLACE_TIME, MAIN_BRUSH_REPLACE_TIME, SENSOR_DIRTY_REPLACE_TIME, SIDE_BRUSH_REPLACE_TIME
+from roborock import (
+    FILTER_REPLACE_TIME,
+    MAIN_BRUSH_REPLACE_TIME,
+    SENSOR_DIRTY_REPLACE_TIME,
+    SIDE_BRUSH_REPLACE_TIME,
+)
 
-from custom_components.roborock.device import parse_datetime_time
 from custom_components.roborock.sensor import (
     ATTR_CLEAN_SUMMARY_COUNT,
     ATTR_CLEAN_SUMMARY_DUST_COLLECTION_COUNT,
@@ -19,8 +23,6 @@ from custom_components.roborock.sensor import (
     ATTR_CONSUMABLE_STATUS_MAIN_BRUSH_LEFT,
     ATTR_CONSUMABLE_STATUS_SENSOR_DIRTY_LEFT,
     ATTR_CONSUMABLE_STATUS_SIDE_BRUSH_LEFT,
-    ATTR_DND_END,
-    ATTR_DND_START,
     ATTR_LAST_CLEAN_AREA,
     ATTR_LAST_CLEAN_END,
     ATTR_LAST_CLEAN_START,
@@ -33,7 +35,6 @@ from .mock_data import (
     CLEAN_RECORD,
     CLEAN_SUMMARY,
     CONSUMABLE,
-    DND_TIMER,
     HOME_DATA,
     STATUS,
 )
@@ -46,12 +47,6 @@ async def test_registry_entries(hass: HomeAssistant, bypass_api_fixture) -> None
     entity_registry = er.async_get(hass)
 
     duid = HOME_DATA.devices[0].duid
-
-    entry = entity_registry.async_get("sensor.roborock_s7_maxv_dnd_start")
-    assert entry.unique_id == f"dnd_{ATTR_DND_START}_{duid}"
-
-    entry = entity_registry.async_get("sensor.roborock_s7_maxv_dnd_end")
-    assert entry.unique_id == f"dnd_{ATTR_DND_END}_{duid}"
 
     entry = entity_registry.async_get("sensor.roborock_s7_maxv_last_clean_duration")
     assert entry.unique_id == f"last_clean_{ATTR_LAST_CLEAN_TIME}_{duid}"
@@ -108,38 +103,6 @@ async def test_registry_entries(hass: HomeAssistant, bypass_api_fixture) -> None
         entry.unique_id
         == f"consumable_{ATTR_CONSUMABLE_STATUS_SENSOR_DIRTY_LEFT}_{duid}"
     )
-    await mock_config_entry.async_unload(hass)
-
-
-@pytest.mark.asyncio
-async def test_dnd_start(hass: HomeAssistant, bypass_api_fixture) -> None:
-    """Tests dnd_start is getting the correct values."""
-    mock_config_entry = await setup_platform(hass, SENSOR_DOMAIN)
-    state = hass.states.get("sensor.roborock_s7_maxv_dnd_start")
-    # Convert time from raw response data to what HA outputs for state
-    value = [DND_TIMER.start_hour, DND_TIMER.start_minute]
-    value = parse_datetime_time(time(hour=value[0], minute=value[1]))
-    value = datetime.fromtimestamp(value)
-    value = value.astimezone(dt_util.UTC)
-
-    assert state.state == str(value).replace(" ", "T")
-    assert state.attributes.get(ATTR_DEVICE_CLASS) == SensorDeviceClass.TIMESTAMP
-    await mock_config_entry.async_unload(hass)
-
-
-@pytest.mark.asyncio
-async def test_dnd_end(hass: HomeAssistant, bypass_api_fixture) -> None:
-    """Tests dnd_end is getting the correct values."""
-    mock_config_entry = await setup_platform(hass, SENSOR_DOMAIN)
-    state = hass.states.get("sensor.roborock_s7_maxv_dnd_end")
-    # Convert time from raw response data to what HA outputs for state
-    value = [DND_TIMER.end_hour, DND_TIMER.end_minute]
-    value = parse_datetime_time(time(hour=value[0], minute=value[1]))
-    value = datetime.fromtimestamp(value)
-    value = value.astimezone(dt_util.UTC)
-
-    assert state.state == str(value).replace(" ", "T")
-    assert state.attributes.get(ATTR_DEVICE_CLASS) == SensorDeviceClass.TIMESTAMP
     await mock_config_entry.async_unload(hass)
 
 

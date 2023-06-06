@@ -1,12 +1,13 @@
 """Support for Roborock device base class."""
 from __future__ import annotations
 
-import datetime
 import logging
+from typing import Optional
 
 from homeassistant.exceptions import HomeAssistantError
 from homeassistant.helpers.entity import DeviceInfo, Entity
 from homeassistant.helpers.update_coordinator import CoordinatorEntity
+from roborock.api import RT
 from roborock.containers import Status
 from roborock.exceptions import RoborockException
 from roborock.roborock_typing import RoborockCommand
@@ -18,27 +19,15 @@ from .roborock_typing import RoborockHassDeviceInfo
 _LOGGER = logging.getLogger(__name__)
 
 
-def parse_datetime_time(initial_time: datetime.time) -> float:
-    """Help to handle time data."""
-    time = datetime.datetime.now().replace(
-        hour=initial_time.hour, minute=initial_time.minute, second=0, microsecond=0
-    )
-
-    if time < datetime.datetime.now():
-        time += datetime.timedelta(days=1)
-
-    return time.timestamp()
-
-
 class RoborockEntityBase(Entity):
     """Representation of a base a coordinated Roborock Entity."""
 
     _attr_has_entity_name = True
 
     def __init__(
-        self,
-        device_info: RoborockHassDeviceInfo,
-        unique_id: str | None = None,
+            self,
+            device_info: RoborockHassDeviceInfo,
+            unique_id: str | None = None,
     ) -> None:
         """Initialize the coordinated Roborock Device."""
         self._device_name = device_info.device.name
@@ -88,10 +77,10 @@ class RoborockCoordinatedEntity(RoborockEntityBase, CoordinatorEntity[RoborockDa
     _attr_has_entity_name = True
 
     def __init__(
-        self,
-        device_info: RoborockHassDeviceInfo,
-        coordinator: RoborockDataUpdateCoordinator,
-        unique_id: str | None = None,
+            self,
+            device_info: RoborockHassDeviceInfo,
+            coordinator: RoborockDataUpdateCoordinator,
+            unique_id: str | None = None,
     ) -> None:
         """Initialize the coordinated Roborock Device."""
         RoborockEntityBase.__init__(self, device_info, unique_id)
@@ -102,13 +91,18 @@ class RoborockCoordinatedEntity(RoborockEntityBase, CoordinatorEntity[RoborockDa
         self._device_model = device_info.model
         self._fw_version = device_info.device.fv
 
-    async def send(self, command: RoborockCommand, params=None):
+    async def send(
+            self,
+            method: RoborockCommand,
+            params: Optional[list | dict] = None,
+            return_type: Optional[type[RT]] = None,
+    ) -> RT:
         """Send a command to a vacuum cleaner."""
         try:
-            response = await self.coordinator.api.send_command(command, params)
+            response = await self.coordinator.api.send_command(method, params, return_type)
         except RoborockException as err:
             raise HomeAssistantError(
-                f"Error while calling {command.name} with {params}"
+                f"Error while calling {method.name} with {params}"
             ) from err
-        self.coordinator.schedule_refresh()
+        self.schedule_update_ha_state(force_refresh=True)
         return response

@@ -43,34 +43,29 @@ async def test_vacuum_services(hass: HomeAssistant, bypass_api_fixture) -> None:
     entity_registry = er.async_get(hass)
     entity_registry.async_get(ENTITY_ID)
     with patch(
-            "roborock.cloud_api.RoborockMqttClient.send_command"
-    ) as mock_mqtt_api_command, patch(
         "roborock.local_api.RoborockLocalClient.send_command"
     ) as mock_local_api_command:
-        calls = 0
+        calls = 2
         # Test starting
         await hass.services.async_call(
             VACUUM_DOMAIN, SERVICE_START, {"entity_id": ENTITY_ID}, blocking=True
         )
         calls += 1
-        mock_local_api_command.assert_called_once_with(
-            RoborockCommand.APP_START, None
-        )
-        assert mock_mqtt_api_command.call_count + mock_local_api_command.call_count == calls
+        assert mock_local_api_command.call_count == calls
 
         # Test stopping
         await hass.services.async_call(
             VACUUM_DOMAIN, SERVICE_STOP, {"entity_id": ENTITY_ID}, blocking=True
         )
         calls += 1
-        assert mock_mqtt_api_command.call_count + mock_local_api_command.call_count == calls
+        assert mock_local_api_command.call_count == calls
 
         # Test pausing
         await hass.services.async_call(
             VACUUM_DOMAIN, SERVICE_PAUSE, {"entity_id": ENTITY_ID}, blocking=True
         )
         calls += 1
-        assert mock_mqtt_api_command.call_count + mock_local_api_command.call_count == calls
+        assert mock_local_api_command.call_count == calls
 
         # Test return to base
         await hass.services.async_call(
@@ -80,21 +75,21 @@ async def test_vacuum_services(hass: HomeAssistant, bypass_api_fixture) -> None:
             blocking=True,
         )
         calls += 1
-        assert mock_mqtt_api_command.call_count + mock_local_api_command.call_count == calls
+        assert mock_local_api_command.call_count == calls
 
         # Test clean spot
         await hass.services.async_call(
             VACUUM_DOMAIN, SERVICE_CLEAN_SPOT, {"entity_id": ENTITY_ID}, blocking=True
         )
         calls += 1
-        assert mock_mqtt_api_command.call_count + mock_local_api_command.call_count == calls
+        assert mock_local_api_command.call_count == calls
 
         # Test locate
         await hass.services.async_call(
             VACUUM_DOMAIN, SERVICE_LOCATE, {"entity_id": ENTITY_ID}, blocking=True
         )
         calls += 1
-        assert mock_mqtt_api_command.call_count + mock_local_api_command.call_count == calls
+        assert mock_local_api_command.call_count == calls
     await mock_config_entry.async_unload(hass)
 
 

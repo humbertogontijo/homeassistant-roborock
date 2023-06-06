@@ -1,7 +1,7 @@
 """Domain dict for Roborock."""
 from typing import TypedDict
 
-from custom_components.roborock import RoborockDataUpdateCoordinator
+from . import RoborockDataUpdateCoordinator
 
 
 class DomainData(TypedDict):

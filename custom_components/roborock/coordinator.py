@@ -3,14 +3,13 @@ from __future__ import annotations
 
 import asyncio
 import logging
-from asyncio import TimerHandle
 from datetime import timedelta
 
 from homeassistant.core import HomeAssistant
 from homeassistant.helpers.update_coordinator import DataUpdateCoordinator, UpdateFailed
 from roborock.api import RoborockClient
 from roborock.cloud_api import RoborockMqttClient
-from roborock.containers import MultiMapsList, HomeDataRoom
+from roborock.containers import HomeDataRoom, MultiMapsList
 from roborock.exceptions import RoborockException
 
 from .const import DOMAIN
@@ -41,20 +40,9 @@ class RoborockDataUpdateCoordinator(
         self.devices_maps: dict[str, MultiMapsList] = {}
         self.device_info = device_info
         self.rooms = rooms
-        self.scheduled_refresh: TimerHandle | None = None
-
-    def schedule_refresh(self) -> None:
-        """Schedule coordinator refresh after 1 second."""
-        if self.scheduled_refresh:
-            self.scheduled_refresh.cancel()
-        self.scheduled_refresh = self.hass.loop.call_later(
-            1, lambda: asyncio.create_task(self.async_refresh())
-        )
 
     def release(self) -> None:
         """Disconnect from API."""
-        if self.scheduled_refresh:
-            self.scheduled_refresh.cancel()
         self.api.sync_disconnect()
         if self.api != self.map_api:
             try:
