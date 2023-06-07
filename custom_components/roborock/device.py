@@ -104,5 +104,5 @@ class RoborockCoordinatedEntity(RoborockEntityBase, CoordinatorEntity[RoborockDa
             raise HomeAssistantError(
                 f"Error while calling {method.name} with {params}"
             ) from err
-        self.schedule_update_ha_state(force_refresh=True)
+        self.coordinator.schedule_refresh()
         return response

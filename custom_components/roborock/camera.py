@@ -297,7 +297,7 @@ class VacuumCameraMap(RoborockEntityBase, Camera):
         self._image = img_byte_arr.getvalue()
         self._map_data = map_data
         device_info = self.coordinator.device_info
-        if device_info is not None:
+        if device_info is not None and device_info.current_room != map_data.vacuum_room:
             device_info.room_mapping = None
             device_info.current_room = map_data.vacuum_room
             self.schedule_update_ha_state(force_refresh=True)
