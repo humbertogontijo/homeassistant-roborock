@@ -68,7 +68,7 @@
       "roborock": {
         "description": "Impostazioni generali",
         "data": {
-          "cloud_integration": "Use cloud integration"
+          "cloud_integration": "Usa integrazione cloud"
         }
       }
     }
