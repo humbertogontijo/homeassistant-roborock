@@ -20,19 +20,27 @@ Ensure that your HA instance can listen for device broadcasts on port 58866
 Ensure that your HA instance can comunicate to device on port 58867
 
 ### Installing via HACS
+[![Open your Home Assistant instance and open a repository inside the Home Assistant Community Store.](https://my.home-assistant.io/badges/hacs_repository.svg)](https://my.home-assistant.io/redirect/hacs_repository/?owner=humbertogontijo&repository=homeassistant-roborock&category=integration)
+
+or
 
 1. Go to HACS->Integrations
-2. Add this repo into your HACS custom repositories
-3. Search for Roborock and Download it
-4. Restart your HomeAssistant
-5. Go to Settings->Devices & Services
-6. Shift reload your browser
-7. Click Add Integration
-8. Search for Roborock
-9. Type your username used in the Roborock App and hit submit
-10. You will receive an Email with a verification code
-11. Type the verification code and hit submit
-12. You're all set
+1. Add this repo into your HACS custom repositories
+1. Search for Roborock and Download it
+1. Restart your HomeAssistant
+1. Go to Settings->Devices & Services
+1. Shift reload your browser
+
+### Setup the Integration
+
+[![Open your Home Assistant instance and start setting up a new integration.](https://my.home-assistant.io/badges/config_flow_start.svg)](https://my.home-assistant.io/redirect/config_flow_start/?domain=roborock)
+
+1. Click Add Integration
+1. Search for Roborock
+1. Type your username used in the Roborock App and hit submit
+1. You will receive an Email with a verification code
+1. Type the verification code and hit submit
+1. You're all set
 
 
 ---
