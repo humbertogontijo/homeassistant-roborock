@@ -9,9 +9,6 @@ from dataclasses import dataclass
 from typing import Any
 
 import voluptuous as vol
-from roborock import DnDTimer, RoborockBaseTimer, RoborockCommand, RoborockException, ValleyElectricityTimer
-from roborock.util import parse_datetime_to_roborock_datetime
-
 from homeassistant.components.calendar import (
     CalendarEntity,
     CalendarEntityFeature,
@@ -30,6 +27,9 @@ from homeassistant.helpers.config_validation import ENTITY_SERVICE_FIELDS
 from homeassistant.helpers.entity import EntityDescription
 from homeassistant.helpers.entity_platform import AddEntitiesCallback
 from homeassistant.util import slugify
+from roborock import DnDTimer, RoborockBaseTimer, RoborockCommand, RoborockException, ValleyElectricityTimer
+from roborock.util import parse_datetime_to_roborock_datetime
+
 from . import DomainData
 from .const import (
     DOMAIN,
@@ -109,6 +109,7 @@ EVENT_SCHEMA = vol.Schema(
             vol.Optional(EVENT_RRULE): cv.string,
             **ENTITY_SERVICE_FIELDS
         },
+        ENTITY_SERVICE_FIELDS,
         _has_roborock_interval(EVENT_START, EVENT_END)
     )
 )
@@ -235,10 +236,11 @@ class RoborockCalendar(RoborockCoordinatedEntity, CalendarEntity):
             recurrence_range: str | None = None,
     ) -> None:
         """Delete an event on the calendar."""
-        await self.send(
+        await self.coordinator.api.send_command(
             self.entity_description.delete_command,
             return_type=self.entity_description.base_class
         )
+        await self.async_update()
 
     async def async_delete_event_service(self) -> None:
         """Service to delete an event on the calendar."""
@@ -256,11 +258,12 @@ class RoborockCalendar(RoborockCoordinatedEntity, CalendarEntity):
         start_time: datetime.datetime = valid_event[EVENT_START]
         end_time: datetime.datetime = valid_event[EVENT_END]
 
-        await self.send(
+        await self.coordinator.api.send_command(
             self.entity_description.update_command,
             [start_time.hour, start_time.minute, end_time.hour, end_time.minute],
             return_type=self.entity_description.base_class
         )
+        await self.async_update()
 
     async def async_update_event_service(
             self,

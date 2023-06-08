@@ -112,7 +112,7 @@
           "vertical_bumper_pressed": "Amortecedor vertical pressionado. Mova o robô e tente novamente.",
           "dock_locator_error": "Erro no localizador de docas. Limpe e tente novamente.",
           "return_to_dock_fail": "Não foi possível retornar a base. Limpe o sinalizador de localização da base e tente novamente.",
-          "nogo_zone_detected": "Zona interdita ou parede invisivel detectada. Mover o robô.",
+          "nogo_zone_detected": "Zona interditada ou parede invisivel detectada. Mover o robô.",
           "vibrarise_jammed": "Sistema VibraRise emperrado. Verifique se há obstruções.",
           "robot_on_carpet": "Robô no tapete. Mova o robô para o chão e tente novamente.",
           "filter_blocked": "Filtro bloqueado ou molhado. Limpe, seque e tente novamente.",
