@@ -121,12 +121,6 @@
           "internal_error": "Interne fout. Stel de robot opnieuw in."
         }
       },
-      "dnd_start": {
-        "name": "DnD start"
-      },
-      "dnd_end": {
-        "name": "DnD end"
-      },
       "last_clean_start": {
         "name": "Last clean start"
       },
@@ -270,6 +264,34 @@
             }
           }
         }
+      }
+    },
+    "time": {
+      "dnd_start": {
+        "name": "DnD start"
+      },
+      "dnd_end": {
+        "name": "DnD end"
+      },
+      "valley_electricity_start": {
+        "name": "Valley electricity start"
+      },
+      "valley_electricity_end": {
+        "name": "Valley electricity end"
+      }
+    },
+    "switch": {
+      "child_lock": {
+        "name": "Child lock"
+      },
+      "flow_led_status": {
+        "name": "Flow led status"
+      },
+      "dnd_switch": {
+        "name": "DnD switch"
+      },
+      "valley_electricity_switch": {
+        "name": "Valley electricity switch"
       }
     }
   }

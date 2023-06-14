@@ -121,12 +121,6 @@
           "internal_error": "Erro interno. Reinicialize o robô."
         }
       },
-      "dnd_start": {
-        "name": "Inicio não perturbe"
-      },
-      "dnd_end": {
-        "name": "Fim não perturbe"
-      },
       "last_clean_start": {
         "name": "Inicio última limpeza"
       },
@@ -270,6 +264,34 @@
             }
           }
         }
+      }
+    },
+    "time": {
+      "dnd_start": {
+        "name": "Não perturbe começo"
+      },
+      "dnd_end": {
+        "name": "Não perturbe fim"
+      },
+      "valley_electricity_start": {
+        "name": "Preço energia reduzido começo"
+      },
+      "valley_electricity_end": {
+        "name": "Preço energia reduzido fim"
+      }
+    },
+    "switch": {
+      "child_lock": {
+        "name": "Trava de criança"
+      },
+      "flow_led_status": {
+        "name": "Led de fluxo de estado"
+      },
+      "dnd_switch": {
+        "name": "Não perturbe"
+      },
+      "valley_electricity_switch": {
+        "name": "Preço energia reduzido"
       }
     }
   }
