@@ -6,7 +6,7 @@ from typing import Any
 
 import voluptuous as vol
 from homeassistant import config_entries
-from homeassistant.const import CONF_DEVICE_ID, CONF_HOST
+from homeassistant.const import CONF_DEVICE_ID, CONF_HOST, Platform
 from homeassistant.core import callback
 from homeassistant.data_entry_flow import FlowResult
 from roborock.api import RoborockApiClient
@@ -14,7 +14,6 @@ from roborock.containers import UserData
 
 from . import ConfigEntryData, DeviceNetwork
 from .const import (
-    CAMERA,
     CONF_BASE_URL,
     CONF_BOTTOM,
     CONF_CLOUD_INTEGRATION,
@@ -33,7 +32,6 @@ from .const import (
     CONF_TRIM,
     CONF_USER_DATA,
     DOMAIN,
-    VACUUM,
 )
 from .utils import get_nested_dict, set_nested_dict
 
@@ -78,7 +76,7 @@ class RoborockFlowHandler(config_entries.ConfigFlow, domain=DOMAIN):
         return await self.async_step_user()
 
     async def async_step_user(
-            self, _user_input: dict[str, Any] | None = None
+        self, _user_input: dict[str, Any] | None = None
     ) -> FlowResult:
         """Handle a flow initialized by the user."""
         return self.async_show_menu(
@@ -86,7 +84,7 @@ class RoborockFlowHandler(config_entries.ConfigFlow, domain=DOMAIN):
         )
 
     async def async_step_email(
-            self, user_input: dict[str, Any] | None = None
+        self, user_input: dict[str, Any] | None = None
     ) -> FlowResult:
         """Handle a flow initialized by the user."""
         self._errors.clear()
@@ -114,8 +112,10 @@ class RoborockFlowHandler(config_entries.ConfigFlow, domain=DOMAIN):
             data_schema=vol.Schema(
                 {
                     vol.Required(
-                        CONF_ENTRY_USERNAME, default=user_input.get(
-                            CONF_ENTRY_USERNAME) if user_input else None
+                        CONF_ENTRY_USERNAME,
+                        default=user_input.get(CONF_ENTRY_USERNAME)
+                        if user_input
+                        else None,
                     ): str
                 }
             ),
@@ -124,7 +124,7 @@ class RoborockFlowHandler(config_entries.ConfigFlow, domain=DOMAIN):
         )
 
     async def async_step_code(
-            self, user_input: dict[str, Any] | None = None
+        self, user_input: dict[str, Any] | None = None
     ) -> FlowResult:
         """Handle a flow initialized by the user."""
         self._errors.clear()
@@ -153,7 +153,7 @@ class RoborockFlowHandler(config_entries.ConfigFlow, domain=DOMAIN):
         )
 
     async def async_step_password(
-            self, user_input: dict[str, Any] | None = None
+        self, user_input: dict[str, Any] | None = None
     ) -> FlowResult:
         """Handle a flow initialized by the user."""
         self._errors.clear()
@@ -246,7 +246,7 @@ class RoborockFlowHandler(config_entries.ConfigFlow, domain=DOMAIN):
     @staticmethod
     @callback
     def async_get_options_flow(
-            config_entry: config_entries.ConfigEntry,
+        config_entry: config_entries.ConfigEntry,
     ) -> RoborockOptionsFlowHandler:
         """Get the options flow for this handler."""
         return RoborockOptionsFlowHandler(config_entry)
@@ -300,13 +300,19 @@ VACUUM_VALUES = {CONF_INCLUDE_SHARED: True}
 VACUUM_SCHEMA = {CONF_INCLUDE_SHARED: vol.Coerce(bool)}
 
 OPTION_VALUES = {
-    VACUUM: VACUUM_VALUES,
-    CAMERA: CAMERA_VALUES,
+    Platform.VACUUM: VACUUM_VALUES,
+    Platform.CAMERA: CAMERA_VALUES,
 }
 
 OPTION_SCHEMA = {
-    **{f"{VACUUM}.{vs_key}": vs_value for vs_key, vs_value in VACUUM_SCHEMA.items()},
-    **{f"{CAMERA}.{cs_key}": cs_value for cs_key, cs_value in CAMERA_SCHEMA.items()},
+    **{
+        f"{Platform.VACUUM}.{vs_key}": vs_value
+        for vs_key, vs_value in VACUUM_SCHEMA.items()
+    },
+    **{
+        f"{Platform.CAMERA}.{cs_key}": cs_value
+        for cs_key, cs_value in CAMERA_SCHEMA.items()
+    },
 }
 
 ROBOROCK_VALUES = {CONF_CLOUD_INTEGRATION: False}
@@ -324,13 +330,13 @@ class RoborockOptionsFlowHandler(config_entries.OptionsFlow):
         self.discovered_devices = None
 
     async def async_step_init(
-            self, _user_input: dict[str, Any] | None = None
+        self, _user_input: dict[str, Any] | None = None
     ) -> FlowResult:  # pylint: disable=unused-argument
         """Manage the options."""
         return await self.async_step_user()
 
     async def async_step_user(
-            self, _user_input: dict[str, Any] | None = None
+        self, _user_input: dict[str, Any] | None = None
     ) -> FlowResult:
         """Handle a flow initialized by the user."""
         return self.async_show_menu(
@@ -339,7 +345,7 @@ class RoborockOptionsFlowHandler(config_entries.OptionsFlow):
         )
 
     async def async_step_menu(
-            self, _user_input: dict[str, Any] | None = None
+        self, _user_input: dict[str, Any] | None = None
     ) -> FlowResult:
         """Handle a flow initialized by the user."""
         return self.async_show_menu(
@@ -347,7 +353,9 @@ class RoborockOptionsFlowHandler(config_entries.OptionsFlow):
             menu_options=[CAMERA, VACUUM, "configure_device"],
         )
 
-    async def async_step_configure_device(self, user_input: dict[str, Any] | None = None) -> FlowResult:
+    async def async_step_configure_device(
+        self, user_input: dict[str, Any] | None = None
+    ) -> FlowResult:
         """Finished config flow and create entry."""
         errors = {}
         if user_input:
@@ -371,7 +379,7 @@ class RoborockOptionsFlowHandler(config_entries.OptionsFlow):
         )
 
     async def async_step_camera(
-            self, user_input: dict[str, Any] | None = None
+        self, user_input: dict[str, Any] | None = None
     ) -> FlowResult:
         """Handle setup of camera."""
         return await self._async_step_platform(
@@ -379,7 +387,7 @@ class RoborockOptionsFlowHandler(config_entries.OptionsFlow):
         )
 
     async def async_step_vacuum(
-            self, user_input: dict[str, Any] | None = None
+        self, user_input: dict[str, Any] | None = None
     ) -> FlowResult:
         """Handle setup of vacuum."""
         return await self._async_step_platform(
@@ -387,7 +395,7 @@ class RoborockOptionsFlowHandler(config_entries.OptionsFlow):
         )
 
     async def async_step_roborock(
-            self, user_input: dict[str, Any] | None = None
+        self, user_input: dict[str, Any] | None = None
     ) -> FlowResult:
         """Handle setup of integration."""
         return await self._async_step_platform(
@@ -395,11 +403,11 @@ class RoborockOptionsFlowHandler(config_entries.OptionsFlow):
         )
 
     async def _async_step_platform(
-            self,
-            platform: str,
-            schema: dict[str, Any],
-            values: dict[str, Any],
-            user_input: dict[str, Any] | None = None,
+        self,
+        platform: str,
+        schema: dict[str, Any],
+        values: dict[str, Any],
+        user_input: dict[str, Any] | None = None,
     ) -> FlowResult:
         """Handle setup of various platforms."""
         if user_input:

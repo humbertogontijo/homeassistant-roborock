@@ -190,9 +190,7 @@ async def async_setup_entry(
     """Set up the Roborock sensor."""
     add_services()
 
-    domain_data: DomainData = hass.data[DOMAIN][
-        config_entry.entry_id
-    ]
+    domain_data: DomainData = hass.data[DOMAIN][config_entry.entry_id]
 
     entities: list[RoborockVacuum] = []
     for coordinator in domain_data.get("coordinators"):
@@ -212,7 +210,7 @@ class RoborockVacuum(RoborockCoordinatedEntity, StateVacuumEntity, ABC):
     ) -> None:
         """Initialize a vacuum."""
         StateVacuumEntity.__init__(self)
-        RoborockCoordinatedEntity.__init__(self, device, coordinator, unique_id)
+        RoborockCoordinatedEntity.__init__(self, coordinator, unique_id)
         self.manual_seqnum = 0
         self._device = device
         self._coordinator = coordinator
@@ -298,41 +296,67 @@ class RoborockVacuum(RoborockCoordinatedEntity, StateVacuumEntity, ABC):
         """Return the fan speed of the vacuum cleaner."""
         if self._device_status is None:
             return None
-        return self._device_status.fan_power.name if self._device_status.fan_power else None
+        return (
+            self._device_status.fan_power.name
+            if self._device_status.fan_power
+            else None
+        )
 
     @property
     def fan_speed_list(self) -> list[str]:
         """Get the list of available fan speed steps of the vacuum cleaner."""
-        return self._device_status.fan_power.keys() if self._device_status.fan_power else None
+        return (
+            self._device_status.fan_power.keys()
+            if self._device_status.fan_power
+            else None
+        )
 
     @property
     def mop_mode(self) -> str | None:
         """Return the mop mode of the vacuum cleaner."""
         if self._device_status is None:
             return None
-        return self._device_status.mop_mode.name if self._device_status.mop_mode else None
+        return (
+            self._device_status.mop_mode.name if self._device_status.mop_mode else None
+        )
 
     @property
     def mop_mode_list(self) -> list[str]:
         """Get the list of available mop mode steps of the vacuum cleaner."""
-        return self._device_status.mop_mode.keys() if self._device_status.mop_mode else None
+        return (
+            self._device_status.mop_mode.keys()
+            if self._device_status.mop_mode
+            else None
+        )
 
     @property
     def mop_intensity(self) -> str | None:
         """Return the mop intensity of the vacuum cleaner."""
         if self._device_status is None:
             return None
-        return self._device_status.water_box_mode.name if self._device_status.water_box_mode else None
+        return (
+            self._device_status.water_box_mode.name
+            if self._device_status.water_box_mode
+            else None
+        )
 
     @property
     def mop_intensity_list(self) -> list[str]:
         """Get the list of available mop intensity steps of the vacuum cleaner."""
-        return self._device_status.water_box_mode.keys() if self._device_status.water_box_mode else None
+        return (
+            self._device_status.water_box_mode.keys()
+            if self._device_status.water_box_mode
+            else None
+        )
 
     @property
     def error(self) -> str | None:
         """Get the error translated if one exist."""
-        return self._device_status.error_code.name if self._device_status.error_code else None
+        return (
+            self._device_status.error_code.name
+            if self._device_status.error_code
+            else None
+        )
 
     @property
     def capability_attributes(self) -> dict[str, list[str]]:
@@ -395,7 +419,11 @@ class RoborockVacuum(RoborockCoordinatedEntity, StateVacuumEntity, ABC):
         """Set vacuum mop intensity."""
         await self.send(
             RoborockCommand.SET_WATER_BOX_CUSTOM_MODE,
-            [v for k, v in self._device_status.water_box_mode.items() if k == mop_intensity],
+            [
+                v
+                for k, v in self._device_status.water_box_mode.items()
+                if k == mop_intensity
+            ],
         )
 
     async def async_manual_start(self):
@@ -525,9 +553,7 @@ class RoborockVacuum(RoborockCoordinatedEntity, StateVacuumEntity, ABC):
             await self.send(RoborockCommand.LOAD_MULTI_MAP, [map_flag])
             self.set_invalid_map()
         else:
-            raise HomeAssistantError(
-                f"Map flag {map_flag} is invalid"
-            )
+            raise HomeAssistantError(f"Map flag {map_flag} is invalid")
 
     async def async_send_command(
         self,

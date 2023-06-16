@@ -6,6 +6,7 @@ import logging
 from datetime import timedelta
 
 from homeassistant.core import HomeAssistant
+from homeassistant.helpers.entity import DeviceInfo
 from homeassistant.helpers.update_coordinator import DataUpdateCoordinator, UpdateFailed
 from roborock.api import RoborockClient
 from roborock.cloud_api import RoborockMqttClient
@@ -20,27 +21,32 @@ SCAN_INTERVAL = timedelta(seconds=30)
 _LOGGER = logging.getLogger(__name__)
 
 
-class RoborockDataUpdateCoordinator(
-    DataUpdateCoordinator[RoborockHassDeviceInfo]
-):
+class RoborockDataUpdateCoordinator(DataUpdateCoordinator[RoborockHassDeviceInfo]):
     """Class to manage fetching data from the API."""
 
     def __init__(
-            self,
-            hass: HomeAssistant,
-            client: RoborockClient,
-            map_client: RoborockMqttClient,
-            device_info: RoborockHassDeviceInfo,
-            rooms: list[HomeDataRoom]
+        self,
+        hass: HomeAssistant,
+        client: RoborockClient,
+        map_client: RoborockMqttClient,
+        device_info: RoborockHassDeviceInfo,
+        rooms: list[HomeDataRoom],
     ) -> None:
         """Initialize."""
         super().__init__(hass, _LOGGER, name=DOMAIN, update_interval=SCAN_INTERVAL)
         self.api = client
         self.map_api = map_client
         self.devices_maps: dict[str, MultiMapsList] = {}
-        self.device_info = device_info
+        self.roborock_device_info = device_info
         self.rooms = rooms
         self.scheduled_refresh: asyncio.TimerHandle | None = None
+        self.device_info = DeviceInfo(
+            name=self.roborock_device_info.device.name,
+            identifiers={(DOMAIN, self.roborock_device_info.device.duid)},
+            manufacturer="Roborock",
+            model=self.roborock_device_info.model,
+            sw_version=self.roborock_device_info.device.fv,
+        )
 
     def schedule_refresh(self) -> None:
         """Schedule coordinator refresh after 1 second."""
@@ -81,47 +87,35 @@ class RoborockDataUpdateCoordinator(
                     for rm in room_mapping
                 }
 
-    async def fill_device_multi_maps_list(self, device_info: RoborockHassDeviceInfo) -> None:
+    async def fill_device_multi_maps_list(
+        self, device_info: RoborockHassDeviceInfo
+    ) -> None:
         """Get multi maps list."""
         if device_info.map_mapping is None:
             multi_maps_list = await self.api.get_multi_maps_list()
             if multi_maps_list:
                 map_mapping = {
-                    map_info.mapFlag: map_info.name for map_info in multi_maps_list.map_info}
+                    map_info.mapFlag: map_info.name
+                    for map_info in multi_maps_list.map_info
+                }
                 device_info.map_mapping = map_mapping
-
-    async def fill_sound_volume(self, device_info: RoborockHassDeviceInfo) -> None:
-        """Fetch current sound volume."""
-        sound_volume = await self.api.get_sound_volume()
-        device_info.sound_volume = sound_volume
-
-    async def fill_flow_led_status(self, device_info: RoborockHassDeviceInfo) -> None:
-        """Fetch current sound volume."""
-        flow_led_status = await self.api.get_flow_led_status()
-        device_info.flow_led_status = flow_led_status
-
-    async def fill_child_lock_status(self, device_info: RoborockHassDeviceInfo) -> None:
-        """Fetch current sound volume."""
-        child_lock_status = await self.api.get_child_lock_status()
-        device_info.child_lock_status = child_lock_status
 
     async def fill_device_info(self, device_info: RoborockHassDeviceInfo):
         """Merge device information."""
         await asyncio.gather(
-            *([
-                self.fill_device_prop(device_info),
-                self.fill_device_multi_maps_list(device_info),
-                self.fill_room_mapping(device_info),
-                self.fill_sound_volume(device_info),
-                self.fill_flow_led_status(device_info),
-                self.fill_child_lock_status(device_info),
-            ])
+            *(
+                [
+                    self.fill_device_prop(device_info),
+                    self.fill_device_multi_maps_list(device_info),
+                    self.fill_room_mapping(device_info),
+                ]
+            )
         )
 
     async def _async_update_data(self) -> RoborockHassDeviceInfo:
         """Update data via library."""
         try:
-            await self.fill_device_info(self.device_info)
+            await self.fill_device_info(self.roborock_device_info)
         except RoborockException as ex:
             raise UpdateFailed(ex) from ex
-        return self.device_info
+        return self.roborock_device_info

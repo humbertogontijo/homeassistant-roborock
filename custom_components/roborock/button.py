@@ -78,9 +78,7 @@ async def async_setup_entry(
     async_add_entities: AddEntitiesCallback,
 ) -> None:
     """Set up Roborock button platform."""
-    domain_data: DomainData = hass.data[DOMAIN][
-        config_entry.entry_id
-    ]
+    domain_data: DomainData = hass.data[DOMAIN][config_entry.entry_id]
 
     entities: list[RoborockButtonEntity] = []
     for coordinator in domain_data.get("coordinators"):
@@ -110,7 +108,7 @@ class RoborockButtonEntity(RoborockCoordinatedEntity, ButtonEntity):
         entity_description: RoborockButtonDescription,
     ) -> None:
         """Create a button entity."""
-        super().__init__(device_info, coordinator, unique_id)
+        super().__init__(coordinator, unique_id)
         self.entity_description = entity_description
 
     async def async_press(self) -> None:

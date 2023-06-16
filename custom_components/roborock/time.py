@@ -31,7 +31,9 @@ class RoborockTimeDescriptionMixin:
     # Gets the current time of the entity.
     get_time: Callable[[RoborockCoordinatedEntity], datetime.time]
     # Sets the current time of the entity.
-    set_time: Callable[[RoborockCoordinatedEntity, datetime.time], Coroutine[Any, Any, dict]]
+    set_time: Callable[
+        [RoborockCoordinatedEntity, datetime.time], Coroutine[Any, Any, dict]
+    ]
 
 
 @dataclass
@@ -39,76 +41,77 @@ class RoborockTimeDescription(TimeEntityDescription, RoborockTimeDescriptionMixi
     """Class to describe an Roborock time entity."""
 
 
-TIME_DESCRIPTIONS: list[RoborockTimeDescription] = [
-    RoborockTimeDescription(
-        key="dnd_start",
-        name="DnD start",
-        translation_key="dnd_start",
-        icon="mdi:bell-cancel",
-        get_time=lambda data: data.coordinator.data.props.dnd_timer.start_time,
-        set_time=lambda entity, desired_time: entity.send(
-            RoborockCommand.SET_DND_TIMER,
-            [
-                desired_time.hour,
-                desired_time.minute,
-                entity.coordinator.data.props.dnd_timer.end_hour,
-                entity.coordinator.data.props.dnd_timer.end_minute,
-            ],
-        ),
-        entity_category=EntityCategory.CONFIG,
-    ),
-    RoborockTimeDescription(
-        key="dnd_end",
-        name="DnD end",
-        translation_key="dnd_end",
-        icon="mdi:bell-ring",
-        get_time=lambda data: data.coordinator.data.props.dnd_timer.end_time,
-        set_time=lambda entity, desired_time: entity.send(
-            RoborockCommand.SET_DND_TIMER,
-            [
-                entity.coordinator.data.props.dnd_timer.start_hour,
-                entity.coordinator.data.props.dnd_timer.start_minute,
-                desired_time.hour,
-                desired_time.minute,
-            ],
-        ),
-        entity_category=EntityCategory.CONFIG,
-    ),
-    RoborockTimeDescription(
-        key="valley_electricity_start",
-        name="Valley electricity start",
-        translation_key="valley_electricity_start",
-        icon="mdi:bell-ring",
-        get_time=lambda data: data.coordinator.data.props.valley_electricity_timer.start_time,
-        set_time=lambda entity, desired_time: entity.send(
-            RoborockCommand.SET_VALLEY_ELECTRICITY_TIMER,
-            [
-                entity.coordinator.data.props.valley_electricity_timer.start_hour,
-                entity.coordinator.data.props.valley_electricity_timer.start_minute,
-                desired_time.hour,
-                desired_time.minute,
-            ],
-        ),
-        entity_category=EntityCategory.CONFIG,
-    ),
-    RoborockTimeDescription(
-        key="valley_electricity_end",
-        name="Valley electricity end",
-        translation_key="valley_electricity_end",
-        icon="mdi:bell-ring",
-        get_time=lambda data: data.coordinator.data.props.valley_electricity_timer.end_time,
-        set_time=lambda entity, desired_time: entity.send(
-            RoborockCommand.SET_VALLEY_ELECTRICITY_TIMER,
-            [
-                entity.coordinator.data.props.valley_electricity_timer.start_hour,
-                entity.coordinator.data.props.valley_electricity_timer.start_minute,
-                desired_time.hour,
-                desired_time.minute,
-            ],
-        ),
-        entity_category=EntityCategory.CONFIG,
-    ),
-]
+TIME_DESCRIPTIONS = []
+# TIME_DESCRIPTIONS: list[RoborockTimeDescription] = [
+#     RoborockTimeDescription(
+#         key="dnd_start",
+#         name="DnD start",
+#         translation_key="dnd_start",
+#         icon="mdi:bell-cancel",
+#         get_time=lambda data: data._roborock_device_info.dnd_timer.start_time,
+#         set_time=lambda entity, desired_time: entity.send(
+#             RoborockCommand.SET_DND_TIMER,
+#             [
+#                 desired_time.hour,
+#                 desired_time.minute,
+#                 entity.coordinator.data.props.dnd_timer.end_hour,
+#                 entity.coordinator.data.props.dnd_timer.end_minute,
+#             ],
+#         ),
+#         entity_category=EntityCategory.CONFIG,
+#     ),
+#     RoborockTimeDescription(
+#         key="dnd_end",
+#         name="DnD end",
+#         translation_key="dnd_end",
+#         icon="mdi:bell-ring",
+#         get_time=lambda data: data.coordinator.data.props.dnd_timer.end_time,
+#         set_time=lambda entity, desired_time: entity.send(
+#             RoborockCommand.SET_DND_TIMER,
+#             [
+#                 entity.coordinator.data.props.dnd_timer.start_hour,
+#                 entity.coordinator.data.props.dnd_timer.start_minute,
+#                 desired_time.hour,
+#                 desired_time.minute,
+#             ],
+#         ),
+#         entity_category=EntityCategory.CONFIG,
+#     ),
+#     RoborockTimeDescription(
+#         key="valley_electricity_start",
+#         name="Valley electricity start",
+#         translation_key="valley_electricity_start",
+#         icon="mdi:bell-ring",
+#         get_time=lambda data: data.coordinator.data.props.valley_electricity_timer.start_time,
+#         set_time=lambda entity, desired_time: entity.send(
+#             RoborockCommand.SET_VALLEY_ELECTRICITY_TIMER,
+#             [
+#                 entity.coordinator.data.props.valley_electricity_timer.start_hour,
+#                 entity.coordinator.data.props.valley_electricity_timer.start_minute,
+#                 desired_time.hour,
+#                 desired_time.minute,
+#             ],
+#         ),
+#         entity_category=EntityCategory.CONFIG,
+#     ),
+#     RoborockTimeDescription(
+#         key="valley_electricity_end",
+#         name="Valley electricity end",
+#         translation_key="valley_electricity_end",
+#         icon="mdi:bell-ring",
+#         get_time=lambda data: data.coordinator.data.props.valley_electricity_timer.end_time,
+#         set_time=lambda entity, desired_time: entity.send(
+#             RoborockCommand.SET_VALLEY_ELECTRICITY_TIMER,
+#             [
+#                 entity.coordinator.data.props.valley_electricity_timer.start_hour,
+#                 entity.coordinator.data.props.valley_electricity_timer.start_minute,
+#                 desired_time.hour,
+#                 desired_time.minute,
+#             ],
+#         ),
+#         entity_category=EntityCategory.CONFIG,
+#     ),
+# ]
 
 
 async def async_setup_entry(
@@ -160,7 +163,7 @@ class RoborockTime(RoborockCoordinatedEntity, TimeEntity):
     ) -> None:
         """Initialize the entity."""
         TimeEntity.__init__(self)
-        RoborockCoordinatedEntity.__init__(self, device_info, coordinator, unique_id)
+        RoborockCoordinatedEntity.__init__(self, coordinator, unique_id)
         self.entity_description = description
 
     @property

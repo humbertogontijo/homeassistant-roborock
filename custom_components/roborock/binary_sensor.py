@@ -95,9 +95,7 @@ async def async_setup_entry(
     async_add_entities: AddEntitiesCallback,
 ) -> None:
     """Only vacuums with mop should have binary sensor registered."""
-    domain_data: DomainData = hass.data[DOMAIN][
-        config_entry.entry_id
-    ]
+    domain_data: DomainData = hass.data[DOMAIN][config_entry.entry_id]
 
     entities: list[RoborockBinarySensor] = []
     for coordinator in domain_data.get("coordinators"):
@@ -150,7 +148,7 @@ class RoborockBinarySensor(RoborockCoordinatedEntity, BinarySensorEntity):
     ) -> None:
         """Initialize the entity."""
         BinarySensorEntity.__init__(self)
-        RoborockCoordinatedEntity.__init__(self, device_info, coordinator, unique_id)
+        RoborockCoordinatedEntity.__init__(self, coordinator, unique_id)
         self.entity_description = description
         self._attr_entity_registry_enabled_default = (
             description.entity_registry_enabled_default

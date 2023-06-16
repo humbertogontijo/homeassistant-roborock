@@ -334,7 +334,7 @@ class RoborockSensor(RoborockCoordinatedEntity, SensorEntity):
     ) -> None:
         """Initialize the entity."""
         SensorEntity.__init__(self)
-        RoborockCoordinatedEntity.__init__(self, device_info, coordinator, unique_id)
+        RoborockCoordinatedEntity.__init__(self, coordinator, unique_id)
         self.entity_description = description
         self._attr_native_value = self._determine_native_value()
         self._attr_extra_state_attributes = self._extract_attributes(

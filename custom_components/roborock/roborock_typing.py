@@ -2,7 +2,7 @@
 from dataclasses import dataclass
 from typing import Optional, TypedDict
 
-from roborock import ChildLockStatus, DeviceData, DeviceProp, FlowLedStatus
+from roborock import ChildLockStatus, DeviceData, DeviceProp, FlowLedStatus, DnDTimer
 
 
 class DeviceNetwork(TypedDict):

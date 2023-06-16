@@ -6,6 +6,7 @@ import logging
 from datetime import timedelta
 
 from homeassistant.config_entries import ConfigEntry
+from homeassistant.const import Platform
 from homeassistant.core import HomeAssistant
 from homeassistant.exceptions import ConfigEntryError, ConfigEntryNotReady
 from homeassistant.helpers.integration_platform import (
@@ -24,7 +25,6 @@ from .const import (
     CONF_INCLUDE_SHARED,
     DOMAIN,
     PLATFORMS,
-    VACUUM,
 )
 from .coordinator import RoborockDataUpdateCoordinator
 from .domain import DomainData
@@ -45,12 +45,10 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
     user_data = UserData.from_dict(data.get("user_data"))
     base_url = data.get("base_url")
     username = data.get("username")
-    vacuum_options = entry.options.get(VACUUM, {})
+    vacuum_options = entry.options.get(Platform.VACUUM, {})
     integration_options = entry.options.get(DOMAIN, {})
     cloud_integration = integration_options.get(CONF_CLOUD_INTEGRATION, False)
-    include_shared = (
-        vacuum_options.get(CONF_INCLUDE_SHARED, True)
-    )
+    include_shared = vacuum_options.get(CONF_INCLUDE_SHARED, True)
 
     device_network = data.get("device_network", {})
     try:
@@ -70,11 +68,12 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
 
     _LOGGER.debug("Got home data %s", home_data)
 
-    platforms = [platform for platform in PLATFORMS if entry.options.get(platform, True)]
+    platforms = [
+        platform for platform in PLATFORMS if entry.options.get(platform, True)
+    ]
 
     domain_data: DomainData = hass.data.setdefault(DOMAIN, {}).setdefault(
-        entry.entry_id,
-        DomainData(coordinators=[], platforms=platforms)
+        entry.entry_id, DomainData(coordinators=[], platforms=platforms)
     )
     coordinators = domain_data["coordinators"]
 
@@ -84,7 +83,9 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
         else home_data.devices
     )
     if not cloud_integration:
-        devices_without_ip = [_device for _device in devices if _device.duid not in device_network.keys()]
+        devices_without_ip = [
+            _device for _device in devices if _device.duid not in device_network.keys()
+        ]
         if len(devices_without_ip) > 0:
             device_network.update(await get_local_devices_info())
     for _device in devices:
@@ -124,8 +125,11 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
             _LOGGER.warning(f"Failing setting up device {device_id}")
 
     await asyncio.gather(
-        *(_coordinator.async_config_entry_first_refresh() for _coordinator in coordinators),
-        return_exceptions=True
+        *(
+            _coordinator.async_config_entry_first_refresh()
+            for _coordinator in coordinators
+        ),
+        return_exceptions=True,
     )
 
     success_coordinators = []
@@ -164,9 +168,7 @@ async def get_local_devices_info() -> dict[str, DeviceNetwork]:
 
 async def async_unload_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
     """Handle removal of an entry."""
-    data: DomainData = hass.data[DOMAIN].get(
-        entry.entry_id
-    )
+    data: DomainData = hass.data[DOMAIN].get(entry.entry_id)
     unloaded = all(
         await asyncio.gather(
             *[

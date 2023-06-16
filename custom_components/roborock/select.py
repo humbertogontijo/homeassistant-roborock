@@ -44,7 +44,9 @@ SELECT_DESCRIPTIONS: list[RoborockSelectDescription] = [
         translation_key="mop_intensity",
         api_command=RoborockCommand.SET_WATER_BOX_CUSTOM_MODE,
         value_fn=lambda data: data.water_box_mode.name if data.water_box_mode else None,
-        options_lambda=lambda data: data.water_box_mode.keys() if data.water_box_mode else None,
+        options_lambda=lambda data: data.water_box_mode.keys()
+        if data.water_box_mode
+        else None,
         option_lambda=lambda data: [
             v for k, v in data[1].water_box_mode.items() if k == data[0]
         ],
@@ -63,14 +65,12 @@ SELECT_DESCRIPTIONS: list[RoborockSelectDescription] = [
 
 
 async def async_setup_entry(
-        hass: HomeAssistant,
-        config_entry: ConfigEntry,
-        async_add_entities: AddEntitiesCallback,
+    hass: HomeAssistant,
+    config_entry: ConfigEntry,
+    async_add_entities: AddEntitiesCallback,
 ) -> None:
     """Set up Roborock select platform."""
-    domain_data: DomainData = hass.data[DOMAIN][
-        config_entry.entry_id
-    ]
+    domain_data: DomainData = hass.data[DOMAIN][config_entry.entry_id]
     entities: list[RoborockSelectEntity] = []
     for coordinator in domain_data.get("coordinators"):
         device_info = coordinator.data
@@ -98,18 +98,18 @@ class RoborockSelectEntity(RoborockCoordinatedEntity, SelectEntity):
     entity_description: RoborockSelectDescription
 
     def __init__(
-            self,
-            unique_id: str,
-            device_info: RoborockHassDeviceInfo,
-            coordinator: RoborockDataUpdateCoordinator,
-            entity_description: RoborockSelectDescription,
+        self,
+        unique_id: str,
+        device_info: RoborockHassDeviceInfo,
+        coordinator: RoborockDataUpdateCoordinator,
+        entity_description: RoborockSelectDescription,
     ) -> None:
         """Create a select entity."""
         self.entity_description = entity_description
         self._attr_options = self.entity_description.options_lambda(
             device_info.props.status
         )
-        super().__init__(device_info, coordinator, unique_id)
+        super().__init__(coordinator, unique_id)
 
     async def async_select_option(self, option: str) -> None:
         """Set the option."""
