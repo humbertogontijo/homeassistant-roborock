@@ -280,6 +280,11 @@
         "name": "Valley electricity end"
       }
     },
+    "number": {
+      "sound_volume": {
+        "name": "Sound volume"
+      }
+    },
     "switch": {
       "child_lock": {
         "name": "Child lock"

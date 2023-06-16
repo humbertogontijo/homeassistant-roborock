@@ -15,7 +15,7 @@ from homeassistant.util import slugify
 
 from .const import DOMAIN
 from .coordinator import RoborockDataUpdateCoordinator
-from .device import RoborockCoordinatedEntity, RoborockEntity
+from .device import RoborockEntity
 
 
 @dataclass
@@ -38,6 +38,7 @@ class RoborockNumberDescription(
 NUMBER_DESCRIPTIONS: list[RoborockNumberDescription] = [
     RoborockNumberDescription(
         key="sound_volume",
+        name="Sound volume",
         translation_key="sound_volume",
         icon="mdi:volume-source",
         native_min_value=0,

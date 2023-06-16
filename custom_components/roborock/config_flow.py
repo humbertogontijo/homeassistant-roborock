@@ -341,7 +341,7 @@ class RoborockOptionsFlowHandler(config_entries.OptionsFlow):
         """Handle a flow initialized by the user."""
         return self.async_show_menu(
             step_id="user",
-            menu_options=[CAMERA, VACUUM, DOMAIN],
+            menu_options=[Platform.CAMERA, Platform.VACUUM, DOMAIN],
         )
 
     async def async_step_menu(
@@ -350,7 +350,7 @@ class RoborockOptionsFlowHandler(config_entries.OptionsFlow):
         """Handle a flow initialized by the user."""
         return self.async_show_menu(
             step_id="user",
-            menu_options=[CAMERA, VACUUM, "configure_device"],
+            menu_options=[Platform.CAMERA, Platform.VACUUM, "configure_device"],
         )
 
     async def async_step_configure_device(
@@ -383,7 +383,7 @@ class RoborockOptionsFlowHandler(config_entries.OptionsFlow):
     ) -> FlowResult:
         """Handle setup of camera."""
         return await self._async_step_platform(
-            CAMERA, CAMERA_SCHEMA, CAMERA_VALUES, user_input
+            Platform.CAMERA, CAMERA_SCHEMA, CAMERA_VALUES, user_input
         )
 
     async def async_step_vacuum(
@@ -391,7 +391,7 @@ class RoborockOptionsFlowHandler(config_entries.OptionsFlow):
     ) -> FlowResult:
         """Handle setup of vacuum."""
         return await self._async_step_platform(
-            VACUUM, VACUUM_SCHEMA, VACUUM_VALUES, user_input
+            Platform.VACUUM, VACUUM_SCHEMA, VACUUM_VALUES, user_input
         )
 
     async def async_step_roborock(

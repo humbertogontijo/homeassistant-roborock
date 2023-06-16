@@ -35,6 +35,7 @@ class RoborockEntity(Entity):
 
     @property
     def api(self) -> RoborockClient:
+        """Returns the api."""
         return self._api
 
     @property
