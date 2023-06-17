@@ -108,6 +108,27 @@ SWITCH_DESCRIPTIONS: list[RoborockSwitchDescription] = [
         icon="mdi:bell-cancel",
         entity_category=EntityCategory.CONFIG,
     ),
+    # RoborockSwitchDescription(
+    #     set_command=lambda entity, value: entity.send(
+    #         RoborockCommand.SET_VALLEY_ELECTRICITY_TIMER,
+    #         [
+    #             entity.api.valley_timer.start_hour,
+    #             entity.api.valley_timer.start_minute,
+    #             entity.api.valley_timer.end_hour,
+    #             entity.api.valley_timer.end_minute,
+    #         ]
+    #         if value
+    #         else entity.send(RoborockCommand.CLOSE_VALLEY_ELECTRICITY_TIMER),
+    #     ),
+    #     check_support=lambda data: data.api.get_valley_electricity_timer(),
+    #     get_value=lambda data: data.api.get_valley_electricity_timer(),
+    #     evaluate_value=lambda data: data.as_dict()["enabled"],
+    #     key="valley_timer",
+    #     name="Valley Timer",
+    #     translation_key="valley_timer",
+    #     icon="",
+    #     entity_category=EntityCategory.CONFIG,
+    # ),
 ]
 
 

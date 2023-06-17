@@ -49,14 +49,16 @@ class RoborockEntity(Entity):
         return status
 
     async def send(
-        self, command: RoborockCommand, params: dict[str, Any] | list[Any] | None = None
+        self,
+        command: RoborockCommand | str,
+        params: dict[str, Any] | list[Any] | None = None,
     ) -> dict:
         """Send a command to a vacuum cleaner."""
         try:
             response = await self._api.send_command(command, params)
         except RoborockException as err:
             raise HomeAssistantError(
-                f"Error while calling {command.name} with {params}"
+                f"Error while calling {command.name if isinstance(command, RoborockCommand) else command} with {params}"
             ) from err
 
         return response
