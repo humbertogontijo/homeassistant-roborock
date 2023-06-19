@@ -1,6 +1,6 @@
 homeassistant==2023.6.1
 voluptuous==0.13.1
-python_roborock==0.24.1
+python_roborock==0.25.2
 Pillow~=9.4.0
 ruff~=0.0.269
 po
