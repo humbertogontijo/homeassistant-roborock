@@ -2,7 +2,7 @@
 from dataclasses import dataclass
 from typing import Optional, TypedDict
 
-from roborock import DeviceData, DeviceProp
+from roborock import ChildLockStatus, DeviceData, DeviceProp, FlowLedStatus
 
 
 class DeviceNetwork(TypedDict):
@@ -32,3 +32,5 @@ class RoborockHassDeviceInfo(DeviceData):
     room_mapping: Optional[dict[int, str]] = None
     current_room: Optional[int] = None
     sound_volume: Optional[int] = None
+    flow_led_status: Optional[FlowLedStatus] = None
+    child_lock_status: Optional[ChildLockStatus] = None

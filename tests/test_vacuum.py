@@ -45,7 +45,7 @@ async def test_vacuum_services(hass: HomeAssistant, bypass_api_fixture) -> None:
     with patch(
         "roborock.local_api.RoborockLocalClient.send_command"
     ) as mock_local_api_command:
-        calls = 2
+        calls = 0
         # Test starting
         await hass.services.async_call(
             VACUUM_DOMAIN, SERVICE_START, {"entity_id": ENTITY_ID}, blocking=True
