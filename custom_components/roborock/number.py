@@ -3,13 +3,16 @@ from __future__ import annotations
 
 from dataclasses import dataclass
 from collections.abc import Callable
+from typing import Any
+from collections.abc import Coroutine
 
 from homeassistant.components.number import NumberEntity, NumberEntityDescription
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.core import HomeAssistant
 from homeassistant.helpers.entity_platform import AddEntitiesCallback
 from homeassistant.util import slugify
-from roborock.roborock_typing import RoborockCommand
+from roborock.api import AttributeCache
+from roborock.command_cache import CacheableAttribute
 
 from . import DomainData
 from .const import DOMAIN
@@ -22,8 +25,10 @@ from .roborock_typing import RoborockHassDeviceInfo
 class RoborockNumberDescriptionMixin:
     """Define an entity description mixin for button entities."""
 
-    value_fn: Callable[[RoborockHassDeviceInfo], float]
-    api_command: RoborockCommand
+    # Gets the status of the switch
+    cache_key: CacheableAttribute
+    # Sets the status of the switch
+    update_value: Callable[[AttributeCache, bool], Coroutine[Any, Any, dict]]
 
 
 @dataclass
@@ -42,8 +47,8 @@ NUMBER_DESCRIPTIONS = [
         native_step=1,
         translation_key="sound_volume",
         name="Sound Volume",
-        value_fn=lambda data: data.sound_volume,
-        api_command=RoborockCommand.CHANGE_SOUND_VOLUME
+        cache_key=CacheableAttribute.sound_volume,
+        update_value=lambda cache, value: cache.update_value([value]),
     )
 ]
 
@@ -92,9 +97,9 @@ class RoborockNumberEntity(RoborockCoordinatedEntity, NumberEntity):
     @property
     def native_value(self) -> float | None:
         """Get native value."""
-        return self.entity_description.value_fn(self.coordinator.data)
+        return self.api.cache.get(self.entity_description.cache_key)
 
     async def async_set_native_value(self, value: float) -> None:
         """Set native value."""
         int_value = int(value)
-        await self.send(self.entity_description.api_command, [int_value])
+        await self.entity_description.update_value(self.api.cache.get(self.entity_description.cache_key), int_value)

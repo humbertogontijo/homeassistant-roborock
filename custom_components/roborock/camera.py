@@ -21,7 +21,7 @@ from .common.types import Colors, Drawables, ImageConfig, Sizes, Texts
 from .config_flow import CAMERA_VALUES
 from .const import *
 from .coordinator import RoborockDataUpdateCoordinator
-from .device import RoborockEntityBase
+from .device import RoborockEntity
 from .roborock_typing import RoborockHassDeviceInfo
 from .utils import set_nested_dict
 
@@ -80,7 +80,7 @@ async def async_setup_entry(
     async_add_entities(entities, True)
 
 
-class VacuumCameraMap(RoborockEntityBase, Camera):
+class VacuumCameraMap(RoborockEntity, Camera):
     """Representation of a Roborock camera map."""
 
     _is_map_valid_by_device = {}
@@ -93,7 +93,7 @@ class VacuumCameraMap(RoborockEntityBase, Camera):
             coordinator: RoborockDataUpdateCoordinator,
     ) -> None:
         """Create Roborock map."""
-        RoborockEntityBase.__init__(self, device_info, unique_id)
+        RoborockEntity.__init__(self, device_info, unique_id, coordinator.api)
         Camera.__init__(self)
         self.coordinator = coordinator
         self._store_map_image = False

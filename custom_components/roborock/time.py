@@ -1,11 +1,15 @@
 """Support for Roborock time."""
 from __future__ import annotations
 
+import asyncio
 import datetime
 import logging
 from collections.abc import Callable, Coroutine
 from dataclasses import dataclass
 from typing import Any
+
+from roborock.api import AttributeCache, RoborockClient
+from roborock.command_cache import CacheableAttribute
 
 from homeassistant.components.time import TimeEntity, TimeEntityDescription
 from homeassistant.config_entries import ConfigEntry
@@ -13,12 +17,9 @@ from homeassistant.const import EntityCategory
 from homeassistant.core import HomeAssistant
 from homeassistant.helpers.entity_platform import AddEntitiesCallback
 from homeassistant.util import slugify
-from roborock.roborock_typing import RoborockCommand
-
-from . import DomainData
+from . import DomainData, RoborockDataUpdateCoordinator
 from .const import DOMAIN
-from .coordinator import RoborockDataUpdateCoordinator
-from .device import RoborockCoordinatedEntity
+from .device import RoborockEntity
 from .roborock_typing import RoborockHassDeviceInfo
 
 _LOGGER = logging.getLogger(__name__)
@@ -28,10 +29,12 @@ _LOGGER = logging.getLogger(__name__)
 class RoborockTimeDescriptionMixin:
     """Define an entity description mixin for time entities."""
 
-    # Gets the current time of the entity.
-    get_time: Callable[[RoborockCoordinatedEntity], datetime.time]
-    # Sets the current time of the entity.
-    set_time: Callable[[RoborockCoordinatedEntity, datetime.time], Coroutine[Any, Any, dict]]
+    # Gets the status of the switch
+    cache_key: CacheableAttribute
+    # Sets the status of the switch
+    update_value: Callable[[AttributeCache, datetime.time], Coroutine[Any, Any, dict]]
+    # Attribute from cache
+    get_value: Callable[[AttributeCache], datetime.time]
 
 
 @dataclass
@@ -45,16 +48,19 @@ TIME_DESCRIPTIONS: list[RoborockTimeDescription] = [
         name="DnD start",
         translation_key="dnd_start",
         icon="mdi:bell-cancel",
-        get_time=lambda data: data.coordinator.data.props.dnd_timer.start_time,
-        set_time=lambda entity, desired_time: entity.send(
-            RoborockCommand.SET_DND_TIMER,
+        cache_key=CacheableAttribute.dnd_timer,
+        update_value=lambda cache, desired_time: cache.update_value(
             [
                 desired_time.hour,
                 desired_time.minute,
-                entity.coordinator.data.props.dnd_timer.end_hour,
-                entity.coordinator.data.props.dnd_timer.end_minute,
-            ],
+                cache.value.get("end_hour"),
+                cache.value.get("end_minute"),
+            ]
         ),
+        get_value=lambda cache: datetime.time(
+            hour=cache.value.get("start_hour"),
+            minute=cache.value.get("start_minute")
+            ),
         entity_category=EntityCategory.CONFIG,
     ),
     RoborockTimeDescription(
@@ -62,15 +68,18 @@ TIME_DESCRIPTIONS: list[RoborockTimeDescription] = [
         name="DnD end",
         translation_key="dnd_end",
         icon="mdi:bell-ring",
-        get_time=lambda data: data.coordinator.data.props.dnd_timer.end_time,
-        set_time=lambda entity, desired_time: entity.send(
-            RoborockCommand.SET_DND_TIMER,
+        cache_key=CacheableAttribute.dnd_timer,
+        update_value=lambda cache, desired_time: cache.update_value(
             [
-                entity.coordinator.data.props.dnd_timer.start_hour,
-                entity.coordinator.data.props.dnd_timer.start_minute,
+                cache.value.get("start_hour"),
+                cache.value.get("start_minute"),
                 desired_time.hour,
                 desired_time.minute,
-            ],
+            ]
+        ),
+        get_value=lambda cache: datetime.time(
+            hour=cache.value.get("end_hour"),
+            minute=cache.value.get("end_minute")
         ),
         entity_category=EntityCategory.CONFIG,
     ),
@@ -79,15 +88,18 @@ TIME_DESCRIPTIONS: list[RoborockTimeDescription] = [
         name="Valley electricity start",
         translation_key="valley_electricity_start",
         icon="mdi:bell-ring",
-        get_time=lambda data: data.coordinator.data.props.valley_electricity_timer.start_time,
-        set_time=lambda entity, desired_time: entity.send(
-            RoborockCommand.SET_VALLEY_ELECTRICITY_TIMER,
+        cache_key=CacheableAttribute.valley_electricity_timer,
+        update_value=lambda cache, desired_time: cache.update_value(
             [
-                entity.coordinator.data.props.valley_electricity_timer.start_hour,
-                entity.coordinator.data.props.valley_electricity_timer.start_minute,
                 desired_time.hour,
                 desired_time.minute,
-            ],
+                cache.value.get("end_hour"),
+                cache.value.get("end_minute"),
+            ]
+        ),
+        get_value=lambda cache: datetime.time(
+            hour=cache.value.get("start_hour"),
+            minute=cache.value.get("start_minute")
         ),
         entity_category=EntityCategory.CONFIG,
     ),
@@ -96,15 +108,18 @@ TIME_DESCRIPTIONS: list[RoborockTimeDescription] = [
         name="Valley electricity end",
         translation_key="valley_electricity_end",
         icon="mdi:bell-ring",
-        get_time=lambda data: data.coordinator.data.props.valley_electricity_timer.end_time,
-        set_time=lambda entity, desired_time: entity.send(
-            RoborockCommand.SET_VALLEY_ELECTRICITY_TIMER,
+        cache_key=CacheableAttribute.valley_electricity_timer,
+        update_value=lambda cache, desired_time: cache.update_value(
             [
-                entity.coordinator.data.props.valley_electricity_timer.start_hour,
-                entity.coordinator.data.props.valley_electricity_timer.start_minute,
+                cache.value.get("start_hour"),
+                cache.value.get("start_minute"),
                 desired_time.hour,
                 desired_time.minute,
-            ],
+            ]
+        ),
+        get_value=lambda cache: datetime.time(
+            hour=cache.value.get("end_hour"),
+            minute=cache.value.get("end_minute")
         ),
         entity_category=EntityCategory.CONFIG,
     ),
@@ -112,62 +127,66 @@ TIME_DESCRIPTIONS: list[RoborockTimeDescription] = [
 
 
 async def async_setup_entry(
-    hass: HomeAssistant,
-    config_entry: ConfigEntry,
-    async_add_entities: AddEntitiesCallback,
+        hass: HomeAssistant,
+        config_entry: ConfigEntry,
+        async_add_entities: AddEntitiesCallback,
 ) -> None:
     """Only vacuums with mop should have binary sensor registered."""
     domain_data: DomainData = hass.data[DOMAIN][config_entry.entry_id]
+    coordinators = domain_data.get("coordinators")
 
-    entities: list[RoborockTime] = []
-    for coordinator in domain_data.get("coordinators"):
+    possible_entities: list[
+        tuple[RoborockDataUpdateCoordinator, RoborockTimeDescription]
+    ] = [
+        (coordinator, description)
+        for coordinator in coordinators
+        for description in TIME_DESCRIPTIONS
+    ]
+    # We need to check if this function is supported by the device.
+    results = await asyncio.gather(
+        *(coordinator.api.cache.get(description.cache_key).async_value()
+          for coordinator, description in possible_entities),
+        return_exceptions=True
+    )
+    valid_entities: list[RoborockTime] = []
+    for (coordinator, description), result in zip(possible_entities, results):
         device_info = coordinator.data
-        unique_id = slugify(device_info.device.duid)
-        if coordinator.data:
-            for description in TIME_DESCRIPTIONS:
-                roborock_calendar = RoborockTime(
-                    f"{description.key}_{unique_id}",
-                    device_info,
-                    coordinator,
-                    description,
-                )
-                data = description.get_time(roborock_calendar)
-                if data is None:
-                    _LOGGER.debug(
-                        "It seems the %s does not support the %s as the initial value is None",
-                        device_info.model,
-                        description.key,
-                    )
-                    continue
-                entities.append(roborock_calendar)
+        if result is None or isinstance(result, Exception):
+            _LOGGER.debug("Not adding entity because of %s", result)
         else:
-            _LOGGER.warning("Failed setting up calendars no Roborock data")
+            valid_entities.append(
+                RoborockTime(
+                    f"{description.key}_{slugify(coordinator.data.device.duid)}",
+                    device_info,
+                    description,
+                    coordinator.api,
+                )
+            )
+    async_add_entities(valid_entities)
 
-    async_add_entities(entities)
 
-
-class RoborockTime(RoborockCoordinatedEntity, TimeEntity):
+class RoborockTime(RoborockEntity, TimeEntity):
     """A class to let you set options on a Roborock vacuum where the potential options are fixed."""
 
     entity_description: RoborockTimeDescription
 
     def __init__(
-        self,
-        unique_id: str,
-        device_info: RoborockHassDeviceInfo,
-        coordinator: RoborockDataUpdateCoordinator,
-        description: RoborockTimeDescription,
+            self,
+            unique_id: str,
+            device_info: RoborockHassDeviceInfo,
+            description: RoborockTimeDescription,
+            api: RoborockClient,
     ) -> None:
         """Initialize the entity."""
         TimeEntity.__init__(self)
-        RoborockCoordinatedEntity.__init__(self, device_info, coordinator, unique_id)
+        RoborockEntity.__init__(self, device_info, unique_id, api)
         self.entity_description = description
 
     @property
     def native_value(self) -> datetime.time | None:
         """Return the value reported by the time."""
-        return self.entity_description.get_time(self)
+        return self.entity_description.get_value(self.api.cache.get(self.entity_description.cache_key))
 
     async def async_set_value(self, value: datetime.time) -> None:
         """Set the time."""
-        await self.entity_description.set_time(self, value)
+        await self.entity_description.update_value(self.api.cache.get(self.entity_description.cache_key), value)

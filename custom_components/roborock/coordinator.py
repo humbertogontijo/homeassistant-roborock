@@ -90,31 +90,17 @@ class RoborockDataUpdateCoordinator(
                     map_info.mapFlag: map_info.name for map_info in multi_maps_list.map_info}
                 device_info.map_mapping = map_mapping
 
-    async def fill_sound_volume(self, device_info: RoborockHassDeviceInfo) -> None:
-        """Fetch current sound volume."""
-        sound_volume = await self.api.get_sound_volume()
-        device_info.sound_volume = sound_volume
-
-    async def fill_flow_led_status(self, device_info: RoborockHassDeviceInfo) -> None:
-        """Fetch current sound volume."""
-        flow_led_status = await self.api.get_flow_led_status()
-        device_info.flow_led_status = flow_led_status
-
-    async def fill_child_lock_status(self, device_info: RoborockHassDeviceInfo) -> None:
-        """Fetch current sound volume."""
-        child_lock_status = await self.api.get_child_lock_status()
-        device_info.child_lock_status = child_lock_status
-
     async def fill_device_info(self, device_info: RoborockHassDeviceInfo):
         """Merge device information."""
         await asyncio.gather(
             *([
                 self.fill_device_prop(device_info),
-                self.fill_device_multi_maps_list(device_info),
-                self.fill_room_mapping(device_info),
-                self.fill_sound_volume(device_info),
-                self.fill_flow_led_status(device_info),
-                self.fill_child_lock_status(device_info),
+                asyncio.gather(
+                    *([
+                        self.fill_device_multi_maps_list(device_info),
+                        self.fill_room_mapping(device_info),
+                    ]), return_exceptions=True
+                )
             ])
         )
 
