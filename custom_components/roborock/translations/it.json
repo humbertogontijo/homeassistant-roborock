@@ -68,7 +68,7 @@
       "roborock": {
         "description": "Impostazioni generali",
         "data": {
-          "cloud_integration": "Use cloud integration"
+          "cloud_integration": "Usa integrazione cloud"
         }
       }
     }
@@ -274,24 +274,24 @@
         "name": "Fine DnD"
       },
       "valley_electricity_start": {
-        "name": "Valley electricity start"
+        "name": "Inizio tariffe di basso consumo"
       },
       "valley_electricity_end": {
-        "name": "Valley electricity end"
+        "name": "Fine tariffe di basso consumo"
       }
     },
     "switch": {
       "child_lock": {
-        "name": "Child lock"
+        "name": "Blocco bambini"
       },
       "flow_led_status": {
-        "name": "Flow led status"
+        "name": "Stato LED di flusso"
       },
       "dnd_switch": {
-        "name": "DnD switch"
+        "name": "Interruttore DnD"
       },
       "valley_electricity_switch": {
-        "name": "Valley electricity switch"
+        "name": "Interruttore tariffe di basso consumo"
       }
     }
   }
