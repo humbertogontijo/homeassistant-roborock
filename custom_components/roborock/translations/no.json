@@ -183,10 +183,7 @@
       }
     },
     "binary_sensor": {
-      "mop_attached_1": {
-        "name": "Mop attached"
-      },
-      "mop_attached_2": {
+      "mop_attached": {
         "name": "Mop attached"
       },
       "water_box_attached": {

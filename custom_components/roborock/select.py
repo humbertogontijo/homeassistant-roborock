@@ -13,7 +13,7 @@ from homeassistant.util import slugify
 from roborock.containers import Status
 from roborock.roborock_typing import RoborockCommand
 
-from . import DomainData, RoborockHassDeviceInfo
+from . import EntryData, RoborockHassDeviceInfo
 from .const import DOMAIN
 from .coordinator import RoborockDataUpdateCoordinator
 from .device import RoborockCoordinatedEntity
@@ -68,11 +68,12 @@ async def async_setup_entry(
         async_add_entities: AddEntitiesCallback,
 ) -> None:
     """Set up Roborock select platform."""
-    domain_data: DomainData = hass.data[DOMAIN][
+    domain_data: EntryData = hass.data[DOMAIN][
         config_entry.entry_id
     ]
     entities: list[RoborockSelectEntity] = []
-    for coordinator in domain_data.get("coordinators"):
+    for _device_id, device_entry_data in domain_data.get("devices").items():
+        coordinator = device_entry_data["coordinator"]
         device_info = coordinator.data
         unique_id = slugify(device_info.device.duid)
         device_prop = device_info.props

@@ -16,7 +16,7 @@ from homeassistant.util import slugify
 from roborock.api import AttributeCache, RoborockClient
 from roborock.command_cache import CacheableAttribute
 
-from . import DomainData, RoborockHassDeviceInfo
+from . import EntryData, RoborockHassDeviceInfo
 from .const import DOMAIN
 from .coordinator import RoborockDataUpdateCoordinator
 from .device import RoborockEntity
@@ -105,8 +105,8 @@ async def async_setup_entry(
         async_add_entities: AddEntitiesCallback,
 ) -> None:
     """Set up Roborock switch platform."""
-    domain_data: DomainData = hass.data[DOMAIN][config_entry.entry_id]
-    coordinators = domain_data.get("coordinators")
+    domain_data: EntryData = hass.data[DOMAIN][config_entry.entry_id]
+    coordinators = [device_entry_data["coordinator"] for device_entry_data in domain_data.get("devices").values()]
     possible_entities: list[
         tuple[RoborockDataUpdateCoordinator, RoborockSwitchDescription]
     ] = [

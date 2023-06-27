@@ -183,10 +183,7 @@
       }
     },
     "binary_sensor": {
-      "mop_attached_1": {
-        "name": "Moppe monteret"
-      },
-      "mop_attached_2": {
+      "mop_attached": {
         "name": "Moppe monteret"
       },
       "water_box_attached": {

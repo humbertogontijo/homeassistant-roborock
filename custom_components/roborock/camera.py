@@ -13,7 +13,7 @@ from homeassistant.util import slugify
 from roborock import RoborockStateCode
 from roborock.exceptions import RoborockException
 
-from . import DomainData
+from . import EntryData
 from .common.image_handler import ImageHandlerRoborock
 from .common.map_data import MapData
 from .common.map_data_parser import MapDataParserRoborock
@@ -68,12 +68,13 @@ async def async_setup_entry(
         image_config[CONF_INCLUDE_IGNORED_OBSTACLES] = data.get(
             CONF_INCLUDE_IGNORED_OBSTACLES
         )
-    domain_data: DomainData = hass.data[DOMAIN][
+    domain_data: EntryData = hass.data[DOMAIN][
         config_entry.entry_id
     ]
 
     entities: list[VacuumCameraMap] = []
-    for coordinator in domain_data.get("coordinators"):
+    for device_id, device_entry_data in domain_data.get("devices").items():
+        coordinator = device_entry_data["coordinator"]
         device_info = coordinator.data
         unique_id = slugify(device_info.device.duid)
         entities.append(VacuumCameraMap(unique_id, image_config, device_info, coordinator))

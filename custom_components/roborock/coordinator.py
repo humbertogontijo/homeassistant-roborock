@@ -9,7 +9,7 @@ from homeassistant.core import HomeAssistant
 from homeassistant.helpers.update_coordinator import DataUpdateCoordinator, UpdateFailed
 from roborock.api import RoborockClient
 from roborock.cloud_api import RoborockMqttClient
-from roborock.containers import HomeDataRoom, MultiMapsList
+from roborock.containers import HomeDataRoom, MultiMapsList, RoborockBase
 from roborock.exceptions import RoborockException
 
 from .const import DOMAIN
@@ -69,6 +69,11 @@ class RoborockDataUpdateCoordinator(
                 device_info.props.update(device_prop)
             else:
                 device_info.props = device_prop
+
+    def update_device(self, attribute: str, data: RoborockBase):
+        """Update device based on prop attribute."""
+        setattr(self.device_info.props, attribute, data)
+        self.async_set_updated_data(self.device_info)
 
     async def fill_room_mapping(self, device_info: RoborockHassDeviceInfo) -> None:
         """Build the room mapping - only works for local api."""

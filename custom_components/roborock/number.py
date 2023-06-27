@@ -14,7 +14,7 @@ from homeassistant.util import slugify
 from roborock.api import AttributeCache
 from roborock.command_cache import CacheableAttribute
 
-from . import DomainData
+from . import EntryData
 from .const import DOMAIN
 from .coordinator import RoborockDataUpdateCoordinator
 from .device import RoborockCoordinatedEntity
@@ -59,12 +59,13 @@ async def async_setup_entry(
         async_add_entities: AddEntitiesCallback,
 ) -> None:
     """Set up Roborock button platform."""
-    domain_data: DomainData = hass.data[DOMAIN][
+    domain_data: EntryData = hass.data[DOMAIN][
         config_entry.entry_id
     ]
 
     entities: list[RoborockNumberEntity] = []
-    for coordinator in domain_data.get("coordinators"):
+    for _device_id, device_entry_data in domain_data.get("devices").items():
+        coordinator = device_entry_data["coordinator"]
         device_info = coordinator.data
         for description in NUMBER_DESCRIPTIONS:
             entities.append(
@@ -97,7 +98,7 @@ class RoborockNumberEntity(RoborockCoordinatedEntity, NumberEntity):
     @property
     def native_value(self) -> float | None:
         """Get native value."""
-        return self.api.cache.get(self.entity_description.cache_key)
+        return self.api.cache.get(self.entity_description.cache_key).value
 
     async def async_set_native_value(self, value: float) -> None:
         """Set native value."""

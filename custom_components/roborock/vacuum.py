@@ -31,7 +31,7 @@ from homeassistant.util import slugify
 from roborock import RoborockStateCode
 from roborock.roborock_typing import RoborockCommand
 
-from . import DomainData
+from . import EntryData
 from .const import DOMAIN
 from .coordinator import RoborockDataUpdateCoordinator
 from .device import RoborockCoordinatedEntity
@@ -190,12 +190,13 @@ async def async_setup_entry(
     """Set up the Roborock sensor."""
     add_services()
 
-    domain_data: DomainData = hass.data[DOMAIN][
+    domain_data: EntryData = hass.data[DOMAIN][
         config_entry.entry_id
     ]
 
     entities: list[RoborockVacuum] = []
-    for coordinator in domain_data.get("coordinators"):
+    for _device_id, device_entry_data in domain_data.get("devices").items():
+        coordinator = device_entry_data["coordinator"]
         unique_id = slugify(coordinator.data.device.duid)
         entities.append(RoborockVacuum(unique_id, coordinator.data, coordinator))
     async_add_entities(entities)

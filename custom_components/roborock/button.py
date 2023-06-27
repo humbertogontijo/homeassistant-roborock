@@ -14,7 +14,7 @@ from homeassistant.helpers.entity_platform import AddEntitiesCallback
 from homeassistant.util import slugify
 from roborock.roborock_typing import RoborockCommand
 
-from . import DomainData
+from . import EntryData
 from .const import DOMAIN
 from .coordinator import RoborockDataUpdateCoordinator
 from .device import RoborockCoordinatedEntity
@@ -78,17 +78,18 @@ async def async_setup_entry(
     async_add_entities: AddEntitiesCallback,
 ) -> None:
     """Set up Roborock button platform."""
-    domain_data: DomainData = hass.data[DOMAIN][
+    domain_data: EntryData = hass.data[DOMAIN][
         config_entry.entry_id
     ]
 
     entities: list[RoborockButtonEntity] = []
-    for coordinator in domain_data.get("coordinators"):
+    for device_id, device_entry_data in domain_data.get("devices").items():
+        coordinator = device_entry_data["coordinator"]
         device_info = coordinator.data
         for description in CONSUMABLE_BUTTON_DESCRIPTIONS:
             entities.append(
                 RoborockButtonEntity(
-                    f"{description.key}_{slugify(device_info.device.duid)}",
+                    f"{description.key}_{slugify(device_id)}",
                     device_info,
                     coordinator,
                     description,

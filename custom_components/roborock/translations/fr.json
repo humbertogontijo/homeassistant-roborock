@@ -183,10 +183,7 @@
       }
     },
     "binary_sensor": {
-      "mop_attached_1": {
-        "name": "Serpillière installée"
-      },
-      "mop_attached_2": {
+      "mop_attached": {
         "name": "Serpillière installée"
       },
       "water_box_attached": {

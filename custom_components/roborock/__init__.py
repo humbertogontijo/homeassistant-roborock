@@ -4,20 +4,23 @@ from __future__ import annotations
 import asyncio
 import logging
 from datetime import timedelta
+from pathlib import Path
 
-from homeassistant.config_entries import ConfigEntry
-from homeassistant.core import HomeAssistant
-from homeassistant.exceptions import ConfigEntryError, ConfigEntryNotReady
-from homeassistant.helpers.integration_platform import (
-    async_process_integration_platform_for_component,
-)
 from roborock import RoborockException
 from roborock.api import RoborockApiClient
 from roborock.cloud_api import RoborockMqttClient
 from roborock.containers import HomeData, HomeDataProduct, UserData
 from roborock.local_api import RoborockLocalClient
 from roborock.protocol import RoborockProtocol
+from slugify import slugify
 
+from homeassistant.components.local_calendar import LocalCalendarStore, STORAGE_PATH
+from homeassistant.config_entries import ConfigEntry
+from homeassistant.core import HomeAssistant
+from homeassistant.exceptions import ConfigEntryError, ConfigEntryNotReady
+from homeassistant.helpers.integration_platform import (
+    async_process_integration_platform_for_component,
+)
 from .const import (
     CONF_CLOUD_INTEGRATION,
     CONF_HOME_DATA,
@@ -27,7 +30,7 @@ from .const import (
     VACUUM,
 )
 from .coordinator import RoborockDataUpdateCoordinator
-from .domain import DomainData
+from .domain import EntryData
 from .roborock_typing import ConfigEntryData, DeviceNetwork, RoborockHassDeviceInfo
 
 SCAN_INTERVAL = timedelta(seconds=30)
@@ -72,11 +75,11 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
 
     platforms = [platform for platform in PLATFORMS if entry.options.get(platform, True)]
 
-    domain_data: DomainData = hass.data.setdefault(DOMAIN, {}).setdefault(
+    entry_data: EntryData = hass.data.setdefault(DOMAIN, {}).setdefault(
         entry.entry_id,
-        DomainData(coordinators=[], platforms=platforms)
+        EntryData(devices={}, platforms=platforms)
     )
-    coordinators = domain_data["coordinators"]
+    devices_entry_data = entry_data["devices"]
 
     devices = (
         home_data.devices + home_data.received_devices
@@ -119,27 +122,33 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
             data_coordinator = RoborockDataUpdateCoordinator(
                 hass, main_client, map_client, device_info, home_data.rooms
             )
-            coordinators.append(data_coordinator)
+            map_client.add_listener(lambda attr, _data: data_coordinator.update_device(attr, _data))
+            path = Path(hass.config.path(STORAGE_PATH.format(key=f"{DOMAIN}.{entry.entry_id}.{slugify(device_id)}")))
+            devices_entry_data[device_id] = {
+                "coordinator": data_coordinator,
+                "calendar": LocalCalendarStore(hass, path)
+            }
         except RoborockException:
             _LOGGER.warning(f"Failing setting up device {device_id}")
 
     await asyncio.gather(
-        *(_coordinator.async_config_entry_first_refresh() for _coordinator in coordinators),
+        *(device_entry_data["coordinator"].async_config_entry_first_refresh() for device_entry_data in
+          devices_entry_data.values()),
         return_exceptions=True
     )
 
     success_coordinators = []
-    for _coordinator in coordinators:
+    for device_id, device_entry_data in devices_entry_data.items():
+        _coordinator = device_entry_data["coordinator"]
         if not _coordinator.last_update_success:
             _coordinator.release()
+            devices_entry_data[device_id] = None
         else:
             success_coordinators.append(_coordinator)
 
     if len(success_coordinators) == 0:
         # Don't start if no coordinators succeeded.
         raise ConfigEntryNotReady("There are no devices that can currently be reached.")
-
-    domain_data["coordinators"] = success_coordinators
 
     for platform in platforms:
         hass.async_create_task(
@@ -164,7 +173,7 @@ async def get_local_devices_info() -> dict[str, DeviceNetwork]:
 
 async def async_unload_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
     """Handle removal of an entry."""
-    data: DomainData = hass.data[DOMAIN].get(
+    data: EntryData = hass.data[DOMAIN].get(
         entry.entry_id
     )
     unloaded = all(
@@ -177,8 +186,8 @@ async def async_unload_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
     )
     if unloaded:
         hass.data[DOMAIN].pop(entry.entry_id)
-        for data_coordinator in data.get("coordinators"):
-            data_coordinator.release()
+        for device_entry_data in data.get("devices").values():
+            device_entry_data["coordinator"].release()
 
     return unloaded
 

@@ -16,7 +16,7 @@ from homeassistant.helpers.entity import EntityCategory
 from homeassistant.helpers.entity_platform import AddEntitiesCallback
 from homeassistant.util import slugify
 
-from . import DomainData
+from . import EntryData
 from .const import (
     DOMAIN,
     MODELS_VACUUM_WITH_MOP,
@@ -42,16 +42,6 @@ class RoborockBinarySensorDescription(BinarySensorEntityDescription):
 
 
 VACUUM_SENSORS = {
-    ATTR_MOP_ATTACHED: RoborockBinarySensorDescription(
-        key="water_box_status",
-        name="Mop attached",
-        translation_key="mop_attached_1",
-        icon="mdi:square-rounded",
-        parent_key="status",
-        entity_registry_enabled_default=True,
-        device_class=BinarySensorDeviceClass.CONNECTIVITY,
-        entity_category=EntityCategory.DIAGNOSTIC,
-    ),
     ATTR_WATER_BOX_ATTACHED: RoborockBinarySensorDescription(
         key="water_box_status",
         name="Water box attached",
@@ -79,7 +69,7 @@ VACUUM_SENSORS_SEPARATE_MOP = {
     ATTR_MOP_ATTACHED: RoborockBinarySensorDescription(
         key="water_box_carriage_status",
         name="Mop attached",
-        translation_key="mop_attached_2",
+        translation_key="mop_attached",
         icon="mdi:square-rounded",
         parent_key="status",
         entity_registry_enabled_default=True,
@@ -95,12 +85,13 @@ async def async_setup_entry(
     async_add_entities: AddEntitiesCallback,
 ) -> None:
     """Only vacuums with mop should have binary sensor registered."""
-    domain_data: DomainData = hass.data[DOMAIN][
+    domain_data: EntryData = hass.data[DOMAIN][
         config_entry.entry_id
     ]
 
     entities: list[RoborockBinarySensor] = []
-    for coordinator in domain_data.get("coordinators"):
+    for _device_id, device_entry_data in domain_data.get("devices").items():
+        coordinator = device_entry_data["coordinator"]
         device_info = coordinator.data
         model = device_info.model
         if model not in MODELS_VACUUM_WITH_MOP:
