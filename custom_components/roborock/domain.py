@@ -1,9 +1,8 @@
 """Domain dict for Roborock."""
 from typing import Optional, TypedDict
 
-from homeassistant.components.local_calendar import LocalCalendarStore
-
 from . import RoborockDataUpdateCoordinator
+from .store import LocalCalendarStore
 
 
 class DeviceEntryData(TypedDict):

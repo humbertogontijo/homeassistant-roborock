@@ -13,7 +13,6 @@ from homeassistant.components.calendar import (
     CalendarEntity, CalendarEntityFeature,
     CalendarEvent, EVENT_END, EVENT_RRULE, EVENT_START,
 )
-from homeassistant.components.local_calendar import LocalCalendarStore
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.core import HomeAssistant
 from homeassistant.exceptions import HomeAssistantError
@@ -37,6 +36,7 @@ from .const import (
 )
 from .device import RoborockEntity
 from .roborock_typing import RoborockHassDeviceInfo
+from .store import LocalCalendarStore
 
 _LOGGER = logging.getLogger(__name__)
 PRODID = "github.com/humbertogontijo/homeassistant-roborock"

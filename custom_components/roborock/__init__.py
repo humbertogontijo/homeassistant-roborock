@@ -14,7 +14,6 @@ from roborock.local_api import RoborockLocalClient
 from roborock.protocol import RoborockProtocol
 from slugify import slugify
 
-from homeassistant.components.local_calendar import LocalCalendarStore, STORAGE_PATH
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.core import HomeAssistant
 from homeassistant.exceptions import ConfigEntryError, ConfigEntryNotReady
@@ -32,6 +31,7 @@ from .const import (
 from .coordinator import RoborockDataUpdateCoordinator
 from .domain import EntryData
 from .roborock_typing import ConfigEntryData, DeviceNetwork, RoborockHassDeviceInfo
+from .store import LocalCalendarStore, STORAGE_PATH
 
 SCAN_INTERVAL = timedelta(seconds=30)
 
