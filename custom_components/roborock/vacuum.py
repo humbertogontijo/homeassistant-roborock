@@ -206,7 +206,7 @@ class RoborockVacuum(RoborockCoordinatedEntity, StateVacuumEntity, ABC):
     """General Representation of a Roborock vacuum."""
 
     _attr_name = None
-    
+
     def __init__(
         self,
         unique_id: str,
