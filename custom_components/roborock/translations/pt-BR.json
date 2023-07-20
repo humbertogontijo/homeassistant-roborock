@@ -271,10 +271,10 @@
         "name": "Não perturbe fim"
       },
       "valley_electricity_start": {
-        "name": "Preço energia reduzido começo"
+        "name": "Carregamento fora de pico começo"
       },
       "valley_electricity_end": {
-        "name": "Preço energia reduzido fim"
+        "name": "Carregamento fora de pico fim"
       }
     },
     "switch": {

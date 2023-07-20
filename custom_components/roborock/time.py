@@ -85,7 +85,7 @@ TIME_DESCRIPTIONS: list[RoborockTimeDescription] = [
     ),
     RoborockTimeDescription(
         key="valley_electricity_start",
-        name="Valley electricity start",
+        name="Off-Peak charging start",
         translation_key="valley_electricity_start",
         icon="mdi:bell-ring",
         cache_key=CacheableAttribute.valley_electricity_timer,
@@ -105,7 +105,7 @@ TIME_DESCRIPTIONS: list[RoborockTimeDescription] = [
     ),
     RoborockTimeDescription(
         key="valley_electricity_end",
-        name="Valley electricity end",
+        name="Off-Peak charging end",
         translation_key="valley_electricity_end",
         icon="mdi:bell-ring",
         cache_key=CacheableAttribute.valley_electricity_timer,
