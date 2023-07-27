@@ -195,7 +195,7 @@
     },
     "select": {
       "mop_mode": {
-        "name": "Mode do esfregão",
+        "name": "Modo do esfregão",
         "state": {
           "standard": "Padrão",
           "deep": "Profundo",
