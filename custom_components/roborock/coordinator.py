@@ -70,10 +70,11 @@ class RoborockDataUpdateCoordinator(
             else:
                 device_info.props = device_prop
 
-    def update_device(self, attribute: str, data: RoborockBase):
+    def update_device(self, device_id: str, attribute: str, data: RoborockBase):
         """Update device based on prop attribute."""
-        setattr(self.device_info.props, attribute, data)
-        self.hass.loop.call_soon_threadsafe(self.async_set_updated_data, self.device_info)
+        if device_id == self.device_info.device.duid:
+            setattr(self.device_info.props, attribute, data)
+            self.hass.loop.call_soon_threadsafe(self.async_set_updated_data, self.device_info)
 
     async def fill_room_mapping(self, device_info: RoborockHassDeviceInfo) -> None:
         """Build the room mapping - only works for local api."""

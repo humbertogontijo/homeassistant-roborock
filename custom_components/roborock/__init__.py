@@ -87,7 +87,7 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
         else home_data.devices
     )
     if not cloud_integration:
-        devices_without_ip = [_device for _device in devices if _device.duid not in device_network.keys()]
+        devices_without_ip = [_device for _device in devices if _device.duid not in device_network]
         if len(devices_without_ip) > 0:
             device_network.update(await get_local_devices_info())
     for _device in devices:
@@ -110,7 +110,8 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
                 network = device_network.get(device_id)
                 if network is None:
                     networking = await map_client.get_networking()
-                    network = {"ip": networking.ip}
+                    network = DeviceNetwork(ip=networking.ip, mac="")
+                    device_network[device_id] = network
                     hass.config_entries.async_update_entry(
                         entry, data={"device_network": device_network, **data}
                     )
@@ -122,7 +123,7 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
             data_coordinator = RoborockDataUpdateCoordinator(
                 hass, main_client, map_client, device_info, home_data.rooms
             )
-            map_client.add_listener(lambda attr, _data: data_coordinator.update_device(attr, _data))
+            map_client.add_listener(data_coordinator.update_device)
             path = Path(hass.config.path(STORAGE_PATH.format(key=f"{DOMAIN}.{entry.entry_id}.{slugify(device_id)}")))
             devices_entry_data[device_id] = {
                 "coordinator": data_coordinator,
@@ -132,8 +133,10 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
             _LOGGER.warning(f"Failing setting up device {device_id}")
 
     await asyncio.gather(
-        *(device_entry_data["coordinator"].async_config_entry_first_refresh() for device_entry_data in
-          devices_entry_data.values()),
+        *(
+            device_entry_data["coordinator"].async_config_entry_first_refresh()
+            for device_entry_data in devices_entry_data.values()
+        ),
         return_exceptions=True
     )
 
