@@ -14,7 +14,7 @@
     "roborock"
   ],
   "requirements": [
-    "python-roborock==0.32.2",
+    "python-roborock==0.32.3",
     "ical==5.0.0"
   ],
   "version": "1.0.11"
