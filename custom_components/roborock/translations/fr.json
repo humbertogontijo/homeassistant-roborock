@@ -220,44 +220,44 @@
           "fan_speed": {
             "state": {
               "auto": "Auto",
-              "balanced": "Balanced",
-              "custom": "Custom",
-              "gentle": "Gentle",
+              "balanced": "Equilibré",
+              "custom": "Personnalisé",
+              "gentle": "Doux",
               "off": "Off",
               "max": "Max",
               "max_plus": "Max+",
-              "medium": "Medium",
-              "quiet": "Quiet",
-              "silent": "Silent",
-              "standard": "Standard",
+              "medium": "Moyen",
+              "quiet": "Calme",
+              "silent": "Silencieux",
+              "standard": "Normal",
               "turbo": "Turbo"
             }
           },
           "status": {
             "state": {
-              "starting": "Starting",
-              "charger_disconnected": "Charger disconnected",
-              "idle": "Idle",
-              "remote_control_active": "Remote control active",
-              "cleaning": "Cleaning",
-              "returning_home": "Returning home",
-              "manual_mode": "Manual mode",
-              "charging": "Charging",
-              "charging_problem": "Charging problem",
-              "paused": "Paused",
-              "spot_cleaning": "Spot cleaning",
-              "error": "Error",
-              "shutting_down": "Shutting down",
-              "updating": "Updating",
-              "docking": "Docking",
-              "going_to_target": "Going to target",
-              "zoned_cleaning": "Zoned cleaning",
-              "segment_cleaning": "Segment cleaning",
-              "emptying_the_bin": "Emptying the bin",
-              "washing_the_mop": "Washing the mop",
-              "going_to_wash_the_mop": "Going to wash the mop",
-              "charging_complete": "Charging complete",
-              "device_offline": "Device offline"
+              "starting": "Démarrage en cours",
+              "charger_disconnected": "Chargeur déconnecté",
+              "idle": "En veille",
+              "remote_control_active": "Télécommande active",
+              "cleaning": "Nettoyage en cours",
+              "returning_home": "Retour à la base",
+              "manual_mode": "Mode manuel",
+              "charging": "En charge",
+              "charging_problem": "Problème de charge",
+              "paused": "En pause",
+              "spot_cleaning": "Nettoyage localisé",
+              "error": "Erreur",
+              "shutting_down": "Arrêt en cours",
+              "updating": "Mise à jour en cours",
+              "docking": "En retour à la base",
+              "going_to_target": "En déplacement vers la cible",
+              "zoned_cleaning": "Nettoyage par zone",
+              "segment_cleaning": "Nettoyage par segment",
+              "emptying_the_bin": "Vidage du bac",
+              "washing_the_mop": "Nettoyage de la serpillère",
+              "going_to_wash_the_mop": "Retour à la base pour laver la serpillère",
+              "charging_complete": "Charge terminée",
+              "device_offline": "Appareil hors ligne"
             }
           }
         }
@@ -271,24 +271,24 @@
         "name": "Fin NPD"
       },
       "valley_electricity_start": {
-        "name": "Off-Peak charging start"
+        "name": "Début heures creuses"
       },
       "valley_electricity_end": {
-        "name": "Off-Peak charging end"
+        "name": "Fin heures creuses"
       }
     },
     "switch": {
       "child_lock": {
-        "name": "Child lock"
+        "name": "Sécurité enfant"
       },
       "flow_led_status": {
-        "name": "Status Indicator Light"
+        "name": "Voyants des boutons"
       },
       "dnd_switch": {
-        "name": "DnD switch"
+        "name": "Mode Ne pas déranger"
       },
       "valley_electricity_switch": {
-        "name": "Valley electricity switch"
+        "name": "Chargement heures creuses"
       }
     }
   }
