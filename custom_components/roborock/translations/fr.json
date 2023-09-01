@@ -170,7 +170,7 @@
         "name": "Mode de recueil de la poussière de la station"
       },
       "dock_mop_wash_mode_interval": {
-        "name": "Intervalle deDock mop wash mode interval"
+        "name": "Intervalle de lavage de la serpillère"
       },
       "current_map_selected": {
         "name": "Carte actuelle"
@@ -204,12 +204,12 @@
         }
       },
       "mop_intensity": {
-        "name": "Intensité de frottement",
+        "name": "Niveau de l'eau",
         "state": {
           "off": "Aucun",
-          "mild": "Doux",
+          "mild": "Faible",
           "moderate": "Moyen",
-          "intense": "Intense",
+          "intense": "Elevé",
           "custom": "Personnalisé"
         }
       }
