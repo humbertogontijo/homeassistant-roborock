@@ -179,7 +179,15 @@
         "name": "Pièce actuelle"
       },
       "dock_status": {
-        "name": "État de la station"
+        "name": "État de la station",
+        "state": {
+          "ok": "OK",
+          "water_empty": "Réservoir eau propre vide",
+          "waste_water_tank_full": "Réservoir eau sale plein/absent",
+          "dirty_tank_latch_open": "Verrou du réservoir d'eau sale non fermé",
+          "no_dustbin": "Sac aspirateur absent",
+          "duct_blockage": "Tuyau aspiration bouché"
+        }
       }
     },
     "binary_sensor": {
