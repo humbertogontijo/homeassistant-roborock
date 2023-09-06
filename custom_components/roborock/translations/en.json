@@ -180,6 +180,12 @@
       },
       "dock_status": {
         "name": "Dock status"
+      },
+      "mop_drying_status": {
+        "name": "Mop drying status"
+      },
+      "mop_drying_remaining_time": {
+        "name": "Mop drying remaining time"
       }
     },
     "binary_sensor": {

@@ -188,6 +188,12 @@
           "no_dustbin": "Sac aspirateur absent",
           "duct_blockage": "Tuyau aspiration bouché"
         }
+      },
+      "mop_drying_status": {
+        "name": "Séchage de la serpillière"
+      },
+      "mop_drying_remaining_time": {
+        "name": "Séchage de la serpillière temps restant"
       }
     },
     "binary_sensor": {

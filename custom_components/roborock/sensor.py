@@ -53,6 +53,7 @@ ATTR_DOCK_DUST_COLLECTION_MODE = "dock_dust_collection_mode"
 ATTR_DOCK_MOP_WASH_MODE = "dock_mop_wash_mode"
 ATTR_SELECTED_MAP = "map_selected"
 ATTR_CURRENT_ROOM = "room"
+ATTR_MOP_DRYING_REMAINING_TIME = "rdt"
 
 
 @dataclass
@@ -272,6 +273,16 @@ VACUUM_WITH_DOCK_SENSORS = {
         parent_key="dock_summary",
         name="Dock mop wash mode interval",
         translation_key="dock_mop_wash_mode_interval",
+        entity_category=EntityCategory.DIAGNOSTIC,
+    ),
+    f"current_{ATTR_MOP_DRYING_REMAINING_TIME}": RoborockSensorDescription(
+        native_unit_of_measurement=UnitOfTime.SECONDS,
+        key="rdt",
+        icon="mdi:timer-sand",
+        device_class=SensorDeviceClass.DURATION,
+        parent_key="status",
+        name="Mop drying remaining time",
+        translation_key="mop_drying_remaining_time",
         entity_category=EntityCategory.DIAGNOSTIC,
     ),
 }
