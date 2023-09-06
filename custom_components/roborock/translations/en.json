@@ -182,7 +182,7 @@
         "name": "Dock status"
       },
       "mop_drying_status": {
-        "name": "Mop drying status"
+        "name": "Mop drying"
       },
       "mop_drying_remaining_time": {
         "name": "Mop drying remaining time"

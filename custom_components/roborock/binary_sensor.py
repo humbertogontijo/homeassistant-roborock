@@ -66,8 +66,9 @@ VACUUM_SENSORS = {
         key="dry_status",
         icon="mdi:heat-wave",
         parent_key="status",
-        name="Mop drying status",
+        name="Mop drying",
         translation_key="mop_drying_status",
+        device_class=BinarySensorDeviceClass.RUNNING,
         entity_category=EntityCategory.DIAGNOSTIC,
     ),
 }
