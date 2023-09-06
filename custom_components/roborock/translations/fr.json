@@ -194,6 +194,9 @@
       },
       "mop_drying_remaining_time": {
         "name": "Séchage de la serpillière temps restant"
+      },
+      "clean_percent": {
+        "name": "Progression nettoyage"
       }
     },
     "binary_sensor": {

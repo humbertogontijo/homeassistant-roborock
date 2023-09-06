@@ -186,6 +186,9 @@
       },
       "mop_drying_remaining_time": {
         "name": "Mop drying remaining time"
+      },
+      "clean_percent": {
+        "name": "Cleaning progress"
       }
     },
     "binary_sensor": {

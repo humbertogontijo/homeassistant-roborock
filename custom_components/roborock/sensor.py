@@ -14,7 +14,7 @@ from homeassistant.components.sensor import (
     SensorStateClass,
 )
 from homeassistant.config_entries import ConfigEntry
-from homeassistant.const import AREA_SQUARE_METERS, UnitOfTime
+from homeassistant.const import AREA_SQUARE_METERS, PERCENTAGE, UnitOfTime
 from homeassistant.core import HomeAssistant, callback
 from homeassistant.helpers.entity import EntityCategory
 from homeassistant.helpers.entity_platform import AddEntitiesCallback
@@ -54,6 +54,7 @@ ATTR_DOCK_MOP_WASH_MODE = "dock_mop_wash_mode"
 ATTR_SELECTED_MAP = "map_selected"
 ATTR_CURRENT_ROOM = "room"
 ATTR_MOP_DRYING_REMAINING_TIME = "rdt"
+ATTR_CLEANING_PROGRESS = "clean_percent"
 
 
 @dataclass
@@ -243,6 +244,15 @@ VACUUM_SENSORS = {
         parent_key="status",
         name="Dock status",
         translation_key="dock_status",
+        entity_category=EntityCategory.DIAGNOSTIC,
+    ),
+    f"current_{ATTR_CLEANING_PROGRESS}": RoborockSensorDescription(
+        native_unit_of_measurement=PERCENTAGE,
+        key="clean_percent",
+        icon="mdi:progress-check",
+        parent_key="status",
+        name="Cleaning progress",
+        translation_key="clean_percent",
         entity_category=EntityCategory.DIAGNOSTIC,
     ),
 }
