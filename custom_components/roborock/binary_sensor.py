@@ -31,7 +31,7 @@ _LOGGER = logging.getLogger(__name__)
 ATTR_MOP_ATTACHED = "is_water_box_carriage_attached"
 ATTR_WATER_BOX_ATTACHED = "is_water_box_attached"
 ATTR_WATER_SHORTAGE = "is_water_shortage"
-
+ATTR_MOP_DRYING = "dry_status"
 
 @dataclass
 class RoborockBinarySensorDescription(BinarySensorEntityDescription):
@@ -60,6 +60,15 @@ VACUUM_SENSORS = {
         parent_key="status",
         entity_registry_enabled_default=True,
         device_class=BinarySensorDeviceClass.PROBLEM,
+        entity_category=EntityCategory.DIAGNOSTIC,
+    ),
+    ATTR_MOP_DRYING: RoborockBinarySensorDescription(
+        key="dry_status",
+        icon="mdi:heat-wave",
+        parent_key="status",
+        name="Mop drying",
+        translation_key="mop_drying_status",
+        device_class=BinarySensorDeviceClass.RUNNING,
         entity_category=EntityCategory.DIAGNOSTIC,
     ),
 }
