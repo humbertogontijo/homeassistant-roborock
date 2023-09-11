@@ -2,5 +2,5 @@
 pytest==7.4.0
 pytest_homeassistant_custom_component==0.13.46
 aiohttp_cors==0.7.0
-aiodiscover==1.4.16
+aiodiscover==1.5.1
 scapy==2.5.0
