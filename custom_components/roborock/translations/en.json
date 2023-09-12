@@ -204,8 +204,9 @@
     },
     "select": {
       "mop_mode": {
-        "name": "Mop mode",
+        "name": "Route",
         "state": {
+          "fast": "Fast",
           "standard": "Standard",
           "deep": "Deep",
           "deep_plus": "Deep+",
@@ -216,9 +217,12 @@
         "name": "Mop intensity",
         "state": {
           "off": "Off",
+          "low": "Low",
           "mild": "Mild",
           "moderate": "Moderate",
+          "medium": "Medium",
           "intense": "Intense",
+          "high": "High",
           "custom": "Custom"
         }
       }
