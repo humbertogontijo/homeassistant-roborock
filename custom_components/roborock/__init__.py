@@ -17,9 +17,6 @@ from slugify import slugify
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.core import HomeAssistant
 from homeassistant.exceptions import ConfigEntryError, ConfigEntryNotReady
-from homeassistant.helpers.integration_platform import (
-    async_process_integration_platform_for_component,
-)
 from .const import (
     CONF_CLOUD_INTEGRATION,
     CONF_HOME_DATA,
@@ -41,7 +38,6 @@ _LOGGER = logging.getLogger(__name__)
 async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
     """Set up roborock from a config entry."""
     _LOGGER.debug("Integration async setup entry: %s", entry.as_dict())
-    await async_process_integration_platform_for_component(hass, DOMAIN)
     hass.data.setdefault(DOMAIN, {})
 
     data: ConfigEntryData = entry.data
