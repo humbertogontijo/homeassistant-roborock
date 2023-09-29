@@ -6,6 +6,7 @@ from enum import Enum
 from typing import Any, Dict, List, Optional
 
 from homeassistant.components.camera import Camera, CameraEntityFeature
+from homeassistant.components.vacuum import ATTR_BATTERY_ICON
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.core import HomeAssistant
 from homeassistant.helpers.entity_platform import AddEntitiesCallback
