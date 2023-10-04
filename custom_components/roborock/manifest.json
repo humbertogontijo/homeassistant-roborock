@@ -17,5 +17,5 @@
     "python-roborock==0.33.0",
     "ical==5.0.0"
   ],
-  "version": "1.0.11"
+  "version": "1.0.12"
 }
