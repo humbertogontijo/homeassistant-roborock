@@ -212,8 +212,9 @@
     },
     "select": {
       "mop_mode": {
-        "name": "Parcours de lavage de sol",
+        "name": "Parcours",
         "state": {
+          "fast": "Rapide",
           "standard": "Standard",
           "deep": "Approfondi",
           "deep_plus": "Approfondi+",
@@ -225,10 +226,18 @@
         "state": {
           "off": "Aucun",
           "mild": "Faible",
+          "low": "Faible",
           "moderate": "Moyen",
+          "medium": "Moyen",
           "intense": "Elevé",
+          "high": "Elevé",
           "custom": "Personnalisé"
         }
+      }
+    },
+    "number": {
+      "sound_volume": {
+        "name": "Volume"
       }
     },
     "vacuum": {
