@@ -180,6 +180,15 @@
       },
       "dock_status": {
         "name": "Stato Dock"
+      },
+      "mop_drying_status": {
+        "name": "Asciugatura mop"
+      },
+      "mop_drying_remaining_time": {
+        "name": "Tempo rimanente per l'asciugatura mop"
+      },
+      "clean_percent": {
+        "name": "Progresso pulizia"
       }
     },
     "binary_sensor": {
@@ -197,6 +206,7 @@
       "mop_mode": {
         "name": "Modalità di lavaggio",
         "state": {
+          "fast": "Veloce",
           "standard": "Standard",
           "deep": "Profondo",
           "deep_plus": "Profondo+",
@@ -207,9 +217,12 @@
         "name": "Intensità di lavaggio",
         "state": {
           "off": "Disattivato",
+          "low": "Basso",
           "mild": "Leggero",
           "moderate": "Moderato",
+          "medium": "Medio",
           "intense": "Intenso",
+          "high": "Alto",
           "custom": "Personalizzata"
         }
       }
