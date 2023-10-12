@@ -210,7 +210,8 @@
           "mild": "Mild",
           "moderate": "Moderat",
           "intense": "Intens",
-          "custom": "Brugerdefinerede"
+          "custom": "Brugerdefinerede",
+          "custom_water_flow": "Brugerdefinerede"
         }
       }
     },
