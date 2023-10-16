@@ -347,15 +347,15 @@ class RoborockVacuum(RoborockCoordinatedEntity, StateVacuumEntity, ABC):
         capability_attributes[ATTR_MOP_INTENSITY_LIST] = self.mop_intensity_list
         return capability_attributes
 
-    def is_paused(self) -> bool:
-        """Return if the vacuum is paused."""
-        return self.state == STATE_PAUSED or self.state == STATE_ERROR
+    def is_paused_idle_or_error(self) -> bool:
+        """Return if the vacuum is in paused, idle or error state."""
+        return self.state == STATE_PAUSED or self.state == STATE_IDLE or self.state == STATE_ERROR
 
     async def async_start(self) -> None:
         """Start the vacuum."""
-        if self.is_paused() and self._device_status.in_cleaning == 2:
+        if self.is_paused_idle_or_error() and self._device_status.in_cleaning == 2:
             await self.send(RoborockCommand.RESUME_ZONED_CLEAN)
-        elif self.is_paused and self._device_status.in_cleaning == 3:
+        elif self.is_paused_idle_or_error() and self._device_status.in_cleaning == 3:
             await self.send(RoborockCommand.RESUME_SEGMENT_CLEAN)
         else:
             await self.send(RoborockCommand.APP_START)
