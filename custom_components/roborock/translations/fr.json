@@ -231,7 +231,8 @@
           "medium": "Moyen",
           "intense": "Elevé",
           "high": "Elevé",
-          "custom": "Personnalisé"
+          "custom": "Personnalisé",
+          "custom_water_flow": "Personnalisé"
         }
       }
     },

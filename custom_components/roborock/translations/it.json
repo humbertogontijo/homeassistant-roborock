@@ -223,7 +223,8 @@
           "medium": "Medio",
           "intense": "Intenso",
           "high": "Alto",
-          "custom": "Personalizzata"
+          "custom": "Personalizzata",
+          "custom_water_flow": "Personalizzata"
         }
       }
     },
