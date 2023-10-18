@@ -112,12 +112,12 @@
           "vertical_bumper_pressed": "Pare-chocs vertical enfoncé. Déplacez le robot et réessayez.",
           "dock_locator_error": "Erreur de localisation de la station. Nettoyez et réessayez.",
           "return_to_dock_fail": "Impossible de retourner à la station. Nettoyez la balise de localisation de la station et réessayez.",
-          "nogo_zone_detected": "Le système VibraRise s'est bloqué. Vérifiez les obstructions.",
-          "vibrarise_jammed": "Le robot est sur le tapis. Déplacez le robot au sol et réessayez.",
-          "robot_on_carpet": "Filtre bloqué ou humide. Nettoyez, séchez et réessayez.",
-          "filter_blocked": "Zone interdite ou mur invisible détecté. Éloignez le robot de cette zone.",
-          "invisible_wall_detected": "Impossible de traverser le tapis. Faites traverser le robot et redémarrez.",
-          "cannot_cross_carpet": "Erreur interne. Réinitialisez le robot.",
+          "nogo_zone_detected": "Zone interdite ou mur invisible détecté. Déplacez le robot de cette zone.",
+          "vibrarise_jammed": "Le système VibraRise est bloqué. Vérifiez les obstructions.",
+          "robot_on_carpet": "Le robot est sur le tapis. Déplacez le robot au sol et réessayez.",
+          "filter_blocked": "Filtre bloqué ou humide. Nettoyez, séchez et réessayez.",
+          "invisible_wall_detected": "Zone interdite ou mur invisible détecté. Déplacez le robot de cette zone.",
+          "cannot_cross_carpet": "Impossible de traverser le tapis. Faites traverser le robot et redémarrez.",
           "internal_error": "Erreur interne. Réinitialisez le robot."
         }
       },
@@ -149,7 +149,7 @@
         "name": "Nombre total de nettoyage"
       },
       "total_dust_collection_count": {
-        "name": "Nombre total de recueil de la poussière"
+        "name": "Nombre total de récupération de la poussière"
       },
       "main_brush_left": {
         "name": "Brosse principale"
@@ -167,7 +167,7 @@
         "name": "Mode de lavage de la station"
       },
       "dock_dust_collection_mode": {
-        "name": "Mode de recueil de la poussière de la station"
+        "name": "Mode de récupération de la poussière par la station"
       },
       "dock_mop_wash_mode_interval": {
         "name": "Intervalle de lavage de la serpillère"
@@ -277,7 +277,7 @@
               "shutting_down": "Arrêt en cours",
               "updating": "Mise à jour en cours",
               "docking": "En retour à la base",
-              "going_to_target": "En déplacement vers la cible",
+              "going_to_target": "En déplacement vers le point sélectionné",
               "zoned_cleaning": "Nettoyage par zone",
               "segment_cleaning": "Nettoyage par segment",
               "emptying_the_bin": "Vidage du bac",
