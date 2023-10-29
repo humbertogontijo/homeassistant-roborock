@@ -28,7 +28,7 @@ I recommend installing it through [HACS](https://github.com/hacs/integration)
 8. Search for Roborock
 9. Type your username used in the Roborock App and hit submit
 10. You will receive an Email with a verification code
-11. Type the verication code and hit submit
+11. Type the verification code and hit submit
 12. You're all set
 
 

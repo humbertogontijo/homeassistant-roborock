@@ -17,7 +17,7 @@ I recommend installing it through [HACS](https://github.com/hacs/integration)
 
 ## IMPORTANT
 Ensure that your HA instance can listen for device broadcasts on port 58866
-Ensure that your HA instance can comunicate to device on port 58867
+Ensure that your HA instance can communicate to device on port 58867
 
 ### Installing via HACS
 [![Open your Home Assistant instance and open a repository inside the Home Assistant Community Store.](https://my.home-assistant.io/badges/hacs_repository.svg)](https://my.home-assistant.io/redirect/hacs_repository/?owner=humbertogontijo&repository=homeassistant-roborock&category=integration)
