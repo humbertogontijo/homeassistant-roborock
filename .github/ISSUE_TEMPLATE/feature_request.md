@@ -19,7 +19,7 @@ A clear and concise description of what the problem is. Ex. I'm always frustrate
 <!-- Add any other context or screenshots about the feature request here. -->
 
 ## Mqtt request
-<!-- If you are looking for a feature that was introduced with a specific vacuum, chances are the reason we have not implemented it is because we need the mqtt request - and we cannot figure it out as we don't have the vacuum. Look here(https://github.com/humbertogontijo/python-roborock/blob/main/roborock/typing.py) to see what commands we have. If we don't have one that corersponds with the feature you are looking for, chances are, we need your (or annother users' help)
+<!-- If you are looking for a feature that was introduced with a specific vacuum, chances are the reason we have not implemented it is because we need the mqtt request - and we cannot figure it out as we don't have the vacuum. Look here(https://github.com/humbertogontijo/python-roborock/blob/main/roborock/typing.py) to see what commands we have. If we don't have one that corresponds with the feature you are looking for, chances are, we need your (or another users' help)
 
 If you feel as if you are technically able to do this, please do, if not, just say here that you don't feel comfortable doing this.
 
