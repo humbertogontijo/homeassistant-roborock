@@ -8,7 +8,7 @@ from homeassistant.exceptions import HomeAssistantError
 from homeassistant.helpers.entity import DeviceInfo, Entity
 from homeassistant.helpers.update_coordinator import CoordinatorEntity
 from roborock.api import RT, RoborockClient
-from roborock.containers import Status
+from roborock.containers import Status, Consumable
 from roborock.exceptions import RoborockException
 from roborock.roborock_typing import RoborockCommand
 
@@ -118,3 +118,13 @@ class RoborockCoordinatedEntity(RoborockEntity, CoordinatorEntity[RoborockDataUp
         response = await super().send(method, params, return_type)
         self.coordinator.schedule_refresh()
         return response
+
+    def _update_from_listener(self, value: Status | Consumable):
+        """Update the status or consumable data from a listener and then write the new entity state."""
+        if isinstance(value, Status):
+            self.coordinator.device_info.props.status = value
+        else:
+            self.coordinator.device_info.props.consumable = value
+        self.coordinator.data = self.coordinator.device_info.props
+        self.async_write_ha_state()
+
