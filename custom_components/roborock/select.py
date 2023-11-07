@@ -38,6 +38,7 @@ class RoborockSelectDescription(
     SelectEntityDescription, RoborockSelectDescriptionMixin
 ):
     """Class to describe an Roborock select entity."""
+
     protocol_listener: RoborockDataProtocol | None = None
 
 
