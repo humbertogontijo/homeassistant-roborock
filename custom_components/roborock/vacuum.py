@@ -8,6 +8,8 @@ from abc import ABC
 from typing import Any
 
 import voluptuous as vol
+from roborock.roborock_message import RoborockDataProtocol
+
 from homeassistant.components.vacuum import (
     ATTR_BATTERY_ICON,
     ATTR_FAN_SPEED,
@@ -219,6 +221,9 @@ class RoborockVacuum(RoborockCoordinatedEntity, StateVacuumEntity, ABC):
         self.manual_seqnum = 0
         self._device = device
         self._coordinator = coordinator
+        self.api.add_listener(RoborockDataProtocol.FAN_POWER, self._update_from_listener, self.api.cache)
+        self.api.add_listener(RoborockDataProtocol.STATE, self._update_from_listener, self.api.cache)
+
 
     @property
     def supported_features(self) -> VacuumEntityFeature:

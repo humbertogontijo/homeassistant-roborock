@@ -7,6 +7,8 @@ from dataclasses import dataclass
 from datetime import datetime
 from enum import Enum
 
+from roborock.roborock_message import RoborockDataProtocol
+
 from homeassistant.components.sensor import (
     SensorDeviceClass,
     SensorEntity,
@@ -65,6 +67,7 @@ class RoborockSensorDescription(SensorEntityDescription):
     parent_key: str = None
     keys: list[str] = None
     value: Callable = None
+    protocol_listener: RoborockDataProtocol | None = None
 
 
 VACUUM_SENSORS = {
@@ -114,6 +117,7 @@ VACUUM_SENSORS = {
         attributes=("error_code",),
         parent_key="status",
         entity_category=EntityCategory.DIAGNOSTIC,
+        protocol_listener=RoborockDataProtocol.ERROR_CODE,
     ),
     f"current_{ATTR_STATUS_CLEAN_TIME}": RoborockSensorDescription(
         native_unit_of_measurement=UnitOfTime.SECONDS,
@@ -157,6 +161,7 @@ VACUUM_SENSORS = {
         name="Current room",
         translation_key="current_room",
         entity_category=EntityCategory.DIAGNOSTIC,
+        protocol_listener=RoborockDataProtocol.STATE,
     ),
     f"clean_history_{ATTR_CLEAN_SUMMARY_TOTAL_DURATION}": RoborockSensorDescription(
         native_unit_of_measurement=UnitOfTime.SECONDS,
@@ -207,6 +212,7 @@ VACUUM_SENSORS = {
         name="Main brush left",
         translation_key="main_brush_left",
         entity_category=EntityCategory.DIAGNOSTIC,
+        protocol_listener=RoborockDataProtocol.MAIN_BRUSH_WORK_TIME,
     ),
     f"consumable_{ATTR_CONSUMABLE_STATUS_SIDE_BRUSH_LEFT}": RoborockSensorDescription(
         native_unit_of_measurement=UnitOfTime.SECONDS,
@@ -217,6 +223,7 @@ VACUUM_SENSORS = {
         name="Side brush left",
         translation_key="side_brush_left",
         entity_category=EntityCategory.DIAGNOSTIC,
+        protocol_listener=RoborockDataProtocol.SIDE_BRUSH_WORK_TIME,
     ),
     f"consumable_{ATTR_CONSUMABLE_STATUS_FILTER_LEFT}": RoborockSensorDescription(
         native_unit_of_measurement=UnitOfTime.SECONDS,
@@ -227,6 +234,7 @@ VACUUM_SENSORS = {
         name="Filter left",
         translation_key="filter_left",
         entity_category=EntityCategory.DIAGNOSTIC,
+        protocol_listener=RoborockDataProtocol.FILTER_WORK_TIME,
     ),
     f"consumable_{ATTR_CONSUMABLE_STATUS_SENSOR_DIRTY_LEFT}": RoborockSensorDescription(
         native_unit_of_measurement=UnitOfTime.SECONDS,
@@ -362,6 +370,9 @@ class RoborockSensor(RoborockCoordinatedEntity, SensorEntity):
         self._attr_extra_state_attributes = self._extract_attributes(
             coordinator.data.props
         )
+        if (protocol := self.entity_description.protocol_listener) is not None:
+            self.api.add_listener(protocol, self._update_from_listener, self.api.cache)
+
 
     @callback
     def _extract_attributes(self, data: DeviceProp):
