@@ -51,6 +51,7 @@ ROCKROBO_Q5 = "roborock.vacuum.a34"
 ROCKROBO_Q7_MAX = "roborock.vacuum.a38"
 ROCKROBO_G10S = "roborock.vacuum.a46"
 ROCKROBO_G10 = "roborock.vacuum.a29"
+ROCKROBO_G10_SG = "roborock.vacuum.a30" # Variant of the G10, has similar features as S7
 ROCKROBO_S7 = "roborock.vacuum.a15"
 ROCKROBO_S6_MAXV = "roborock.vacuum.a10"
 ROCKROBO_E2 = "roborock.vacuum.e2"
@@ -69,10 +70,12 @@ MODELS_VACUUM_WITH_MOP = [
     ROCKROBO_S7,
     ROCKROBO_S7_MAXV,
     ROCKROBO_P10,
+    ROCKROBO_G10_SG,
 ]
 MODELS_VACUUM_WITH_SEPARATE_MOP = [
     ROCKROBO_S7,
     ROCKROBO_S7_MAXV,
+    ROCKROBO_G10_SG,
 ]
 
 MINIMAL_IMAGE_WIDTH = 20
