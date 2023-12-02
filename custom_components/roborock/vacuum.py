@@ -163,7 +163,7 @@ def add_services() -> None:
         "vacuum_clean_segment",
         cv.make_entity_service_schema(
             {
-                vol.Required("segments"): vol.Any(vol.Coerce(int), [vol.Coerce(int)]),
+                vol.Required("segments"): vol.Any(vol.Coerce(int), [vol.Coerce(int)], vol.Coerce(str)),
                 vol.Optional("repeats"): vol.All(
                     vol.Coerce(int), vol.Clamp(min=1, max=3)
                 ),
@@ -494,6 +494,13 @@ class RoborockVacuum(RoborockCoordinatedEntity, StateVacuumEntity, ABC):
         """Clean the specified segments(s)."""
         if isinstance(segments, int):
             segments = [segments]
+
+        if isinstance(segments, str):
+            try:
+                segments = [int(s) for s in segments.split(",")]
+            except ValueError:
+                _LOGGER.error("Segments must be a list of integers or a comma separated string of integers")
+                return
 
         params = segments
         if repeats is not None:
