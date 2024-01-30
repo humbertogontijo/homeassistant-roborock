@@ -179,7 +179,16 @@
         "name": "Aktueller Raum"
       },
       "dock_status": {
-        "name": "Dock Status"
+        "name": "Dock Status",
+        "state": {
+          "ok": "OK",
+          "water_empty": "Wassertank leer",
+          "waste_water_tank_full": "Schmutzwassertank voll",
+          "dirty_tank_latch_open": "Schmutzwassertank nicht verriegelt",
+          "no_dustbin": "Kein Staubbehälter vorhanden",
+          "duct_blockage": "Absaugkanal blockiert", 
+          "cleaning_tank_full_or_blocked": "Reinigungstank voll oder blockiert"
+        }
       },
       "mop_drying_status": {
         "name": "Wischmopp trocknen"
