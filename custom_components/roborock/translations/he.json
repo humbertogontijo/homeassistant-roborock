@@ -179,7 +179,16 @@
         "name": "חדר נוכחי"
       },
       "dock_status": {
-        "name": "סטטוס עגינה"
+        "name": "סטטוס עגינה",
+        "state": {
+          "ok": "תקין",
+          "water_empty": "מיכל מים ריק",
+          "waste_water_tank_full": "מיכל שפכים מלא",
+          "dirty_tank_latch_open": "מיכל מלוכלך ופתוח",
+          "no_dustbin": "אין מיכל אבק זמין",
+          "duct_blockage": "צינור יניקה חסום", 
+          "cleaning_tank_full_or_blocked": "ניקוי מיכל מלא או חסום"
+        }
       },
       "mop_drying_status": {
         "name": "ייבוש מטלית"
