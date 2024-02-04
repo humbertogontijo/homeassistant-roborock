@@ -1,0 +1,318 @@
+{
+  "config": {
+    "step": {
+      "user": {
+        "description": "בחירת שיטת אימות",
+        "menu_options": {
+          "code": "התחברות עם קוד אימות דואר אלקטרוני",
+          "password": "התחברות עם סיסמה"
+        }
+      },
+      "email": {
+        "description": "אישורי היישום שלך",
+        "data": {
+          "username": "דואר אלקטרוני"
+        }
+      },
+      "code": {
+        "description": "נא להקליד את קוד האימות שנשלח לדואר האלקטרוני שלך",
+        "data": {
+          "code": "קוד אימות"
+        }
+      },
+      "password": {
+        "description": "הקלדת הסיסמה שלך",
+        "data": {
+          "password": "סיסמה"
+        }
+      }
+    },
+    "error": {
+      "no_device": "לא נמצא מכשיר בחשבון Roborock שלך",
+      "auth": "הכניסה נכשלה. נא לבדוק את האישורים שלך"
+    },
+    "abort": {
+      "already_configured": "החשבון כבר מוגדר",
+      "already_in_progress": "החשבון כבר בתהליך הגדרה"
+    }
+  },
+  "options": {
+    "step": {
+      "user": {
+        "description": "בחירת פלטפורמה להגדרה",
+        "menu_options": {
+          "vacuum": "שואב",
+          "camera": "מצלמה",
+          "roborock": "Roborock"
+        }
+      },
+      "camera": {
+        "description": "אפשרויות מצלמה",
+        "data": {
+          "map_transformation:scale": "קנה מידה מפה",
+          "map_transformation:rotate": "סיבוב מפה",
+          "map_transformation:trim:left": "מפה חיתוך שמאל",
+          "map_transformation:trim:right": "מפה חיתוך ימין",
+          "map_transformation:trim:top": "מפה חיתוך עליון",
+          "map_transformation:trim:bottom": "מפה חיתוך תחתון",
+          "include_ignored_obstacles": "הצגת מכשולים שהתעלמו מהם",
+          "include_nogo": "הצגת אזורים ללא מעבר"
+        }
+      },
+      "vacuum": {
+        "description": "אפשרויות שואב",
+        "data": {
+          "include_shared": "כלול התקנים משותפים"
+        }
+      },
+      "roborock": {
+        "description": "הגדרות כלליות",
+        "data": {
+          "cloud_integration": "שימוש בשילוב ענן"
+        }
+      }
+    }
+  },
+  "entity": {
+    "button": {
+      "reset_sensor_consumable": {
+        "name": "איפוס שימוש בחיישן"
+      },
+      "reset_filter_consumable": {
+        "name": "איפוס שימוש במסנן"
+      },
+      "reset_side_brush_consumable": {
+        "name": "איפוס שימוש במברשת צד"
+      },
+      "reset_main_brush_consumable": {
+        "name": "איפוס שימוש במברשת ראשית"
+      }
+    },
+    "sensor": {
+      "current_error": {
+        "name": "שגיאה נוכחית",
+        "state": {
+          "none": "ללא",
+		  "lidar_blocked": "צריח LiDAR או לייזר חסומים. הא לבדוק אם יש חסימה ולנסות שוב.",
+		  "bumper_stuck": "הפגוש תקוע. יש לנקות אותו ולהקיש קלות כדי לשחרר אותו.",
+		  "wheels_suspended": "גלגלים מושעים. יש להזיז את הרובוט ולהפעיל מחדש.",
+		  "cliff_sensor_error": "שגיאת חיישן גובה. יש לנקות את חיישני הגובה, ולהחריק את הרובוט מנפילות ולהפעיל מחדש.",
+		  "main_brush_jammed": "המברשת הראשית נתקעה. יש לנקות את המברשת הראשית ואת המיסבים.",
+		  "side_brush_jammed": "מברשת צד נתקעה. יש להסיר ולנקות את מברשת צד.",
+		  "wheels_jammed": "גלגלים תקועים. יש להזיז את הרובוט ולהפעיל מחדש.",
+		  "robot_trapped": "רובוט לכוד. יש לנקות מכשולים סביב הרובוט.",
+		  "no_dustbin": "ללא פח אשפה. יש להתקין פח אשפה ומסנן.",
+		  "low_battery": "סוללה חלשה. יש לטעון מחדש ולנסות שוב.",
+		  "charging_error": "שגיאת טעינה. יש לנקות את מגעי הטעינה ולנסות שוב.",
+		  "battery_error": "שגיאת סוללה.",
+		  "wall_sensor_dirty": "חיישן קיר מלוכלך. יש לנקות את חיישן הקיר.",
+		  "robot_tilted": "הרובוט הוטה. יש להעמיד על הקרקע ולהפעיל מחדש.",
+		  "side_brush_error": "שגיאת מברשת צד. יש לאפס את הרובוט.",
+		  "fan_error": "שגיאת מאוורר. יש לאפס את הרובוט.",
+		  "vertical_bumper_pressed": "פגוש אנכי לחוץ. יש להזיז את הרובוט ולנסות שוב.",
+		  "dock_locator_error": "שגיאת איתור עגינה. יש לנקות ולנסות שוב.",
+		  "return_to_dock_fail": "לא ניתן לחזור למעגן. יש לנקות את משואה של מיקום המעגן ולנסות שוב.",
+		  "nogo_zone_detected": "זוהה אזור אסור למעבר או קיר בלתי נראה. נא להזיז את הרובוט.",
+		  "vibrarise_jammed": "מערכת VibraRise נתקעה. יש לבדוק אם יש חסימות.",
+		  "robot_on_carpet": "רובוט על השטיח. יש להעביר את הרובוט לרצפה ולנסות שוב.",
+		  "filter_blocked": "המסנן חסום או רטוב. יש לנקות, לייבש, ולנסות שוב.",
+		  "invisible_wall_detected": "זוהה אזור אסור או קיר בלתי נראה. יש להזיז את הרובוט מאזור זה.",
+		  "cannot_cross_carpet": "לא ניתן לחצות שטיח. יש להעביר את הרובוט על פני השטיח ולהפעיל מחדש.",
+		  "internal_error": "שגיאה פנימית. יש לאפס את הרובוט."
+        }
+      },
+      "last_clean_start": {
+        "name": "התחלת ניקוי אחרון"
+      },
+      "last_clean_end": {
+        "name": "סיום ניקוי אחרון"
+      },
+      "last_clean_duration": {
+        "name": "משך הניקוי האחרון"
+      },
+      "last_clean_area": {
+        "name": "ניקוי אזור אחרון"
+      },
+      "current_clean_duration": {
+        "name": "משך הניקוי הנוכחי"
+      },
+      "current_clean_area": {
+        "name": "איזור ניקוי נוכחי"
+      },
+      "total_duration": {
+        "name": "משך כולל"
+      },
+      "total_clean_area": {
+        "name": "אזור ניקוי כולל"
+      },
+      "total_clean_count": {
+        "name": "סך ספירת ניקיונות"
+      },
+      "total_dust_collection_count": {
+        "name": "סך ספירת איסוף אבק"
+      },
+      "main_brush_left": {
+        "name": "נותר למברשת ראשית"
+      },
+      "side_brush_left": {
+        "name": "נותר למברשת צד"
+      },
+      "filter_left": {
+        "name": "נותר למסנן"
+      },
+      "sensor_dirty_left": {
+        "name": "נותר לחיישן לכלוך"
+      },
+      "dock_washing_mode": {
+        "name": "מצב שטיפת מעגן"
+      },
+      "dock_dust_collection_mode": {
+        "name": "מצב איסוף אבק במעגן"
+      },
+      "dock_mop_wash_mode_interval": {
+        "name": "מצב מחזוריות שטיפת מטלית במעגן"
+      },
+      "current_map_selected": {
+        "name": "בחירת מפה נוכחית"
+      },
+      "current_room": {
+        "name": "חדר נוכחי"
+      },
+      "dock_status": {
+        "name": "סטטוס עגינה",
+        "state": {
+          "ok": "תקין",
+          "water_empty": "מיכל מים ריק",
+          "waste_water_tank_full": "מיכל שפכים מלא",
+          "dirty_tank_latch_open": "מיכל מלוכלך ופתוח",
+          "no_dustbin": "אין מיכל אבק זמין",
+          "duct_blockage": "צינור יניקה חסום", 
+          "cleaning_tank_full_or_blocked": "ניקוי מיכל מלא או חסום"
+        }
+      },
+      "mop_drying_status": {
+        "name": "ייבוש מטלית"
+      },
+      "mop_drying_remaining_time": {
+        "name": "זמן שנותר לייבוש מטלית"
+      },
+      "clean_percent": {
+        "name": "התקדמות הניקוי"
+      }
+    },
+    "binary_sensor": {
+      "mop_attached": {
+        "name": "מטלית מחוברת"
+      },
+      "water_box_attached": {
+        "name": "מיכל מים מחובר"
+      },
+      "water_shortage": {
+        "name": "מחסור במים"
+      }
+    },
+    "select": {
+      "mop_mode": {
+        "name": "מסלול",
+        "state": {
+          "fast": "מהיר",
+          "standard": "רגיל",
+          "deep": "עמוק",
+          "deep_plus": "עמוק+",
+          "custom": "מותאם אישית"
+        }
+      },
+      "mop_intensity": {
+        "name": "עוצמת המטלית",
+        "state": {
+          "off": "כבוי",
+          "low": "נמוך",
+          "mild": "קל",
+          "moderate": "מתון",
+          "medium": "בינוני",
+          "intense": "אינטנסיבי",
+          "high": "גבוה",
+          "custom": "מתאם אישית",
+          "custom_water_flow": "מותאם אישית"
+        }
+      }
+    },
+    "vacuum": {
+      "roborock": {
+        "state_attributes": {
+          "fan_speed": {
+            "state": {
+              "auto": "אוטומטי",
+              "balanced": "מאוזן",
+              "custom": "מותאם אישית",
+              "gentle": "עדין",
+              "off": "כבוי",
+              "max": "מקסימום",
+              "max_plus": "מקסימום+",
+              "medium": "בינוני",
+              "quiet": "שקט",
+              "silent": "חרישי",
+              "standard": "רגיל",
+              "turbo": "טורבו"
+            }
+          },
+          "status": {
+            "state": {
+              "starting": "מתחיל",
+              "charger_disconnected": "המטען מנותק",
+              "idle": "ממתין",
+              "remote_control_active": "שלט רחוק פעיל",
+              "cleaning": "מנקה",
+              "returning_home": "חוזר הביתה",
+              "manual_mode": "מצב ידני",
+              "charging": "טוען",
+              "charging_problem": "בעיית טעינה",
+              "paused": "מושהה",
+              "spot_cleaning": "ניקוי נקודתי",
+              "error": "שגיאה",
+              "shutting_down": "מתכבה",
+              "updating": "מעדכן",
+              "docking": "עוגן",
+              "going_to_target": "בדרך למטרה",
+              "zoned_cleaning": "ניקוי אזור",
+              "segment_cleaning": "ניקוי מקטע",
+              "emptying_the_bin": "קירון הפח",
+              "washing_the_mop": "שטיפת המטלית",
+              "going_to_wash_the_mop": "בדרך לשטיפת המטלית",
+              "charging_complete": "הטעינה הושלמה",
+              "device_offline": "ההתקן לא מקוון"
+            }
+          }
+        }
+      }
+    },
+    "time": {
+      "dnd_start": {
+        "name": "התחלת לא להפריע"
+      },
+      "dnd_end": {
+        "name": "סיום לא להפריע"
+      },
+      "valley_electricity_start": {
+        "name": "התחלת טעינה מחוץ לשיא"
+      },
+      "valley_electricity_end": {
+        "name": "סיום טעינה בשיא"
+      }
+    },
+    "switch": {
+      "child_lock": {
+        "name": "נעילת ילדים"
+      },
+      "flow_led_status": {
+        "name": "נורית חיווי מצב"
+      },
+      "dnd_switch": {
+        "name": "שינוי לא להפריע"
+      },
+      "valley_electricity_switch": {
+        "name": "מתג חשמל בעמק"
+      }
+    }
+  }
+}
