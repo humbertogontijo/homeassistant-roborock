@@ -158,10 +158,10 @@
         "name": "Sānu birstes atlikums"
       },
       "filter_left": {
-        "name": "Filtrs pa kreisi"
+        "name": "Filtrs pa kreisi atlikums"
       },
       "sensor_dirty_left": {
-        "name": "Sensors netīrs pa kreisi"
+        "name": "Sensors pa kreisi atlikums"
       },
       "dock_washing_mode": {
         "name": "Dokstacijas mazgāšanas režīms"
@@ -188,7 +188,7 @@
         "name": ":Lupatiņas žāvēšanas atlikušais laiks"
       },
       "clean_percent": {
-        "name": "Tīrīšanas progress"
+        "name": "Uzkopšanas progress"
       }
     },
     "binary_sensor": {
@@ -265,8 +265,8 @@
               "updating": "Atjaunināšana",
               "docking": "Dokstacijā",
               "going_to_target": "Iet uz mērķi",
-              "zoned_cleaning": "Zonas tīrīšana",
-              "segment_cleaning": "Segmenta tīrīšana",
+              "zoned_cleaning": "Zonas uzkopšana",
+              "segment_cleaning": "Segmenta uzkopšana",
               "emptying_the_bin": "Tvertnes iztukšošana",
               "washing_the_mop": "Lupatiņas mazgāšana",
               "going_to_wash_the_mop": "Gatavojas mazgāt lupatiņu",
