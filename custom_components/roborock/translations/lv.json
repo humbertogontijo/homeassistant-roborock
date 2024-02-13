@@ -1,0 +1,309 @@
+{
+  "config": {
+    "step": {
+      "user": {
+        "description": "Atlasiet autentifikācijas metodi",
+        "menu_options": {
+          "code": "Piesakieties ar e-pasta autentifikācijas kodu",
+          "password": "Piesakieties ar paroli"
+        }
+      },
+      "email": {
+        "description": "Jūsu lietotnes autorizācijas dati",
+        "data": {
+          "username": "E-pasts"
+        }
+      },
+      "code": {
+        "description": "Ierakstiet verifikācijas kodu, kas nosūtīts uz savu e-pastu",
+        "data": {
+          "code": "Verifikācijas kods"
+        }
+      },
+      "password": {
+        "description": "Ierakstiet savu paroli",
+        "data": {
+          "password": "Parole"
+        }
+      }
+    },
+    "error": {
+      "no_device": "Jūsu Roborock kontā nav atrasta ierīce",
+      "auth": "Neizdevās pieteikties. Pārbaudiet savus autorizācijas datus"
+    },
+    "abort": {
+      "already_configured": "Konts jau ir konfigurēts",
+      "already_in_progress": "Konts jau tiek konfigurēts"
+    }
+  },
+  "options": {
+    "step": {
+      "user": {
+        "description": "Atlasiet platformu konfigurēšanai",
+        "menu_options": {
+          "vacuum": "Putekļu sūcējs",
+          "camera": "Kamera",
+          "roborock": "Roborock"
+        }
+      },
+      "camera": {
+        "description": "Kameru opcijas",
+        "data": {
+          "map_transformation:scale": "Kartes mērogs",
+          "map_transformation:rotate": "Kartes rotācija",
+          "map_transformation:trim:left": "Kartes kreisā apgriešana",
+          "map_transformation:trim:right": "Karti pareizi apgriešana",
+          "map_transformation:trim:top": "Kartes augšējā apgriešana",
+          "map_transformation:trim:bottom": "Kartes apakšējā apgriešana",
+          "include_ignored_obstacles": "Parādīt ignorētus šķēršļus",
+          "include_nogo": "Parādīt neiet-uz zonas"
+        }
+      },
+      "vacuum": {
+        "description": "Putekļu sūcēja iespējas",
+        "data": {
+          "include_shared": "Iekļaujiet koplietojamās ierīces"
+        }
+      },
+      "roborock": {
+        "description": "Vispārīgie iestatījumi",
+        "data": {
+          "cloud_integration": "Izmantojiet mākoņu integrāciju"
+        }
+      }
+    }
+  },
+  "entity": {
+    "button": {
+      "reset_sensor_consumable": {
+        "name": "Atiestatīt sensoru nolietojumu"
+      },
+      "reset_filter_consumable": {
+        "name": "Atiestatīt Filtru nolietojumu"
+      },
+      "reset_side_brush_consumable": {
+        "name": "Atiestatīt sānu birstes nolietojumu"
+      },
+      "reset_main_brush_consumable": {
+        "name": "Atiestatīt galvenās birstes nolietojumu"
+      }
+    },
+    "sensor": {
+      "current_error": {
+        "name": "Šī brīža kļūda",
+        "state": {
+          "none": "Nav",
+          "lidar_blocked": "LiDAR tornis vai lāzers ir bloķēts. Pārbaudiet vai nav šķēršļu un mēģiniet vēlreiz.",
+          "bumper_stuck": "Amortizators ir iesprūdis. Notīriet to un viegli piesitiet, lai to atbrīvotu.",
+          "wheels_suspended": "Riteņi ir pacelti. Pārvietojiet robotu un restartējiet.",
+          "cliff_sensor_error": "Klints sensora kļūda. Notīriet klints sensorus, pārvietojiet robotu prom no krituma un restartējiet.",
+          "main_brush_jammed": "Galvenā birste ir iesprūdusi. Notīriet galveno birsti un gultņus.",
+          "side_brush_jammed": "Sānu birste ir iesprūdusi. Noņemiet un notīriet sānu birsti.",
+          "wheels_jammed": "Riteņi ir iesprūduši. Pārvietojiet robotu un restartējiet.",
+          "robot_trapped": "Robots ir iestrēdzis. Notīriet šķēršļus ap robotu.",
+          "no_dustbin": "Nav atkritumu tvertne. Ievietojiet atkritumu tvertni un filtru.",
+          "low_battery": "Zema baterija. Uzlādējiet un mēģiniet vēlreiz.",
+          "charging_error": "Uzlādes kļūda. Notīriet uzlādes kontaktus un mēģiniet vēlreiz.",
+          "battery_error": "Baterijas kļūda.",
+          "wall_sensor_dirty": "Sienas sensors ir netīrs. Notīriet sienas sensoru.",
+          "robot_tilted": "Robots ir noliecies. Pārvietojiet uz līdzenas virsmas un restartējiet.",
+          "side_brush_error": "Sānu birstes kļūda. Restartējiet robotu.",
+          "fan_error": "Ventilatora kļūda. Restartējiet robotu.",
+          "vertical_bumper_pressed": "Vertikālais amortizators ir nospiests. Pārvietojiet robotu un mēģiniet vēlreiz.",
+          "dock_locator_error": "Dokstacijas atrašanās vietas kļūda. Notīriet un mēģiniet vēlreiz.",
+          "return_to_dock_fail": "Neizdevās atgriezties dokstacijā. Notīriet dokstacijas atrašanās vietas signālu un mēģiniet vēlreiz.",
+          "nogo_zone_detected": "Atrasta aizliegta zona vai neredzamā siena. Pārvietojiet robotu.",
+          "vibrarise_jammed": "VibraRise sistēma ir iesprūdusi. Pārbaudiet vai nav šķēršļu.",
+          "robot_on_carpet": "Robots uz paklāja. Pārvietojiet robotu uz grīdas un mēģiniet vēlreiz.",
+          "filter_blocked": "Filtrs ir bloķēts vai mitrs. Notīriet, izžāvējiet un mēģiniet vēlreiz.",
+          "invisible_wall_detected": "Atrasta aizliegtā zona vai neredzamā siena. Pārvietojiet robotu no šīs zonas.",
+          "cannot_cross_carpet": "Nevar šķērsot paklāju. Pārvietojiet robotu pāri paklājam un restartējiet.",
+          "internal_error": "Iekšēja kļūda. Restartējiet robotu."
+        }
+      },
+      "last_clean_start": {
+        "name": "Pēdējās uzkopšanas sākums"
+      },
+      "last_clean_end": {
+        "name": "Pēdējās uzkopšanas beigas"
+      },
+      "last_clean_duration": {
+        "name": "Pēdējās uzkopšanas ilgums"
+      },
+      "last_clean_area": {
+        "name": "Pēdējā uzkopšanas zona"
+      },
+      "current_clean_duration": {
+        "name": "Pašreizējais uzkopšanas ilgums"
+      },
+      "current_clean_area": {
+        "name": "Pašreizējā uzkopšanas zona"
+      },
+      "total_duration": {
+        "name": "Kopējais ilgums"
+      },
+      "total_clean_area": {
+        "name": "Kopējā uzkopšanas zona"
+      },
+      "total_clean_count": {
+        "name": "Kopējais uzkopšanu skaits"
+      },
+      "total_dust_collection_count": {
+        "name": "Kopējais putekļu savākšanas skaits"
+      },
+      "main_brush_left": {
+        "name": "Galvenās birstes atlikums"
+      },
+      "side_brush_left": {
+        "name": "Sānu birstes atlikums"
+      },
+      "filter_left": {
+        "name": "Filtrs pa kreisi atlikums"
+      },
+      "sensor_dirty_left": {
+        "name": "Sensors pa kreisi atlikums"
+      },
+      "dock_washing_mode": {
+        "name": "Dokstacijas mazgāšanas režīms"
+      },
+      "dock_dust_collection_mode": {
+        "name": "Dokstacijas putekļu savākšanas režīms"
+      },
+      "dock_mop_wash_mode_interval": {
+        "name": "Dokstacijas lupatiņas mazgāšanas režīma intervāls"
+      },
+      "current_map_selected": {
+        "name": "Pašreizējā atlasītā karte"
+      },
+      "current_room": {
+        "name": "Pašreizējā istaba"
+      },
+      "dock_status": {
+        "name": "Dokstacijas statuss"
+      },
+      "mop_drying_status": {
+        "name": "Lupatiņas žāvēšana"
+      },
+      "mop_drying_remaining_time": {
+        "name": ":Lupatiņas žāvēšanas atlikušais laiks"
+      },
+      "clean_percent": {
+        "name": "Uzkopšanas progress"
+      }
+    },
+    "binary_sensor": {
+      "mop_attached": {
+        "name": "Lupatiņa pievienota"
+      },
+      "water_box_attached": {
+        "name": "Pievienota ūdens kaste"
+      },
+      "water_shortage": {
+        "name": "Ūdens trūkums"
+      }
+    },
+    "select": {
+      "mop_mode": {
+        "name": "Veids",
+        "state": {
+          "fast": "Ātri",
+          "standard": "Standarta",
+          "deep": "Dziļi",
+          "deep_plus": "Dziļi+",
+          "custom": "Pielāgots"
+        }
+      },
+      "mop_intensity": {
+        "name": "Mopa intensitāte",
+        "state": {
+          "off": "Izslēgts",
+          "low": "Zems",
+          "mild": "Viegls",
+          "moderate": "Mērens",
+          "medium": "Vidējs",
+          "intense": "Intensīvs",
+          "high": "Augsts",
+          "custom": "Pielāgots",
+          "custom_water_flow": "Pielāgots"
+        }
+      }
+    },
+    "vacuum": {
+      "roborock": {
+        "state_attributes": {
+          "fan_speed": {
+            "state": {
+              "auto": "auto",
+              "balanced": "Līdzsvarots",
+              "custom": "Pielāgots",
+              "gentle": "Liegs",
+              "off": "Izslēgts",
+              "max": "Maksimums",
+              "max_plus": "maksimums+",
+              "medium": "Vidējs",
+              "quiet": "Klusums",
+              "silent": "Pieklusināts",
+              "standard": "Standarta",
+              "turbo": "Turbo"
+            }
+          },
+          "status": {
+            "state": {
+              "starting": "Uzsāk",
+              "charger_disconnected": "Lādētājs atvienots",
+              "idle": "Dīkstāvē",
+              "remote_control_active": "Tālvadības pults aktīva",
+              "cleaning": "Uzkopšana",
+              "returning_home": "Atgriešanās mājās",
+              "manual_mode": "Manuālais režīms",
+              "charging": "Lādēšana",
+              "charging_problem": "Uzlādes problēma",
+              "paused": "Apturēts",
+              "spot_cleaning": "Vietas uzkopšana",
+              "error": "Kļūda",
+              "shutting_down": "Izslēdzas",
+              "updating": "Atjaunināšana",
+              "docking": "Dokstacijā",
+              "going_to_target": "Iet uz mērķi",
+              "zoned_cleaning": "Zonas uzkopšana",
+              "segment_cleaning": "Segmenta uzkopšana",
+              "emptying_the_bin": "Tvertnes iztukšošana",
+              "washing_the_mop": "Lupatiņas mazgāšana",
+              "going_to_wash_the_mop": "Gatavojas mazgāt lupatiņu",
+              "charging_complete": "Uzlāde pabeigta",
+              "device_offline": "Ierīce bezsaistē"
+            }
+          }
+        }
+      }
+    },
+    "time": {
+      "dnd_start": {
+        "name": "Netraucēt režīma sākums"
+      },
+      "dnd_end": {
+        "name": "Netraucēt režīma beigas"
+      },
+      "valley_electricity_start": {
+        "name": "Off-Peak charging start"
+      },
+      "valley_electricity_end": {
+        "name": "Off-Peak charging end"
+      }
+    },
+    "switch": {
+      "child_lock": {
+        "name": "Bērnu slēdzene"
+      },
+      "flow_led_status": {
+        "name": "Statusa indikatora gaisma"
+      },
+      "dnd_switch": {
+        "name": "Netraucēt režīma slēdzis"
+      },
+      "valley_electricity_switch": {
+        "name": "Valley electricity switch"
+      }
+    }
+  }
+}
