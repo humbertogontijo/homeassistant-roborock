@@ -4,7 +4,7 @@
       "user": {
         "description": "Atlasiet autentifikācijas metodi",
         "menu_options": {
-          "code": "Piesakieties ar e -pasta autentifikācijas kodu",
+          "code": "Piesakieties ar e-pasta autentifikācijas kodu",
           "password": "Piesakieties ar paroli"
         }
       },
@@ -15,7 +15,7 @@
         }
       },
       "code": {
-        "description": "Ierakstiet verifikācijas kodu, kas nosūtīts uz savu e -pastu",
+        "description": "Ierakstiet verifikācijas kodu, kas nosūtīts uz savu e-pastu",
         "data": {
           "code": "Verifikācijas kods"
         }
@@ -29,7 +29,7 @@
     },
     "error": {
       "no_device": "Jūsu Roborock kontā nav atrasta ierīce",
-      "auth": "Neizdevās pieteikties.Pārbaudiet savus autorizācijas datus"
+      "auth": "Neizdevās pieteikties. Pārbaudiet savus autorizācijas datus"
     },
     "abort": {
       "already_configured": "Konts jau ir konfigurēts",
@@ -239,7 +239,7 @@
               "gentle": "Liegs",
               "off": "Izslēgts",
               "max": "Maksimums",
-              "max_plus": "max+",
+              "max_plus": "maksimums+",
               "medium": "Vidējs",
               "quiet": "Klusums",
               "silent": "Pieklusināts",
