@@ -497,7 +497,7 @@ class RoborockVacuum(RoborockCoordinatedEntity, StateVacuumEntity, ABC):
 
         if isinstance(segments, str):
             try:
-                segments = [int(s) for s in segments.split(",")]
+                segments = [int(s.strip()) for s in segments.split(",")]
             except ValueError:
                 _LOGGER.error("Segments must be a list of integers or a comma separated string of integers")
                 return
