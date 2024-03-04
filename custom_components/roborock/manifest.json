@@ -14,7 +14,7 @@
     "roborock"
   ],
   "requirements": [
-    "python-roborock==0.36.0",
+    "python-roborock==0.39.2",
     "ical==6.1.0",
     "dacite==1.8.0"
   ],
