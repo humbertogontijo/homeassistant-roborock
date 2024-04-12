@@ -58,6 +58,7 @@ ROCKROBO_E2 = "roborock.vacuum.e2"
 ROCKROBO_1S = "roborock.vacuum.m1s"
 ROCKROBO_C1 = "roborock.vacuum.c1"
 ROCKROBO_P10 = "roborock.vacuum.a75"
+ROCKROBO_S8_PRO_ULTRA = "roborock.vacuum.a70"
 ROCKROBO_WILD = "roborock.vacuum.*"  # wildcard
 
 MODELS_VACUUM_WITH_MOP = [
@@ -69,6 +70,7 @@ MODELS_VACUUM_WITH_MOP = [
     ROCKROBO_S6_PURE,
     ROCKROBO_S7,
     ROCKROBO_S7_MAXV,
+    ROCKROBO_S8_PRO_ULTRA,
     ROCKROBO_P10,
     ROCKROBO_G10_SG,
 ]
