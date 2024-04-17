@@ -66,9 +66,9 @@
         }
       },
       "roborock": {
-        "description": "General settings",
+        "description": "Allmänna inställningar",
         "data": {
-          "cloud_integration": "Use cloud integration"
+          "cloud_integration": "Använd molnintegrationen"
         }
       }
     }
@@ -76,21 +76,21 @@
   "entity": {
     "button": {
       "reset_sensor_consumable": {
-        "name": "Reset sensor consumable"
+        "name": "Återställ sensorerna"
       },
       "reset_filter_consumable": {
-        "name": "Reset filter consumable"
+        "name": "Återställ filtret"
       },
       "reset_side_brush_consumable": {
-        "name": "Reset side brush consumable"
+        "name": "Återställ sidoborsten"
       },
       "reset_main_brush_consumable": {
-        "name": "Reset main brush consumable"
+        "name": "Återställ huvudborsten"
       }
     },
     "sensor": {
       "current_error": {
-        "name": "Current error",
+        "name": "Pågående fel",
         "state": {
           "none": "Inget",
           "lidar_blocked": "LiDAR torn eller lasern är blockerad. Kontrollera hinder och försök igen.",
@@ -122,96 +122,96 @@
         }
       },
       "last_clean_start": {
-        "name": "Last clean start"
+        "name": "Start senaste rengöringen"
       },
       "last_clean_end": {
-        "name": "Last clean end"
+        "name": "Slut senaste rengöringen"
       },
       "last_clean_duration": {
-        "name": "Last clean duration"
+        "name": "Senaste rengöringstid"
       },
       "last_clean_area": {
-        "name": "Last clean area"
+        "name": "Senaste rengjorda område"
       },
       "current_clean_duration": {
-        "name": "Current clean duration"
+        "name": "Pågående rengöringtid"
       },
       "current_clean_area": {
-        "name": "Current clean area"
+        "name": "Pågående område"
       },
       "total_duration": {
-        "name": "Total duration"
+        "name": "Total regörningstid"
       },
       "total_clean_area": {
-        "name": "Total clean area"
+        "name": "Totalt rengöringssarea"
       },
       "total_clean_count": {
-        "name": "Total clean count"
+        "name": "Totala antal rengörningar"
       },
       "total_dust_collection_count": {
-        "name": "Total dust collection count"
+        "name": "Totalt antal uppsamlingar"
       },
       "main_brush_left": {
-        "name": "Main brush left"
+        "name": "Kvar av huvudborsten"
       },
       "side_brush_left": {
-        "name": "Side brush left"
+        "name": "Kvar av sidoborsten"
       },
       "filter_left": {
-        "name": "Filter left"
+        "name": "Kvar av filtret"
       },
       "sensor_dirty_left": {
-        "name": "Sensor dirty left"
+        "name": "Kvar av nedsmutsade sensorer"
       },
       "dock_washing_mode": {
-        "name": "Dock washing mode"
+        "name": "Rengöringsläge docka"
       },
       "dock_dust_collection_mode": {
-        "name": "Dock dust collection mode"
+        "name": "Uppsamlingsläge docka"
       },
       "dock_mop_wash_mode_interval": {
-        "name": "Dock mop wash mode interval"
+        "name": "Intervall dockans moppläge"
       },
       "current_map_selected": {
-        "name": "Current map selected"
+        "name": "Nuvarande karta vald"
       },
       "current_room": {
-        "name": "Current room"
+        "name": "Nuvarande rum"
       },
       "dock_status": {
-        "name": "Dock status"
+        "name": "Dockningsstatus"
       }
     },
     "binary_sensor": {
       "mop_attached": {
-        "name": "Mop attached"
+        "name": "Mopp monterad"
       },
       "water_box_attached": {
-        "name": "Water box attached"
+        "name": "Vattentank monterad"
       },
       "water_shortage": {
-        "name": "Water shortage"
+        "name": "Låg vattennivå"
       }
     },
     "select": {
       "mop_mode": {
-        "name": "Mop mode",
+        "name": "Moppläge",
         "state": {
           "standard": "Standard",
-          "deep": "Deep",
-          "deep_plus": "Deep+",
-          "custom": "Custom"
+          "deep": "Djup",
+          "deep_plus": "Djup+",
+          "custom": "Anpassad"
         }
       },
       "mop_intensity": {
-        "name": "Mop intensity",
+        "name": "Moppintensitet",
         "state": {
-          "off": "Off",
+          "off": "Av",
           "mild": "Mild",
-          "moderate": "Moderate",
-          "intense": "Intense",
-          "custom": "Custom",
-          "custom_water_flow": "Custom"
+          "moderate": "Lagom",
+          "intense": "Hård",
+          "custom": "Anpassad",
+          "custom_water_flow": "Anpassad"
         }
       }
     },
@@ -221,44 +221,44 @@
           "fan_speed": {
             "state": {
               "auto": "Auto",
-              "balanced": "Balanced",
-              "custom": "Custom",
-              "gentle": "Gentle",
-              "off": "Off",
+              "balanced": "Balancerad",
+              "custom": "Anpassad",
+              "gentle": "Mild",
+              "off": "Av",
               "max": "Max",
               "max_plus": "Max+",
               "medium": "Medium",
-              "quiet": "Quiet",
-              "silent": "Silent",
+              "quiet": "Tyst",
+              "silent": "Ljudlös",
               "standard": "Standard",
               "turbo": "Turbo"
             }
           },
           "status": {
             "state": {
-              "starting": "Starting",
-              "charger_disconnected": "Charger disconnected",
-              "idle": "Idle",
-              "remote_control_active": "Remote control active",
-              "cleaning": "Cleaning",
-              "returning_home": "Returning home",
-              "manual_mode": "Manual mode",
-              "charging": "Charging",
-              "charging_problem": "Charging problem",
-              "paused": "Paused",
-              "spot_cleaning": "Spot cleaning",
-              "error": "Error",
-              "shutting_down": "Shutting down",
-              "updating": "Updating",
-              "docking": "Docking",
-              "going_to_target": "Going to target",
-              "zoned_cleaning": "Zoned cleaning",
-              "segment_cleaning": "Segment cleaning",
-              "emptying_the_bin": "Emptying the bin",
-              "washing_the_mop": "Washing the mop",
-              "going_to_wash_the_mop": "Going to wash the mop",
-              "charging_complete": "Charging complete",
-              "device_offline": "Device offline"
+              "starting": "Startar",
+              "charger_disconnected": "Laddare frånkopplad",
+              "idle": "Inaktiv",
+              "remote_control_active": "Fjärrstyrning aktiverad",
+              "cleaning": "Rengör",
+              "returning_home": "Återvänder hem",
+              "manual_mode": "Manuellt läge",
+              "charging": "Laddar",
+              "charging_problem": "Laddningsproblem",
+              "paused": "Pausad",
+              "spot_cleaning": "Punktrengöring",
+              "error": "Fel",
+              "shutting_down": "Stänger av",
+              "updating": "Uppdaterar",
+              "docking": "Dockar",
+              "going_to_target": "På väg till målepunkt",
+              "zoned_cleaning": "Zonrengöring",
+              "segment_cleaning": "Segmentrengöring",
+              "emptying_the_bin": "Tömmer uppsamlaren",
+              "washing_the_mop": "Tvättar moppen",
+              "going_to_wash_the_mop": "På väg för att tvätta moppen",
+              "charging_complete": "Uppladning klar",
+              "device_offline": "Enheten offline"
             }
           }
         }
@@ -266,30 +266,30 @@
     },
     "time": {
       "dnd_start": {
-        "name": "DnD start"
+        "name": "Stör ej start"
       },
       "dnd_end": {
-        "name": "DnD end"
+        "name": "Stör ej slut"
       },
       "valley_electricity_start": {
-        "name": "Off-Peak charging start"
+        "name": "Lågprisladdning start"
       },
       "valley_electricity_end": {
-        "name": "Off-Peak charging end"
+        "name": "Lågprisladdning slut"
       }
     },
     "switch": {
       "child_lock": {
-        "name": "Child lock"
+        "name": "Barnlås"
       },
       "flow_led_status": {
-        "name": "Status Indicator Light"
+        "name": "Statusindikator"
       },
       "dnd_switch": {
-        "name": "DnD switch"
+        "name": "Växla stör ej"
       },
       "valley_electricity_switch": {
-        "name": "Valley electricity switch"
+        "name": "Växla lågprisladdning"
       }
     }
   }
