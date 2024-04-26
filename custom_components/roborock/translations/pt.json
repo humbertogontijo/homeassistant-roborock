@@ -181,7 +181,7 @@
       "dock_status": {
         "name": "Estado da dock"
       },
-      "current_battery": {
+      "battery": {
         "name": "Batteria"
       }
     },

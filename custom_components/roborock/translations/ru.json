@@ -181,7 +181,7 @@
       "dock_status": {
         "name": "Состояние док-станции"
       },
-      "current_battery": {
+      "battery": {
         "name": "Батарея"
       }
     },

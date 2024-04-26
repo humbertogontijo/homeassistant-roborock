@@ -190,7 +190,7 @@
       "clean_percent": {
         "name": "Cleaning progress"
       },
-      "current_battery": {
+      "battery": {
         "name": "Battery"
       }
     },

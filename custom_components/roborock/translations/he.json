@@ -199,7 +199,7 @@
       "clean_percent": {
         "name": "התקדמות הניקוי"
       },
-      "current_battery": {
+      "battery": {
         "name": "סוֹלְלָה"
       }
     },
