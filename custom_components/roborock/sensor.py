@@ -264,6 +264,7 @@ VACUUM_SENSORS = {
         entity_category=EntityCategory.DIAGNOSTIC,
     ),
     f"current_{ATTR_BATTERY}": RoborockSensorDescription(
+        native_unit_of_measurement=PERCENTAGE,
         key="battery",
         icon="mdi:battery",
         name="Battery",
