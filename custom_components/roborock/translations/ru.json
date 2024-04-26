@@ -180,6 +180,9 @@
       },
       "dock_status": {
         "name": "Состояние док-станции"
+      },
+      "current_battery": {
+        "name": "Батарея"
       }
     },
     "binary_sensor": {

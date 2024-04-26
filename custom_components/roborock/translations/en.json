@@ -189,6 +189,9 @@
       },
       "clean_percent": {
         "name": "Cleaning progress"
+      },
+      "current_battery": {
+        "name": "Battery"
       }
     },
     "binary_sensor": {
