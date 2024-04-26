@@ -263,6 +263,15 @@ VACUUM_SENSORS = {
         translation_key="clean_percent",
         entity_category=EntityCategory.DIAGNOSTIC,
     ),
+    f"current_{ATTR_BATTERY}": RoborockSensorDescription(
+        key="battery",
+        icon="mdi:battery",
+        name="Battery",
+        translation_key="current_battery",
+        device_class=SensorDeviceClass.BATTERY,
+        parent_key="status",
+        entity_category=EntityCategory.DIAGNOSTIC,
+    ),
 }
 
 VACUUM_WITH_DOCK_SENSORS = {
