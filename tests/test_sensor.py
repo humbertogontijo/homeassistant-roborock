@@ -266,3 +266,14 @@ async def test_sensor_dirty_left(hass: HomeAssistant, bypass_api_fixture) -> Non
     assert state.state == str(SENSOR_DIRTY_REPLACE_TIME - CONSUMABLE.sensor_dirty_time)
     assert state.attributes.get(ATTR_DEVICE_CLASS) == SensorDeviceClass.DURATION
     await mock_config_entry.async_unload(hass)
+
+
+@pytest.mark.asyncio
+async def test_battery(hass: HomeAssistant, bypass_api_fixture) -> None:
+    """Tests battery is getting the correct values."""
+    mock_config_entry = await setup_platform(hass, SENSOR_DOMAIN)
+    state = hass.states.get("sensor.roborock_s7_maxv_battery")
+
+    assert state.state == STATUS.battery
+    assert state.attributes.get(ATTR_DEVICE_CLASS) == SensorDeviceClass.BATTERY
+    await mock_config_entry.async_unload(hass)

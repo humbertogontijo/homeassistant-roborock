@@ -198,6 +198,9 @@
       },
       "clean_percent": {
         "name": "Reinigungsprozess"
+      },
+      "battery": {
+        "name": "Batterie"
       }
     },
     "binary_sensor": {

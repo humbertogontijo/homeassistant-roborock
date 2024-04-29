@@ -198,6 +198,9 @@
       },
       "clean_percent": {
         "name": "Průběh úklidu"
+      },
+      "battery": {
+        "name": "Baterie"
       }
     },
     "binary_sensor": {

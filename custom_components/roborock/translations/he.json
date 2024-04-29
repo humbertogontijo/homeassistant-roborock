@@ -198,6 +198,9 @@
       },
       "clean_percent": {
         "name": "התקדמות הניקוי"
+      },
+      "battery": {
+        "name": "סוֹלְלָה"
       }
     },
     "binary_sensor": {

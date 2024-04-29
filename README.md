@@ -86,6 +86,7 @@ There is a map built in to the integration that shows you your most recent/curre
 - side brush left
 - filter left
 - sensor dirty left
+- battery
 
 ### Binary Sensors
 - Mop attached

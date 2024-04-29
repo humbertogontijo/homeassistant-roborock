@@ -180,6 +180,9 @@
       },
       "dock_status": {
         "name": "Dockningsstatus"
+      },
+      "battery": {
+        "name": "Batteri"
       }
     },
     "binary_sensor": {
