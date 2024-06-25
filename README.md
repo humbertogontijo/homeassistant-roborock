@@ -1,5 +1,8 @@
 # Roborock integration for HomeAsssistant
 
+## IMPORTANT NOTE!!
+It is recommended you switch to the core version of this integration. Due to the time that the maintainers have, most time goes into supporting the core version of this integration as there are approximately 5 times as many users using that integration. There are multiple known issues with the custom component version of Roborock that are not planned to be fixed. If a user is so inclined - they can look at the fixes on the core component and carry them over here and we will approve PR. But otherwise, expect updates and fixes to this repository to be very limited at least for the time being.
+
 ## About this repo
 I've bought a Roborock S7 Maxv and hated the fact that I had to use the Roborock App or the previous existing HomeAssistant integration. But not both.
 
