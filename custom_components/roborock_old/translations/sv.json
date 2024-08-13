@@ -1,0 +1,296 @@
+{
+  "config": {
+    "step": {
+      "user": {
+        "description": "Ange en autentiseringsmetod ",
+        "menu_options": {
+          "code": "Logga in med verifikationskoden via e-post",
+          "password": "Logga in med lösenord"
+        }
+      },
+      "email": {
+        "description": "Dina inloggningsuppgifter till appen",
+        "data": {
+          "username": "E-post/Användarnamn"
+        }
+      },
+      "code": {
+        "description": "Ange verifikationskoden som skickades till din e-post",
+        "data": {
+          "code": "Verifikationskod"
+        }
+      },
+      "password": {
+        "description": "Ange ditt lösenord",
+        "data": {
+          "password": "Lösenord"
+        }
+      }
+    },
+    "error": {
+      "no_device": "Inga enheter hittades på ditt Roborock konto",
+      "auth": "Inloggning misslyckades. Kontrollera dina inloggningsuppgifter"
+    },
+    "abort": {
+      "already_configured": "Enheten redan konfigurerad",
+      "already_in_progress": "Kontot är redan konfigurerat"
+    }
+  },
+  "options": {
+    "step": {
+      "user": {
+        "description": "Välj en plattform att konfigurera",
+        "menu_options": {
+          "vacuum": "Vacuum",
+          "camera": "Camera",
+          "roborock": "Roborock"
+        }
+      },
+      "camera": {
+        "description": "Kartalternativ (Camera)",
+        "data": {
+          "map_transformation:scale": "Kartskala",
+          "map_transformation:rotate": "Rotera kartan",
+          "map_transformation:trim:left": "Trimma vänster kant",
+          "map_transformation:trim:right": "Trimma höger kant",
+          "map_transformation:trim:top": "Trimma övere kant",
+          "map_transformation:trim:bottom": "Trimma undre kant",
+          "include_ignored_obstacles": "Visa ignorerade hinder",
+          "include_nogo": "Visa no go-zoner"
+        }
+      },
+      "vacuum": {
+        "description": "Dammsugaralternativ (Vacuum)",
+        "data": {
+          "include_shared": "Inkludera delade enheter"
+        }
+      },
+      "roborock": {
+        "description": "General settings",
+        "data": {
+          "cloud_integration": "Use cloud integration"
+        }
+      }
+    }
+  },
+  "entity": {
+    "button": {
+      "reset_sensor_consumable": {
+        "name": "Reset sensor consumable"
+      },
+      "reset_filter_consumable": {
+        "name": "Reset filter consumable"
+      },
+      "reset_side_brush_consumable": {
+        "name": "Reset side brush consumable"
+      },
+      "reset_main_brush_consumable": {
+        "name": "Reset main brush consumable"
+      }
+    },
+    "sensor": {
+      "current_error": {
+        "name": "Current error",
+        "state": {
+          "none": "Inget",
+          "lidar_blocked": "LiDAR torn eller lasern är blockerad. Kontrollera hinder och försök igen.",
+          "bumper_stuck": "Stötfångaren har fastnat. Rengör och tryck försiktigt för att frigöra den.",
+          "wheels_suspended": "Hjulen upphängda. Flytta roboten och starta om.",
+          "cliff_sensor_error": "Fel på fallsensorn. Rengör fallsensorerna, flytta roboten från trappor etc. och starta om.",
+          "main_brush_jammed": "Huvudborsten har fastnat. Rengör huvudborsten och dess kugghjul.",
+          "side_brush_jammed": "Sidoborsten har fastnat. Montera av och rengör sidoborsten.",
+          "wheels_jammed": "Hjulen har fastnat. Flytta roboten och starta om.",
+          "robot_trapped": "Roboten har fastnat. Ta bort hinder runtomkring roboten och starta om.",
+          "no_dustbin": "Ingen smutsbehållare. Installera smutbehållare och filter.",
+          "low_battery": "Lågt batteri. Ludda upp och försök igen.",
+          "charging_error": "Uppladdningsfel. Rengör uppladdningskontakterna och försök igen.",
+          "battery_error": "Batterifel.",
+          "wall_sensor_dirty": "Smutsiga väggsensorer. Rengör väggsensorerna.",
+          "robot_tilted": "Roboten lutar. Flytta till jämnt underlag och starta om.",
+          "side_brush_error": "Fel på sidoborsten. Återställ roboten.",
+          "fan_error": "Fel på fläkten. Återställ roboten.",
+          "vertical_bumper_pressed": "Vertikal stötfångare intryckt. Flytta roboten och starta om.",
+          "dock_locator_error": "Fel på laddstationssensorn. Rengör och försök igen.",
+          "return_to_dock_fail": "Kunde inte går tillbaka till laddstationen. Rengör laddstationssensorn och försök igen.",
+          "nogo_zone_detected": "No-go zon eller osynlig vägg upptäckt. Flytta roboten.",
+          "vibrarise_jammed": "VibraRise systemet har fastnat. Kontrollera hinder.",
+          "robot_on_carpet": "Roboten på matta. Flytta roboten till golv och försök igen.",
+          "filter_blocked": "Blockerat eller blött filter. Rengör, torka och försök igen.",
+          "invisible_wall_detected": "No-go zon eller osynlig vägg upptäckt. Flytta bort roboten från detta område.",
+          "cannot_cross_carpet": "Kan inte köra över matta. Flytta över roboten och starta om.",
+          "internal_error": "Internt fel. Återställ roboten."
+        }
+      },
+      "last_clean_start": {
+        "name": "Last clean start"
+      },
+      "last_clean_end": {
+        "name": "Last clean end"
+      },
+      "last_clean_duration": {
+        "name": "Last clean duration"
+      },
+      "last_clean_area": {
+        "name": "Last clean area"
+      },
+      "current_clean_duration": {
+        "name": "Current clean duration"
+      },
+      "current_clean_area": {
+        "name": "Current clean area"
+      },
+      "total_duration": {
+        "name": "Total duration"
+      },
+      "total_clean_area": {
+        "name": "Total clean area"
+      },
+      "total_clean_count": {
+        "name": "Total clean count"
+      },
+      "total_dust_collection_count": {
+        "name": "Total dust collection count"
+      },
+      "main_brush_left": {
+        "name": "Main brush left"
+      },
+      "side_brush_left": {
+        "name": "Side brush left"
+      },
+      "filter_left": {
+        "name": "Filter left"
+      },
+      "sensor_dirty_left": {
+        "name": "Sensor dirty left"
+      },
+      "dock_washing_mode": {
+        "name": "Dock washing mode"
+      },
+      "dock_dust_collection_mode": {
+        "name": "Dock dust collection mode"
+      },
+      "dock_mop_wash_mode_interval": {
+        "name": "Dock mop wash mode interval"
+      },
+      "current_map_selected": {
+        "name": "Current map selected"
+      },
+      "current_room": {
+        "name": "Current room"
+      },
+      "dock_status": {
+        "name": "Dock status"
+      }
+    },
+    "binary_sensor": {
+      "mop_attached": {
+        "name": "Mop attached"
+      },
+      "water_box_attached": {
+        "name": "Water box attached"
+      },
+      "water_shortage": {
+        "name": "Water shortage"
+      }
+    },
+    "select": {
+      "mop_mode": {
+        "name": "Mop mode",
+        "state": {
+          "standard": "Standard",
+          "deep": "Deep",
+          "deep_plus": "Deep+",
+          "custom": "Custom"
+        }
+      },
+      "mop_intensity": {
+        "name": "Mop intensity",
+        "state": {
+          "off": "Off",
+          "mild": "Mild",
+          "moderate": "Moderate",
+          "intense": "Intense",
+          "custom": "Custom",
+          "custom_water_flow": "Custom"
+        }
+      }
+    },
+    "vacuum": {
+      "roborock": {
+        "state_attributes": {
+          "fan_speed": {
+            "state": {
+              "auto": "Auto",
+              "balanced": "Balanced",
+              "custom": "Custom",
+              "gentle": "Gentle",
+              "off": "Off",
+              "max": "Max",
+              "max_plus": "Max+",
+              "medium": "Medium",
+              "quiet": "Quiet",
+              "silent": "Silent",
+              "standard": "Standard",
+              "turbo": "Turbo"
+            }
+          },
+          "status": {
+            "state": {
+              "starting": "Starting",
+              "charger_disconnected": "Charger disconnected",
+              "idle": "Idle",
+              "remote_control_active": "Remote control active",
+              "cleaning": "Cleaning",
+              "returning_home": "Returning home",
+              "manual_mode": "Manual mode",
+              "charging": "Charging",
+              "charging_problem": "Charging problem",
+              "paused": "Paused",
+              "spot_cleaning": "Spot cleaning",
+              "error": "Error",
+              "shutting_down": "Shutting down",
+              "updating": "Updating",
+              "docking": "Docking",
+              "going_to_target": "Going to target",
+              "zoned_cleaning": "Zoned cleaning",
+              "segment_cleaning": "Segment cleaning",
+              "emptying_the_bin": "Emptying the bin",
+              "washing_the_mop": "Washing the mop",
+              "going_to_wash_the_mop": "Going to wash the mop",
+              "charging_complete": "Charging complete",
+              "device_offline": "Device offline"
+            }
+          }
+        }
+      }
+    },
+    "time": {
+      "dnd_start": {
+        "name": "DnD start"
+      },
+      "dnd_end": {
+        "name": "DnD end"
+      },
+      "valley_electricity_start": {
+        "name": "Off-Peak charging start"
+      },
+      "valley_electricity_end": {
+        "name": "Off-Peak charging end"
+      }
+    },
+    "switch": {
+      "child_lock": {
+        "name": "Child lock"
+      },
+      "flow_led_status": {
+        "name": "Status Indicator Light"
+      },
+      "dnd_switch": {
+        "name": "DnD switch"
+      },
+      "valley_electricity_switch": {
+        "name": "Valley electricity switch"
+      }
+    }
+  }
+}

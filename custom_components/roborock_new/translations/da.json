@@ -1,0 +1,299 @@
+{
+  "config": {
+    "step": {
+      "user": {
+        "description": "Vælg en godkendelsesmetode",
+        "menu_options": {
+          "code": "Login men godkendelseskode fra email",
+          "password": "Login med password"
+        }
+      },
+      "email": {
+        "description": "Login info til Roborock app",
+        "data": {
+          "username": "Brugernavn"
+        }
+      },
+      "code": {
+        "description": "Indtast verifikationskoden sent til din email",
+        "data": {
+          "code": "Verifikationskode"
+        }
+      },
+      "password": {
+        "description": "Indtast password",
+        "data": {
+          "password": "Password"
+        }
+      }
+    },
+    "error": {
+      "no_device": "Der blev ikke fundet nogen enhed på din Roborock konto",
+      "auth": "Login fejl. Kontroller login informationer"
+    },
+    "abort": {
+      "already_configured": "Enhed er allerede konfigureret",
+      "already_in_progress": "Konfiguration af enhed er allerede igangsat"
+    }
+  },
+  "options": {
+    "step": {
+      "user": {
+        "description": "Vælg platform der skal konfigures",
+        "menu_options": {
+          "vacuum": "Støvsuger",
+          "camera": "Kamera",
+          "roborock": "Roborock"
+        }
+      },
+      "camera": {
+        "description": "Kamera Indstillinger",
+        "data": {
+          "map_transformation:scale": "Kort skala",
+          "map_transformation:rotate": "Kort rotation",
+          "map_transformation:trim:left": "Kort venstre trim",
+          "map_transformation:trim:right": "Kort højre trim",
+          "map_transformation:trim:top": "Kort top trim",
+          "map_transformation:trim:bottom": "Kort bund trim",
+          "include_ignored_obstacles": "Vis ignorerede forhindringer",
+          "include_nogo": "Vis no-go zoner"
+        }
+      },
+      "vacuum": {
+        "description": "Støvsuger Indstillinger",
+        "data": {
+          "include_shared": "Inkluder delte enheder"
+        }
+      },
+      "roborock": {
+        "description": "Grundlæggende indstillinger",
+        "data": {
+          "cloud_integration": "Use cloud integration"
+        }
+      }
+    }
+  },
+  "entity": {
+    "button": {
+      "reset_sensor_consumable": {
+        "name": "Nulstil sensor forbrug"
+      },
+      "reset_filter_consumable": {
+        "name": "Nulstil filter forbrug"
+      },
+      "reset_side_brush_consumable": {
+        "name": "Nulstil sidebørste forbrug"
+      },
+      "reset_main_brush_consumable": {
+        "name": "Nulstil hovedebørste forbrug"
+      }
+    },
+    "sensor": {
+      "current_error": {
+        "name": "Nuværende fejl",
+        "state": {
+          "none": "Ingen",
+          "lidar_blocked": "LiDAR tårn eller laser blokeret. Kontroller for fremmedelementer og prøv igen.",
+          "bumper_stuck": "Kofanger sidder fast. Rens den og tryk forsigtig på den for at frigør.",
+          "wheels_suspended": "Hjul ophængt. Flyt robotten og genstart.",
+          "cliff_sensor_error": "Faldsensor fejl. Rens faldsensorer, flyt robot væk fra fald fare og genstart.",
+          "main_brush_jammed": "Hovedbørsten sidder fast. Rens hovedbørste og lejer.",
+          "side_brush_jammed": "Sidebørsten sidder fast. Fjern og rens sidebørste.",
+          "wheels_jammed": "Hjul sidder fast. Flyt robot og genstart.",
+          "robot_trapped": "Robot fanget. Fjern forhindringer og genstart.",
+          "no_dustbin": "Ingen støvbeholder. Indsæt støvbeholder og filter.",
+          "low_battery": "Lavt batteri. Oplad og genstart.",
+          "charging_error": "Lade fejl. Rens lade kontakter og på igen.",
+          "battery_error": "Batteri fejl.",
+          "wall_sensor_dirty": "Vægsensor beskidt. Rens vægsensor.",
+          "robot_tilted": "Robot vippet. Flyt til jævnt underlag og genstart.",
+          "side_brush_error": "Sidebørste fejl. Genstart robot.",
+          "fan_error": "Blæser fejl. Genstart robot.",
+          "vertical_bumper_pressed": "Lodret kofanger påvirket. Flyt robotten og genstart.",
+          "dock_locator_error": "Dock lokations fejl. Rens dock og genstart.",
+          "return_to_dock_fail": "Kunne ikke returnere til dock. Rens dock lokations beacon og genstart.",
+          "nogo_zone_detected": "No-go zone eller usynligvæg detekteret. Flyt robotten væk fra dette område.",
+          "vibrarise_jammed": "VibraRise system fastklemte. Kontroller for forhindringer.",
+          "robot_on_carpet": "Robot på tæppe. Flyt robot til gulv og genstart.",
+          "filter_blocked": "Filter blokeret eller vådt. Rens, tør og restart.",
+          "invisible_wall_detected": "No-go zone eller usynligvæg detekteret. Flyt robotten væk fra dette område.",
+          "cannot_cross_carpet": "Kan ikke køre på tæppe. Flyt robot over tæppet og genstart.",
+          "internal_error": "Intern Fejl. Reset robotten."
+        }
+      },
+      "last_clean_start": {
+        "name": "Sidste rengøringsstart"
+      },
+      "last_clean_end": {
+        "name": "Sidste rengøringsafslutning"
+      },
+      "last_clean_duration": {
+        "name": "Sidste rengøringsvarighed"
+      },
+      "last_clean_area": {
+        "name": "Sidste rengøringsområde"
+      },
+      "current_clean_duration": {
+        "name": "Nuværende rengøringsvarighed"
+      },
+      "current_clean_area": {
+        "name": "Nuværende rengøringsområde"
+      },
+      "total_duration": {
+        "name": "Total varighed"
+      },
+      "total_clean_area": {
+        "name": "Totalt rengjort område"
+      },
+      "total_clean_count": {
+        "name": "Totalt antal rengøringer"
+      },
+      "total_dust_collection_count": {
+        "name": "Total støve tømningsantal"
+      },
+      "main_brush_left": {
+        "name": "Hovedebørste tilbage"
+      },
+      "side_brush_left": {
+        "name": "Sidebørste tilbage"
+      },
+      "filter_left": {
+        "name": "Filter tilbage"
+      },
+      "sensor_dirty_left": {
+        "name": "Sensor støv tilbage"
+      },
+      "dock_washing_mode": {
+        "name": "Dock vaske indstilling"
+      },
+      "dock_dust_collection_mode": {
+        "name": "Dock støv tømnings indstilling"
+      },
+      "dock_mop_wash_mode_interval": {
+        "name": "Dock moppe vaske interval indstilling"
+      },
+      "current_map_selected": {
+        "name": "Valgt kort"
+      },
+      "current_room": {
+        "name": "Nuværende rum"
+      },
+      "dock_status": {
+        "name": "Dock status"
+      },
+      "battery": {
+        "name": "Batteri"
+      }
+    },
+    "binary_sensor": {
+      "mop_attached": {
+        "name": "Moppe monteret"
+      },
+      "water_box_attached": {
+        "name": "Vandbeholder monteret"
+      },
+      "water_shortage": {
+        "name": "Lav vandstand"
+      }
+    },
+    "select": {
+      "mop_mode": {
+        "name": "Mop mode",
+        "state": {
+          "standard": "Standard",
+          "deep": "Dyb",
+          "deep_plus": "Dyb+",
+          "custom": "Brugerdefinerede"
+        }
+      },
+      "mop_intensity": {
+        "name": "Mop intensity",
+        "state": {
+          "off": "Off",
+          "mild": "Mild",
+          "moderate": "Moderat",
+          "intense": "Intens",
+          "custom": "Brugerdefinerede",
+          "custom_water_flow": "Brugerdefinerede"
+        }
+      }
+    },
+    "vacuum": {
+      "roborock": {
+        "state_attributes": {
+          "fan_speed": {
+            "state": {
+              "auto": "Automatisk",
+              "balanced": "Balanceret",
+              "custom": "Brugerdefinerede",
+              "gentle": "Blidt",
+              "off": "Off",
+              "max": "Max",
+              "max_plus": "Max+",
+              "medium": "Medium",
+              "quiet": "Stille",
+              "silent": "Lydløs",
+              "standard": "Standard",
+              "turbo": "Turbo"
+            }
+          },
+          "status": {
+            "state": {
+              "starting": "Starter",
+              "charger_disconnected": "Oplader afbrudt",
+              "idle": "Idle",
+              "remote_control_active": "Fjernbetjening aktiveret",
+              "cleaning": "Rengører",
+              "returning_home": "Kører hjem",
+              "manual_mode": "Manuel tilstand",
+              "charging": "Oplader",
+              "charging_problem": "Problem med opladning",
+              "paused": "Pause",
+              "spot_cleaning": "Punkt rengøring",
+              "error": "Fejl",
+              "shutting_down": "Slukker",
+              "updating": "Updater",
+              "docking": "Kører i dock",
+              "going_to_target": "Kører til punkt",
+              "zoned_cleaning": "Zone rengøring",
+              "segment_cleaning": "Segment reggøring",
+              "emptying_the_bin": "Tømmer støvebeholder",
+              "washing_the_mop": "Renser moppe",
+              "going_to_wash_the_mop": "Kører til rensning af moppe",
+              "charging_complete": "Opladning afsluttet",
+              "device_offline": "Enhed er offline"
+            }
+          }
+        }
+      }
+    },
+    "time": {
+      "dnd_start": {
+        "name": "DnD start"
+      },
+      "dnd_end": {
+        "name": "DnD slut"
+      },
+      "valley_electricity_start": {
+        "name": "Off-Peak charging start"
+      },
+      "valley_electricity_end": {
+        "name": "Off-Peak charging end"
+      }
+    },
+    "switch": {
+      "child_lock": {
+        "name": "Child lock"
+      },
+      "flow_led_status": {
+        "name": "Status Indicator Light"
+      },
+      "dnd_switch": {
+        "name": "DnD switch"
+      },
+      "valley_electricity_switch": {
+        "name": "Valley electricity switch"
+      }
+    }
+  }
+}

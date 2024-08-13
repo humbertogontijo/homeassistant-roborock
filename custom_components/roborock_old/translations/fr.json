@@ -1,0 +1,323 @@
+{
+  "config": {
+    "step": {
+      "user": {
+        "description": "Sélectionnez une méthode d'authentification",
+        "menu_options": {
+          "code": "Se connecter avec un code envoyé par email",
+          "password": "Se connecter avec le mot de passe"
+        }
+      },
+      "email": {
+        "description": "Vos identifiants Roborock",
+        "data": {
+          "username": "Email"
+        }
+      },
+      "code": {
+        "description": "Entrez le code de vérification envoyé par email",
+        "data": {
+          "code": "Code de vérification"
+        }
+      },
+      "password": {
+        "description": "Entrer votre mot de passe",
+        "data": {
+          "password": "Mot de passe"
+        }
+      }
+    },
+    "error": {
+      "no_device": "Aucun appareil trouvé dans votre compte Roborock",
+      "auth": "Echec de la connexion. Vérifiez vos identifiants"
+    },
+    "abort": {
+      "already_configured": "Votre compte est déjà configuré",
+      "already_in_progress": "Votre compte est déjà en cours de configuration"
+    }
+  },
+  "options": {
+    "step": {
+      "user": {
+        "description": "Sélectionnez une plateforme à configurer",
+        "menu_options": {
+          "vacuum": "Aspirateur",
+          "camera": "Caméra",
+          "roborock": "Roborock"
+        }
+      },
+      "camera": {
+        "description": "Options de la caméra",
+        "data": {
+          "map_transformation:scale": "Échelle de la carte",
+          "map_transformation:rotate": "Rotation de la carte",
+          "map_transformation:trim:left": "Rogner la carte à gauche",
+          "map_transformation:trim:right": "Rogner la carte à droite",
+          "map_transformation:trim:top": "Rogner la carte en haut",
+          "map_transformation:trim:bottom": "Rogner la carte en bas",
+          "include_ignored_obstacles": "Afficher les obstacles ignorés",
+          "include_nogo": "Afficher les zones interdites"
+        }
+      },
+      "vacuum": {
+        "description": "Options de l'aspirateur",
+        "data": {
+          "include_shared": "Inclure les appareils partagés"
+        }
+      },
+      "roborock": {
+        "description": "Réglages généraux",
+        "data": {
+          "cloud_integration": "Use cloud integration"
+        }
+      }
+    }
+  },
+  "entity": {
+    "button": {
+      "reset_sensor_consumable": {
+        "name": "Réinitialiser les capteurs"
+      },
+      "reset_filter_consumable": {
+        "name": "Réinitialiser le filtre"
+      },
+      "reset_side_brush_consumable": {
+        "name": "Réinitialiser la brosse latérale"
+      },
+      "reset_main_brush_consumable": {
+        "name": "Réinitialiser la brosse principale"
+      }
+    },
+    "sensor": {
+      "current_error": {
+        "name": "Erreur",
+        "state": {
+          "none": "Aucune",
+          "lidar_blocked": "LiDAR ou laser bloqué. Vérifier l'obstruction et réessayer.",
+          "bumper_stuck": "Pare-chocs coincé. Nettoyez-le et tapez légèrement pour le dégager.",
+          "wheels_suspended": "Roues suspendues. Déplacez le robot et recommencez.",
+          "cliff_sensor_error": "Erreur de capteur de chute. Nettoyez les capteurs de chute, éloignez le robot des obstacles et redémarrez.",
+          "main_brush_jammed": "Brosse principale bloquée. Nettoyez la brosse principale et les roulements.",
+          "side_brush_jammed": "Brosse latérale coincée. Retirez et nettoyez la brosse latérale.",
+          "wheels_jammed": "Roues bloquées. Déplacez le robot et redémarrez.",
+          "robot_trapped": "Robot piégé. Dégagez les obstacles autour du robot.",
+          "no_dustbin": "Pas de bac à poussière. Installez le bac à poussière et le filtre.",
+          "low_battery": "Batterie faible. Rechargez et réessayez.",
+          "charging_error": "Erreur de charge. Nettoyez les contacts de charge et réessayez.",
+          "battery_error": "Erreur de batterie.",
+          "wall_sensor_dirty": "Capteur mural sale. Nettoyez le capteur mural.",
+          "robot_tilted": "Le robot a basculé. Déplacez-le sur un terrain plat et redémarrez-le.",
+          "side_brush_error": "Erreur de brosse latérale. Réinitialisez le robot.",
+          "fan_error": "Erreur de ventilateur. Réinitialisez le robot.",
+          "vertical_bumper_pressed": "Pare-chocs vertical enfoncé. Déplacez le robot et réessayez.",
+          "dock_locator_error": "Erreur de localisation de la station. Nettoyez et réessayez.",
+          "return_to_dock_fail": "Impossible de retourner à la station. Nettoyez la balise de localisation de la station et réessayez.",
+          "nogo_zone_detected": "Zone interdite ou mur invisible détecté. Déplacez le robot de cette zone.",
+          "vibrarise_jammed": "Le système VibraRise est bloqué. Vérifiez les obstructions.",
+          "robot_on_carpet": "Le robot est sur le tapis. Déplacez le robot au sol et réessayez.",
+          "filter_blocked": "Filtre bloqué ou humide. Nettoyez, séchez et réessayez.",
+          "invisible_wall_detected": "Zone interdite ou mur invisible détecté. Déplacez le robot de cette zone.",
+          "cannot_cross_carpet": "Impossible de traverser le tapis. Faites traverser le robot et redémarrez.",
+          "internal_error": "Erreur interne. Réinitialisez le robot."
+        }
+      },
+      "last_clean_start": {
+        "name": "Début du dernier nettoyage"
+      },
+      "last_clean_end": {
+        "name": "Fin du dernier nettoyage"
+      },
+      "last_clean_duration": {
+        "name": "Durée du dernier nettoyage"
+      },
+      "last_clean_area": {
+        "name": "Surface du dernier nettoyage"
+      },
+      "current_clean_duration": {
+        "name": "Durée du nettoyage courant"
+      },
+      "current_clean_area": {
+        "name": "Surface du nettoyage courant"
+      },
+      "total_duration": {
+        "name": "Durée totale"
+      },
+      "total_clean_area": {
+        "name": "Surface totale"
+      },
+      "total_clean_count": {
+        "name": "Nombre total de nettoyage"
+      },
+      "total_dust_collection_count": {
+        "name": "Nombre total de récupération de la poussière"
+      },
+      "main_brush_left": {
+        "name": "Brosse principale"
+      },
+      "side_brush_left": {
+        "name": "Brosse latérale"
+      },
+      "filter_left": {
+        "name": "Filtre"
+      },
+      "sensor_dirty_left": {
+        "name": "Capteurs"
+      },
+      "dock_washing_mode": {
+        "name": "Mode de lavage de la station"
+      },
+      "dock_dust_collection_mode": {
+        "name": "Mode de récupération de la poussière par la station"
+      },
+      "dock_mop_wash_mode_interval": {
+        "name": "Intervalle de lavage de la serpillère"
+      },
+      "current_map_selected": {
+        "name": "Carte actuelle"
+      },
+      "current_room": {
+        "name": "Pièce actuelle"
+      },
+      "dock_status": {
+        "name": "État de la station",
+        "state": {
+          "ok": "OK",
+          "water_empty": "Réservoir eau propre vide",
+          "waste_water_tank_full": "Réservoir eau sale plein/absent",
+          "dirty_tank_latch_open": "Verrou du réservoir d'eau sale non fermé",
+          "no_dustbin": "Sac aspirateur absent",
+          "duct_blockage": "Tuyau aspiration bouché",
+          "cleaning_tank_full_or_blocked": "Bac de nettoyage rempli, vidage bloqué, ou réservoir d'eau sale non verrouillé"
+        }
+      },
+      "mop_drying_status": {
+        "name": "Séchage de la serpillière"
+      },
+      "mop_drying_remaining_time": {
+        "name": "Séchage de la serpillière temps restant"
+      },
+      "clean_percent": {
+        "name": "Progression nettoyage"
+      }
+    },
+    "binary_sensor": {
+      "mop_attached": {
+        "name": "Serpillière installée"
+      },
+      "water_box_attached": {
+        "name": "Réservoir à eau installée"
+      },
+      "water_shortage": {
+        "name": "Réservoir à eau vide"
+      }
+    },
+    "select": {
+      "mop_mode": {
+        "name": "Parcours",
+        "state": {
+          "fast": "Rapide",
+          "standard": "Standard",
+          "deep": "Approfondi",
+          "deep_plus": "Approfondi+",
+          "custom": "Personnalisé"
+        }
+      },
+      "mop_intensity": {
+        "name": "Niveau de l'eau",
+        "state": {
+          "off": "Aucun",
+          "mild": "Faible",
+          "low": "Faible",
+          "moderate": "Moyen",
+          "medium": "Moyen",
+          "intense": "Elevé",
+          "high": "Elevé",
+          "custom": "Personnalisé",
+          "custom_water_flow": "Personnalisé"
+        }
+      }
+    },
+    "number": {
+      "sound_volume": {
+        "name": "Volume"
+      }
+    },
+    "vacuum": {
+      "roborock": {
+        "state_attributes": {
+          "fan_speed": {
+            "state": {
+              "auto": "Auto",
+              "balanced": "Equilibré",
+              "custom": "Personnalisé",
+              "gentle": "Doux",
+              "off": "Off",
+              "max": "Max",
+              "max_plus": "Max+",
+              "medium": "Moyen",
+              "quiet": "Calme",
+              "silent": "Silencieux",
+              "standard": "Normal",
+              "turbo": "Turbo"
+            }
+          },
+          "status": {
+            "state": {
+              "starting": "Démarrage en cours",
+              "charger_disconnected": "Chargeur déconnecté",
+              "idle": "En veille",
+              "remote_control_active": "Télécommande active",
+              "cleaning": "Nettoyage en cours",
+              "returning_home": "Retour à la base",
+              "manual_mode": "Mode manuel",
+              "charging": "En charge",
+              "charging_problem": "Problème de charge",
+              "paused": "En pause",
+              "spot_cleaning": "Nettoyage localisé",
+              "error": "Erreur",
+              "shutting_down": "Arrêt en cours",
+              "updating": "Mise à jour en cours",
+              "docking": "En retour à la base",
+              "going_to_target": "En déplacement vers le point sélectionné",
+              "zoned_cleaning": "Nettoyage par zone",
+              "segment_cleaning": "Nettoyage par segment",
+              "emptying_the_bin": "Vidage du bac",
+              "washing_the_mop": "Nettoyage de la serpillère",
+              "going_to_wash_the_mop": "Retour à la base pour laver la serpillère",
+              "charging_complete": "Charge terminée",
+              "device_offline": "Appareil hors ligne"
+            }
+          }
+        }
+      }
+    },
+    "time": {
+      "dnd_start": {
+        "name": "Début NPD"
+      },
+      "dnd_end": {
+        "name": "Fin NPD"
+      },
+      "valley_electricity_start": {
+        "name": "Début heures creuses"
+      },
+      "valley_electricity_end": {
+        "name": "Fin heures creuses"
+      }
+    },
+    "switch": {
+      "child_lock": {
+        "name": "Sécurité enfant"
+      },
+      "flow_led_status": {
+        "name": "Voyants des boutons"
+      },
+      "dnd_switch": {
+        "name": "Mode Ne pas déranger"
+      },
+      "valley_electricity_switch": {
+        "name": "Chargement heures creuses"
+      }
+    }
+  }
+}

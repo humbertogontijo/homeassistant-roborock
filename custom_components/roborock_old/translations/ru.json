@@ -1,0 +1,296 @@
+{
+  "config": {
+    "step": {
+      "user": {
+        "description": "Выберите метод аутентификации",
+        "menu_options": {
+          "code": "Войти с помощью кода на почту",
+          "password": "Войти с помощью пароля"
+        }
+      },
+      "email": {
+        "description": "Ваши данные из приложения",
+        "data": {
+          "username": "Почта"
+        }
+      },
+      "code": {
+        "description": "Введите код отправленный вам на почту",
+        "data": {
+          "code": "Код подтверждения"
+        }
+      },
+      "password": {
+        "description": "Введите свой пароль",
+        "data": {
+          "password": "Пароль"
+        }
+      }
+    },
+    "error": {
+      "no_device": "В вашей учетной записи Roborock не найдено ни одного устройства",
+      "auth": "Не удалось войти. Проверьте данные."
+    },
+    "abort": {
+      "already_configured": "Аккаунт уже настроен",
+      "already_in_progress": "Аккаунт уже настраивается"
+    }
+  },
+  "options": {
+    "step": {
+      "user": {
+        "description": "Выберите платформу для настройки",
+        "menu_options": {
+          "vacuum": "Пылесос",
+          "camera": "Камера",
+          "roborock": "Roborock"
+        }
+      },
+      "camera": {
+        "description": "Параметры камеры",
+        "data": {
+          "map_transformation:scale": "Масштаб карты",
+          "map_transformation:rotate": "Вращение карты",
+          "map_transformation:trim:left": "Выравнивание карты слева",
+          "map_transformation:trim:right": "Выравнивание карты справа",
+          "map_transformation:trim:top": "Выравнивание карты сверху",
+          "map_transformation:trim:bottom": "Выравнивание карты снизу",
+          "include_ignored_obstacles": "Показать игнорируемые препятствия",
+          "include_nogo": "Показать запретные зоны"
+        }
+      },
+      "vacuum": {
+        "description": "Параметры пылесоса",
+        "data": {
+          "include_shared": "Добавить общие устройства"
+        }
+      },
+      "roborock": {
+        "description": "Общие настройки",
+        "data": {
+          "cloud_integration": "Use cloud integration"
+        }
+      }
+    }
+  },
+  "entity": {
+    "button": {
+      "reset_sensor_consumable": {
+        "name": "Сброс данных очистки сенсоров"
+      },
+      "reset_filter_consumable": {
+        "name": "Сброс данных очистки фильтра"
+      },
+      "reset_side_brush_consumable": {
+        "name": "Сброс данных очистки передней щётки"
+      },
+      "reset_main_brush_consumable": {
+        "name": "Сброс данных очистки основной щётки"
+      }
+    },
+    "sensor": {
+      "current_error": {
+        "name": "Текущая ошибка",
+        "state": {
+          "none": "Нет",
+          "lidar_blocked": "Башня LiDAR или лазер заблокированы. Проверьте наличие препятствий и повторите попытку.",
+          "bumper_stuck": "Бампер застрял. Очистите его и слегка коснитесь, чтобы освободить.",
+          "wheels_suspended": "Колеса подвешены. Переместите робота и перезапустите.",
+          "cliff_sensor_error": "Ошибка датчика перепада высоты. Очистите датчики , отодвиньте робота и перезапустите.",
+          "main_brush_jammed": "Заклинило основную щетку. Очистите основную щетку и подшипники.",
+          "side_brush_jammed": "Заклинило боковую щетку. Снимите и очистите боковую щетку.",
+          "wheels_jammed": "Колеса заклинило. Переместите робота и перезапустите.",
+          "robot_trapped": "Робот в ловушке. Уберите препятствия вокруг робота.",
+          "no_dustbin": "Отсутсвует мусоросборник. Установите мусоросборник и фильтр.",
+          "low_battery": "Низкий заряд батареи. Зарядите и повторите попытку.",
+          "charging_error": "Ошибка зарядки. Очистите контакты для зарядки и повторите попытку.",
+          "battery_error": "Ошибка батареи.",
+          "wall_sensor_dirty": "Датчик препятствий загрязнен. Очистите датчик препятствий.",
+          "robot_tilted": "Робот подвис. Переместите на ровную поверхность и перезапустите.",
+          "side_brush_error": "Ошибка боковой щетки. Перезапустите робота.",
+          "fan_error": "Ошибка лопостей. Перезапустите робота.",
+          "vertical_bumper_pressed": "Вертикальный бампер вдавлен. Переместите робота и повторите попытку.",
+          "dock_locator_error": "Ошибка локации станции. Очистите и повторите попытку.",
+          "return_to_dock_fail": "Не удалось вернуться к станции. Очистите маяк местоположения станции и повторите попытку.",
+          "nogo_zone_detected": "Система VibraRise заблокирована. Проверьте на наличие препятствий.",
+          "vibrarise_jammed": "Робот на ковре. Переместите робота на пол и повторите попытку.",
+          "robot_on_carpet": "Фильтр забит или намок. Очистите, высушите и повторите попытку.",
+          "filter_blocked": "Обнаружена запретная зона или невидимая стена. Переместите робота из этой области.",
+          "invisible_wall_detected": "Не удалось пересечь ковер. Переместите робота с ковра и перезапустите.",
+          "cannot_cross_carpet": "Внутренняя ошибка. Сбросьте робота.",
+          "internal_error": "Внутренняя ошибка. Переустановите робота."
+        }
+      },
+      "last_clean_start": {
+        "name": "Время начала последней уборки"
+      },
+      "last_clean_end": {
+        "name": "Время окончания последней уборки"
+      },
+      "last_clean_duration": {
+        "name": "Время последней уборки"
+      },
+      "last_clean_area": {
+        "name": "Площадь последней уборки"
+      },
+      "current_clean_duration": {
+        "name": "Время текущей уборки"
+      },
+      "current_clean_area": {
+        "name": "Площадь текущей уборки"
+      },
+      "total_duration": {
+        "name": "Общее время уборки"
+      },
+      "total_clean_area": {
+        "name": "Площадь уборки за всё время"
+      },
+      "total_clean_count": {
+        "name": "Убрано комнат за всё время"
+      },
+      "total_dust_collection_count": {
+        "name": "Собрано пыли за всё время"
+      },
+      "main_brush_left": {
+        "name": "Остаток до очистки основной щетки"
+      },
+      "side_brush_left": {
+        "name": "Остаток до очистки передней щетки"
+      },
+      "filter_left": {
+        "name": "Остаток до очистки фильтра"
+      },
+      "sensor_dirty_left": {
+        "name": "Остаток до очистки сенсоров"
+      },
+      "dock_washing_mode": {
+        "name": "Режим очистки док-станции"
+      },
+      "dock_dust_collection_mode": {
+        "name": "Режим сбора пыли в док-станции"
+      },
+      "dock_mop_wash_mode_interval": {
+        "name": "Интервал очистки тряпки"
+      },
+      "current_map_selected": {
+        "name": "Выбрана карта"
+      },
+      "current_room": {
+        "name": "Текущая комната"
+      },
+      "dock_status": {
+        "name": "Состояние док-станции"
+      }
+    },
+    "binary_sensor": {
+      "mop_attached": {
+        "name": "Моющая тряпка"
+      },
+      "water_box_attached": {
+        "name": "Ёмкость для воды"
+      },
+      "water_shortage": {
+        "name": "Наличие воды в ёмкости"
+      }
+    },
+    "select": {
+      "mop_mode": {
+        "name": "Интенсивность мытья",
+        "state": {
+          "standard": "Обычная",
+          "deep": "Интенсивная",
+          "deep_plus": "Интенсивная+",
+          "custom": "Настраиваемая"
+        }
+      },
+      "mop_intensity": {
+        "name": "Подача воды",
+        "state": {
+          "off": "Отключено",
+          "mild": "Минимальная",
+          "moderate": "Средняя",
+          "intense": "Максимальная",
+          "custom": "Настраиваемая",
+          "custom_water_flow": "Настраиваемая"
+        }
+      }
+    },
+    "vacuum": {
+      "roborock": {
+        "state_attributes": {
+          "fan_speed": {
+            "state": {
+              "auto": "Auto",
+              "balanced": "Balanced",
+              "custom": "Custom",
+              "gentle": "Gentle",
+              "off": "Off",
+              "max": "Max",
+              "max_plus": "Max+",
+              "medium": "Medium",
+              "quiet": "Quiet",
+              "silent": "Silent",
+              "standard": "Standard",
+              "turbo": "Turbo"
+            }
+          },
+          "status": {
+            "state": {
+              "starting": "Starting",
+              "charger_disconnected": "Charger disconnected",
+              "idle": "Idle",
+              "remote_control_active": "Remote control active",
+              "cleaning": "Cleaning",
+              "returning_home": "Returning home",
+              "manual_mode": "Manual mode",
+              "charging": "Charging",
+              "charging_problem": "Charging problem",
+              "paused": "Paused",
+              "spot_cleaning": "Spot cleaning",
+              "error": "Error",
+              "shutting_down": "Shutting down",
+              "updating": "Updating",
+              "docking": "Docking",
+              "going_to_target": "Going to target",
+              "zoned_cleaning": "Zoned cleaning",
+              "segment_cleaning": "Segment cleaning",
+              "emptying_the_bin": "Emptying the bin",
+              "washing_the_mop": "Washing the mop",
+              "going_to_wash_the_mop": "Going to wash the mop",
+              "charging_complete": "Charging complete",
+              "device_offline": "Device offline"
+            }
+          }
+        }
+      }
+    },
+    "time": {
+      "dnd_start": {
+        "name": "Не беспокоить начало"
+      },
+      "dnd_end": {
+        "name": "Не беспокоить конец"
+      },
+      "valley_electricity_start": {
+        "name": "Off-Peak charging start"
+      },
+      "valley_electricity_end": {
+        "name": "Off-Peak charging end"
+      }
+    },
+    "switch": {
+      "child_lock": {
+        "name": "Child lock"
+      },
+      "flow_led_status": {
+        "name": "Status Indicator Light"
+      },
+      "dnd_switch": {
+        "name": "DnD switch"
+      },
+      "valley_electricity_switch": {
+        "name": "Valley electricity switch"
+      }
+    }
+  }
+}

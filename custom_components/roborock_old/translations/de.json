@@ -1,0 +1,309 @@
+{
+  "config": {
+    "step": {
+      "user": {
+        "description": "Wählen Sie eine Authentifizierungsmethode",
+        "menu_options": {
+          "code": "Login mit E-Mail Einmalpasswort",
+          "password": "Login mit Passwort"
+        }
+      },
+      "email": {
+        "description": "Deine Zugangsdaten",
+        "data": {
+          "username": "E-Mail"
+        }
+      },
+      "code": {
+        "description": "Gib den Verifizierungscode ein, den du per E-Mail erhalten hast",
+        "data": {
+          "code": "Verifizierungscode"
+        }
+      },
+      "password": {
+        "description": "Gib dein Passwort ein",
+        "data": {
+          "password": "Passwort"
+        }
+      }
+    },
+    "error": {
+      "no_device": "Deinem Account ist kein Gerät zugeordnet",
+      "auth": "Login fehlgeschlagen. Prüfe deine Zugangsdaten"
+    },
+    "abort": {
+      "already_configured": "Account ist bereits konfiguriert",
+      "already_in_progress": "Konfiguration des Accounts läuft bereits"
+    }
+  },
+  "options": {
+    "step": {
+      "user": {
+        "description": "Wähle die zu konfigurierende Plattform aus",
+        "menu_options": {
+          "vacuum": "Staubsauger",
+          "camera": "Kamera",
+          "roborock": "Roborock"
+        }
+      },
+      "camera": {
+        "description": "Kamera Optionen",
+        "data": {
+          "map_transformation:scale": "Kartengröße",
+          "map_transformation:rotate": "Kartendrehung",
+          "map_transformation:trim:left": "Karte beschneiden links",
+          "map_transformation:trim:right": "Karte beschneiden rechts",
+          "map_transformation:trim:top": "Karte beschneiden oben",
+          "map_transformation:trim:bottom": "Karte beschneiden unten",
+          "include_ignored_obstacles": "Ignorierte Hindernisse anzeigen",
+          "include_nogo": "No-Go-Zonen anzeigen"
+        }
+      },
+      "vacuum": {
+        "description": "Staubsauger Optionen",
+        "data": {
+          "include_shared": "Gemeinsam genutzte Geräte einbeziehen"
+        }
+      },
+      "roborock": {
+        "description": "Allgemeine Einstellungen",
+        "data": {
+          "cloud_integration": "Benutze Cloud-Integration"
+        }
+      }
+    }
+  },
+  "entity": {
+    "button": {
+      "reset_sensor_consumable": {
+        "name": "Sensorreinigung zurücksetzen"
+      },
+      "reset_filter_consumable": {
+        "name": "Filter-Verbrauch zurücksetzen"
+      },
+      "reset_side_brush_consumable": {
+        "name": "Seitenbürste-Verbrauch zurücksetzen"
+      },
+      "reset_main_brush_consumable": {
+        "name": "Hauptbürste-Verbrauch zurücksetzen"
+      }
+    },
+    "sensor": {
+      "current_error": {
+        "name": "Current error",
+        "state": {
+          "none": "Keine",
+          "lidar_blocked": "LiDAR-Turm oder -laser ist blockiert. Bitte Blockierung entfernen und wiederholen.",
+          "bumper_stuck": "Stoßstange klemmt. Reinigen Sie sie und klopfen Sie leicht darauf, um sie zu lösen.",
+          "wheels_suspended": "Räder hängen. Roboter bewegen und neu starten.",
+          "cliff_sensor_error": "Fehler im Absturzsensor. Reinigen Sie die Absturzsensoren, entfernen Sie den Roboter vom Absturz und starten Sie ihn neu.",
+          "main_brush_jammed": "Hauptbürste klemmt. Hauptbürste und Lager reinigen.",
+          "side_brush_jammed": "Seitenbürste klemmt. Seitenbürste entfernen und reinigen.",
+          "wheels_jammed": "Räder sind blockiert. Bewege den Roboter und starte neu.",
+          "robot_trapped": "Roboter steckt fest. Hindernisse um den Roboter herum beseitigen.",
+          "no_dustbin": "Kein Staubbehälter vorhanden. Staubbehälter und Filter installieren.",
+          "low_battery": "Akku schwach. Aufladen und erneut versuchen.",
+          "charging_error": "Fehler beim Aufladen. Ladekontakte reinigen und erneut versuchen.",
+          "battery_error": "Akkufehler.",
+          "wall_sensor_dirty": "Wandsensor verschmutzt. Wandsensor reinigen.",
+          "robot_tilted": "Roboter ist verkippt. Auf ebenen Boden fahren und neu starten.",
+          "side_brush_error": "Seitenbürstenfehler. Roboter zurücksetzen.",
+          "fan_error": "Lüfterfehler. Roboter zurücksetzen.",
+          "vertical_bumper_pressed": "Vertikaler Stoßdämpfer betätigt. Roboter verschieben und erneut versuchen.",
+          "dock_locator_error": "Fehler beim Finden des Docks. Reinigen und erneut versuchen.",
+          "return_to_dock_fail": "Konnte nicht zum Dock zurückkehren. Dock-Ortungssensor reinigen und erneut versuchen.",
+          "nogo_zone_detected": "No-Go-Zone oder unsichtbare Wand entdeckt. Roboter aus diesem Bereich entfernen.",
+          "vibrarise_jammed": "VibraRise-System klemmt. Auf Hindernisse prüfen.",
+          "robot_on_carpet": "Roboter auf Teppich. Roboter auf den Boden stellen und erneut versuchen.",
+          "filter_blocked": "Filter verstopft oder nass. Reinigen, trocknen und erneut versuchen.",
+          "invisible_wall_detected":  "No-Go-Zone oder unsichtbare Wand entdeckt. Roboter aus diesem Bereich entfernen.",
+          "cannot_cross_carpet": "Kann Teppich nicht überqueren. Bewege den Roboter über den Teppich und starte ihn neu.",
+          "internal_error": "Interner Fehler. Setzen Sie den Roboter zurück."
+        }
+      },
+      "last_clean_start": {
+        "name": "Letzte Reinigung Start"
+      },
+      "last_clean_end": {
+        "name": "Letzte Reinigung Ende"
+      },
+      "last_clean_duration": {
+        "name": "Letzte Reinigung Dauer"
+      },
+      "last_clean_area": {
+        "name": "Letzte Reinigung Fläche"
+      },
+      "current_clean_duration": {
+        "name": "Aktuelle Reinigung Dauer"
+      },
+      "current_clean_area": {
+        "name": "Aktuelle Reinigung Fläche"
+      },
+      "total_duration": {
+        "name": "Gesamte Reinigungsdauer"
+      },
+      "total_clean_area": {
+        "name": "Gesamte Reinigungsfläche"
+      },
+      "total_clean_count": {
+        "name": "Anzahl Reinigungen"
+      },
+      "total_dust_collection_count": {
+        "name": "Gesamtzahl Staubbehälter leeren"
+      },
+      "main_brush_left": {
+        "name": "Hauptbürste übrig"
+      },
+      "side_brush_left": {
+        "name": "Seitenbürste übrig"
+      },
+      "filter_left": {
+        "name": "Filter übrig"
+      },
+      "sensor_dirty_left": {
+        "name": "Sensoren übrig"
+      },
+      "dock_washing_mode": {
+        "name": "Dock Reinigungsmodus"
+      },
+      "dock_dust_collection_mode": {
+        "name": "Dock Staubleerungsmodus"
+      },
+      "dock_mop_wash_mode_interval": {
+        "name": "Dock Wischmopp-Reinigungsintervall"
+      },
+      "current_map_selected": {
+        "name": "Aktuell ausgewählte Karte"
+      },
+      "current_room": {
+        "name": "Aktueller Raum"
+      },
+      "dock_status": {
+        "name": "Dock Status"
+      },
+      "mop_drying_status": {
+        "name": "Wischmopp trocknen"
+      },
+      "mop_drying_remaining_time": {
+        "name": "Wischmopp trocknen verbleibende Zeit"
+      },
+      "clean_percent": {
+        "name": "Reinigungsprozess"
+      }
+    },
+    "binary_sensor": {
+      "mop_attached": {
+        "name": "Wischmopp angebracht"
+      },
+      "water_box_attached": {
+        "name": "Wassertank angebracht"
+      },
+      "water_shortage": {
+        "name": "Wasser knapp"
+      }
+    },
+    "select": {
+      "mop_mode": {
+        "name": "Route",
+        "state": {
+          "fast": "Schnell",
+          "standard": "Standard",
+          "deep": "Gründlich",
+          "deep_plus": "Gründlich+",
+          "custom": "Benutzerdefiniert"
+        }
+      },
+      "mop_intensity": {
+        "name": "Wischmopp Intensiät",
+        "state": {
+          "off": "Aus",
+          "low": "Niedrig",
+          "mild": "Leicht",
+          "moderate": "Moderat",
+          "medium": "Medium",
+          "intense": "Intensiv",
+          "high": "Hoch",
+          "custom": "Benutzerdefiniert",
+          "custom_water_flow": "Benutzerdefinierter Wasserfluss"
+        }
+      }
+    },
+    "vacuum": {
+      "roborock": {
+        "state_attributes": {
+          "fan_speed": {
+            "state": {
+              "auto": "Auto",
+              "balanced": "Ausgeglichen",
+              "custom": "Benutzerdefiniert",
+              "gentle": "Sanft",
+              "off": "Aus",
+              "max": "Max",
+              "max_plus": "Max+",
+              "medium": "Medium",
+              "quiet": "Ruhig",
+              "silent": "Leise",
+              "standard": "Standard",
+              "turbo": "Turbo"
+            }
+          },
+          "status": {
+            "state": {
+              "starting": "Starten",
+              "charger_disconnected": "Ladegerät getrennt",
+              "idle": "Untätig",
+              "remote_control_active": "Fernsteuerung aktiv",
+              "cleaning": "Reinigung",
+              "returning_home": "Zurückfahren",
+              "manual_mode": "Manueller Modus",
+              "charging": "Laden",
+              "charging_problem": "Ladeproblem",
+              "paused": "Pausiert",
+              "spot_cleaning": "Punktreinigung",
+              "error": "Fehler",
+              "shutting_down": "Herunterfahren",
+              "updating": "Aktualisieren",
+              "docking": "Andocken",
+              "going_to_target": "Zum Ziel fahren",
+              "zoned_cleaning": "Zonenreinigung",
+              "segment_cleaning": "Segmentreinigung",
+              "emptying_the_bin": "Staubbehälter leeren",
+              "washing_the_mop": "Wischmopp reinigen",
+              "going_to_wash_the_mop": "Zum Wischmopp reinigen fahren",
+              "charging_complete": "Laden abgeschlossen",
+              "device_offline": "Gerät offline"
+            }
+          }
+        }
+      }
+    },
+    "time": {
+      "dnd_start": {
+        "name": "Nicht-stören Start"
+      },
+      "dnd_end": {
+        "name": "Nicht-stören Ende"
+      },
+      "valley_electricity_start": {
+        "name": "Laden außerhalb der Spitzenzeiten Start"
+      },
+      "valley_electricity_end": {
+        "name": "Laden außerhalb der Spitzenzeiten Ende"
+      }
+    },
+    "switch": {
+      "child_lock": {
+        "name": "Kindersicherung"
+      },
+      "flow_led_status": {
+        "name": "Statusanzeigeleuchte"
+      },
+      "dnd_switch": {
+        "name": "Nicht-stören Schalter"
+      },
+      "valley_electricity_switch": {
+        "name": "Stromschalter"
+      }
+    }
+  }
+}
