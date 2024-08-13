@@ -9,7 +9,8 @@ __pycache__
 *.egg-info
 */build/*
 */dist/*
-
+custom_components/roborock_old/*
+custom_components/roborock_new/*
 
 # misc
 .coverage
