@@ -9,7 +9,7 @@ from homeassistant import config_entries
 from homeassistant.const import CONF_DEVICE_ID, CONF_HOST
 from homeassistant.core import callback
 from homeassistant.data_entry_flow import FlowResult
-from roborock.api import RoborockApiClient
+from roborock.web_api import RoborockApiClient
 from roborock.containers import UserData
 
 from . import ConfigEntryData, DeviceNetwork

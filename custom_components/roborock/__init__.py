@@ -7,7 +7,7 @@ from datetime import timedelta
 from pathlib import Path
 
 from roborock import RoborockException
-from roborock.api import RoborockApiClient
+from roborock.web_api import RoborockApiClient
 from roborock.cloud_api import RoborockMqttClient
 from roborock.containers import HomeData, HomeDataProduct, UserData
 from roborock.local_api import RoborockLocalClient
