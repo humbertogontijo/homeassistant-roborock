@@ -14,15 +14,20 @@ from homeassistant.components.vacuum import (
     ATTR_BATTERY_ICON,
     ATTR_FAN_SPEED,
     ATTR_FAN_SPEED_LIST,
-    STATE_CLEANING,
-    STATE_DOCKED,
-    STATE_ERROR,
-    STATE_IDLE,
-    STATE_PAUSED,
-    STATE_RETURNING,
     StateVacuumEntity,
     VacuumEntityFeature,
 )
+
+from homeassistant.components.vacuum import VacuumActivity
+
+CLEANING = VacuumActivity.CLEANING
+DOCKED = VacuumActivity.DOCKED
+ERROR = VacuumActivity.ERROR
+IDLE = VacuumActivity.IDLE
+PAUSED = VacuumActivity.PAUSED
+RETURNING = VacuumActivity.RETURNING
+
+
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.const import ATTR_BATTERY_LEVEL, ATTR_STATE
 from homeassistant.core import HomeAssistant
@@ -41,30 +46,31 @@ from .roborock_typing import RoborockHassDeviceInfo
 
 _LOGGER = logging.getLogger(__name__)
 
+
 STATE_CODE_TO_STATE = {
-    RoborockStateCode.starting: STATE_IDLE,  # "Starting"
-    RoborockStateCode.charger_disconnected: STATE_IDLE,  # "Charger disconnected"
-    RoborockStateCode.idle: STATE_IDLE,  # "Idle"
-    RoborockStateCode.remote_control_active: STATE_CLEANING,  # "Remote control active"
-    RoborockStateCode.cleaning: STATE_CLEANING,  # "Cleaning"
-    RoborockStateCode.returning_home: STATE_RETURNING,  # "Returning home"
-    RoborockStateCode.manual_mode: STATE_CLEANING,  # "Manual mode"
-    RoborockStateCode.charging: STATE_DOCKED,  # "Charging"
-    RoborockStateCode.charging_problem: STATE_ERROR,  # "Charging problem"
-    RoborockStateCode.paused: STATE_PAUSED,  # "Paused"
-    RoborockStateCode.spot_cleaning: STATE_CLEANING,  # "Spot cleaning"
-    RoborockStateCode.error: STATE_ERROR,  # "Error"
-    RoborockStateCode.shutting_down: STATE_IDLE,  # "Shutting down"
-    RoborockStateCode.updating: STATE_DOCKED,  # "Updating"
-    RoborockStateCode.docking: STATE_RETURNING,  # "Docking"
-    RoborockStateCode.going_to_target: STATE_CLEANING,  # "Going to target"
-    RoborockStateCode.zoned_cleaning: STATE_CLEANING,  # "Zoned cleaning"
-    RoborockStateCode.segment_cleaning: STATE_CLEANING,  # "Segment cleaning"
-    RoborockStateCode.emptying_the_bin: STATE_DOCKED,  # "Emptying the bin" on s7+
-    RoborockStateCode.washing_the_mop: STATE_DOCKED,  # "Washing the mop" on s7maxV
-    RoborockStateCode.going_to_wash_the_mop: STATE_RETURNING,  # "Going to wash the mop" on s7maxV
-    RoborockStateCode.charging_complete: STATE_DOCKED,  # "Charging complete"
-    RoborockStateCode.device_offline: STATE_ERROR,  # "Device offline"
+    RoborockStateCode.starting: IDLE,  # "Starting"
+    RoborockStateCode.charger_disconnected: IDLE,  # "Charger disconnected"
+    RoborockStateCode.idle: IDLE,  # "Idle"
+    RoborockStateCode.remote_control_active: CLEANING,  # "Remote control active"
+    RoborockStateCode.cleaning: CLEANING,  # "Cleaning"
+    RoborockStateCode.returning_home: RETURNING,  # "Returning home"
+    RoborockStateCode.manual_mode: CLEANING,  # "Manual mode"
+    RoborockStateCode.charging: DOCKED,  # "Charging"
+    RoborockStateCode.charging_problem: ERROR,  # "Charging problem"
+    RoborockStateCode.paused: PAUSED,  # "Paused"
+    RoborockStateCode.spot_cleaning: CLEANING,  # "Spot cleaning"
+    RoborockStateCode.error: ERROR,  # "Error"
+    RoborockStateCode.shutting_down: IDLE,  # "Shutting down"
+    RoborockStateCode.updating: DOCKED,  # "Updating"
+    RoborockStateCode.docking: RETURNING,  # "Docking"
+    RoborockStateCode.going_to_target: CLEANING,  # "Going to target"
+    RoborockStateCode.zoned_cleaning: CLEANING,  # "Zoned cleaning"
+    RoborockStateCode.segment_cleaning: CLEANING,  # "Segment cleaning"
+    RoborockStateCode.emptying_the_bin: DOCKED,  # "Emptying the bin" on s7+
+    RoborockStateCode.washing_the_mop: DOCKED,  # "Washing the mop" on s7maxV
+    RoborockStateCode.going_to_wash_the_mop: RETURNING,  # "Going to wash the mop" on s7maxV
+    RoborockStateCode.charging_complete: DOCKED,  # "Charging complete"
+    RoborockStateCode.device_offline: ERROR,  # "Device offline"
 }
 
 ATTR_STATUS = "status"
@@ -354,8 +360,8 @@ class RoborockVacuum(RoborockCoordinatedEntity, StateVacuumEntity, ABC):
 
     def is_paused_idle_or_error(self) -> bool:
         """Return if the vacuum is in paused, idle or error state."""
-        return self.state == STATE_PAUSED or self.state == STATE_IDLE or self.state == STATE_ERROR
-
+        return self.state == PAUSED or self.state == IDLE or self.state == ERROR
+        
     async def async_start(self) -> None:
         """Start the vacuum."""
         if self.is_paused_idle_or_error() and self._device_status.in_cleaning == 2:
@@ -520,7 +526,7 @@ class RoborockVacuum(RoborockCoordinatedEntity, StateVacuumEntity, ABC):
 
     async def async_start_pause(self):
         """Start or pause cleaning if running."""
-        if self.state == STATE_CLEANING:
+        if self.state == CLEANING:
             await self.async_pause()
         else:
             await self.async_start()
