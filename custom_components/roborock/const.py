@@ -2,7 +2,6 @@
 from homeassistant.components.binary_sensor import DOMAIN as BINARY_SENSOR_DOMAIN
 from homeassistant.components.button import DOMAIN as BUTTON_DOMAIN
 from homeassistant.components.calendar import DOMAIN as CALENDAR_DOMAIN
-from homeassistant.components.camera import DOMAIN as CAMERA_DOMAIN
 from homeassistant.components.number import DOMAIN as NUMBER_DOMAIN
 from homeassistant.components.select import DOMAIN as SELECT_DOMAIN
 from homeassistant.components.sensor import DOMAIN as SENSOR_DOMAIN
@@ -24,14 +23,13 @@ CONF_HOME_DATA = "home_data"
 BINARY_SENSOR = BINARY_SENSOR_DOMAIN
 BUTTON = BUTTON_DOMAIN
 CALENDAR = CALENDAR_DOMAIN
-CAMERA = CAMERA_DOMAIN
 NUMBER = NUMBER_DOMAIN
 SELECT = SELECT_DOMAIN
 SENSOR = SENSOR_DOMAIN
 SWITCH = SWITCH_DOMAIN
 TIME = TIME_DOMAIN
 VACUUM = VACUUM_DOMAIN
-PLATFORMS = [BINARY_SENSOR, BUTTON, CAMERA, NUMBER, SELECT, SENSOR, SWITCH, TIME, VACUUM]
+PLATFORMS = [BINARY_SENSOR, BUTTON, NUMBER, SELECT, SENSOR, SWITCH, TIME, VACUUM]
 
 ROCKROBO_V1 = "rockrobo.vacuum.v1"
 ROCKROBO_S4 = "roborock.vacuum.s4"
