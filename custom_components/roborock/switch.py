@@ -13,7 +13,8 @@ from homeassistant.const import EntityCategory
 from homeassistant.core import HomeAssistant
 from homeassistant.helpers.entity_platform import AddEntitiesCallback
 from homeassistant.util import slugify
-from roborock.api import AttributeCache, RoborockClient
+from roborock.version_1_apis import AttributeCache
+from roborock.version_1_apis import RoborockClientV1 as RoborockClient
 from roborock.command_cache import CacheableAttribute
 
 from . import EntryData, RoborockHassDeviceInfo

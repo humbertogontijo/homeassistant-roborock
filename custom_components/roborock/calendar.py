@@ -26,7 +26,7 @@ from ical.store import EventStore, EventStoreError
 from ical.types import Frequency, Range, Recur, RecurrenceId, Weekday
 from pydantic import ValidationError
 from roborock import RoborockBaseTimer, RoborockCommand, RoborockException, ServerTimer
-from roborock.api import RoborockClient
+from roborock.version_1_apis import RoborockClientV1 as RoborockClient
 from roborock.command_cache import CacheableAttribute
 
 from . import EntryData

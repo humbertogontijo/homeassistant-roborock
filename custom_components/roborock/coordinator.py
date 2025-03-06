@@ -7,8 +7,8 @@ from datetime import timedelta
 
 from homeassistant.core import HomeAssistant
 from homeassistant.helpers.update_coordinator import DataUpdateCoordinator, UpdateFailed
-from roborock.api import RoborockClient
-from roborock.cloud_api import RoborockMqttClient
+from roborock.version_1_apis import RoborockClientV1 as RoborockClient
+from roborock.version_1_apis import RoborockMqttClientV1 as RoborockMqttClient
 from roborock.containers import HomeDataRoom, MultiMapsList, RoborockBase
 from roborock.exceptions import RoborockException
 
