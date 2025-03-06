@@ -8,7 +8,9 @@ from collections.abc import Callable, Coroutine
 from dataclasses import dataclass
 from typing import Any
 
-from roborock.api import AttributeCache, RoborockClient
+
+from roborock.version_1_apis import AttributeCache
+from roborock.version_1_apis import RoborockClientV1 as RoborockClient
 from roborock.command_cache import CacheableAttribute
 
 from homeassistant.components.time import TimeEntity, TimeEntityDescription

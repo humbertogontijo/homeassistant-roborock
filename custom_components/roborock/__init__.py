@@ -8,9 +8,9 @@ from pathlib import Path
 
 from roborock import RoborockException
 from roborock.web_api import RoborockApiClient
-from roborock.cloud_api import RoborockMqttClient
+from roborock.version_1_apis import RoborockMqttClientV1 as RoborockMqttClient
+from roborock.version_1_apis import RoborockLocalClientV1 as RoborockLocalClient
 from roborock.containers import HomeData, HomeDataProduct, UserData
-from roborock.local_api import RoborockLocalClient
 from roborock.protocol import RoborockProtocol
 from slugify import slugify
 

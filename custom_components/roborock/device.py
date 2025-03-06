@@ -7,7 +7,8 @@ from typing import Optional
 from homeassistant.exceptions import HomeAssistantError
 from homeassistant.helpers.entity import DeviceInfo, Entity
 from homeassistant.helpers.update_coordinator import CoordinatorEntity
-from roborock.api import RT, RoborockClient
+from roborock.version_1_apis import RoborockClientV1 as RoborockClient
+from roborock.version_1_apis.roborock_client_v1 import RT
 from roborock.containers import Status, Consumable
 from roborock.exceptions import RoborockException
 from roborock.roborock_typing import RoborockCommand
