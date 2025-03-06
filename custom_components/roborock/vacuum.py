@@ -361,7 +361,7 @@ class RoborockVacuum(RoborockCoordinatedEntity, StateVacuumEntity, ABC):
     def is_paused_idle_or_error(self) -> bool:
         """Return if the vacuum is in paused, idle or error state."""
         return self.state == PAUSED or self.state == IDLE or self.state == ERROR
-        
+
     async def async_start(self) -> None:
         """Start the vacuum."""
         if self.is_paused_idle_or_error() and self._device_status.in_cleaning == 2:
