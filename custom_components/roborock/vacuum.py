@@ -19,15 +19,6 @@ from homeassistant.components.vacuum import (
 )
 
 from homeassistant.components.vacuum import VacuumActivity
-
-CLEANING = VacuumActivity.CLEANING
-DOCKED = VacuumActivity.DOCKED
-ERROR = VacuumActivity.ERROR
-IDLE = VacuumActivity.IDLE
-PAUSED = VacuumActivity.PAUSED
-RETURNING = VacuumActivity.RETURNING
-
-
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.const import ATTR_BATTERY_LEVEL, ATTR_STATE
 from homeassistant.core import HomeAssistant
@@ -37,12 +28,18 @@ from homeassistant.helpers.entity_platform import AddEntitiesCallback
 from homeassistant.util import slugify
 from roborock import RoborockStateCode
 from roborock.roborock_typing import RoborockCommand
-
 from . import EntryData
 from .const import DOMAIN
 from .coordinator import RoborockDataUpdateCoordinator
 from .device import RoborockCoordinatedEntity
 from .roborock_typing import RoborockHassDeviceInfo
+
+CLEANING = VacuumActivity.CLEANING
+DOCKED = VacuumActivity.DOCKED
+ERROR = VacuumActivity.ERROR
+IDLE = VacuumActivity.IDLE
+PAUSED = VacuumActivity.PAUSED
+RETURNING = VacuumActivity.RETURNING
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -361,7 +358,7 @@ class RoborockVacuum(RoborockCoordinatedEntity, StateVacuumEntity, ABC):
     def is_paused_idle_or_error(self) -> bool:
         """Return if the vacuum is in paused, idle or error state."""
         return self.state == PAUSED or self.state == IDLE or self.state == ERROR
-        
+
     async def async_start(self) -> None:
         """Start the vacuum."""
         if self.is_paused_idle_or_error() and self._device_status.in_cleaning == 2:
